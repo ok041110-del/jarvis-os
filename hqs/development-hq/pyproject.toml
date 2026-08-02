@@ -1,0 +1,15 @@
+[project]
+name = "jarvis-hq-development"
+version = "0.1.0"
+description = "development HQ — Capability 선언 + Division/Team/Agent 정의. packages/core에만 의존, adapter는 모름"
+requires-python = ">=3.12"
+dependencies = [
+    "jarvis-core",
+]
+
+[tool.uv.sources]
+jarvis-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

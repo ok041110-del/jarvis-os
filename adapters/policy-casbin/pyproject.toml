@@ -1,0 +1,16 @@
+[project]
+name = "jarvis-adapter-policy-casbin"
+version = "0.1.0"
+description = "Adapter implementing a jarvis_core Port using casbin"
+requires-python = ">=3.12"
+dependencies = [
+    "jarvis-core",
+    "casbin",
+]
+
+[tool.uv.sources]
+jarvis-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,16 @@
+[project]
+name = "jarvis-adapter-workflow-langgraph"
+version = "0.1.0"
+description = "Adapter implementing a jarvis_core Port using langgraph"
+requires-python = ">=3.12"
+dependencies = [
+    "jarvis-core",
+    "langgraph",
+]
+
+[tool.uv.sources]
+jarvis-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
