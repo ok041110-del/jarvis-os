@@ -4,6 +4,13 @@
 선택해 Core의 Port에 주입한다. packages/core는 이 파일의 존재조차 모른다.
 
 4개 시나리오로 PoC Must #1,2,3,4,5,6,7,8,9,10,11을 전부 훑는다.
+
+Phase 1(ADR-0003): HQ Lifecycle 전이는 이제 jarvis_core.organization.entities.HQ의
+transition_to()를 직접 호출하지 않고, LifecycleRuntime Port를 통해 실행한다.
+Guard 판정 자체는 여전히 Core(jarvis_core.lifecycle.hq_state)가 유일하게 내리며,
+이 어댑터는 그 판정을 python-statemachine 엔진으로 실행할 뿐이다. 롤백 시에는
+advance_hq() 호출부를 hq.transition_to() 호출로 되돌리기만 하면 되고, Core는
+전혀 건드릴 필요가 없다(Adapter Reversibility, ADR-0003 결정 5).
 """
 from jarvis_core.capability_registry.models import Capability
 from jarvis_core.capability_registry.registry import CapabilityRegistry
@@ -13,6 +20,7 @@ from jarvis_core.kernel import intent_recognition, task_classification, task_rou
 
 from jarvis_adapter_policy_inmemory.engine import InMemoryPolicyEngine
 from jarvis_adapter_connector_mock.connector import MockConnector
+from jarvis_adapter_lifecycle_statemachine.hq_state_machine import HQStateMachineRuntime
 
 
 def log(msg: str) -> None:
@@ -57,11 +65,25 @@ def build_world():
                         divisions={invest_division.division_id: invest_division})
 
     hqs = {"development-hq": development_hq, "investment-hq": investment_hq}
+    lifecycle_runtimes = {
+        hq_id: HQStateMachineRuntime(initial_state=hq.state)
+        for hq_id, hq in hqs.items()
+    }
     connectors = {"filesystem": MockConnector("filesystem"), "fetch": MockConnector("fetch")}
-    return registry, hqs, connectors
+    return registry, hqs, lifecycle_runtimes, connectors
 
 
-def handle_request(text: str, session: str, registry, hqs, policy_engine, connectors) -> None:
+def advance_hq(hq: HQ, runtime: HQStateMachineRuntime, target: HQState, *, triggered_by_human: bool = False) -> None:
+    """HQ의 Lifecycle 전이를 LifecycleRuntime Port를 통해 실행한다.
+    Guard 판정은 runtime.transition() 내부에서 Core(hq_state.transition)가 내린다.
+    """
+    previous = hq.state
+    new_state = runtime.transition(target, triggered_by_human=triggered_by_human)
+    hq.state = new_state
+    hq.audit.append(f"{hq.hq_id}: {previous.value} -> {new_state.value} (via LifecycleRuntime adapter)")
+
+
+def handle_request(text: str, session: str, registry, hqs, lifecycle_runtimes, policy_engine, connectors) -> None:
     log(f"\n=== 요청: \"{text}\" (session={session}) ===")
 
     # Stage 2
@@ -96,16 +118,17 @@ def handle_request(text: str, session: str, registry, hqs, policy_engine, connec
         f"(wake_up_required={dispatch.wake_up_required})")
 
     # ---- 여기서부터 Organization Layer. Kernel 코드는 여기 관여하지 않는다 ----
-    run_organization_layer(dispatch, hqs, connectors)
+    run_organization_layer(dispatch, hqs, lifecycle_runtimes, connectors)
 
 
-def run_organization_layer(dispatch, hqs, connectors) -> None:
+def run_organization_layer(dispatch, hqs, lifecycle_runtimes, connectors) -> None:
     hq = hqs[dispatch.selected_hq]
+    runtime = lifecycle_runtimes[dispatch.selected_hq]
 
     if dispatch.wake_up_required:
-        hq.transition_to(HQState.RUNNING)  # Sleeping -> Running (자동 wake, 허용됨)
+        advance_hq(hq, runtime, HQState.RUNNING)  # Sleeping -> Running (자동 wake, 허용됨)
     else:
-        hq.transition_to(HQState.RUNNING)  # Idle -> Running
+        advance_hq(hq, runtime, HQState.RUNNING)  # Idle -> Running
 
     # Stage 6 — Division Selection은 HQ 자신의 책임 (Kernel이 아님)
     division = hq.select_division(dispatch.capability_id)
@@ -128,7 +151,7 @@ def run_organization_layer(dispatch, hqs, connectors) -> None:
     team.terminate()
     log(f"[Team] state={team.state.value} (Ephemeral 소멸)")
 
-    hq.transition_to(HQState.IDLE)
+    advance_hq(hq, runtime, HQState.IDLE)
     log(f"[HQ:{hq.hq_id}] Running -> Idle (사이클 종료)")
 
     # Stage 9 — Result Integration (여기서는 로그로 대체, 실제로는 User Response 구성)
@@ -136,7 +159,7 @@ def run_organization_layer(dispatch, hqs, connectors) -> None:
 
 
 def main() -> None:
-    registry, hqs, connectors = build_world()
+    registry, hqs, lifecycle_runtimes, connectors = build_world()
     policy_engine = InMemoryPolicyEngine(session_permissions={
         "user-A": "standard",   # Investment HQ(restricted)는 못 씀 -> 시나리오 D에서 거부됨
         "user-B": "restricted", # 둘 다 사용 가능
@@ -147,18 +170,18 @@ def main() -> None:
     log("=" * 70)
 
     # 시나리오 A: Investment HQ(Sleeping) -> Wake-up + 정상 처리 (Must #5,#7,#9)
-    handle_request("최근 시장 리서치 좀 해줘", "user-B", registry, hqs, policy_engine, connectors)
+    handle_request("최근 시장 리서치 좀 해줘", "user-B", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
 
     # 시나리오 B: Development HQ를 Disabled로 만든 뒤 요청 -> No Silent Failure (Must #10)
-    hqs["development-hq"].transition_to(HQState.DISABLED)
-    handle_request("코드 리뷰 좀 해줘", "user-A", registry, hqs, policy_engine, connectors)
+    advance_hq(hqs["development-hq"], lifecycle_runtimes["development-hq"], HQState.DISABLED)
+    handle_request("코드 리뷰 좀 해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
 
     # 시나리오 C: Development HQ 재활성화(사람이 트리거) 후 정상 처리 (Must #6,#7,#8,#11)
-    hqs["development-hq"].transition_to(HQState.IDLE, triggered_by_human=True)
-    handle_request("저장소 코드 리뷰 좀 해줘", "user-A", registry, hqs, policy_engine, connectors)
+    advance_hq(hqs["development-hq"], lifecycle_runtimes["development-hq"], HQState.IDLE, triggered_by_human=True)
+    handle_request("저장소 코드 리뷰 좀 해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
 
     # 시나리오 D: user-A(standard)가 Investment HQ(restricted) 요청 -> Permission Tier 거부 (Must #6,#10)
-    handle_request("포트폴리오 시세 조회해줘", "user-A", registry, hqs, policy_engine, connectors)
+    handle_request("포트폴리오 시세 조회해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
 
     log("\n" + "=" * 70)
     log("Walking Skeleton 실행 종료")

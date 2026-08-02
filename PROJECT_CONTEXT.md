@@ -77,14 +77,21 @@ Phase 4  Workflow    → LangGraph Core
 ## Phase 실행 로그
 (각 Phase 시작 시 Claude Code가 이 섹션에 추가)
 
-- [ ] Phase 1 — Lifecycle (python-statemachine): 대기 중 (네트워크 확인 필요)
-- [ ] Phase 2 — Policy (Casbin): 대기 중
-- [ ] Phase 3 — Connector (MCP): 대기 중
-- [ ] Phase 4 — Workflow (LangGraph Core): 대기 중
+- [x] Phase 1 — Lifecycle (python-statemachine): **완료**. `uv sync` 네트워크 접근 가능 확인됨.
+  `packages/core/src/jarvis_core/ports/i_lifecycle_runtime.py`에 `LifecycleRuntime` Domain
+  Interface 최초 정의(ADR-0003), `adapters/lifecycle-statemachine`가 이를 구현. Guard 판정은
+  전부 `jarvis_core.lifecycle.hq_state`에 위임(재구현 없음). `apps/poc-runner/main.py`에서
+  Composition Root 레벨로만 wiring. 기존 e2e 테스트(10개) 전부 무수정 통과 + 신규 integration
+  테스트(`tests/integration/test_lifecycle_statemachine.py`, 8-state 전이표 전수 검증 포함)
+  전부 통과. Core(`packages/core`) 외 파일 수정 없음.
+- [ ] Phase 2 — Capability YAML Loader (ADR-0002 해소): 대기 중
+- [ ] Phase 3 — Policy (Casbin): 대기 중
+- [ ] Phase 4 — Connector (MCP): 대기 중
+- [ ] Phase 5 — Workflow (LangGraph Core): 대기 중
 
 ## 알려진 격차 (Known Gaps — ADR-0002)
 - `hqs/*/capabilities.yaml`이 런타임에 실제로 로드되지 않고, `apps/poc-runner/main.py`에
-  동일한 값이 하드코딩되어 있다. Phase 1~4 완료 후 "Capability YAML Loader" 증분에서 해소.
+  동일한 값이 하드코딩되어 있다. Phase 2("Capability YAML Loader")에서 해소 예정.
   자세한 내용은 docs/adr/0002-capability-schema-and-yaml-loading-gap.md와 docs/roadmap/ROADMAP.md 참고.
 
 ## Repository Principle

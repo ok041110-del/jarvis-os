@@ -5,19 +5,20 @@
 
 ---
 
-## 진행 중 — Phase 1~4 (PoC 어댑터 교체)
+## 진행 중 — Phase 1~5 (Architecture Validation 중심 어댑터 교체)
 
 PROJECT_CONTEXT.md의 "Phase 실행 로그"가 최신 상태를 반영합니다. 이 로드맵에는 순서만 기록합니다.
 
-1. **Lifecycle** → python-statemachine (Walking Skeleton의 자체 구현 State Machine 교체)
-2. **Policy** → Casbin (Walking Skeleton의 In-Memory Policy Engine 교체)
-3. **Connector** → MCP 공식 filesystem/fetch 서버 (Walking Skeleton의 Mock Connector 교체)
-4. **Workflow** → LangGraph Core (현재 apps/poc-runner의 순차 호출 방식 교체)
+1. **Lifecycle** → python-statemachine (Walking Skeleton의 자체 구현 State Machine 교체) — **완료** (ADR-0003)
+2. **Capability YAML Loader** (ADR-0002 해소) — `apps/poc-runner`가 `hqs/*/capabilities.yaml`을 실제로 읽어 Capability Registry에 등록하도록 변경. "레지스트리 등록만으로 HQ 확장"이라는 핵심 가치를 Phase 3~5보다 먼저 코드로 증명한다.
+3. **Policy** → Casbin (Walking Skeleton의 In-Memory Policy Engine 교체)
+4. **Connector** → MCP 공식 filesystem/fetch 서버 (Walking Skeleton의 Mock Connector 교체)
+5. **Workflow** → LangGraph Core (현재 apps/poc-runner의 순차 호출 방식 교체)
 
-각 Phase의 Definition of Done은 PROJECT_CONTEXT.md 참고. 순서 기준은 "구현 난이도"가 아니라 "Architecture를 가장 많이 검증하는 순서".
-
-### Phase 완료 후 즉시 처리할 것
-- **Capability YAML Loader** (ADR-0002): `apps/poc-runner`가 `hqs/*/capabilities.yaml`을 실제로 읽어 Capability Registry에 등록하도록 변경. 지금은 하드코딩되어 있어 "레지스트리 등록만으로 HQ 확장"이라는 핵심 가치가 코드로 증명되지 않은 상태.
+각 Phase의 Definition of Done은 PROJECT_CONTEXT.md 및 ADR-0003(Port/Adapter 설계 기준 문서) 참고.
+순서 기준은 "구현 난이도"가 아니라 "Architecture를 가장 많이 검증하는 순서" — Capability YAML
+Loader가 Phase 2로 앞당겨진 이유도 동일하다: Jarvis OS의 핵심 Identity Claim("HQ를 코드
+수정 없이 추가할 수 있다")이 아직 실증되지 않은 상태로 두지 않기 위함이다.
 
 ---
 
