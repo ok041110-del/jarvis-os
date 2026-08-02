@@ -84,7 +84,9 @@ Phase 4  Workflow    → LangGraph Core
   Composition Root 레벨로만 wiring. 기존 e2e 테스트(10개) 전부 무수정 통과 + 신규 integration
   테스트(`tests/integration/test_lifecycle_statemachine.py`, 8-state 전이표 전수 검증 포함)
   전부 통과. Core(`packages/core`) 외 파일 수정 없음.
-- [ ] Phase 2 — Capability YAML Loader (ADR-0002 해소): 대기 중
+- [ ] Phase 2 — Capability YAML Loader (ADR-0002 해소): ADR-0004(Capability Registration
+  Model) **Accepted**. `ICapabilityProvider` Port 신설, `adapters/capability-provider-yaml`
+  구현 예정. Implementation Plan은 별도 제시 후 착수.
 - [ ] Phase 3 — Policy (Casbin): 대기 중
 - [ ] Phase 4 — Connector (MCP): 대기 중
 - [ ] Phase 5 — Workflow (LangGraph Core): 대기 중
