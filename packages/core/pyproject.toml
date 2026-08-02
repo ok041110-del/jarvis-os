@@ -1,0 +1,15 @@
+[project]
+name = "jarvis-core"
+version = "0.1.0"
+description = "Jarvis OS Core domain logic — no external framework dependencies"
+requires-python = ">=3.12"
+dependencies = [
+    "jarvis-shared",
+]
+
+[tool.uv.sources]
+jarvis-shared = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,33 @@
+[project]
+name = "jarvis-poc-runner"
+version = "0.1.0"
+description = "Composition Root — 여기서만 구체적인 Adapter를 선택하고 Core의 Port에 연결한다."
+requires-python = ">=3.12"
+dependencies = [
+    "jarvis-core",
+    "jarvis-hq-development",
+    "jarvis-hq-investment",
+    # --- Walking Skeleton에서 현재 실제로 wiring된 adapter (외부 의존성 없음) ---
+    "jarvis-adapter-policy-inmemory",
+    "jarvis-adapter-connector-mock",
+    # --- Phase 1: Lifecycle Adapter (python-statemachine) — ADR-0003, Accepted ---
+    "jarvis-adapter-lifecycle-statemachine",
+    # --- Phase 2~4에서 순서대로 교체될 target adapter. uv sync 가능한 네트워크
+    #     환경에서 각 Phase 착수 시 주석을 해제하고 main.py의 import를 교체한다.
+    #     (PROJECT_CONTEXT.md "Phase 실행 로그" 참고) ---
+    # "jarvis-adapter-policy-casbin",           # Phase 3
+    # "jarvis-adapter-connector-mcp",           # Phase 4
+    # "jarvis-adapter-workflow-langgraph",      # Phase 5
+]
+
+[tool.uv.sources]
+jarvis-core = { workspace = true }
+jarvis-hq-development = { workspace = true }
+jarvis-hq-investment = { workspace = true }
+jarvis-adapter-policy-inmemory = { workspace = true }
+jarvis-adapter-connector-mock = { workspace = true }
+jarvis-adapter-lifecycle-statemachine = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
