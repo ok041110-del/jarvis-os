@@ -8,6 +8,7 @@ resolution-markers = [
 
 [manifest]
 members = [
+    "jarvis-adapter-capability-provider-yaml",
     "jarvis-adapter-capability-store-sqlite",
     "jarvis-adapter-connector-mcp",
     "jarvis-adapter-connector-mock",
@@ -458,6 +459,21 @@ wheels = [
 ]
 
 [[package]]
+name = "jarvis-adapter-capability-provider-yaml"
+version = "0.1.0"
+source = { editable = "adapters/capability-provider-yaml" }
+dependencies = [
+    { name = "jarvis-core" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "jarvis-core", editable = "packages/core" },
+    { name = "pyyaml" },
+]
+
+[[package]]
 name = "jarvis-adapter-capability-store-sqlite"
 version = "0.1.0"
 source = { editable = "adapters/capability-store-sqlite" }
@@ -592,6 +608,7 @@ name = "jarvis-poc-runner"
 version = "0.1.0"
 source = { editable = "apps/poc-runner" }
 dependencies = [
+    { name = "jarvis-adapter-capability-provider-yaml" },
     { name = "jarvis-adapter-connector-mock" },
     { name = "jarvis-adapter-lifecycle-statemachine" },
     { name = "jarvis-adapter-policy-inmemory" },
@@ -602,6 +619,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "jarvis-adapter-capability-provider-yaml", editable = "adapters/capability-provider-yaml" },
     { name = "jarvis-adapter-connector-mock", editable = "adapters/connector-mock" },
     { name = "jarvis-adapter-lifecycle-statemachine", editable = "adapters/lifecycle-statemachine" },
     { name = "jarvis-adapter-policy-inmemory", editable = "adapters/policy-inmemory" },

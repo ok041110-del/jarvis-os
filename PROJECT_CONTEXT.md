@@ -84,9 +84,19 @@ Phase 4  Workflow    → LangGraph Core
   Composition Root 레벨로만 wiring. 기존 e2e 테스트(10개) 전부 무수정 통과 + 신규 integration
   테스트(`tests/integration/test_lifecycle_statemachine.py`, 8-state 전이표 전수 검증 포함)
   전부 통과. Core(`packages/core`) 외 파일 수정 없음.
-- [ ] Phase 2 — Capability YAML Loader (ADR-0002 해소): ADR-0004(Capability Registration
-  Model) **Accepted**. `ICapabilityProvider` Port 신설, `adapters/capability-provider-yaml`
-  구현 예정. Implementation Plan은 별도 제시 후 착수.
+- [x] Phase 2 — Capability YAML Loader (ADR-0002 해소, ADR-0004 Accepted): **완료**.
+  `packages/core/src/jarvis_core/ports/i_capability_provider.py`에 `ICapabilityProvider`
+  Domain Interface 신규 정의. `packages/core/src/jarvis_core/application/hq_provisioner.py`에
+  `HQProvisioner` Application Service 신규 정의 — Composition Root는 이를 조립만 하고
+  Provisioning 절차 자체는 이 서비스가 담당(사용자 요청 반영). `adapters/capability-provider-yaml`이
+  Python Entry Point(`jarvis.hq_capability_source`)로 `hqs/*`를 자동 발견해 `capabilities.yaml`을
+  파싱. `apps/poc-runner/main.py`의 `build_world()`가 HQ 이름을 하드코딩하지 않는 제네릭
+  루프로 교체됨. 실제로 `hqs/legal-hq`를 저장소에 추가/제거하며 `uv sync`를 실행하는 통합
+  테스트로 "Core/Kernel/Registry/main.py 무수정 + 자동 Discovery(3개 HQ 동시) + 자동
+  Routing + HQ 제거 후 정상 동작"을 실증(Phase 2 Architecture Validation 목표 달성).
+  기존 e2e(10개) + Phase 1 integration(6개) 전부 무수정 통과. Kernel/Capability Registry/
+  Lifecycle/Organization 파일 수정 없음(git diff로 확인).
+- [ ] Phase 3 — Policy (Casbin): 대기 중
 - [ ] Phase 3 — Policy (Casbin): 대기 중
 - [ ] Phase 4 — Connector (MCP): 대기 중
 - [ ] Phase 5 — Workflow (LangGraph Core): 대기 중

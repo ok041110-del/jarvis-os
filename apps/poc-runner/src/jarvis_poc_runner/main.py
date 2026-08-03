@@ -11,13 +11,23 @@ Guard 판정 자체는 여전히 Core(jarvis_core.lifecycle.hq_state)가 유일�
 이 어댑터는 그 판정을 python-statemachine 엔진으로 실행할 뿐이다. 롤백 시에는
 advance_hq() 호출부를 hq.transition_to() 호출로 되돌리기만 하면 되고, Core는
 전혀 건드릴 필요가 없다(Adapter Reversibility, ADR-0003 결정 5).
+
+Phase 2(ADR-0004): HQ/Capability를 이 파일에 하드코딩하지 않는다. build_world()는
+jarvis_core.application.hq_provisioner.HQProvisioner(Application Service)에게
+YamlCapabilityProvider(ICapabilityProvider 구현체)와 LifecycleRuntime 팩토리를
+주입해 "Capability 조회 -> Registry 등록 -> Provisioning -> Idle/Error 전이"
+절차 전체를 위임한다. 이 파일은 어떤 HQ가 존재하는지 전혀 알지 못한다 — 새 HQ는
+hqs/<name>-hq 패키지 + entry point 선언만으로 uv workspace에 편입되고 자동
+발견된다(ADR-0004 결정 7). Composition Root는 객체를 연결만 하고, Provisioning
+절차 자체는 HQProvisioner가 담당한다(사용자 승인 사항).
 """
-from jarvis_core.capability_registry.models import Capability
+from jarvis_core.application.hq_provisioner import HQProvisioner
 from jarvis_core.capability_registry.registry import CapabilityRegistry
-from jarvis_core.organization.entities import HQ, Division, Agent, Team
 from jarvis_core.lifecycle.hq_state import HQState
+from jarvis_core.organization.entities import Team
 from jarvis_core.kernel import intent_recognition, task_classification, task_router, hq_selection
 
+from jarvis_adapter_capability_provider_yaml.provider import YamlCapabilityProvider
 from jarvis_adapter_policy_inmemory.engine import InMemoryPolicyEngine
 from jarvis_adapter_connector_mock.connector import MockConnector
 from jarvis_adapter_lifecycle_statemachine.hq_state_machine import HQStateMachineRuntime
@@ -29,51 +39,27 @@ def log(msg: str) -> None:
 
 def build_world():
     registry = CapabilityRegistry()
-    registry.register(Capability(
-        capability_id="dev-hq.code-task.v1",
-        domain="development.general",
-        description="소프트웨어 개발 관련 작업(코드 작성, 리뷰, 저장소 조회 등)을 처리한다.",
-        input_profile="코드/저장소/개발 도구 관련 자연어 요청",
-        output_profile="코드 변경 제안, 리뷰 코멘트, 파일 조회 결과",
-        owner="development-hq",
-        required_permission="standard",
-        keywords=["코드", "리뷰", "저장소", "개발", "리팩터링", "버그"],
-    ))
-    registry.register(Capability(
-        capability_id="invest-hq.market-task.v1",
-        domain="investment.general",
-        description="투자/시장 관련 작업(시세 조회, 리서치 자료 취합 등)을 처리한다.",
-        input_profile="시장/투자/포트폴리오 관련 자연어 요청",
-        output_profile="리서치 요약, 시세 조회 결과",
-        owner="investment-hq",
-        required_permission="restricted",  # 시나리오 D에서 Permission Tier 거부를 보여주기 위함
-        keywords=["시장", "투자", "포트폴리오", "리서치", "시세"],
-    ))
+    provisioner = HQProvisioner(
+        capability_provider=YamlCapabilityProvider(),
+        registry=registry,
+        runtime_factory=HQStateMachineRuntime,
+    )
+    provisioned = provisioner.provision_all()
 
-    dev_agent = Agent(role_id="dev-agent", capability_id="dev-hq.code-task.v1",
-                       required_tools=["filesystem"])
-    dev_division = Division(division_id="dev-core-division", hq_id="development-hq",
-                             agent_catalog=[dev_agent])
-    development_hq = HQ(hq_id="development-hq", state=HQState.IDLE,
-                         divisions={dev_division.division_id: dev_division})
+    hqs = {}
+    lifecycle_runtimes = {}
+    for owner, result in provisioned.items():
+        if result.ok:
+            hqs[owner] = result.hq
+            lifecycle_runtimes[owner] = result.runtime
+        else:
+            log(f"[Provisioning] ❌ '{owner}' Capability 등록 실패 -> Error 상태로 전이: {result.reason}")
 
-    invest_agent = Agent(role_id="invest-agent", capability_id="invest-hq.market-task.v1",
-                          required_tools=["fetch"])
-    invest_division = Division(division_id="invest-core-division", hq_id="investment-hq",
-                                agent_catalog=[invest_agent])
-    investment_hq = HQ(hq_id="investment-hq", state=HQState.SLEEPING,
-                        divisions={invest_division.division_id: invest_division})
-
-    hqs = {"development-hq": development_hq, "investment-hq": investment_hq}
-    lifecycle_runtimes = {
-        hq_id: HQStateMachineRuntime(initial_state=hq.state)
-        for hq_id, hq in hqs.items()
-    }
     connectors = {"filesystem": MockConnector("filesystem"), "fetch": MockConnector("fetch")}
     return registry, hqs, lifecycle_runtimes, connectors
 
 
-def advance_hq(hq: HQ, runtime: HQStateMachineRuntime, target: HQState, *, triggered_by_human: bool = False) -> None:
+def advance_hq(hq, runtime: HQStateMachineRuntime, target: HQState, *, triggered_by_human: bool = False) -> None:
     """HQ의 Lifecycle 전이를 LifecycleRuntime Port를 통해 실행한다.
     Guard 판정은 runtime.transition() 내부에서 Core(hq_state.transition)가 내린다.
     """
@@ -168,6 +154,11 @@ def main() -> None:
     log("=" * 70)
     log("Jarvis OS Walking Skeleton — Must #1,2,3,4,5,6,7,8,9,10,11 검증")
     log("=" * 70)
+
+    # Phase 2: HQProvisioner는 모든 HQ를 Idle로 Provisioning한다. Wake-up 시나리오를
+    # 시연하기 위해, 데모 스크립트(main)가 investment-hq를 명시적으로 Sleeping으로
+    # 재우는 것은 build_world()의 책임이 아니라 이 데모 시나리오 구성의 책임이다.
+    advance_hq(hqs["investment-hq"], lifecycle_runtimes["investment-hq"], HQState.SLEEPING)
 
     # 시나리오 A: Investment HQ(Sleeping) -> Wake-up + 정상 처리 (Must #5,#7,#9)
     handle_request("최근 시장 리서치 좀 해줘", "user-B", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
