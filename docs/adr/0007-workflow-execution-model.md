@@ -1,7 +1,7 @@
 # ADR-0007: Workflow Execution Model
 
 - 날짜: 2026-08-03
-- 상태: **Proposed**
+- 상태: **Accepted**
 
 ---
 
@@ -103,6 +103,21 @@ Core Domain 개념이며, 이 ADR은 이를 재정의하지 않는다.
   실행 안에서 Agent가 Connector를 호출한다"는 형태로 바뀐다. 이 ADR은 그 목표
   구조를 확정하고, 실제 배선(Implementation Plan에서 상세화)은 Phase 5 구현에서
   수행한다.
+- **최소 변경 원칙(사용자 지시)**: 이번 Phase가 허용하는 변경은 "Connector
+  호출의 주체가 Composition Root에서 Agent로 이동한다"는 것 **하나뿐**이다.
+  Kernel(Stage 1~5), HQ의 Division Selection(Stage 6, `HQ.select_division()`),
+  Division 자체의 책임(Agent Catalog 보유)은 이 이동과 함께 재설계하지 않는다.
+  이번 Phase의 Architecture Validation 목표는 "Workflow Adapter를 교체할 수
+  있는가"와 "Agent가 Connector를 직접 호출하는 구조가 Core 수정 없이 동작하는가"
+  이지, Organization Layer(Kernel/HQ/Division 포함) 전체의 재설계가 아니다.
+- **Agent Lifecycle은 이번 ADR/Phase의 범위가 아니다.** 이번 Phase가 정의하는
+  것은 "Agent = Workflow의 실행 단위"라는 역할뿐이며, Agent 자신의 상태 전이
+  모델(HQ의 8-state Lifecycle이나 결정 13의 Connector Lifecycle State처럼 Agent
+  전용 State Machine)은 정의하지 않는다. Agent에게 독자적인 Lifecycle이
+  필요해지는 것은 여러 Agent가 장시간·비동기로 협업하는 Multi-Agent 운영
+  단계이며, 그 시점에 별도 ADR로 다룬다 — 지금 Agent Lifecycle까지 정의하면
+  아직 존재하지 않는 요구를 위해 설계하는 것이 되어 ADR-0004/0005가 반복해 온
+  "필요가 드러나지 않은 확장은 미룬다"는 원칙에 어긋난다.
 
 ### 결정 4 — LangGraph의 위치: Workflow Adapter이지 Architecture가 아니다
 
@@ -269,6 +284,32 @@ class WorkflowStatus(str, Enum):
   결정 13)처럼 **Core의 Domain 개념**이며, 특정 Adapter(LangGraph)의 내부
   상태(LangGraph의 `StateGraph` 내부 State와는 다른 개념)가 아니다.
 
+### 결정 12 — Workflow는 Plugin이 아니다: Workflow Registry/Discovery/Capability를 도입하지 않는다
+
+HQ(ADR-0004)와 Connector(ADR-0006 결정 12)는 모두 "이름이 아니라 Capability로
+발견되는 Plugin"이라는 동일한 패턴을 따른다. **Workflow Engine은 이 패턴을
+따르지 않는다** — 사용자 지시로 이번 ADR에서 명시적으로 확정한다.
+
+- Workflow Engine은 여러 구현체 중 런타임에 선택되는 대상이 아니다. Composition
+  Root가 조립 시점에 **하나의 실행 엔진**(현재는 LangGraph Adapter)을 선택해
+  Team에 주입할 뿐이다 — HQ나 Connector처럼 "여러 개가 동시에 존재하고 그중
+  하나를 Capability로 골라 쓰는" 구조가 아니다.
+- 따라서 이번 Phase(및 이 ADR)는 다음을 **도입하지 않는다**: Workflow Registry,
+  Workflow Discovery(entry point 기반이든 다른 방식이든), Workflow Capability
+  선언. `IWorkflowEngine`(결정 9)는 Connector Discovery(ADR-0006 결정 12)와
+  달리 Composition Root가 직접 구성(direct construction)하는 단일 인스턴스로
+  충분하다.
+- Adapter Reversibility(결정 4, 이번 Phase의 최종 Architecture Validation
+  목표)는 Discovery 메커니즘이 아니라 **Composition Root의 import 한 줄 교체**
+  만으로 증명한다 — ADR-0003 결정 5(Lifecycle Adapter), ADR-0005 결정
+  6(Policy Adapter)이 이미 증명한 것과 동일한 방식이며, ADR-0006이 Connector에
+  대해서만 추가로 도입한 Discovery/Registry 계층을 Workflow에는 확장하지 않는다.
+- 이 결정은 "Workflow Engine이 하나의 실행 엔진이며 Team이 이를 사용하는
+  구조"라는 원칙을 Registry 계층 없이 유지하기 위한 것이다 — 향후 여러 Workflow
+  Engine을 동시에 운용해야 하는 요구가 실제로 발생하면(예: HQ별로 다른 Workflow
+  Engine을 쓰는 시나리오), 그때 별도 ADR로 재검토한다(Re-evaluation Principle,
+  ADR-0001).
+
 ## 근거 (Rationale)
 
 ADR-0003(Domain Port / Adapter Reversibility)과 ADR-0005/0006(Fail-Closed 계약,
@@ -288,6 +329,14 @@ LangGraph의 위치(결정 4)는 01-reference-architecture.md §3이 이미 한 
 Workflow State Model(결정 11)은 ADR-0006 결정 4(`ToolCallStatus`)와 동일한
 이유로 존재한다 — SUCCESS/FAILURE/CANCELLED를 명시적으로 구분해야 호출자가
 각기 다른 대응을 할 수 있고, Fail-Closed 계약을 표현할 자리가 생긴다.
+
+Workflow Registry를 도입하지 않는다는 결정(결정 12)은 ADR-0004/0006이 HQ와
+Connector에 각각 적용한 "Capability 기반 Plugin" 패턴을 **모든 확장 지점에
+기계적으로 반복 적용하지 않는다**는 판단이다 — HQ와 Connector는 실제로 여러
+구현체가 동시에 존재하고 런타임에 선택되어야 하는 대상이지만, Workflow Engine은
+Composition Root가 조립 시점에 하나만 선택하는 대상이다. 사용자가 지적한 대로
+"Workflow는 Plugin이 아니다"라는 구분을 그대로 ADR에 반영했다 — 패턴의 일관성보다
+Domain의 실제 성격을 우선한 것이다.
 
 ## 기각된 대안 (Rejected Alternatives)
 
@@ -320,6 +369,16 @@ Workflow State Model(결정 11)은 ADR-0006 결정 4(`ToolCallStatus`)와 동일
   보여준 절차(Domain 개념은 먼저 정의하고 실제 구현만 이연)를 따르지 않으면,
   Phase 6 이후 Cancellation이 필요해질 때 State Model을 다시 설계해야 한다.
   Domain 개념을 지금 정의해 두는 비용이 재설계 비용보다 훨씬 낮다.
+- **대안 F**: Connector(ADR-0006)와 동일하게 Workflow Engine에도 Workflow
+  Registry/Discovery/Capability 선언 구조를 도입한다(예: `jarvis.workflow`
+  entry point group으로 여러 Workflow Engine을 자동 발견). 기각(사용자 지시,
+  결정 12) — Workflow Engine은 HQ/Connector와 달리 여러 구현체가 동시에
+  존재하며 런타임에 Capability로 선택되는 대상이 아니다. Composition Root가
+  조립 시점에 하나만 선택하는 실행 엔진이므로, Registry 계층을 추가하면 실제로
+  존재하지 않는 "여러 Workflow가 동시에 발견·경쟁한다"는 상황을 가정하게 되어
+  불필요한 복잡도만 늘어난다. Adapter Reversibility는 Discovery 없이도 직접
+  구성(direct construction) 교체만으로 충분히 증명된다(ADR-0003/0005가 이미
+  보여준 방식).
 
 ## 영향 범위 (Impact)
 
@@ -327,11 +386,21 @@ Workflow State Model(결정 11)은 ADR-0006 결정 4(`ToolCallStatus`)와 동일
   Interface 최초 정의(`run(team, dispatch) -> WorkflowResult`, 결정 9) — 현재
   빈 docstring 파일을 채우는 것이므로 신규 Port 추가와 동일하게 취급.
 - 신규(Core): `WorkflowResult`, `WorkflowStatus`(결정 11) Domain Model.
+- 신규 없음(의도적, 결정 12): Workflow Registry, Workflow Discovery, Workflow
+  Capability 선언 — 이번 Phase는 이 세 가지 중 어느 것도 추가하지 않는다.
+- 신규 없음(의도적, 결정 3): Agent Lifecycle State Machine — 이번 Phase는
+  "Agent = Workflow 실행 단위"라는 역할 정의까지만 하고, Agent 전용 State
+  Machine은 추가하지 않는다.
 - 무수정: `packages/core/.../organization/entities.py`의 `Team`/`TeamState`
   전이 규칙 자체(결정 2 — Workflow Engine은 이를 소비만 함), `kernel/`,
-  `policy/`, `lifecycle/`(HQ), `capability_registry/`, `connector/`,
-  `connector_registry/`(ADR-0006, 이번 Phase에서 건드리지 않음).
-  `HQ.select_division()`도 무수정(결정 5).
+  `policy/`, `lifecycle/`(HQ), `capability_registry/`, `connector_registry/`
+  (ADR-0006, 이번 Phase에서 건드리지 않음). `HQ.select_division()`도
+  무수정(결정 5, 최소 변경 원칙).
+- 수정 범위 한정(Phase 5, 결정 3 최소 변경 원칙): `apps/poc-runner/main.py`
+  Stage 8에서 Connector 호출 주체가 Composition Root → Agent로 이동하지만,
+  이 이동에 필요한 만큼만 `connector/`(ADR-0006 Domain Model)를 Agent 실행
+  경로에서 참조하도록 배선한다 — Connector Domain Model/Registry 자체(ADR-0006
+  결정 12)의 구조는 변경하지 않는다.
 - 구현 예정(Phase 5): `adapters/workflow-langgraph`(신규 구현 — 현재 docstring
   뿐인 스켈레톤을 채움).
 - 수정 예정(Phase 5): `apps/poc-runner/main.py`의 `run_organization_layer()`가
@@ -348,11 +417,15 @@ ADR-0003/0005/0006 공통 DoD에 더해 다음을 모두 만족해야 한다(Pha
 
 - LangGraph Adapter가 기존 Kernel~Organization Layer 시나리오(기존 e2e 10개 +
   Phase 1~4 integration)를 동일하게 통과한다.
-- LangGraph Adapter를 제거하고 다른 Workflow Engine(또는 현재의 순차 함수 호출
-  방식을 그대로 구현한 대체 Adapter)으로 교체해도 `packages/core`와 Organization
-  Layer를 구현하는 코드를 수정하지 않고 즉시 복구 가능함을 통합 테스트로
-  증명한다(Adapter Reversibility) — 이번 Phase의 최종 Architecture Validation
-  목표.
+- **[최종 Architecture Validation 목표 1]** LangGraph를 제거하고 다른 Workflow
+  Engine으로 교체해도 `packages/core`(Core)와 Organization Layer를 구현하는
+  코드를 수정하지 않고 즉시 복구 가능함을 통합 테스트로 증명한다(Adapter
+  Reversibility, 결정 4/12).
+- **[최종 Architecture Validation 목표 2]** Stage 8에서 Agent가 Connector를
+  직접 호출하는 구조(결정 3)가 Core(Kernel/HQ/Division 포함)를 수정하지 않고
+  동작함을 통합 테스트로 증명한다 — 이때 Kernel의 Stage 1~5, HQ의 Division
+  Selection(Stage 6), Division의 Agent Catalog 책임이 이 변경 전후로 동일하게
+  유지되는지도 함께 확인한다(결정 3의 최소 변경 원칙).
 - Team이 병렬로 구성된 Agent 중 일부가 실패해도 그 실패가 삼켜지지 않고
   `WorkflowResult`에 명시적으로 나타남을 계약 테스트로 증명한다(결정 6, No
   Silent Failure).
@@ -362,6 +435,10 @@ ADR-0003/0005/0006 공통 DoD에 더해 다음을 모두 만족해야 한다(Pha
 - Team의 Ephemeral 생명주기(FORMING→ACTIVE→COMPLETING→TERMINATED)가 LangGraph
   Adapter를 거쳐도 Core의 전이 규칙과 정확히 일치함을 증명한다(결정 2 — 전이
   규칙이 두 곳에서 분기하지 않음).
+- Workflow Registry/Discovery/Capability 선언이 코드 어디에도 추가되지
+  않았음을 git diff로 확인한다(결정 12).
+- Agent 전용 State Machine(Agent Lifecycle)이 추가되지 않았음을 git diff로
+  확인한다(결정 3의 Agent Lifecycle 범위 제외).
 
 ## 향후 적용
 
