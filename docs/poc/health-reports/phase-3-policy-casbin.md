@@ -1,0 +1,24 @@
+# Repository Health Report — Phase 3 (Policy Adapter, Casbin)
+
+날짜: 2026-08-03
+범위: `packages/core/src/jarvis_core/ports/i_policy_engine.py` docstring 갱신(Fail-Closed
+계약 명시, 로직/스키마 무수정), `adapters/policy-casbin`의 빈 스켈레톤을 실제
+`CasbinPolicyEngine`으로 구현, `apps/poc-runner/main.py`·`pyproject.toml` wiring 교체,
+`tests/integration/test_policy_adapter_reversibility.py` 신규(4 tests), ADR-0005 신규.
+
+| 항목 | 점수 | 근거 |
+|---|---|---|
+| Architecture | 94 | ADR-0005의 6개 결정이 코드로 전부 검증됨: Policy Engine은 허용/거부 판단만 하고 라우팅/실행/상태변경을 하지 않음(결정 1), `hq_selection.py`(PEP)가 판단을 재구현하지 않고 `IPolicyEngine.evaluate()` 결과만 집행(결정 2), Tier 분류는 Core 상수로 고정되고 PoC는 Tier 1만 평가(결정 3), Adapter가 예외를 던지지 않고 항상 `PolicyDecision`을 반환(결정 4, Fail-Closed), `PolicyRequest`/`PolicyDecision`/`PolicyTier`는 Core에 남고 Casbin 문법(`model.conf`/`policy.csv`)은 Adapter 내부에만 존재(결정 5), Casbin은 `IPolicyEngine` 구현체 중 하나일 뿐임을 Adapter Reversibility 테스트로 증명(결정 6). 6점 감점 사유: `PolicyRequest`에 아직 `tier` 필드가 없어 PDP가 "어떤 정책 종류를 묻는 요청인지"를 구분하지 못함 — 지금은 Permission Policy 하나뿐이라 문제가 없지만, Tier 2/3가 추가되는 시점에 스키마 확장이 필요하다는 것을 ADR-0005가 이미 명시적으로 예고해 둠(은폐 아님, 의도된 이연). |
+| Documentation | 91 | ADR-0005가 04-policy-engine.md(Frozen 설계 문서)의 PDP/PEP·Tier 모델을 실제 코드 상태와 대조해 "PoC 범위(Permission만)"와 "설계 전체(9종 정책)"를 명확히 분리 기록함. PROJECT_CONTEXT.md의 Phase 실행 로그, Technology Decisions 표, Current Development Order 번호(Phase 3=Policy로 정정)가 모두 갱신됨. ROADMAP.md도 갱신. 9점 감점 사유: `docs/architecture/v1.0/04-policy-engine.md` 자체는 의도적으로 손대지 않아(Frozen), "PoC는 이 중 Permission Policy 하나만 구현했다"는 사실이 설계 문서에는 반영되지 않고 ADR-0005에만 존재함 — Phase 1/2 Health Report에서도 동일 패턴이 반복되고 있어 별도 구현 노트 문서화가 계속 이월되는 중. |
+| Implementation | 92 | 실제 `casbin` 1.43.0 라이브러리로 RBAC Enforcer를 구성해 4개 시나리오(Wake-up+ALLOW, Disabled 거부, 재활성화+ALLOW, Permission DENY) 전부 `python -m jarvis_poc_runner.main` 실행으로 기존과 동일한 출력 확인(Mock 아님). Fail-Closed 계약을 생성자·evaluate() 양쪽에 실제로 구현(try/except로 감싸 예외를 삼킴). 8점 감점 사유: Casbin의 RBAC 역할 매핑(`_ROLE_BY_LEVEL`)이 "standard"/"restricted" 두 값만 하드코딩되어 있어, 새로운 permission 레벨이 추가되면 이 매핑도 함께 늘어나야 함 — `InMemoryPolicyEngine`의 `_LEVELS` 서열表과 사실상 같은 지식이 두 Adapter에 중복 존재하는 형태(Domain 지식이 아니라 "레벨 이름이 무엇인지"라는 데이터라서 Core로 끌어올릴 정도는 아니라고 판단했으나, 세 번째 레벨이 생기면 재검토 필요). |
+| Tests | 90 | 신규 통합 테스트가 (1) Casbin/InMemory Parity를 `kernel/hq_selection.py` 실제 경로로 3개 시나리오 전수 검증, (2) Casbin 제거 후 InMemory로 되돌리는 것을 실제로 수행하는 Adapter Reversibility 테스트, (3) 강제로 내부 오류를 유발해 예외가 새어나가지 않는지 확인하는 Fail-Closed 계약 테스트(PEP 스타일 호출 포함)로 구성됨. 기존 e2e 10개 + Phase 1/2 integration 14개 전부 무수정 통과(회귀 없음, 총 28 tests/131 subtests). 10점 감점 사유: Fail-Closed 계약 테스트가 `CasbinPolicyEngine.__new__()`로 내부 상태를 직접 조작해 오류를 흉내내는 방식이라(실제 Casbin 라이브러리가 우리 환경에서 실패하는 경로를 재현한 것이 아님) 화이트박스 성격이 강함 — model.conf 파일 자체를 물리적으로 손상시켜 생성자가 실제로 실패하는 시나리오는 다루지 않음. |
+| Technical Debt | 82 | 새로 추가된 부채: (1) Implementation 항목의 permission 레벨 매핑 중복(Casbin/InMemory 두 곳), (2) Policy Adapter가 두 개(casbin, inmemory) 존재하는 상태가 계속 유지되는데 InMemory는 "임시 구현"이라는 원래 존재 이유가 이제 "Adapter Reversibility 증명용"으로 바뀌었음에도 adapter의 docstring/README가 이 목적 전환을 아직 명시하지 않음, (3) Phase 1/2 Health Report가 반복 지적한 `main.py`의 `handle_request`/`run_organization_layer` 인자 개수 문제가 Phase 3에서도 그대로 이월됨(이번 Phase는 `policy_engine` 인자 자체를 늘리지 않았으므로 새로 악화되지는 않음). | 
+| Known Gap | 90 | 이번 Phase가 새로 만든 Known Gap: `PolicyRequest`에 정책 종류(tier)를 구분하는 필드가 없어 Tier 2/3 확장 시 스키마 변경이 필요함(ADR-0005 결정 5에 명시적으로 기록, 은폐 아님). 기존 Known Gap(Division/Agent 최소 관례, Context 객체 리팩터링 미적용)은 그대로 유지되며 Phase 4/5에서 다룰 후보로 이월됨. |
+| Repository Readiness | 93 | `uv sync`/`uv run pytest` 전체 통과. `packages/core`는 docstring 1건 외 무수정(git diff로 확인). `apps/poc-runner/pyproject.toml`은 신규 adapter 의존성 1건만 추가. **이번 Phase 착수 중 발견된 별도 이슈**: feature branch가 이전에 `origin/main`(Phase 2가 이미 별도 경로로 병합되어 있던 상태)과 분기되어 있었음을 병합 전 검토에서 발견 — 두 Phase 2 커밋의 트리 내용이 완전히 동일함을 `git diff`로 확인한 뒤, Phase 3 커밋만 `origin/main` 위로 rebase하여 히스토리를 선형으로 정리함(내용 손실 없음, 코드 변경 없이 커밋 그래프만 정리). 7점 감점 사유: 이 분기가 왜 발생했는지(어느 세션에서 main에 직접 Phase 2를 커밋했는지) 근본 원인은 이번 세션에서 규명하지 않음 — 향후 Phase에서도 병합 전 `git log --graph --all`로 분기 여부를 먼저 확인하는 것을 표준 절차로 권고. |
+
+**총평**: Phase 3는 ADR-0005가 규정한 6가지 결정 사항(Policy Engine 책임 한정, PDP/PEP 경계, Tier 모델의 PoC 범위, Fail-Closed Failure Policy, Policy/Domain 경계, Casbin의 비-Architecture적 위치) 전부를 코드로 검증했습니다. 이번 Phase의 최종 Architecture Validation 목표 — "Policy Engine 구현체(Casbin)를 제거하고 다른 구현체로 교체해도 Core와 Kernel을 수정하지 않는다" — 는 `test_policy_adapter_reversibility.py`의 `TestAdapterReversibility`로 실증되었습니다. 병합 전 발견한 히스토리 분기는 코드 손실 없이 rebase로 정리했습니다. 감점 요인은 전부 다음 Phase로 이월 가능한 수준이며, 즉시 조치가 필요한 결함은 없습니다.
+
+## 다음 Phase 착수 전 권고 (Architecture Suggestion, 미적용)
+1. Phase 1/2 Health Report의 권고(Context 객체로 `main.py` 함수 시그니처 정리)가 계속 미적용 상태로 이월되고 있습니다 — Phase 4(Connector/MCP)에서 `connectors` 인자가 하나 더 늘어나기 전에 검토를 제안합니다.
+2. Casbin/InMemory 두 Adapter의 permission 레벨 매핑 중복은 세 번째 레벨(예: `elevated`)이 생기기 전까지는 그대로 두되, 그 시점에는 Core에 공용 서열 정의를 두는 방안을 재검토 대상으로 제안합니다.
+3. 병합 전 `git log --graph --all --oneline`으로 origin/main과의 분기 여부를 먼저 확인하는 절차를 다음 Phase부터 표준화할 것을 제안합니다.
