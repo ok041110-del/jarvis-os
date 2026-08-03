@@ -48,8 +48,8 @@ Architecture Validation. 기능 구현이 아니라 Architecture가 실제 구�
 |---|---|---|---|
 | Lifecycle | python-statemachine (Phase 1 완료) | — | — |
 | Policy | Casbin (`adapters/policy-casbin`, Phase 3 완료, ADR-0005) | — | OPA (ADR-0001의 ADR-003) |
-| Connector | `adapters/connector-mcp`(MCP 공식 filesystem 서버, Phase 4 완료, ADR-0006). `connector-mock`은 Discovery에 참여하지 않고 Adapter Reversibility 증명용으로만 보존 | — | fetch MCP 서버(SDK 버전 호환 확인 후), Cancellation/Idempotency/Retry 실제 구현(Phase 5) |
-| Workflow | `apps/poc-runner`의 순차 함수 호출 | **Phase 5**: LangGraph Core (langgraph-api는 사용하지 않음) | — |
+| Connector | `adapters/connector-mcp`(MCP 공식 filesystem 서버, Phase 4 완료, ADR-0006). `connector-mock`은 Discovery에 참여하지 않고 Adapter Reversibility 증명용으로만 보존 | — | fetch MCP 서버(SDK 버전 호환 확인 후), Cancellation/Idempotency/Retry 실제 구현, `Agent.required_tools` 자동 채움(Provisioner 확장) |
+| Workflow | `adapters/workflow-langgraph`(LangGraph Core 1.2.10, Phase 5 완료, ADR-0007). `workflow-sequential`은 Discovery/Registry 대상이 아니며(ADR-0007 결정 12) Adapter Reversibility 증명용으로만 보존 | — | 병렬 실행 실제 스케줄링, Workflow Cancellation 실제 구현 |
 | Capability Registry | Core 직접 구현 | 동일 (오픈소스 없음, 의도적 결정) | 동일 |
 
 ## Current Development Order (Architecture 검증 강도 순)
@@ -137,7 +137,31 @@ Phase 5  Workflow    → LangGraph Core
   `kernel/`, `policy/`, `lifecycle/`, `capability_registry/`(HQ) 무수정(git diff로
   확인). 이번 Phase의 두 Architecture Validation 목표(Connector Adapter
   Reversibility, 새 Connector의 코드 수정 없는 자동 Discovery/선택) 모두 실증.
-- [ ] Phase 5 — Workflow (LangGraph Core): 대기 중
+- [x] Phase 5 — Workflow (LangGraph Core, ADR-0007 Accepted): **완료**. `packages/core`에
+  `workflow/models.py`(`WorkflowResult`/`WorkflowStatus`)와 `application/agent_executor.py`
+  (Application Service — Agent에게 새 Domain Logic을 주지 않고 기존 main.py Stage 8
+  절차를 그대로 옮김, Connector Discovery/호출/ToolRequest·ToolResponse까지만 담당)
+  신규 정의. `ports/i_workflow_engine.py`는 빈 docstring 파일에서 `IWorkflowEngine.
+  run(team, dispatch) -> WorkflowResult`로 채워짐. `adapters/workflow-langgraph`가
+  실제 LangGraph(1.2.10) `StateGraph`로 Team 활성화 → Agent별 Node(fan-out/fan-in,
+  병렬 실행 가능한 구조만 검증, 실제 동시성/성능은 검증하지 않음 — 사용자 지시) →
+  Team 종료 그래프를 구성. `adapters/workflow-sequential` 신규(Adapter Reversibility
+  증명 전용, entry point 미선언). `apps/poc-runner/main.py` Stage 8이 "Composition
+  Root가 Connector를 대행 호출"에서 "Agent가 AgentExecutor를 통해 Connector를 직접
+  호출"하는 구조로 이동했지만, Kernel(Stage 1~5)과 HQ의 Division Selection(Stage 6)은
+  무수정(최소 변경 원칙, 사용자 지시). Workflow Registry/Discovery/Capability는
+  도입하지 않음(ADR-0007 결정 12, 사용자 지시) — `build_world()`가 LangGraphWorkflowEngine을
+  직접 구성. Agent Lifecycle도 이번 Phase 범위에서 제외(사용자 지시) — "Agent = Workflow
+  실행 단위"까지만 정의. `Agent.required_tools` 미채움 Known Gap(Phase 2/4)은 이번
+  Phase에서도 의도적으로 미해결(사용자 지시) — 통합 테스트는 Fixture Agent로 우회 검증.
+  신규 통합 테스트 2개 파일(`test_workflow_adapter_reversibility.py` 7 tests —
+  Contract Parity/Adapter Reversibility/Fail-Closed, `test_stage8_agent_calls_connector.py`
+  2 tests — Agent-Connector 직접 호출 + Kernel/HQ/Capability Registry/Lifecycle
+  소스에 "workflow" 미참조 정적 확인). 기존 e2e(10개) + Phase 1~4 integration 전부
+  무수정 통과(총 47 tests/143 subtests). `kernel/`, `policy/`, `lifecycle/`,
+  `organization/`, `capability_registry/`, `connector_registry/`, `connector/`
+  무수정(git diff로 확인). 이번 Phase의 두 Architecture Validation 목표(Workflow
+  Adapter Reversibility, Stage 8 Agent-Connector 직접 호출) 모두 실증.
 
 ## 알려진 격차 (Known Gaps — ADR-0002)
 - `hqs/*/capabilities.yaml`이 런타임에 실제로 로드되지 않고, `apps/poc-runner/main.py`에

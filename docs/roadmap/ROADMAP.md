@@ -13,7 +13,7 @@ PROJECT_CONTEXT.md의 "Phase 실행 로그"가 최신 상태를 반영합니다.
 2. **Capability YAML Loader** (ADR-0002 해소, 모델 설계는 ADR-0004로 Accepted) — **완료**. `ICapabilityProvider` Port + `HQProvisioner` Application Service + YAML Adapter가 `hqs/*/capabilities.yaml`을 실제로 읽어 Provisioning 단계에서 Capability Registry에 등록한다. "레지스트리 등록만으로 HQ 확장"이라는 핵심 가치를 실제로 `hqs/legal-hq`를 추가/제거하는 통합 테스트로 증명했다(Phase 3~5보다 먼저).
 3. **Policy** → Casbin (Walking Skeleton의 In-Memory Policy Engine 교체) — **완료** (ADR-0005). `IPolicyEngine` Port는 무수정(계약 docstring만 추가), `adapters/policy-casbin`이 Permission Tier(Tier 1)를 실제로 구현. `apps/poc-runner/main.py`는 import 한 줄만 교체. `policy-inmemory`는 Adapter Reversibility 증명용으로 보존.
 4. **Connector** → MCP 공식 filesystem 서버 (Walking Skeleton의 Mock Connector 교체) — **완료** (ADR-0006). `IConnector` Port를 `ToolRequest`/`ToolResponse` Domain Model 기반으로 교체. Connector Discovery/Registry를 HQ Capability Registry와 완전히 분리된 별도 모듈로 신설, entry point 기반 자동 Discovery로 "새 Connector를 코드 수정 없이 추가"를 실증. fetch 레퍼런스 서버는 SDK 버전 비호환으로 이번 Phase에서 제외(Mock으로 대체 유지).
-5. **Workflow** → LangGraph Core (현재 apps/poc-runner의 순차 호출 방식 교체)
+5. **Workflow** → LangGraph Core (Walking Skeleton의 순차 함수 호출 방식 교체) — **완료** (ADR-0007). `IWorkflowEngine` Port를 신규 정의하고 `adapters/workflow-langgraph`가 LangGraph `StateGraph`로 Team 활성화~Agent 실행(fan-out/fan-in, 병렬 실행 가능한 구조만 검증)~Team 종료를 조립. Workflow는 HQ/Connector와 달리 Plugin이 아니므로 Registry/Discovery를 두지 않음(ADR-0007 결정 12). Stage 8을 "Agent가 AgentExecutor를 통해 Connector를 직접 호출"하는 구조로 이동했지만 Kernel/HQ/Division은 무수정(최소 변경 원칙). `Agent.required_tools` 미채움 Known Gap은 이월.
 
 각 Phase의 Definition of Done은 PROJECT_CONTEXT.md 및 ADR-0003(Port/Adapter 설계 기준 문서) 참고.
 순서 기준은 "구현 난이도"가 아니라 "Architecture를 가장 많이 검증하는 순서" — Capability YAML

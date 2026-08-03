@@ -32,24 +32,32 @@ Phase 4(ADR-0006): Connector를 이름으로 하드코딩하지 않는다. build
 EntryPointConnectorDiscovery(어떤 Connector 패키지가 설치돼 있는지 자동 발견)가
 찾아낸 Connector들을 ConnectorRegistry(Capability -> Connector 조회 전용, HQ용
 CapabilityRegistry와 완전히 분리된 별도 Domain — ADR-0006 결정 12)에 등록한다.
-run_organization_layer는 `connectors["filesystem"]`처럼 이름으로 꺼내지 않고
-`connectors.find_by_capability(tool)`로 조회한다 — 새 Connector가 추가/제거돼도
-이 파일은 무수정이다. Stage 8을 "Agent가 Connector를 호출한다"는 구조로 옮기는
-리팩터링은 이번 Phase의 범위가 아니다(Workflow/LangGraph Phase에서 다룬다) —
-호출 주체는 여전히 이 Composition Root(정확히는 run_organization_layer)다.
+
+Phase 5(ADR-0007): Stage 7(Team Formation, 무수정 — 여전히 이 파일이 Division의
+결과를 받아 Team을 생성한다) 이후의 실행(Stage 8 Agent Invocation~Stage 9 직전)을
+IWorkflowEngine.run(team, dispatch) 한 번의 호출로 위임한다. Connector를 호출하는
+주체는 이제 이 파일(Composition Root)이 아니라 Agent다 — 정확히는 Core의
+AgentExecutor(Application Service, packages/core/.../application/agent_executor.py)가
+Agent 대신 "Capability로 Connector를 찾아 호출한다"는 절차를 수행하고, Workflow
+Engine(LangGraph Adapter)이 그 실행 시점을 조립한다. Workflow Engine에는 HQ/Connector와
+달리 Discovery/Registry를 두지 않는다(ADR-0007 결정 12) — build_world()가 직접
+LangGraphWorkflowEngine을 구성해 주입한다. Kernel(Stage 1~5)과 HQ의 Division
+Selection(Stage 6)은 이 변경으로 전혀 수정되지 않는다(최소 변경 원칙, ADR-0007 결정 3).
 """
 from jarvis_core.application.hq_provisioner import HQProvisioner
 from jarvis_core.capability_registry.registry import CapabilityRegistry
-from jarvis_core.connector.models import ToolCallStatus, ToolRequest
+from jarvis_core.connector.models import ToolRequest
 from jarvis_core.connector_registry.registry import ConnectorRegistry
 from jarvis_core.lifecycle.hq_state import HQState
 from jarvis_core.organization.entities import Team
+from jarvis_core.workflow.models import WorkflowStatus
 from jarvis_core.kernel import intent_recognition, task_classification, task_router, hq_selection
 
 from jarvis_adapter_capability_provider_yaml.provider import YamlCapabilityProvider
 from jarvis_adapter_connector_discovery_entrypoint.discovery import EntryPointConnectorDiscovery
 from jarvis_adapter_policy_casbin.casbin_policy_engine import CasbinPolicyEngine
 from jarvis_adapter_lifecycle_statemachine.hq_state_machine import HQStateMachineRuntime
+from jarvis_adapter_workflow_langgraph.langgraph_engine import LangGraphWorkflowEngine
 
 
 def log(msg: str) -> None:
@@ -77,7 +85,12 @@ def build_world():
     connectors = ConnectorRegistry()
     for connector in EntryPointConnectorDiscovery().discover():
         connectors.register(connector)
-    return registry, hqs, lifecycle_runtimes, connectors
+
+    # Workflow Engine은 HQ/Connector와 달리 Plugin이 아니다(ADR-0007 결정 12) —
+    # Discovery/Registry 없이 Composition Root가 직접 하나만 구성해 주입한다.
+    workflow_engine = LangGraphWorkflowEngine(connectors)
+
+    return registry, hqs, lifecycle_runtimes, connectors, workflow_engine
 
 
 def advance_hq(hq, runtime: HQStateMachineRuntime, target: HQState, *, triggered_by_human: bool = False) -> None:
@@ -90,7 +103,7 @@ def advance_hq(hq, runtime: HQStateMachineRuntime, target: HQState, *, triggered
     hq.audit.append(f"{hq.hq_id}: {previous.value} -> {new_state.value} (via LifecycleRuntime adapter)")
 
 
-def handle_request(text: str, session: str, registry, hqs, lifecycle_runtimes, policy_engine, connectors) -> None:
+def handle_request(text: str, session: str, registry, hqs, lifecycle_runtimes, policy_engine, workflow_engine) -> None:
     log(f"\n=== 요청: \"{text}\" (session={session}) ===")
 
     # Stage 2
@@ -125,10 +138,10 @@ def handle_request(text: str, session: str, registry, hqs, lifecycle_runtimes, p
         f"(wake_up_required={dispatch.wake_up_required})")
 
     # ---- 여기서부터 Organization Layer. Kernel 코드는 여기 관여하지 않는다 ----
-    run_organization_layer(dispatch, hqs, lifecycle_runtimes, connectors)
+    run_organization_layer(dispatch, hqs, lifecycle_runtimes, workflow_engine)
 
 
-def run_organization_layer(dispatch, hqs, lifecycle_runtimes, connectors) -> None:
+def run_organization_layer(dispatch, hqs, lifecycle_runtimes, workflow_engine) -> None:
     hq = hqs[dispatch.selected_hq]
     runtime = lifecycle_runtimes[dispatch.selected_hq]
 
@@ -137,33 +150,24 @@ def run_organization_layer(dispatch, hqs, lifecycle_runtimes, connectors) -> Non
     else:
         advance_hq(hq, runtime, HQState.RUNNING)  # Idle -> Running
 
-    # Stage 6 — Division Selection은 HQ 자신의 책임 (Kernel이 아님)
+    # Stage 6 — Division Selection은 HQ 자신의 책임 (Kernel이 아님, 무수정)
     division = hq.select_division(dispatch.capability_id)
     log(f"[HQ:{hq.hq_id}] Division Selection -> {division.division_id} (HQ 자체 판단, Kernel 관여 없음)")
 
-    # Stage 7 — Team Formation은 Division의 책임
+    # Stage 7 — Team Formation은 Division의 책임 (무수정)
     team = Team(division_id=division.division_id, agents=list(division.agent_catalog))
     log(f"[Division:{division.division_id}] Team Formation -> state={team.state.value}")
-    team.activate()
-    log(f"[Team] state={team.state.value}")
 
-    # Stage 8 — Agent Invocation은 Team의 책임. Connector는 이름이 아니라
-    # Capability로 찾는다(ADR-0006 결정 12) — 새 Connector가 추가/제거돼도 이
-    # 조회 코드는 무수정이다.
-    for agent in team.agents:
-        tool = agent.required_tools[0] if agent.required_tools else None
-        connector = connectors.find_by_capability(tool) if tool else None
-        if connector:
-            request = ToolRequest(tool_name=tool, arguments={"query": dispatch.intent.raw_text})
-            response = connector.call_tool(request)
-            if response.status == ToolCallStatus.SUCCESS:
-                log(f"[Agent:{agent.role_id}] -> Connector[{tool}] 호출 -> {response.result}")
-            else:
-                log(f"[Agent:{agent.role_id}] -> Connector[{tool}] 호출 실패({response.status.value}): {response.error}")
-
-    team.complete()
-    team.terminate()
+    # Stage 8~9 — Team 활성화, Agent 실행(Agent가 Connector를 직접 호출),
+    # Team 종료까지의 조립·진행을 Workflow Engine에 위임한다(ADR-0007 결정 1).
+    # Connector 호출 주체는 이제 Composition Root가 아니라 Agent(정확히는 Core의
+    # AgentExecutor)다 — 이 파일은 어떤 Workflow Engine이 실행되는지 모른다.
+    result = workflow_engine.run(team, dispatch)
     log(f"[Team] state={team.state.value} (Ephemeral 소멸)")
+    if result.status == WorkflowStatus.SUCCESS:
+        log("[Workflow] ✅ 정상 종료")
+    else:
+        log(f"[Workflow] ❌ 실패 — 사용자에게 투명하게 전달: {result.error}")
 
     advance_hq(hq, runtime, HQState.IDLE)
     log(f"[HQ:{hq.hq_id}] Running -> Idle (사이클 종료)")
@@ -173,7 +177,7 @@ def run_organization_layer(dispatch, hqs, lifecycle_runtimes, connectors) -> Non
 
 
 def main() -> None:
-    registry, hqs, lifecycle_runtimes, connectors = build_world()
+    registry, hqs, lifecycle_runtimes, connectors, workflow_engine = build_world()
     policy_engine = CasbinPolicyEngine(session_permissions={
         "user-A": "standard",   # Investment HQ(restricted)는 못 씀 -> 시나리오 D에서 거부됨
         "user-B": "restricted", # 둘 다 사용 가능
@@ -189,18 +193,18 @@ def main() -> None:
     advance_hq(hqs["investment-hq"], lifecycle_runtimes["investment-hq"], HQState.SLEEPING)
 
     # 시나리오 A: Investment HQ(Sleeping) -> Wake-up + 정상 처리 (Must #5,#7,#9)
-    handle_request("최근 시장 리서치 좀 해줘", "user-B", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
+    handle_request("최근 시장 리서치 좀 해줘", "user-B", registry, hqs, lifecycle_runtimes, policy_engine, workflow_engine)
 
     # 시나리오 B: Development HQ를 Disabled로 만든 뒤 요청 -> No Silent Failure (Must #10)
     advance_hq(hqs["development-hq"], lifecycle_runtimes["development-hq"], HQState.DISABLED)
-    handle_request("코드 리뷰 좀 해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
+    handle_request("코드 리뷰 좀 해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, workflow_engine)
 
     # 시나리오 C: Development HQ 재활성화(사람이 트리거) 후 정상 처리 (Must #6,#7,#8,#11)
     advance_hq(hqs["development-hq"], lifecycle_runtimes["development-hq"], HQState.IDLE, triggered_by_human=True)
-    handle_request("저장소 코드 리뷰 좀 해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
+    handle_request("저장소 코드 리뷰 좀 해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, workflow_engine)
 
     # 시나리오 D: user-A(standard)가 Investment HQ(restricted) 요청 -> Permission Tier 거부 (Must #6,#10)
-    handle_request("포트폴리오 시세 조회해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, connectors)
+    handle_request("포트폴리오 시세 조회해줘", "user-A", registry, hqs, lifecycle_runtimes, policy_engine, workflow_engine)
 
     log("\n" + "=" * 70)
     log("Walking Skeleton 실행 종료")
@@ -208,9 +212,11 @@ def main() -> None:
 
     # Phase 4(ADR-0006) 데모: Connector Discovery로 발견된 'filesystem' Capability를
     # 이름이 아니라 Capability로 조회해 실제 MCP 서버까지 호출한다. Stage 8은
+    # 이제 Agent가 Connector를 직접 호출하는 구조로 바뀌었지만(Phase 5, ADR-0007),
     # Agent.required_tools가 아직 실제 데이터로 채워지지 않아(Phase 2부터 이월된
-    # 별개의 Known Gap) 이 경로를 타지 않으므로, Discovery/Registry/MCP Adapter가
-    # 실제로 동작함을 별도로 보여준다 — Kernel/Stage 8 구조는 건드리지 않는다.
+    # 별개의 Known Gap, 이번 Phase에서도 의도적으로 미해결 — 사용자 승인 사항) 이
+    # 경로를 타지 않으므로, Discovery/Registry/MCP Adapter가 실제로 동작함을
+    # 별도로 보여준다 — Kernel/Stage 8 구조는 건드리지 않는다.
     log("\n" + "=" * 70)
     log("Phase 4 데모 — Connector Discovery (Capability 기반, 이름 아님)")
     log("=" * 70)

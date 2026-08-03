@@ -17,6 +17,7 @@ members = [
     "jarvis-adapter-policy-casbin",
     "jarvis-adapter-policy-inmemory",
     "jarvis-adapter-workflow-langgraph",
+    "jarvis-adapter-workflow-sequential",
     "jarvis-core",
     "jarvis-hq-development",
     "jarvis-hq-investment",
@@ -583,6 +584,17 @@ requires-dist = [
 ]
 
 [[package]]
+name = "jarvis-adapter-workflow-sequential"
+version = "0.1.0"
+source = { editable = "adapters/workflow-sequential" }
+dependencies = [
+    { name = "jarvis-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
+
+[[package]]
 name = "jarvis-core"
 version = "0.1.0"
 source = { editable = "packages/core" }
@@ -626,6 +638,7 @@ dependencies = [
     { name = "jarvis-adapter-lifecycle-statemachine" },
     { name = "jarvis-adapter-policy-casbin" },
     { name = "jarvis-adapter-policy-inmemory" },
+    { name = "jarvis-adapter-workflow-langgraph" },
     { name = "jarvis-core" },
     { name = "jarvis-hq-development" },
     { name = "jarvis-hq-investment" },
@@ -639,6 +652,7 @@ requires-dist = [
     { name = "jarvis-adapter-lifecycle-statemachine", editable = "adapters/lifecycle-statemachine" },
     { name = "jarvis-adapter-policy-casbin", editable = "adapters/policy-casbin" },
     { name = "jarvis-adapter-policy-inmemory", editable = "adapters/policy-inmemory" },
+    { name = "jarvis-adapter-workflow-langgraph", editable = "adapters/workflow-langgraph" },
     { name = "jarvis-core", editable = "packages/core" },
     { name = "jarvis-hq-development", editable = "hqs/development-hq" },
     { name = "jarvis-hq-investment", editable = "hqs/investment-hq" },

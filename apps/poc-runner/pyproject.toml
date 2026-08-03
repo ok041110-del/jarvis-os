@@ -23,8 +23,11 @@ dependencies = [
     #     동일 역할, 상세 사유는 adapters/connector-mock/pyproject.toml 참고). ---
     "jarvis-adapter-connector-discovery-entrypoint",
     "jarvis-adapter-connector-mcp",
-    # --- Phase 5에서 교체될 target adapter. ---
-    # "jarvis-adapter-workflow-langgraph",      # Phase 5
+    # --- Phase 5: Workflow Adapter(LangGraph) — ADR-0007, Accepted. Workflow Engine은
+    #     HQ/Connector와 달리 Discovery/Registry가 없다(ADR-0007 결정 12) — 이 파일이
+    #     직접 하나만 구성해 주입한다. workflow-sequential은 배선하지 않는다 —
+    #     Adapter Reversibility 테스트에서만 직접 import된다(policy-inmemory와 동일 역할). ---
+    "jarvis-adapter-workflow-langgraph",
 ]
 
 [tool.uv.sources]
@@ -37,6 +40,7 @@ jarvis-adapter-capability-provider-yaml = { workspace = true }
 jarvis-adapter-policy-casbin = { workspace = true }
 jarvis-adapter-connector-discovery-entrypoint = { workspace = true }
 jarvis-adapter-connector-mcp = { workspace = true }
+jarvis-adapter-workflow-langgraph = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
