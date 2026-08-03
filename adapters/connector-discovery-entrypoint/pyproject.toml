@@ -1,0 +1,15 @@
+[project]
+name = "jarvis-adapter-connector-discovery-entrypoint"
+version = "0.1.0"
+description = "IConnectorDiscovery의 Python Entry Point 기반 구현. Phase 4(ADR-0006) — 각 Connector 어댑터 패키지가 entry point(group=jarvis.connector)로 자신의 factory를 선언하면, 이 어댑터가 uv workspace에 설치된 모든 Connector를 자동으로 발견한다. Discovery 메커니즘의 구체적 선택일 뿐 Architecture 요구사항이 아니다(ADR-0006 결정 12, ADR-0004 결정 7과 동일 원칙)."
+requires-python = ">=3.12"
+dependencies = [
+    "jarvis-core",
+]
+
+[tool.uv.sources]
+jarvis-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

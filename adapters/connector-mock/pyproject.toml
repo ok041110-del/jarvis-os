@@ -1,10 +1,16 @@
 [project]
 name = "jarvis-adapter-connector-mock"
 version = "0.1.0"
-description = "IConnector의 Walking Skeleton용 최소 구현. ADR-004에 따라 실제 PoC 완성 단계에서는 adapters/connector-mcp(공식 filesystem/fetch 레퍼런스 서버)로 교체된다."
+description = "IConnector의 Walking Skeleton용 최소 구현. ADR-0006에 따라 Adapter Reversibility 증명용으로 보존된다 — connector-mcp를 제거했을 때 되돌아갈 대상."
 requires-python = ">=3.12"
 dependencies = ["jarvis-core"]
 
+# 의도적으로 entry point(jarvis.connector)를 선언하지 않는다: uv workspace는 모든
+# 멤버 패키지를 하나의 공유 venv에 설치하므로(policy-inmemory와 동일 패턴), 이
+# Adapter가 connector-mcp와 같은 Capability(filesystem/fetch)로 entry point를
+# 선언하면 자동 Discovery 시 항상 충돌한다. 이 Adapter는 Discovery 대상이 아니라
+# Adapter Reversibility 테스트에서 직접 import하여 교체를 증명하는 용도로만 쓰인다
+# (Phase 3의 policy-inmemory와 동일 역할).
 [tool.uv.sources]
 jarvis-core = { workspace = true }
 

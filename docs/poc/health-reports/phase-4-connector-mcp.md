@@ -1,0 +1,33 @@
+# Repository Health Report — Phase 4 (Connector Adapter, MCP)
+
+날짜: 2026-08-03
+범위: `packages/core`에 Connector Domain Model(`connector/models.py`) 및
+Connector Registry(`connector_registry/registry.py`, HQ Capability Registry와
+완전히 분리된 별도 모듈) 신규 추가, `ports/i_connector.py` 시그니처를
+`call_tool(ToolRequest) -> ToolResponse` + `capabilities` property로 교체,
+신규 `ports/i_connector_discovery.py` Port 추가. `adapters/connector-mcp`를 실제
+MCP(filesystem) 서버 연동으로 구현, `adapters/connector-discovery-entrypoint`
+신규(entry point 기반 Discovery), `adapters/connector-mock`을 신규 시그니처로
+갱신(entry point는 의도적으로 미선언). `apps/poc-runner/main.py` Stage 8을
+이름 기반 dict 조회에서 Capability 기반 Discovery/Registry 조회로 교체(Stage 8의
+호출 주체 자체는 무수정 — 사용자 지시로 이번 Phase 범위 밖). 신규 통합 테스트
+2개 파일(Adapter Reversibility + Fail-Closed/Timeout, Discovery Zero-Code-Addition).
+ADR-0006 신규(Accepted, 사용자 피드백 2건 반영: Connector Capability
+선언/Discovery 분리, Connector Lifecycle State).
+
+| 항목 | 점수 | 근거 |
+|---|---|---|
+| Architecture | 93 | ADR-0006의 13개 결정이 대부분 코드로 검증됨: Connector는 단일 호출 실행만 담당하고 허용 판단/결과 해석을 하지 않음(결정 1), MCP Adapter의 책임(프로토콜 변환/통신/Fail-Closed 변환)이 `adapters/connector-mcp` 내부로 완전히 격리됨(결정 2), `ToolRequest`/`ToolResponse`/`ToolCallStatus`는 Core에 남고 MCP SDK 문법은 Adapter 내부에만 존재함(결정 3·4), Timeout이 강제(기본값 5초)되고 위반 시 예외 대신 `ToolResponse(TIMEOUT)`을 반환함을 실제 MCP 서버로 검증(결정 5), Retry를 Connector가 스스로 하지 않음(결정 8, 코드에 재시도 루프 없음), 예외를 던지지 않고 항상 `ToolResponse`를 반환(결정 9, Fail-Closed), **HQ Capability Registry와 완전히 분리된 별도 `connector_registry` 모듈**로 Domain 경계를 코드 구조 자체로 증명(결정 12, 사용자 피드백 2 반영), Connector Lifecycle State Enum이 Core에 존재하되 어떤 실행 경로도 이를 참조해 분기하지 않음(결정 13). 7점 감점 사유: (1) Cancellation(결정 6)은 Domain 개념(Enum 값)만 존재하고 실제 취소 메커니즘은 ADR이 이미 예고한 대로 Phase 5로 이연됨(은폐 아님), (2) Idempotency(결정 7)도 `idempotency_key` 필드만 존재하고 이를 소비하는 Retry Policy는 여전히 미구현(ADR-0005/0006이 이미 예고), (3) `apps/poc-runner/main.py`의 Stage 8이 여전히 "Agent가 Connector를 호출한다"가 아니라 Composition Root가 대행하는 구조(사용자가 이번 Phase 범위에서 명시적으로 제외, Workflow Phase로 이연). |
+| Documentation | 92 | ADR-0006이 배경(현재 코드 조사)·11+2개 결정·근거·5개 기각 대안·영향 범위·DoD를 모두 포함하며, 사용자 피드백 2건(Capability 선언/Discovery 분리, Lifecycle State) 반영 후 Accepted로 승격된 이력이 커밋 메시지와 ADR 본문에 남아 있음. 각 신규 파일(models.py, registry.py, discovery.py, mcp_connector.py)의 docstring이 ADR의 어떤 결정을 구현한 것인지 번호로 명시. 8점 감점 사유: MCP의 `--offline` npx 플래그 사용 이유(네트워크 프록시 왕복 지연 60초+ 회피)처럼 이 환경 고유의 성능 특성에 대한 메모가 코드 주석에만 있고 별도 운영 문서로 승격되지 않음 — 실제 배포 환경에서는 재검토가 필요하다는 점이 코드 주석 밖으로 드러나지 않음. |
+| Implementation | 90 | `McpConnector`가 실제 `mcp` Python SDK로 공식 `@modelcontextprotocol/server-filesystem`(npx)에 접속해 SUCCESS/FAILURE/TIMEOUT 세 가지 경로를 모두 실제 서버 응답으로 검증함(Mock 아님) — `list_allowed_directories`(성공), 존재하지 않는 파일 조회(실패), 극단적으로 짧은 timeout_ms(타임아웃) 시나리오 전부 확인. `EntryPointConnectorDiscovery`가 `jarvis.connector` entry point로 `connector-mcp`/향후 추가되는 Connector를 자동 발견. 10점 감점 사유: (1) fetch 레퍼런스 서버(`mcp-server-fetch`)는 이 환경에 설치된 `mcp` SDK 버전과 호환되지 않아(`McpError` import 실패) 실제 연결을 검증하지 못했다 — MCP 구현 세부사항의 문제로 스코프에서 명시적으로 제외(Known Gap 기록), (2) `McpConnector`가 호출마다 새 MCP 서버 프로세스를 기동/종료하는 방식이라(세션 재사용 없음) 각 호출에 프로세스 기동 비용(수백ms~1초대)이 매번 발생 — PoC 규모에서는 허용 가능하나 실제 운영에는 세션 재사용 설계가 필요. |
+| Tests | 91 | 신규 `test_connector_adapter_reversibility.py`(7 tests: Mock↔MCP 계약 동일성, Fail-Closed 2건, 실제 MCP 대상 SUCCESS/FAILURE/TIMEOUT 3건)와 `test_connector_discovery_zero_code_addition.py`(4 tests: 신규 Connector 패키지를 실제로 `adapters/connector-http-stub`에 추가하고 `uv sync`로 자동 Discovery됨을 증명, 이후 제거해도 기존 filesystem Connector가 무수정으로 계속 동작함을 증명 — Phase 2 `test_hq_zero_code_addition.py`와 동일 방법론). 기존 e2e(10개, Must #9 시그니처만 갱신) + Phase 1~3 integration 전부 무수정 통과(총 38 tests/131 subtests, 회귀 없음). 9점 감점 사유: MCP 대상 테스트(`TestMcpConnectorFailClosedAndTimeout`)가 `npx`/네트워크 가용성에 의존해 `skipUnless`로 건너뛸 수 있게 되어 있어, 이 환경이 아닌 다른 환경(네트워크 차단)에서는 이 3개 테스트가 조용히 스킵된다 — CI에서 이 스킵이 "네트워크 없음"과 "실제 버그"를 구분하지 못할 위험. |
+| Technical Debt | 85 | 새로 추가된 부채: (1) Connector Discovery 방식(entry point)이 Capability Provider(entry point)와 그룹명만 다를 뿐 구조가 거의 동일해 코드 중복처럼 보일 수 있음(다만 사용자가 명시적으로 "완전히 분리하라"고 지시했으므로 의도된 중복), (2) `connector-mock`이 entry point를 선언하지 않아 실제 프로덕션 Discovery 경로에서는 보이지 않는데 이 사실이 패키지 docstring에만 있고 `PROJECT_CONTEXT.md` Technology Decisions 표에는 아직 반영 전(이 커밋에서 함께 반영), (3) `McpConnector`가 매 호출마다 프로세스를 새로 기동하는 설계는 Timeout 정책과는 부합하지만 성능상 재검토 대상(Implementation 항목에서 이미 지적). |
+| Known Gap | 91 | 이번 Phase가 새로 만든 Known Gap: fetch MCP 서버 미연결(버전 호환성 문제, ADR-0006 결정 2가 이미 "MCP 구현 세부사항은 Architecture가 아니다"로 범위를 좁혀 둔 덕에 Architecture 리스크는 없음), Cancellation/Idempotency/Retry 정책이 Domain 개념만 존재하고 실제 동작 없음(ADR-0006이 각각 Phase 5/향후로 명시적으로 이연), Connector Lifecycle State가 정의만 되고 전이 로직이 없음(ADR-0006 결정 13이 이미 예고, Health Check/Failover 기반 마련 목적). 기존 Known Gap(main.py 함수 인자 증가, Division/Agent 최소 관례, tests/unit 부재, git tag push 실패)은 그대로 이월됨. |
+| Repository Readiness | 94 | `uv sync`/`uv run pytest` 전체 통과(38 tests/131 subtests). `packages/core`는 `ports/i_connector.py` 시그니처 교체 + `connector/`, `connector_registry/`, `ports/i_connector_discovery.py` 신규 추가만 있고 `kernel/`, `policy/`, `lifecycle/`, `capability_registry/`(HQ)는 git diff로 무수정 확인됨. `apps/poc-runner/main.py`는 Stage 8의 조회 방식(dict→Registry)만 교체, Kernel 호출 흐름(Stage 2~7, 9)은 무수정. 실제 `python -m jarvis_poc_runner.main` 실행으로 Discovery→Registry→실제 MCP 서버 호출까지 엔드투엔드 확인(list_allowed_directories 성공). 6점 감점 사유: 네트워크 의존(npx/MCP SDK 설치, 첫 실행 시 npm 레지스트리 접근)이 있어 Phase 1~3보다 환경 재현성이 낮음 — `PROJECT_CONTEXT.md`의 "Phase 착수 전 필수 확인" 원칙대로 문서화했으나, 완전히 폐쇄된 네트워크 환경에서는 이 Phase의 MCP 실증 테스트가 skip 처리된다는 점을 유의해야 함. |
+
+**총평**: Phase 4는 ADR-0006이 규정한 결정 사항(Connector 책임 한정, MCP Adapter 책임 분리, ToolRequest/ToolResponse Domain Model, Timeout/Fail-Closed 계약, Retry 비구현, Connector Capability 선언과 HQ Capability Registry로부터의 완전한 Domain 분리, Connector Lifecycle State 정의) 대부분을 코드와 실제 MCP 서버 호출로 검증했습니다. 이번 Phase의 최종 Architecture Validation 목표 두 가지 — "Connector 구현체(MCP)를 제거하고 다른 Connector 구현체로 교체해도 Core와 Agent를 수정하지 않는다"와 "새 Connector를 코드 수정 없이 추가하여 자동 Discovery 및 선택이 가능하다" — 는 각각 `test_connector_adapter_reversibility.py`와 `test_connector_discovery_zero_code_addition.py`로 실증되었습니다. Cancellation/Idempotency/Retry의 실제 구현과 fetch MCP 연동, Stage 8의 "Agent가 Connector를 호출한다" 구조로의 전환은 모두 명시적으로 범위 밖으로 이연되었으며 은폐된 감점 요인은 없습니다.
+
+## 다음 Phase 착수 전 권고 (Architecture Suggestion, 미적용)
+1. Phase 1~3에서 반복된 `main.py` 함수 인자 개수 문제(Context 객체 리팩터링 미적용)는 Phase 5(Workflow/LangGraph)에서 Stage 8 재구성과 함께 다룰 것을 제안합니다 — 이미 Connector 인자가 dict에서 Registry로 바뀌며 시그니처가 한 번 더 복잡해졌습니다.
+2. `McpConnector`의 "호출마다 프로세스 재기동" 설계는 PoC 규모에서는 문제없지만, Phase 5에서 비동기 실행이 도입되면 세션을 유지하는 방향(ClientSession 재사용)으로 재검토할 것을 제안합니다 — 이는 Cancellation의 실제 구현과도 맞물립니다(ADR-0006 결정 6).
+3. fetch MCP 서버는 `mcp` SDK 버전이 맞는 릴리스가 나오면 재시도할 것을 제안합니다 — 지금은 Mock(`create_fetch_mock`)으로 대체되어 있습니다.

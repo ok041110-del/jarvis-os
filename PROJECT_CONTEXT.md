@@ -48,7 +48,7 @@ Architecture Validation. 기능 구현이 아니라 Architecture가 실제 구�
 |---|---|---|---|
 | Lifecycle | python-statemachine (Phase 1 완료) | — | — |
 | Policy | Casbin (`adapters/policy-casbin`, Phase 3 완료, ADR-0005) | — | OPA (ADR-0001의 ADR-003) |
-| Connector | `adapters/connector-mock` (임시, 외부 의존성 없음) | **Phase 4**: MCP 공식 filesystem/fetch 서버 | — |
+| Connector | `adapters/connector-mcp`(MCP 공식 filesystem 서버, Phase 4 완료, ADR-0006). `connector-mock`은 Discovery에 참여하지 않고 Adapter Reversibility 증명용으로만 보존 | — | fetch MCP 서버(SDK 버전 호환 확인 후), Cancellation/Idempotency/Retry 실제 구현(Phase 5) |
 | Workflow | `apps/poc-runner`의 순차 함수 호출 | **Phase 5**: LangGraph Core (langgraph-api는 사용하지 않음) | — |
 | Capability Registry | Core 직접 구현 | 동일 (오픈소스 없음, 의도적 결정) | 동일 |
 
@@ -113,7 +113,30 @@ Phase 5  Workflow    → LangGraph Core
   131 subtests). `apps/poc-runner`의 실제 실행(`python -m jarvis_poc_runner.main`)으로
   4개 시나리오(Wake-up+ALLOW, Disabled 거부, 재활성화+ALLOW, Permission DENY) 전부
   Casbin 경유로 기존과 동일한 결과 확인.
-- [ ] Phase 4 — Connector (MCP): 대기 중
+- [x] Phase 4 — Connector (MCP, ADR-0006 Accepted): **완료**. `packages/core`에
+  `connector/models.py`(ToolRequest/ToolResponse/ToolCallStatus/ConnectorLifecycleState)와
+  `connector_registry/registry.py`(HQ용 `capability_registry`와 **완전히 분리된 별도
+  모듈** — 사용자 지시로 Domain 경계를 코드 구조 자체로 유지) 신규 정의.
+  `ports/i_connector.py`는 `call_tool(ToolRequest) -> ToolResponse` + `capabilities`
+  property로 시그니처 교체(Fail-Closed 계약 docstring 포함), 신규 `ports/
+  i_connector_discovery.py` 추가. `adapters/connector-mcp`가 실제 `mcp` SDK로 공식
+  filesystem 레퍼런스 서버(npx)에 접속해 SUCCESS/FAILURE/TIMEOUT 세 경로를 모두
+  실제 서버 응답으로 검증(fetch는 SDK 버전 비호환으로 이번 Phase에서 제외, Known
+  Gap 기록). `adapters/connector-discovery-entrypoint`(entry point 기반 Discovery,
+  group="jarvis.connector") 신규. `adapters/connector-mock`은 신규 시그니처로
+  갱신했지만 entry point는 의도적으로 선언하지 않음(Adapter Reversibility 테스트
+  전용, policy-inmemory와 동일 역할). `apps/poc-runner/main.py` Stage 8은 이름
+  기반 dict 조회를 Capability 기반 Discovery/Registry 조회로 교체했을 뿐, 호출
+  주체(Composition Root)는 그대로 유지(Stage 8을 "Agent가 Connector를 호출한다"는
+  구조로 옮기는 것은 사용자 지시로 이번 Phase 범위에서 명시적으로 제외 — Workflow
+  Phase에서 다룸). 신규 통합 테스트 2개 파일(`test_connector_adapter_reversibility.py`
+  7 tests, `test_connector_discovery_zero_code_addition.py` 4 tests — 후자는 실제로
+  `adapters/connector-http-stub`을 추가/제거하며 자동 Discovery를 실증, Phase 2
+  `test_hq_zero_code_addition.py`와 동일 방법론). 기존 e2e(10개, Must #9 시그니처만
+  갱신) + Phase 1~3 integration 전부 무수정 통과(총 38 tests/131 subtests).
+  `kernel/`, `policy/`, `lifecycle/`, `capability_registry/`(HQ) 무수정(git diff로
+  확인). 이번 Phase의 두 Architecture Validation 목표(Connector Adapter
+  Reversibility, 새 Connector의 코드 수정 없는 자동 Discovery/선택) 모두 실증.
 - [ ] Phase 5 — Workflow (LangGraph Core): 대기 중
 
 ## 알려진 격차 (Known Gaps — ADR-0002)

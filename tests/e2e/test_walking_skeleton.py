@@ -12,6 +12,7 @@ from jarvis_core.organization.entities import HQ, Division, Agent, Team, TeamSta
 from jarvis_core.lifecycle.hq_state import HQState, TransitionDenied
 from jarvis_core.kernel import intent_recognition, task_classification, task_router, hq_selection
 from jarvis_core.policy.models import PolicyRequest, PolicyTier
+from jarvis_core.connector.models import ToolCallStatus, ToolRequest
 
 from jarvis_adapter_policy_inmemory.engine import InMemoryPolicyEngine
 from jarvis_adapter_connector_mock.connector import MockConnector
@@ -102,10 +103,11 @@ class TestMustItems(unittest.TestCase):
 
     # Must #9 — MCP Connector 호출 경로
     def test_agent_can_call_connector(self):
-        connector = MockConnector("filesystem")
-        result = connector.call_tool("filesystem", {"query": "test"})
+        connector = MockConnector("filesystem", ["filesystem"])
+        response = connector.call_tool(ToolRequest(tool_name="filesystem", arguments={"query": "test"}))
         self.assertEqual(len(connector.call_log), 1)
-        self.assertIn("성공", result["result"])
+        self.assertEqual(response.status, ToolCallStatus.SUCCESS)
+        self.assertIn("성공", response.result["result"])
 
     # Must #10 — No Silent Failure: Disabled HQ 요청은 이유와 함께 실패해야 함
     def test_disabled_hq_fails_with_explicit_reason(self):

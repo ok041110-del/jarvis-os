@@ -10,6 +10,7 @@ resolution-markers = [
 members = [
     "jarvis-adapter-capability-provider-yaml",
     "jarvis-adapter-capability-store-sqlite",
+    "jarvis-adapter-connector-discovery-entrypoint",
     "jarvis-adapter-connector-mcp",
     "jarvis-adapter-connector-mock",
     "jarvis-adapter-lifecycle-statemachine",
@@ -489,6 +490,17 @@ requires-dist = [
 ]
 
 [[package]]
+name = "jarvis-adapter-connector-discovery-entrypoint"
+version = "0.1.0"
+source = { editable = "adapters/connector-discovery-entrypoint" }
+dependencies = [
+    { name = "jarvis-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
+
+[[package]]
 name = "jarvis-adapter-connector-mcp"
 version = "0.1.0"
 source = { editable = "adapters/connector-mcp" }
@@ -609,7 +621,8 @@ version = "0.1.0"
 source = { editable = "apps/poc-runner" }
 dependencies = [
     { name = "jarvis-adapter-capability-provider-yaml" },
-    { name = "jarvis-adapter-connector-mock" },
+    { name = "jarvis-adapter-connector-discovery-entrypoint" },
+    { name = "jarvis-adapter-connector-mcp" },
     { name = "jarvis-adapter-lifecycle-statemachine" },
     { name = "jarvis-adapter-policy-casbin" },
     { name = "jarvis-adapter-policy-inmemory" },
@@ -621,7 +634,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "jarvis-adapter-capability-provider-yaml", editable = "adapters/capability-provider-yaml" },
-    { name = "jarvis-adapter-connector-mock", editable = "adapters/connector-mock" },
+    { name = "jarvis-adapter-connector-discovery-entrypoint", editable = "adapters/connector-discovery-entrypoint" },
+    { name = "jarvis-adapter-connector-mcp", editable = "adapters/connector-mcp" },
     { name = "jarvis-adapter-lifecycle-statemachine", editable = "adapters/lifecycle-statemachine" },
     { name = "jarvis-adapter-policy-casbin", editable = "adapters/policy-casbin" },
     { name = "jarvis-adapter-policy-inmemory", editable = "adapters/policy-inmemory" },
