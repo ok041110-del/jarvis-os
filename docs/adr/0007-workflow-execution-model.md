@@ -220,7 +220,7 @@ Core Domain 개념이며, 이 ADR은 이를 재정의하지 않는다.
 
 ```python
 class IWorkflowEngine(ABC):
-    def run(self, team: Team, dispatch: KernelDispatch) -> WorkflowResult:
+    def run(self, team: Team, dispatch: TaskDispatch) -> WorkflowResult:
         """Team을 구성하는 Agent들의 실행 순서를 조립하고 진행시킨 뒤,
         Team이 TERMINATED에 도달하면 WorkflowResult를 반환한다.
         예외를 던지지 않는다 — 실패는 WorkflowResult.status로 표현한다(결정 6).
@@ -228,7 +228,7 @@ class IWorkflowEngine(ABC):
         ...
 ```
 
-- `Team`/`KernelDispatch`는 이미 존재하는 Core Domain Model이다. `IWorkflowEngine`은
+- `Team`/`TaskDispatch`는 이미 존재하는 Core Domain Model이다. `IWorkflowEngine`은
   이들을 입력받아 `WorkflowResult`(신규 Domain Model, 최소한 `status`/`error`
   필드를 가져 ADR-0005/0006과 동일한 Fail-Closed 패턴을 표현)를 반환한다.
 - 정확한 필드 구성과 Cancellation(결정 10)을 위한 API 형태는 Architecture
