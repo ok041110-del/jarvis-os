@@ -1,7 +1,7 @@
 # ADR-0006: Connector Execution Model
 
 - 날짜: 2026-08-03
-- 상태: **Proposed** (Phase 4 구현은 이 ADR이 Accepted 되기 전에는 착수하지 않는다)
+- 상태: **Accepted**
 
 ---
 
@@ -196,6 +196,82 @@ REST 기반 Connector가 있는지 알지 못한다. 이는 ADR-0003 결정 4(Co
   내부에서만 사용하는 언어다. `ToolRequest`/`ToolResponse`로 변환하는 지점(Adapter의
   `call_tool()` 메서드)이 MCP 문법과 Domain Language의 유일한 경계다.
 
+### 결정 12 — Connector Capability 선언과 Discovery (Agent는 Connector 이름을 모른다)
+
+Capability Registry가 HQ에 대해 하는 역할(ADR-0004)을 Connector에도 동일하게
+적용한다. Connector는 Jarvis OS의 Plugin이며, **자신이 이름이 아니라 Capability로
+발견된다.**
+
+- 모든 Connector 구현체는 자신이 제공하는 Capability 목록을 선언한다. 예:
+
+  ```
+  MCP Connector      capabilities: [filesystem, github, notion]
+  Browser Connector   capabilities: [browser, playwright]
+  HTTP Connector       capabilities: [http, webhook]
+  ```
+
+  이 선언의 정확한 스키마/파일 형식(YAML, entry point 등)은 Architecture 결정이
+  아니라 구현 세부사항이다 — ADR-0004가 `capabilities.yaml` 스키마를 Architecture와
+  분리했던 것과 동일한 원칙을 적용한다. 이 ADR은 "Connector는 Capability를 선언해야
+  한다"는 요구만 확정한다.
+- **Agent는 Connector의 이름(MCP인지, Browser인지, HTTP인지)을 알지 못한다.** Agent가
+  아는 것은 자신에게 필요한 Capability뿐이다(`Agent.required_tools`가 이미
+  Capability 수준의 이름을 담고 있다는 전제와 일치한다 — `packages/core/.../
+  organization/entities.py`).
+- Connector 선택(어떤 Connector 구현체가 이 Capability를 처리할지 결정하는 것)은
+  **Registry(향후 Connector Registry)의 책임**이다. Agent도 Connector 자신도 이
+  결정을 하지 않는다.
+- 확정 구조:
+
+  ```
+  Agent
+    ↓ Required Capability
+  Connector Discovery (Registry)
+    ↓ Connector 선택
+  Tool 실행 (선택된 Connector의 call_tool)
+  ```
+
+- 이 결정은 Connector가 "MCP 하나만 존재하는 특수한 대상"이 아니라 Capability
+  Registry(ADR-0004)와 동일한 패턴을 따르는 **일반화된 Plugin 카테고리**임을
+  명시한다. 이번 Phase(Phase 4)는 실제 Connector Registry 구현까지는 포함하지
+  않는다(결정 13 이후 참고) — Domain 요구사항(Capability 선언, Agent는 이름을
+  모름, 선택은 Registry 소관)만 이 ADR로 먼저 확정하고, 실제 자동 Discovery
+  구현은 Phase 4 Implementation Plan에서 범위를 정한다.
+
+### 결정 13 — Connector Lifecycle (Domain State)
+
+HQ가 8-state Lifecycle(`docs/architecture/v1.0`, ADR-0003/Phase 1)을 가지듯,
+Connector도 최소 Lifecycle을 Domain 개념으로 정의한다. 지금 구현하지 않더라도
+State 자체는 이 ADR에서 먼저 확정해 둔다.
+
+```
+Registered → Available → Busy → Unavailable → Removed
+```
+
+- **Registered**: Connector Registry에 선언(Capability 포함)은 됐지만 아직
+  사용 가능 여부가 확인되지 않은 상태.
+- **Available**: Tool 호출을 받을 수 있는 상태. Discovery(결정 12)가 선택
+  대상으로 고려하는 상태는 이 상태뿐이다.
+- **Busy**: 현재 호출을 처리 중이라 추가 호출을 받을 수 없는 상태(동시성 제약이
+  있는 Connector에 한함 — 모든 Connector가 이 상태를 거쳐야 하는 것은 아니다).
+- **Unavailable**: Health Check 실패, 연결 끊김 등으로 일시적으로 호출을 받을
+  수 없는 상태. `Registered`와의 차이는 "한 번은 Available이었다가 실패했다"는
+  이력이 있다는 점이다.
+- **Removed**: Registry에서 완전히 제거된 상태. 이후 Discovery 대상에서
+  제외된다.
+
+이 State는 HQ Lifecycle(ADR-0003)과 마찬가지로 **Core의 Domain 개념**이며 특정
+Adapter(MCP)의 내부 상태가 아니다 — Connector 구현체가 무엇이든 이 State 전이
+규칙은 동일하게 적용된다.
+
+**Phase 4 범위**: 이 State들을 Domain Enum으로 정의하는 것까지만 이번 Phase의
+대상이다(아래 영향 범위 참고). 실제 State 전이를 일으키는 메커니즘(Health
+Check, 장애 감지, Failover, Auto Recovery)은 이번 Phase에서 구현하지 않는다 —
+결정 6(Cancellation)이 "Domain 개념만 정의하고 실제 구현은 Phase 5로 미룬다"고
+한 것과 동일한 논리다. 이 State 정의는 향후 Health Check/Failover/Auto
+Recovery가 추가될 때 재작업 없이 바로 사용할 수 있는 기반을 미리 마련해 두기
+위한 것이다.
+
 ## 근거 (Rationale)
 
 ADR-0003(Domain Port / Adapter Reversibility)과 ADR-0005(Policy Decision Model,
@@ -205,6 +281,16 @@ Connector에 동일하게 적용했다. Connector가 재시도를 스스로 하�
 원칙의 직접적 연장이다 — 재시도 횟수를 Connector에 하드코딩하면 Request Processing
 Kernel v1이 이미 한 번 지적했던 실수("N회 재시도"를 Kernel 로직에 박아넣는 것)를
 Connector 계층에서 반복하는 것이 된다.
+
+Connector Capability 선언/Discovery(결정 12)는 ADR-0004(Capability Registration
+Model)가 HQ에 대해 확립한 패턴 — "Agent/Kernel은 구체적인 이름이 아니라 Capability로
+대상을 찾는다"는 원칙 — 을 Connector에도 동일하게 적용한 것이다. HQ가 이름이 아니라
+Capability로 Discovery되듯, Connector도 이름(MCP/Browser/HTTP)이 아니라 Capability로
+Discovery되어야 ADR-0003 결정 4("Core는 Adapter를 추론하거나 분기하지 않는다")가
+Agent-Connector 관계에서도 일관되게 유지된다. Connector Lifecycle(결정 13)은 HQ
+Lifecycle(ADR-0003, Phase 1)과 동일한 이유로 존재한다 — Domain State를 먼저
+정의해 두면 이후 Health Check/Failover 같은 운영 기능이 추가될 때 Core의 State
+모델을 다시 설계하지 않아도 된다.
 
 ## 기각된 대안 (Rejected Alternatives)
 
@@ -227,23 +313,40 @@ Connector 계층에서 반복하는 것이 된다.
   기각 — 04-policy-engine.md와 ADR-0005가 이미 언급한 확장 지점이지만, 이번 Phase의
   목표(Connector Adapter Reversibility 증명)와 직접 관련이 없다. 범위를 넓히면
   검증이 지연된다(ADR-0005 대안 A와 동일한 논리).
+- **대안 E**: Agent(또는 Organization 코드)가 Connector를 이름으로 직접 지정한다
+  (예: `connectors["mcp"].call_tool(...)`, 현재 `main.py`가 하고 있는 방식).
+  기각 — 이는 ADR-0004가 HQ에 대해 이미 기각한 패턴("이름을 하드코딩하는 것")을
+  Connector에서 반복하는 것이다. Agent가 이름을 알면 Connector Reversibility가
+  깨진다 — 새 Connector 구현체로 교체할 때 Agent 코드까지 함께 수정해야 하기
+  때문이다. Capability 기반 Discovery(결정 12)만이 이번 Phase의 최종 Architecture
+  Validation 목표("새 Connector를 코드 수정 없이 추가하여 자동 Discovery 및 선택이
+  가능하다")를 만족시킨다.
 
 ## 영향 범위 (Impact)
 
 - 신규(Core): `packages/core/.../connector/models.py`에 `ToolRequest`, `ToolResponse`,
   `ToolCallStatus`, `DEFAULT_TIMEOUT_MS` 정의 (신규 Domain Model — ADR-0003 결정 1과
   같은 원리로 "예정된 확장"으로 취급, Architecture 변경이 아님)
+- 신규(Core): Connector Lifecycle State(결정 13)를 표현하는 Domain Enum
+  (`Registered/Available/Busy/Unavailable/Removed`) — 실제 전이 로직(Health Check
+  등)은 포함하지 않고 State 정의만 포함
+- 신규(Core 또는 Port): Connector Discovery 계약(결정 12) — Agent가 Capability로
+  Connector를 찾을 수 있는 최소 인터페이스. ADR-0004의 `ICapabilityProvider`와
+  같은 층위. 구체적 형태(신규 Port인지 기존 Capability Registry 확장인지)는
+  Implementation Plan에서 결정한다.
 - 수정(Core): `packages/core/.../ports/i_connector.py`의 `call_tool()` 시그니처를
   `ToolRequest -> ToolResponse`로 변경 (현재 `Any` 기반의 최소 시그니처를 이번 ADR이
   확정한 Domain Model로 교체 — Port의 계약을 명확히 하는 것이므로 ADR-0003 결정 1의
   선례를 따름)
 - 무수정: `packages/core/.../kernel/`, `packages/core/.../policy/`,
-  `packages/core/.../lifecycle/`, `packages/core/.../capability_registry/`
-- 구현 예정(Phase 4): `adapters/connector-mcp`(신규 구현), `adapters/connector-mock`
-  (신규 시그니처에 맞춰 갱신 — 여전히 Adapter Reversibility 증명용으로 보존)
-- 수정 예정(Phase 4): `apps/poc-runner/main.py` (Composition Root 배선 교체 +
-  Stage 8을 "Agent가 Connector를 호출한다"는 형태로 재정리할지는 Implementation
-  Plan에서 별도 검토)
+  `packages/core/.../lifecycle/`(HQ Lifecycle 자체), `packages/core/.../
+  capability_registry/`의 기존 HQ 로직
+- 구현 예정(Phase 4): `adapters/connector-mcp`(신규 구현, Capability 선언 포함),
+  `adapters/connector-mock`(신규 시그니처 + Capability 선언에 맞춰 갱신 — 여전히
+  Adapter Reversibility 증명용으로 보존)
+- 수정 예정(Phase 4): `apps/poc-runner/main.py` (Composition Root 배선을 이름
+  하드코딩에서 Capability 기반 Discovery로 교체 + Stage 8을 "Agent가 Connector를
+  호출한다"는 형태로 재정리할지는 Implementation Plan에서 별도 검토)
 
 ## Definition of Done
 
@@ -256,6 +359,9 @@ ADR-0003 공통 DoD에 더해 다음을 모두 만족해야 한다(Phase 4 승�
 - Timeout을 강제로 유발했을 때 `call_tool()`이 예외 없이 `ToolResponse(status=TIMEOUT,
   ...)`을 반환함을 계약 테스트로 증명한다(Fail-Closed 계약의 Connector 버전).
 - 실패 응답(status=FAILURE)에는 항상 `error`가 채워져 있음을 계약 테스트로 증명한다.
+- 새 Connector 구현체(코드 수정 없이 Capability 선언만 추가)가 Discovery 대상에
+  자동으로 포함되고, Agent 코드나 Core를 수정하지 않고 실제로 선택·호출됨을 통합
+  테스트로 증명한다(결정 12, Capability 기반 Discovery).
 
 ## 향후 적용
 
