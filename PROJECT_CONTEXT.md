@@ -46,19 +46,20 @@ Architecture Validation. 기능 구현이 아니라 Architecture가 실제 구�
 
 | 영역 | Walking Skeleton (현재 실제 wiring) | Phase Target | Future |
 |---|---|---|---|
-| Lifecycle | Core 자체 구현 (`packages/core/lifecycle`, 외부 의존성 없음) | **Phase 1**: python-statemachine | — |
-| Policy | `adapters/policy-inmemory` (임시, 외부 의존성 없음) | **Phase 2**: Casbin | OPA (ADR-0001의 ADR-003) |
-| Connector | `adapters/connector-mock` (임시, 외부 의존성 없음) | **Phase 3**: MCP 공식 filesystem/fetch 서버 | — |
-| Workflow | `apps/poc-runner`의 순차 함수 호출 | **Phase 4**: LangGraph Core (langgraph-api는 사용하지 않음) | — |
+| Lifecycle | python-statemachine (Phase 1 완료) | — | — |
+| Policy | Casbin (`adapters/policy-casbin`, Phase 3 완료, ADR-0005) | — | OPA (ADR-0001의 ADR-003) |
+| Connector | `adapters/connector-mock` (임시, 외부 의존성 없음) | **Phase 4**: MCP 공식 filesystem/fetch 서버 | — |
+| Workflow | `apps/poc-runner`의 순차 함수 호출 | **Phase 5**: LangGraph Core (langgraph-api는 사용하지 않음) | — |
 | Capability Registry | Core 직접 구현 | 동일 (오픈소스 없음, 의도적 결정) | 동일 |
 
 ## Current Development Order (Architecture 검증 강도 순)
 
 ```
 Phase 1  Lifecycle   → python-statemachine
-Phase 2  Policy      → Casbin
-Phase 3  Connector   → MCP
-Phase 4  Workflow    → LangGraph Core
+Phase 2  Capability  → YAML Loader
+Phase 3  Policy      → Casbin
+Phase 4  Connector   → MCP
+Phase 5  Workflow    → LangGraph Core
 ```
 
 **⚠️ Phase 착수 전 필수 확인**: 개발 환경에 네트워크가 없으면 어떤 Phase도 시작할 수 없습니다
@@ -96,8 +97,22 @@ Phase 4  Workflow    → LangGraph Core
   Routing + HQ 제거 후 정상 동작"을 실증(Phase 2 Architecture Validation 목표 달성).
   기존 e2e(10개) + Phase 1 integration(6개) 전부 무수정 통과. Kernel/Capability Registry/
   Lifecycle/Organization 파일 수정 없음(git diff로 확인).
-- [ ] Phase 3 — Policy (Casbin): 대기 중
-- [ ] Phase 3 — Policy (Casbin): 대기 중
+- [x] Phase 3 — Policy (Casbin, ADR-0005 Accepted): **완료**. `adapters/policy-casbin`의
+  빈 스켈레톤을 실제 구현(`CasbinPolicyEngine`)으로 채움 — Casbin RBAC 모델(`model.conf`,
+  이 Adapter 안에서만 존재하는 문법)로 Permission Tier(Tier 1)를 평가. `packages/core`는
+  `ports/i_policy_engine.py`의 docstring에 Fail-Closed 계약(ADR-0005 결정 4)만 추가했고
+  (Port 계약 명시는 ADR-0003 결정 1과 동일하게 "예정된 확장"으로 취급, 로직/스키마 변경
+  없음), `kernel/hq_selection.py`와 `policy/models.py`는 무수정. `apps/poc-runner/main.py`는
+  import 한 줄(`InMemoryPolicyEngine` → `CasbinPolicyEngine`)만 교체. `policy-inmemory`
+  Adapter는 삭제하지 않고 Adapter Reversibility 증명용으로 계속 보존.
+  신규 `tests/integration/test_policy_adapter_reversibility.py`(4 tests)로 (1) Casbin과
+  InMemory가 `hq_selection.py`를 통해 항상 동일한 결정을 낸다는 Parity, (2) Casbin을
+  제거하고 InMemory로 되돌려도 Core 무수정으로 즉시 동일하게 동작한다는 Adapter
+  Reversibility, (3) 내부 오류가 나도 예외를 던지지 않고 Deny로 귀결된다는 Fail-Closed
+  계약을 증명. 기존 e2e(10개) + Phase 1/2 integration 전부 무수정 통과(총 28 tests /
+  131 subtests). `apps/poc-runner`의 실제 실행(`python -m jarvis_poc_runner.main`)으로
+  4개 시나리오(Wake-up+ALLOW, Disabled 거부, 재활성화+ALLOW, Permission DENY) 전부
+  Casbin 경유로 기존과 동일한 결과 확인.
 - [ ] Phase 4 — Connector (MCP): 대기 중
 - [ ] Phase 5 — Workflow (LangGraph Core): 대기 중
 

@@ -20,6 +20,13 @@ YamlCapabilityProvider(ICapabilityProvider 구현체)와 LifecycleRuntime 팩토
 hqs/<name>-hq 패키지 + entry point 선언만으로 uv workspace에 편입되고 자동
 발견된다(ADR-0004 결정 7). Composition Root는 객체를 연결만 하고, Provisioning
 절차 자체는 HQProvisioner가 담당한다(사용자 승인 사항).
+
+Phase 3(ADR-0005): Policy Engine을 InMemoryPolicyEngine에서 CasbinPolicyEngine으로
+교체한다. 교체는 이 파일의 import 한 줄과 pyproject.toml 의존성 한 줄로 끝난다 —
+jarvis_core.kernel.hq_selection과 packages/core 어디도 수정하지 않는다(ADR-0005
+결정 6, Adapter Reversibility). policy-inmemory는 삭제하지 않고
+tests/integration/test_policy_adapter_reversibility.py가 "Casbin을 제거하고
+InMemory로 되돌려도 Core/Kernel 무수정으로 동일하게 동작한다"를 증명하는 데 계속 쓴다.
 """
 from jarvis_core.application.hq_provisioner import HQProvisioner
 from jarvis_core.capability_registry.registry import CapabilityRegistry
@@ -28,7 +35,7 @@ from jarvis_core.organization.entities import Team
 from jarvis_core.kernel import intent_recognition, task_classification, task_router, hq_selection
 
 from jarvis_adapter_capability_provider_yaml.provider import YamlCapabilityProvider
-from jarvis_adapter_policy_inmemory.engine import InMemoryPolicyEngine
+from jarvis_adapter_policy_casbin.casbin_policy_engine import CasbinPolicyEngine
 from jarvis_adapter_connector_mock.connector import MockConnector
 from jarvis_adapter_lifecycle_statemachine.hq_state_machine import HQStateMachineRuntime
 
@@ -146,7 +153,7 @@ def run_organization_layer(dispatch, hqs, lifecycle_runtimes, connectors) -> Non
 
 def main() -> None:
     registry, hqs, lifecycle_runtimes, connectors = build_world()
-    policy_engine = InMemoryPolicyEngine(session_permissions={
+    policy_engine = CasbinPolicyEngine(session_permissions={
         "user-A": "standard",   # Investment HQ(restricted)는 못 씀 -> 시나리오 D에서 거부됨
         "user-B": "restricted", # 둘 다 사용 가능
     })

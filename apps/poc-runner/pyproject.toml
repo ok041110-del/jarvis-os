@@ -15,10 +15,12 @@ dependencies = [
     # --- Phase 2: Capability Provider(YAML) — ADR-0004, Accepted. entry point로
     #     hqs/* 를 자동 발견하므로, 이후 새 HQ가 추가되어도 이 파일은 수정하지 않는다. ---
     "jarvis-adapter-capability-provider-yaml",
-    # --- Phase 3~5에서 순서대로 교체될 target adapter. uv sync 가능한 네트워크
+    # --- Phase 3: Policy Adapter(Casbin) — ADR-0005, Accepted. policy-inmemory는
+    #     제거하지 않는다 — Adapter Reversibility(ADR-0005 결정 6) 증명에 계속 쓰인다. ---
+    "jarvis-adapter-policy-casbin",
+    # --- Phase 4~5에서 순서대로 교체될 target adapter. uv sync 가능한 네트워크
     #     환경에서 각 Phase 착수 시 주석을 해제하고 main.py의 import를 교체한다.
     #     (PROJECT_CONTEXT.md "Phase 실행 로그" 참고) ---
-    # "jarvis-adapter-policy-casbin",           # Phase 3
     # "jarvis-adapter-connector-mcp",           # Phase 4
     # "jarvis-adapter-workflow-langgraph",      # Phase 5
 ]
@@ -31,6 +33,7 @@ jarvis-adapter-policy-inmemory = { workspace = true }
 jarvis-adapter-connector-mock = { workspace = true }
 jarvis-adapter-lifecycle-statemachine = { workspace = true }
 jarvis-adapter-capability-provider-yaml = { workspace = true }
+jarvis-adapter-policy-casbin = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

@@ -1,0 +1,3 @@
+p, standard-level, standard, invoke_capability
+p, restricted-level, standard, invoke_capability
+p, restricted-level, restricted, invoke_capability
