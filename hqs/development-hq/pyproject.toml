@@ -7,6 +7,12 @@ dependencies = [
     "jarvis-core",
 ]
 
+# Phase 2(ADR-0004 결정 7): capability-provider-yaml 어댑터가 이 entry point로
+# 이 패키지를 자동 발견한다. name(=development-hq)은 이 HQ의 정식 식별자이며
+# capabilities.yaml의 owner 필드와 반드시 일치해야 한다.
+[project.entry-points."jarvis.hq_capability_source"]
+development-hq = "jarvis_hq_development"
+
 [tool.uv.sources]
 jarvis-core = { workspace = true }
 

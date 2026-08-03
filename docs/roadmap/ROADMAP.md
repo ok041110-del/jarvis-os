@@ -10,7 +10,7 @@
 PROJECT_CONTEXT.md의 "Phase 실행 로그"가 최신 상태를 반영합니다. 이 로드맵에는 순서만 기록합니다.
 
 1. **Lifecycle** → python-statemachine (Walking Skeleton의 자체 구현 State Machine 교체) — **완료** (ADR-0003)
-2. **Capability YAML Loader** (ADR-0002 해소) — `apps/poc-runner`가 `hqs/*/capabilities.yaml`을 실제로 읽어 Capability Registry에 등록하도록 변경. "레지스트리 등록만으로 HQ 확장"이라는 핵심 가치를 Phase 3~5보다 먼저 코드로 증명한다.
+2. **Capability YAML Loader** (ADR-0002 해소, 모델 설계는 ADR-0004로 Accepted) — **완료**. `ICapabilityProvider` Port + `HQProvisioner` Application Service + YAML Adapter가 `hqs/*/capabilities.yaml`을 실제로 읽어 Provisioning 단계에서 Capability Registry에 등록한다. "레지스트리 등록만으로 HQ 확장"이라는 핵심 가치를 실제로 `hqs/legal-hq`를 추가/제거하는 통합 테스트로 증명했다(Phase 3~5보다 먼저).
 3. **Policy** → Casbin (Walking Skeleton의 In-Memory Policy Engine 교체)
 4. **Connector** → MCP 공식 filesystem/fetch 서버 (Walking Skeleton의 Mock Connector 교체)
 5. **Workflow** → LangGraph Core (현재 apps/poc-runner의 순차 호출 방식 교체)
