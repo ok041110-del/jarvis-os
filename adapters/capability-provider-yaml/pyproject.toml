@@ -1,6 +1,6 @@
 [project]
 name = "jarvis-adapter-capability-provider-yaml"
-version = "0.1.0"
+version = "1.0.0"
 description = "ICapabilityProvider의 YAML 기반 구현. Phase 2(ADR-0004) — capabilities.yaml을 Python Entry Point로 발견하고 파싱한다. PoC에서의 Discovery 구현 선택일 뿐, Architecture 요구사항이 아니다(ADR-0004 결정 7)."
 requires-python = ">=3.12"
 dependencies = [

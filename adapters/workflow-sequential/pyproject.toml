@@ -1,6 +1,6 @@
 [project]
 name = "jarvis-adapter-workflow-sequential"
-version = "0.1.0"
+version = "1.0.0"
 description = "IWorkflowEngine을 현재 main.py의 순차 함수 호출 방식 그대로 구현한 Adapter Reversibility 증명 전용 Adapter (ADR-0007). 프로덕션 배선에는 사용하지 않는다."
 requires-python = ">=3.12"
 dependencies = [

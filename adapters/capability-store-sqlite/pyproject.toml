@@ -1,6 +1,6 @@
 [project]
 name = "jarvis-adapter-capability-store-sqlite"
-version = "0.1.0"
+version = "1.0.0"
 description = "Adapter implementing a jarvis_core Port using sqlmodel"
 requires-python = ">=3.12"
 dependencies = [

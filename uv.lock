@@ -462,7 +462,7 @@ wheels = [
 
 [[package]]
 name = "jarvis-adapter-capability-provider-yaml"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/capability-provider-yaml" }
 dependencies = [
     { name = "jarvis-core" },
@@ -477,7 +477,7 @@ requires-dist = [
 
 [[package]]
 name = "jarvis-adapter-capability-store-sqlite"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/capability-store-sqlite" }
 dependencies = [
     { name = "jarvis-core" },
@@ -492,7 +492,7 @@ requires-dist = [
 
 [[package]]
 name = "jarvis-adapter-connector-discovery-entrypoint"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/connector-discovery-entrypoint" }
 dependencies = [
     { name = "jarvis-core" },
@@ -503,7 +503,7 @@ requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
 
 [[package]]
 name = "jarvis-adapter-connector-mcp"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/connector-mcp" }
 dependencies = [
     { name = "jarvis-core" },
@@ -518,7 +518,7 @@ requires-dist = [
 
 [[package]]
 name = "jarvis-adapter-connector-mock"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/connector-mock" }
 dependencies = [
     { name = "jarvis-core" },
@@ -529,7 +529,7 @@ requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
 
 [[package]]
 name = "jarvis-adapter-lifecycle-statemachine"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/lifecycle-statemachine" }
 dependencies = [
     { name = "jarvis-core" },
@@ -544,7 +544,7 @@ requires-dist = [
 
 [[package]]
 name = "jarvis-adapter-policy-casbin"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/policy-casbin" }
 dependencies = [
     { name = "casbin" },
@@ -559,7 +559,7 @@ requires-dist = [
 
 [[package]]
 name = "jarvis-adapter-policy-inmemory"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/policy-inmemory" }
 dependencies = [
     { name = "jarvis-core" },
@@ -570,7 +570,7 @@ requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
 
 [[package]]
 name = "jarvis-adapter-workflow-langgraph"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/workflow-langgraph" }
 dependencies = [
     { name = "jarvis-core" },
@@ -585,7 +585,7 @@ requires-dist = [
 
 [[package]]
 name = "jarvis-adapter-workflow-sequential"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "adapters/workflow-sequential" }
 dependencies = [
     { name = "jarvis-core" },
@@ -596,7 +596,7 @@ requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
 
 [[package]]
 name = "jarvis-core"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "packages/core" }
 dependencies = [
     { name = "jarvis-shared" },
@@ -607,7 +607,7 @@ requires-dist = [{ name = "jarvis-shared", editable = "packages/shared" }]
 
 [[package]]
 name = "jarvis-hq-development"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "hqs/development-hq" }
 dependencies = [
     { name = "jarvis-core" },
@@ -618,7 +618,7 @@ requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
 
 [[package]]
 name = "jarvis-hq-investment"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "hqs/investment-hq" }
 dependencies = [
     { name = "jarvis-core" },
@@ -629,7 +629,7 @@ requires-dist = [{ name = "jarvis-core", editable = "packages/core" }]
 
 [[package]]
 name = "jarvis-poc-runner"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "apps/poc-runner" }
 dependencies = [
     { name = "jarvis-adapter-capability-provider-yaml" },
@@ -660,7 +660,7 @@ requires-dist = [
 
 [[package]]
 name = "jarvis-shared"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "packages/shared" }
 
 [[package]]

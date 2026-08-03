@@ -1,6 +1,6 @@
 [project]
 name = "jarvis-adapter-connector-mock"
-version = "0.1.0"
+version = "1.0.0"
 description = "IConnector의 Walking Skeleton용 최소 구현. ADR-0006에 따라 Adapter Reversibility 증명용으로 보존된다 — connector-mcp를 제거했을 때 되돌아갈 대상."
 requires-python = ">=3.12"
 dependencies = ["jarvis-core"]

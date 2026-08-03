@@ -1,6 +1,6 @@
 [project]
 name = "jarvis-poc-runner"
-version = "0.1.0"
+version = "1.0.0"
 description = "Composition Root — 여기서만 구체적인 Adapter를 선택하고 Core의 Port에 연결한다."
 requires-python = ">=3.12"
 dependencies = [
