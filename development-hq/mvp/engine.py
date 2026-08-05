@@ -125,21 +125,61 @@ def _suggest_tests(payload: str) -> str:
 
 OUT_OF_SCOPE_MARKERS = ("않는다", "제외", "범위 밖", "아니다")
 
+# MVP-0010: 템플릿 채우기(Goal은 항상 "'{title}' 기능을 추가한다" 고정 문자열)
+# 수준이던 Planning을 Issue 문장 분석 기반으로 발전시키기 위한 마커.
+# 여전히 문자열 마커 매칭만 사용하는 규칙 기반 구현이다 — ML/LLM 호출 없음.
+# 세 마커 집합은 서로 배타적이지 않다 — 한 문장이 Goal이면서 동시에
+# Risk·Open Question으로도 뽑힐 수 있다(예: "...문제를 완화할 수 있는
+# 방향으로 개선될 수 있는지 검토가 필요하다"는 개선 요청(Goal)이자
+# 미해결 판단(Open Question)이다). 이 중복은 의도적으로 허용한다 —
+# 각 절은 서로 다른 질문("무엇을 해야 하는가" vs "아직 무엇이
+# 불확실한가")에 답하므로 같은 문장이 두 질문 모두에 답할 수 있다.
+GOAL_MARKERS = ("필요하다", "해야 한다", "검토가 필요", "확인이 필요")
+RISK_MARKERS = ("문제", "실패", "오류", "위험", "왜곡", "결함", "누락", "의도치 않게")
+QUESTION_MARKERS = ("검토가 필요", "확인이 필요", "판단이 필요", "?")
+
 
 def _split_sentences(text: str) -> list:
     sentences = [s.strip() for s in re.split(r"(?<=\.)\s+", text)]
     return [s for s in sentences if s]
 
 
+def _extract_goal(sentences: list, title: str) -> str:
+    """Goal 마커가 있는 첫 문장을 Goal로 사용한다. 없으면 기존
+    MVP-0005~0009의 고정 템플릿으로 되돌아간다 — Goal을 표현하는
+    문장이 전혀 없는 Issue(예: 순수 사실 나열)에서도 Planning이 빈
+    Goal을 반환하지 않도록 하기 위함이다."""
+    for sentence in sentences:
+        if any(marker in sentence for marker in GOAL_MARKERS):
+            return sentence
+    return f"'{title}' 기능을 추가한다."
+
+
+def _extract_marked_sentences(sentences: list, markers: tuple, empty_note: str) -> str:
+    matched = [s for s in sentences if any(marker in s for marker in markers)]
+    if not matched:
+        return f"- {empty_note}"
+    return "\n".join(f"- {s}" for s in matched)
+
+
 def _analyze_requirement(payload: str) -> str:
     """Issue(title|||description)를 Requirement Specification(Goal /
     Description / In Scope / Out of Scope / Acceptance Criteria (Draft) /
-    Reference Context)으로 정제한다. 문장 분리와 부정 표현(마커) 매칭만
-    사용하는 규칙 기반 구현이다 — ML/LLM 호출 없음.
+    Risks / Open Questions / Reference Context)으로 정제한다. 문장 분리와
+    마커 매칭만 사용하는 규칙 기반 구현이다 — ML/LLM 호출 없음.
+
+    MVP-0005~0009까지는 Goal이 `'{title}' 기능을 추가한다` 고정
+    템플릿이었고, Acceptance Criteria는 In Scope 문장을 그대로
+    재서술하는 것에 그쳤으며, Risks/Open Questions 절 자체가 없었다.
+    MVP-0010은 Goal/Acceptance Criteria를 Issue 문장에서 추출하고,
+    Risk/Open Question 절을 새로 추가한다 — 여전히 새 Capability는
+    아니다. 기존 `requirement_analysis` Capability 하나의 내부
+    로직만 바뀐다.
 
     Project Intelligence(`_enrich_issue`)가 덧붙인 `[Relevant Context]`
     블록은 문맥 문장으로 잘못 분류되지 않도록 별도 절(Reference Context)로
-    분리한다 — 그 블록을 In/Out of Scope 분류 대상에서 제외한다.
+    분리한다 — 그 블록을 In/Out of Scope/Risk/Open Question 분류
+    대상에서 제외한다.
     """
     title, _, description = payload.partition("|||")
     narrative, _, context_block = description.partition("[Relevant Context]")
@@ -150,21 +190,27 @@ def _analyze_requirement(payload: str) -> str:
     in_scope = [s for s in sentences if not any(m in s for m in OUT_OF_SCOPE_MARKERS)]
     out_of_scope = [s for s in sentences if any(m in s for m in OUT_OF_SCOPE_MARKERS)]
 
+    goal = _extract_goal(sentences, title)
+
     in_scope_lines = "\n".join(f"- {s}" for s in in_scope) if in_scope else "- (감지된 In Scope 문장 없음)"
     out_of_scope_lines = "\n".join(f"- {s}" for s in out_of_scope) if out_of_scope else "- (감지된 Out of Scope 문장 없음)"
     acceptance_lines = (
-        "\n".join(f"- 확인: {s}" for s in in_scope)
+        "\n".join([f"- Goal이 실제로 충족됨을 확인한다: {goal}"] + [f"- In Scope 항목이 동작함을 확인한다: {s}" for s in in_scope])
         if in_scope
-        else "- (In Scope 문장이 없어 Acceptance Criteria를 도출할 수 없음)"
+        else f"- Goal이 실제로 충족됨을 확인한다: {goal}"
     )
+    risk_lines = _extract_marked_sentences(sentences, RISK_MARKERS, "식별된 Risk 없음")
+    open_question_lines = _extract_marked_sentences(sentences, QUESTION_MARKERS, "식별된 Open Question 없음")
     reference_context = context_block if context_block else "(없음)"
 
     return (
-        f"## Goal\n'{title}' 기능을 추가한다.\n\n"
+        f"## Goal\n{goal}\n\n"
         f"## Description\n{narrative}\n\n"
         f"## In Scope\n{in_scope_lines}\n\n"
         f"## Out of Scope\n{out_of_scope_lines}\n\n"
         f"## Acceptance Criteria (Draft)\n{acceptance_lines}\n\n"
+        f"## Risks\n{risk_lines}\n\n"
+        f"## Open Questions\n{open_question_lines}\n\n"
         f"## Reference Context\n{reference_context}"
     )
 
