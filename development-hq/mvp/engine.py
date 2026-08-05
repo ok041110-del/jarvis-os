@@ -31,28 +31,120 @@ def _rule_based_response(prompt: str) -> str:
     return ""
 
 
-DESIGN_REQUIRED_SECTIONS = ("## Component", "## Responsibility", "## Constraints")
+# MVP-0012: Validation이 입력 Artifact의 종류(Requirement/Architecture
+# Draft/Source Code)를 구분하지 못하고, 코드가 아니면 전부 Design으로
+# 취급하던 2-way 분류(코드 vs "코드가 아니면 Design")를 3-way로
+# 넓힌다. Requirement Specification도 코드가 아니므로 예전에는
+# `_review_design`으로 잘못 라우팅되어 "'## Component' 섹션이
+# 없습니다" 같은 False Positive를 냈다(MVP-0012 Baseline으로 실측
+# 확인). Validation Logic만 수정한다 — Planning/Design이 만드는 실제
+# 산출물 텍스트(헤더 이름)는 그대로 읽기만 한다.
+DESIGN_REQUIRED_SECTIONS = (
+    "## Component",
+    "## Responsibility",
+    "## Interfaces",
+    "## Constraints",
+    "## Open Questions",
+    "## Reference Requirement",
+)
+REQUIREMENT_REQUIRED_SECTIONS = (
+    "## Goal",
+    "## In Scope",
+    "## Out of Scope",
+    "## Acceptance Criteria (Draft)",
+    "## Risks",
+    "## Open Questions",
+)
 
 
 def _looks_like_code(text: str) -> bool:
     return bool(re.search(r"^\s*(def |class |import |from )", text, re.MULTILINE))
 
 
-def _review_design(design_text: str) -> str:
-    """Design 산출물(Architecture 초안)을 코드가 아닌 문서로 인식하고,
-    필수 섹션(Component/Responsibility/Constraints) 존재 여부만 규칙
-    기반으로 확인한다. `_review_code`의 Python 코드 전용 규칙(bare
-    except, docstring, mutable default 등)은 적용하지 않는다 — 그
-    규칙들은 Design 문서에 의미가 없기 때문이다.
+def _looks_like_design(text: str) -> bool:
+    """Architecture Draft(Design 산출물, MVP-0011)만 갖는 마커로
+    판단한다. `## Interfaces`와 `## Reference Requirement`는 Design만
+    만드는 절이다 — Requirement에는 없다(Requirement은 Design 산출물
+    안에 `## Reference Requirement` 절로 통째로 인용되어 나타나지만,
+    이 함수는 코드 판정 다음 순서로만 호출되므로 그 안에 중첩된
+    Requirement 텍스트가 먼저 Design으로 오판되는 것이 옳다 — 실제로
+    Design 산출물 자체이기 때문이다)."""
+    return "## Interfaces" in text or "## Reference Requirement" in text
+
+
+def _looks_like_requirement(text: str) -> bool:
+    """Requirement Specification(MVP-0005/0010)만 갖는 마커로
+    판단한다. `_looks_like_design`이 먼저 걸러지므로, 이 함수에
+    도달했다면 `## Interfaces`/`## Reference Requirement`가 없는
+    텍스트다."""
+    return "## Goal" in text and "## In Scope" in text
+
+
+def _detect_artifact_stage(text: str) -> str:
+    """입력 Artifact가 Requirement/Design(Architecture Draft)/Code 중
+    무엇인지 규칙 기반으로 판단한다. 순서가 결과를 좌우한다 — 코드
+    판정을 가장 먼저 하는 이유는, Implementation 산출물(코드)의
+    docstring 안에는 Design 텍스트가, 그 안에는 다시 Requirement
+    텍스트가 verbatim으로 중첩되어 있기 때문이다(MVP-0007/0008에서
+    관찰된 Artifact 누적 이어붙이기). 코드 판정을 먼저 해야 실제
+    Python 코드가 Design/Requirement로 오판되지 않는다."""
+    if _looks_like_code(text):
+        return "code"
+    if _looks_like_design(text):
+        return "design"
+    if _looks_like_requirement(text):
+        return "requirement"
+    return "unknown"
+
+
+def _review_requirement(requirement_text: str) -> str:
+    """Requirement Specification(`_analyze_requirement`, MVP-0005/0010)의
+    필수 섹션(Goal/In Scope/Out of Scope/Acceptance Criteria (Draft)/
+    Risks/Open Questions) 존재 여부만 규칙 기반으로 확인한다. Design
+    전용 규칙(Component/Interfaces 등)이나 Python 코드 전용 규칙(bare
+    except 등)은 적용하지 않는다 — Requirement에는 의미가 없기
+    때문이다.
     """
     findings = [
-        f"'{section}' 섹션이 없습니다. Architecture 초안에 포함되어야 합니다."
+        f"'{section}' 섹션이 없습니다. Requirement Specification에 포함되어야 합니다."
+        for section in REQUIREMENT_REQUIRED_SECTIONS
+        if section not in requirement_text
+    ]
+    if not findings:
+        findings.append("Requirement Specification에 필수 섹션(Goal/In Scope/Out of Scope/Acceptance Criteria/Risks/Open Questions)이 모두 포함되어 있습니다.")
+    return "\n".join(f"- {f}" for f in findings)
+
+
+def _review_design(design_text: str) -> str:
+    """Design 산출물(Architecture Draft, MVP-0011)을 코드가 아닌 문서로
+    인식하고, 필수 섹션(Component/Responsibility/Interfaces/
+    Constraints/Open Questions/Reference Requirement) 존재 여부만
+    규칙 기반으로 확인한다. `_review_python_code`의 Python 코드 전용
+    규칙(bare except, docstring, mutable default 등)은 적용하지 않는다
+    — 그 규칙들은 Design 문서에 의미가 없기 때문이다.
+    """
+    findings = [
+        f"'{section}' 섹션이 없습니다. Architecture Draft에 포함되어야 합니다."
         for section in DESIGN_REQUIRED_SECTIONS
         if section not in design_text
     ]
     if not findings:
-        findings.append("Architecture 초안에 필수 섹션(Component/Responsibility/Constraints)이 모두 포함되어 있습니다.")
+        findings.append("Architecture Draft에 필수 섹션(Component/Responsibility/Interfaces/Constraints/Open Questions/Reference Requirement)이 모두 포함되어 있습니다.")
     return "\n".join(f"- {f}" for f in findings)
+
+
+def _suggest_requirement_checks(requirement_text: str) -> str:
+    """Requirement Specification에 대해, Python 코드 전용 테스트
+    케이스나 Design 전용 검증 항목 대신 Requirement 구조에서 실제로
+    도출 가능한 검증 항목만 규칙 기반으로 제시한다."""
+    cases = []
+    if "## Acceptance Criteria (Draft)" in requirement_text:
+        cases.append("Acceptance Criteria(Draft)에 나열된 각 항목이 실제로 검증 가능한 조건인지 확인")
+    if "## Risks" in requirement_text:
+        cases.append("Risks에 나열된 각 항목이 Design/Implementation 단계에서 실제로 완화되는지 확인")
+    if not cases:
+        cases.append("Requirement Specification에서 검증 가능한 섹션(Acceptance Criteria/Risks)을 찾지 못해 기본 검증 항목을 생성할 수 없음")
+    return "\n".join(f"- {c}" for c in cases)
 
 
 def _suggest_design_checks(design_text: str) -> str:
@@ -62,17 +154,20 @@ def _suggest_design_checks(design_text: str) -> str:
     cases = []
     if "## Responsibility" in design_text:
         cases.append("Responsibility에 나열된 각 항목이 Requirement의 In Scope와 실제로 일치하는지 확인")
+    if "## Interfaces" in design_text:
+        cases.append("Interfaces에 나열된 각 검증 함수가 Implementation에서 실제로 정의되는지 확인")
     if "## Constraints" in design_text:
         cases.append("Constraints에 나열된 각 항목이 Implementation 단계에서 실제로 지켜지는지 확인")
     if not cases:
-        cases.append("Architecture 초안에서 검증 가능한 섹션(Responsibility/Constraints)을 찾지 못해 기본 검증 항목을 생성할 수 없음")
+        cases.append("Architecture Draft에서 검증 가능한 섹션(Responsibility/Interfaces/Constraints)을 찾지 못해 기본 검증 항목을 생성할 수 없음")
     return "\n".join(f"- {c}" for c in cases)
 
 
-def _review_code(code: str) -> str:
-    if not _looks_like_code(code):
-        return _review_design(code)
-
+def _review_python_code(code: str) -> str:
+    """MVP-0005~0011까지 써온 Python 코드 전용 규칙(bare except, TODO
+    주석, docstring, line length, mutable default)을 그대로 유지한다
+    — Success Criteria("Code 입력은 기존 Python Rule을 유지한다")에
+    따라 로직을 바꾸지 않았다."""
     findings = []
     lines = code.splitlines()
 
@@ -94,10 +189,29 @@ def _review_code(code: str) -> str:
     return "\n".join(f"- {f}" for f in findings)
 
 
+def _review_code(code: str) -> str:
+    """Validation(code_review) Capability의 진입점. 입력이 Requirement/
+    Design/Code 중 무엇인지 `_detect_artifact_stage()`로 판단해 해당
+    Stage 전용 규칙만 적용한다(Stage-Aware Validation, MVP-0012).
+    Stage를 판단할 수 없는 입력(`unknown`)은 MVP-0005~0011까지의
+    기존 fallback 동작(Design 규칙 적용)을 그대로 유지한다 — 이전
+    동작과의 호환을 위해서다.
+    """
+    stage = _detect_artifact_stage(code)
+    if stage == "code":
+        return _review_python_code(code)
+    if stage == "requirement":
+        return _review_requirement(code)
+    return _review_design(code)
+
+
 def _suggest_tests(payload: str) -> str:
     code, _, review = payload.partition("\n---REVIEW---\n")
 
-    if not _looks_like_code(code):
+    stage = _detect_artifact_stage(code)
+    if stage == "requirement":
+        return _suggest_requirement_checks(code)
+    if stage != "code":
         return _suggest_design_checks(code)
 
     func_names = []
