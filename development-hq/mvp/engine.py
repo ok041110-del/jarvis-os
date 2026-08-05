@@ -459,10 +459,152 @@ def _extract_slug(design_text: str) -> str:
     return design_text[start:end]
 
 
+def _parse_interface_lines(interfaces_body: str) -> list:
+    """Design의 `## Interfaces` 절(MVP-0011, "- `{sig}`: {설명}" 형태의
+    불릿)을 (signature, description) 튜플 리스트로 분리한다. placeholder
+    줄("- (Acceptance Criteria가 없어...)")은 backtick으로 시작하지
+    않으므로 자연히 걸러진다."""
+    entries = []
+    for raw_line in interfaces_body.splitlines():
+        line = raw_line.strip()
+        if not line.startswith("- `"):
+            continue
+        content = line[2:]
+        sig_part, sep, desc = content.partition(": ")
+        if not sep:
+            continue
+        entries.append((sig_part.strip("`"), desc.strip()))
+    return entries
+
+
+def _extract_trailing_section(text: str, section: str) -> str:
+    """`_extract_section`(Design/Planning Logic이 공유하는 헬퍼)과
+    달리, 섹션 본문 자체가 중첩된 `## ...` 헤더를 포함할 수 있는
+    경우에 쓴다 — `## Reference Requirement`(Design)와 `## Reference
+    Context`(Requirement)는 각각 하위 문서 전체를 verbatim으로 품고
+    있어, 그 하위 문서 자신의 첫 `## ` 경계에서 `_extract_section`이
+    잘못 잘라낸다(실측으로 확인: Dependencies가 항상 비어 나왔다).
+    이 두 절이 항상 자신을 담은 문서의 **마지막 절**이라는 관례
+    (MVP-0005~0011)에 기대어, 마커 이후 끝까지를 그대로 반환한다.
+    Implementation Logic 전용 헬퍼이며 `_extract_section`은 그대로
+    둔다 — Design/Planning Logic이 그 함수를 계속 쓰기 때문이다."""
+    marker = f"## {section}\n"
+    if marker not in text:
+        return ""
+    return text[text.index(marker) + len(marker):].strip()
+
+
+def _extract_dependencies(reference_context_body: str) -> list:
+    """Requirement의 `## Reference Context` 절(Project Intelligence,
+    MVP-0005)에서 `source_code`/`existing_workflow` 카테고리의 파일
+    목록만 골라 Dependencies 후보로 쓴다 — 이 Issue를 다루면서 Project
+    Intelligence가 이미 관련 있다고 규칙 기반으로 찾아낸 기존 코드
+    파일들이므로, Implementation이 참고/의존할 가능성이 있는 대상이다.
+    """
+    deps = []
+    for line in reference_context_body.splitlines():
+        line = line.strip()
+        if not (line.startswith("source_code:") or line.startswith("existing_workflow:")):
+            continue
+        _, _, files = line.partition(":")
+        for f in files.split(","):
+            f = f.strip()
+            if f and f not in deps:
+                deps.append(f)
+    return deps
+
+
 def _generate_code(design_text: str) -> str:
+    """Architecture Draft(Design 산출물, MVP-0011)를 입력받아 코드를
+    작성하지 않고 Implementation Specification(Target File / Public
+    Interface / Functions / Classes / Dependencies / Algorithm Outline
+    / Edge Cases / Validation Notes)을 생성한다. Design의 각 절과,
+    Design이 `## Reference Requirement`로 그대로 품고 있는 Requirement
+    (MVP-0011)의 각 절에서 실제 문장만 재사용하는 규칙 기반 구현이다
+    — ML/LLM 호출 없음. Code Generation Engine이 실제 코드를 만들 때
+    쓸 명세이며, 이 함수 자신은 실행 가능한 코드를 만들지 않는다.
+
+    MVP-0005~0012까지 Implementation은 design_text 전체를 TODO
+    docstring에 그대로 넣은 `raise NotImplementedError` 스텁 함수
+    (사실상 Capability 부재)였다. MVP-0013은 이를 대체해 다음을
+    생성한다:
+    - Target File: slug 기반 파일 경로 제안.
+    - Public Interface: Design Component의 함수 시그니처.
+    - Functions: Public Interface 1개 + Design Interfaces 절의 각
+      검증 함수(MVP-0011의 `{slug}_check_N`) — 모두 구현 대상으로
+      나열한다.
+    - Classes: 이 Design은 항상 단일 함수형 Component만 제안하므로
+      (MVP-0011), 고정적으로 "필요 없음"을 명시한다.
+    - Dependencies: Requirement의 Reference Context(Project
+      Intelligence)에서 찾은 관련 기존 코드 파일.
+    - Algorithm Outline: Design Responsibility 절의 각 항목을 순서
+      있는 단계로 나열.
+    - Edge Cases: Design Constraints 절(Out of Scope + Risk 회피,
+      MVP-0011)의 각 항목.
+    - Validation Notes: Design Open Questions 절(Requirement의 실제
+      Open Question + 고정 확인 문구, MVP-0011)을 그대로 옮긴다.
+    - Reference Design: Design 전체를 verbatim으로 마지막에 포함한다
+      — MVP-0005부터 이어진 "Reference X" 관례(각 Stage가 자신의
+      입력 전체를 참고용으로 보존)를 그대로 따른다.
+    """
     slug = _extract_slug(design_text)
+
+    component_body = _extract_section(design_text, "Component")
+    responsibility_body = _extract_section(design_text, "Responsibility")
+    interfaces_body = _extract_section(design_text, "Interfaces")
+    constraints_body = _extract_section(design_text, "Constraints")
+    open_questions_body = _extract_section(design_text, "Open Questions")
+    reference_requirement = _extract_trailing_section(design_text, "Reference Requirement")
+    reference_context_body = (
+        _extract_trailing_section(reference_requirement, "Reference Context") if reference_requirement else ""
+    )
+
+    target_file = f"development-hq/mvp/generated/{slug}.py"
+    public_interface = f"`def {slug}(*args, **kwargs)`"
+
+    function_lines = [f"- `def {slug}(*args, **kwargs)` (Public Interface): {component_body if component_body else '(Component 설명 없음)'}"]
+    for sig, desc in _parse_interface_lines(interfaces_body):
+        function_lines.append(f"- `def {sig}`: {desc}")
+    functions_lines = "\n".join(function_lines)
+
+    classes_lines = "- (필요 없음: Design이 단일 함수형 Component만 제안했다)"
+
+    dependencies = _extract_dependencies(reference_context_body)
+    dependencies_lines = (
+        "\n".join(f"- {d}" for d in dependencies)
+        if dependencies
+        else "- (Reference Context에서 식별된 의존 대상 없음)"
+    )
+
+    responsibility_items = _section_bullets(responsibility_body)
+    algorithm_lines = (
+        "\n".join(f"{i}. {item}" for i, item in enumerate(responsibility_items, start=1))
+        if responsibility_items
+        else "1. (Responsibility 항목이 없어 Algorithm Outline을 도출할 수 없음)"
+    )
+
+    constraint_items = _section_bullets(constraints_body)
+    edge_case_lines = (
+        "\n".join(f"- {item}" for item in constraint_items)
+        if constraint_items
+        else "- (Constraints에서 식별된 Edge Case 없음)"
+    )
+
+    open_question_items = _section_bullets(open_questions_body)
+    validation_notes = (
+        "\n".join(f"- {item}" for item in open_question_items)
+        if open_question_items
+        else "- (Open Questions 없음)"
+    )
+
     return (
-        f'def {slug}(*args, **kwargs):\n'
-        f'    """TODO: {design_text}"""\n'
-        f'    raise NotImplementedError\n'
+        f"## Target File\n{target_file}\n\n"
+        f"## Public Interface\n{public_interface}\n\n"
+        f"## Functions\n{functions_lines}\n\n"
+        f"## Classes\n{classes_lines}\n\n"
+        f"## Dependencies\n{dependencies_lines}\n\n"
+        f"## Algorithm Outline\n{algorithm_lines}\n\n"
+        f"## Edge Cases\n{edge_case_lines}\n\n"
+        f"## Validation Notes\n{validation_notes}\n\n"
+        f"## Reference Design\n{design_text}"
     )
