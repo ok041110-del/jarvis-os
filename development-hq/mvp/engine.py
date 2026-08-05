@@ -9,6 +9,8 @@ Task 종류에 따라 다른 Engine을 골라야 하는 필요가 생기면 그�
 Engine Gateway(Port/Adapter) 추출 신호다. RFC 없이 여기서 분기를 늘리지 않는다.
 """
 
+import re
+
 
 def call_engine(prompt: str) -> str:
     """단일 Engine 호출 지점. 지금은 규칙 기반 응답을 반환한다."""
@@ -20,6 +22,12 @@ def _rule_based_response(prompt: str) -> str:
         return _review_code(prompt[len("CODE_REVIEW:"):])
     if prompt.startswith("TEST_EXECUTION:"):
         return _suggest_tests(prompt[len("TEST_EXECUTION:"):])
+    if prompt.startswith("REQUIREMENT_ANALYSIS:"):
+        return _analyze_requirement(prompt[len("REQUIREMENT_ANALYSIS:"):])
+    if prompt.startswith("DESIGN:"):
+        return _design_from_requirement(prompt[len("DESIGN:"):])
+    if prompt.startswith("CODE_GENERATION:"):
+        return _generate_code(prompt[len("CODE_GENERATION:"):])
     return ""
 
 
@@ -69,3 +77,38 @@ def _suggest_tests(payload: str) -> str:
         cases.append("기본 인자를 사용하는 연속 호출 간 상태 공유가 없는지 검증하는 테스트")
 
     return "\n".join(f"- {c}" for c in cases)
+
+
+def _analyze_requirement(payload: str) -> str:
+    title, _, description = payload.partition("|||")
+    return f"요구사항: '{title}' 기능이 필요하다. 상세: {description}"
+
+
+def _slugify(title: str) -> str:
+    words = re.findall(r"[A-Za-z0-9]+", title)
+    if not words:
+        return "generated_function"
+    return "_".join(w.lower() for w in words)[:40]
+
+
+def _design_from_requirement(payload: str) -> str:
+    title, _, requirement = payload.partition("\n---REQUIREMENT---\n")
+    slug = _slugify(title)
+    return f"설계: 함수 `{slug}(*args, **kwargs)`를 추가한다. 요구사항: {requirement}"
+
+
+def _extract_slug(design_text: str) -> str:
+    if "`" not in design_text:
+        return "generated_function"
+    start = design_text.index("`") + 1
+    end = design_text.index("(", start)
+    return design_text[start:end]
+
+
+def _generate_code(design_text: str) -> str:
+    slug = _extract_slug(design_text)
+    return (
+        f'def {slug}(*args, **kwargs):\n'
+        f'    """TODO: {design_text}"""\n'
+        f'    raise NotImplementedError\n'
+    )
