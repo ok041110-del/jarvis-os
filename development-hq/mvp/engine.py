@@ -232,40 +232,107 @@ def _extract_section(requirement: str, section: str) -> str:
     return body.strip()
 
 
+def _section_bullets(section_body: str) -> list:
+    """섹션 본문에서 실제 내용이 있는 불릿 줄만 뽑아 문자열 리스트로
+    반환한다. Requirement(`_analyze_requirement`, MVP-0005/0010)가 쓰는
+    두 가지 placeholder 표기 관례를 모두 제외한다 — In/Out of
+    Scope처럼 괄호로 감싼 것("- (감지된 ... 없음)")과, Risks/Open
+    Questions처럼 괄호 없이 "없음"으로 끝나는 것("- 식별된 Risk
+    없음")."""
+    lines = [ln.strip() for ln in section_body.splitlines() if ln.strip().startswith("- ")]
+    return [
+        ln[2:].strip()
+        for ln in lines
+        if not ln.strip().startswith("- (") and not ln.strip().endswith("없음")
+    ]
+
+
 def _bullets_to_restated_lines(section_body: str, prefix: str, empty_note: str) -> str:
-    lines = [ln for ln in section_body.splitlines() if ln.strip().startswith("- ")]
-    real_lines = [ln[2:].strip() for ln in lines if not ln.strip().startswith("- (")]
+    real_lines = _section_bullets(section_body)
     if not real_lines:
         return f"- {empty_note}"
     return "\n".join(f"- {prefix}: {s}" for s in real_lines)
 
 
+def _acceptance_to_interface_lines(acceptance_body: str, slug: str) -> str:
+    """Requirement의 Acceptance Criteria(Draft) 각 항목을, Implementation이
+    실제로 만들 수 있는 검증 Interface(함수 시그니처 하나씩)로 변환한다.
+    Acceptance Criteria는 이미 "확인 가능한 조건" 형태의 문장이므로,
+    그 문장 하나당 검증 함수 시그니처 하나를 규칙 기반으로 대응시킨다
+    — 새 정보를 추정하지 않고 Requirement에 있는 문장만 재사용한다."""
+    items = _section_bullets(acceptance_body)
+    if not items:
+        return "- (Acceptance Criteria가 없어 Interface를 도출할 수 없음)"
+    return "\n".join(
+        f"- `{slug}_check_{i}() -> bool`: {item}" for i, item in enumerate(items, start=1)
+    )
+
+
 def _design_from_requirement(payload: str) -> str:
-    """Requirement Specification을 Architecture 초안(Component /
-    Responsibility / Constraints / Open Questions / Reference
-    Requirement)으로 변환한다. Requirement의 In Scope/Out of Scope
-    절을 그대로 재서술하는 규칙 기반 구현이다 — ML/LLM 호출 없음.
+    """Requirement Specification을 Architecture Draft(Component /
+    Responsibility / Interfaces / Constraints / Open Questions /
+    Reference Requirement)로 변환한다. Requirement 절(Goal/In Scope/
+    Out of Scope/Acceptance Criteria/Risks/Open Questions)에서 실제
+    내용을 뽑아 재구성하는 규칙 기반 구현이다 — ML/LLM 호출 없음.
+
+    MVP-0005~0010까지 Design은 Requirement를 그대로 이어붙이거나
+    (Reference Requirement 절), In/Out of Scope 문장만 재서술하는
+    수준이었다("책임: {문장}", "제약: {문장}"). Open Questions는
+    Requirement 내용과 무관하게 항상 동일한 고정 문장이었다.
+
+    MVP-0011은 다음을 바꾼다:
+    - Component: Requirement의 Goal(MVP-0010에서 Issue 문장 기반으로
+      개선됨)을 그대로 인용해 이 Component가 구현해야 할 목표를
+      명시한다 — 이전에는 "이 Issue의 기능을 구현할 단일 Component"
+      처럼 Goal 내용과 무관한 고정 문구였다.
+    - Interfaces(신규 절): Acceptance Criteria(Draft)의 각 문장을
+      `{slug}_check_N() -> bool` 형태의 검증 함수 시그니처로
+      대응시킨다 — Implementation이 실제로 구현할 수 있는 단위를
+      제공한다.
+    - Constraints: 기존 Out of Scope 기반 제약에, Requirement의
+      Risks 절에서 뽑은 항목을 "회피" 제약으로 추가한다 — Risk도
+      Implementation이 지켜야 할 제약이라는 관점에서 재분류한다.
+    - Open Questions: Requirement의 Open Questions 절에 실제 항목이
+      있으면 그것을 그대로 옮기고, 기존 고정 문장(Acceptance Criteria
+      충족 여부 확인 필요)은 그 뒤에 계속 덧붙인다 — Requirement에
+      Open Question이 없을 때만 고정 문장 하나만 남는다.
     """
     title, _, requirement = payload.partition("\n---REQUIREMENT---\n")
     slug = _slugify(title)
 
+    goal_body = _extract_section(requirement, "Goal")
     in_scope_body = _extract_section(requirement, "In Scope")
     out_of_scope_body = _extract_section(requirement, "Out of Scope")
+    acceptance_body = _extract_section(requirement, "Acceptance Criteria (Draft)")
+    risks_body = _extract_section(requirement, "Risks")
+    open_questions_body = _extract_section(requirement, "Open Questions")
+
+    goal_text = goal_body if goal_body else f"'{title}' 기능을 추가한다."
 
     responsibility_lines = _bullets_to_restated_lines(
         in_scope_body, "책임", "Requirement에서 감지된 In Scope 항목이 없어 Responsibility를 도출할 수 없음"
     )
-    constraint_lines = _bullets_to_restated_lines(
+    interface_lines = _acceptance_to_interface_lines(acceptance_body, slug)
+    out_of_scope_constraint_lines = _bullets_to_restated_lines(
         out_of_scope_body, "제약", "Requirement에서 감지된 Out of Scope 항목 없음"
     )
+    risk_constraint_lines = _bullets_to_restated_lines(
+        risks_body, "회피", "Requirement에서 식별된 Risk 없음"
+    )
+    constraint_lines = f"{out_of_scope_constraint_lines}\n{risk_constraint_lines}"
+
+    requirement_open_questions = _section_bullets(open_questions_body)
+    open_question_lines = "\n".join(f"- {q}" for q in requirement_open_questions)
+    fixed_open_question = "- Acceptance Criteria 충족 여부는 Implementation/Validation Stage에서 별도로 확인이 필요하다."
+    open_question_lines = f"{open_question_lines}\n{fixed_open_question}" if open_question_lines else fixed_open_question
 
     return (
-        f"## Component\n`{slug}(*args, **kwargs)`를 이 Issue의 기능을 구현할 "
-        f"단일 Component로 제안한다.\n\n"
+        f"## Component\n`{slug}(*args, **kwargs)`를 다음 Goal을 구현할 "
+        f"단일 Component로 제안한다: {goal_text}\n\n"
         f"## Responsibility\n{responsibility_lines}\n\n"
+        f"## Interfaces\n{interface_lines}\n\n"
         f"## Constraints\n{constraint_lines}\n\n"
-        f"## Open Questions\nAcceptance Criteria 충족 여부는 Implementation/"
-        f"Validation Stage에서 별도로 확인이 필요하다.\n\n"
+        f"## Open Questions\n{open_question_lines}\n\n"
         f"## Reference Requirement\n{requirement}"
     )
 
