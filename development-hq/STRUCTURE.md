@@ -14,6 +14,8 @@ Agent
 
 Division과 Team은 Development HQ 내부의 선택적 관례이며, Jarvis OS Meta Architecture의 필수 계층이 아니다. Jarvis OS Kernel은 Division/Team의 존재 여부를 알지 못하며, 이 계층은 Registry에 등록되지 않는다.
 
+Stage는 Development HQ가 선택적으로 사용할 수 있는 또 다른 내부 조직 구조이며, Division/Team과 마찬가지로 Jarvis OS Meta Architecture의 필수 계층이 아니다. Development HQ는 Division/Team, Stage, 또는 둘 다 사용하지 않는 방식 중 선택할 수 있다. Stage 정의는 `development-hq/stages/`를 참조한다(ADR-0001).
+
 ## Capability (예시)
 
 아래는 Development HQ가 Registry에 등록할 수 있는 Capability의 예시일 뿐이며, Reference Architecture로 확정하는 목록이 아니다. 다른 HQ는 전혀 다른 Capability 집합을 가질 수 있다.
