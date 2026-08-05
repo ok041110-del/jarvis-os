@@ -11,6 +11,13 @@ ML/임베딩/벡터 검색 없이, 기존 `engine.py`와 동일한 "규칙 기�
 이 계층은 Development HQ 내부 전용이다. Jarvis OS 공통 계층으로
 일반화하지 않는다. 향후 다른 HQ에서도 동일한 요구가 반복 관찰될 때만
 Governance 절차로 공통 계층 승격 여부를 판단한다.
+
+MVP-0009: `collect_relevant_context()`(카테고리별 파일 목록)는 그대로
+두고, 그 결과를 8개 항목(Issue/Goal/Relevant Documents/Relevant Code/
+Relevant Observations/Relevant Decisions/Known Constraints/Open
+Questions)으로 재구성하는 `build_context_bundle()`을 추가한다. 새
+Runtime/Task Dispatcher/Stage Runner/Pipeline Runner/Capability는
+추가하지 않는다.
 """
 
 import re
@@ -86,3 +93,68 @@ def collect_relevant_context(issue: dict) -> dict:
     for category, (directory, pattern, exclude_dirs) in CATEGORY_PATHS.items():
         context[category] = _relevant_files(keywords, directory, pattern, exclude_dirs)
     return context
+
+
+# MVP-0009: Governance 문서 중 "재평가 조건이 곧 제약"인 것과, 자유 텍스트
+# 내부에 "아직 결정되지 않았다"는 사실을 담고 있는 것을 구분하는 규칙.
+# 새 카테고리 디렉토리를 추가하지 않는다 — 이미 `collect_relevant_context()`가
+# 수집한 파일들의 *내용*을 규칙 기반으로 재분류할 뿐이다.
+_OPEN_WORD_RE = re.compile(r"\bopen\b", re.IGNORECASE)
+_OPEN_KOREAN_MARKERS = ("미해결", "검토가 필요")
+
+
+def _extract_open_questions(paths: list, limit: int = 5) -> list:
+    """주어진 (repo-relative) 문서 경로들의 본문에서 "아직 결정되지 않음"을
+    나타내는 문장만 골라낸다. 문장 분리·마커 매칭 외의 판단은 하지 않는다.
+
+    영문 마커(`open`)는 단어 경계로 매칭한다 — 부분 문자열로 매칭하면
+    "OpenHands"/"OpenAI" 같은 고유명사가 "Open Decision"과 동일하게
+    잡혀 Open Questions가 실제로는 열린 질문이 아닌 문장으로 오염된다
+    (이 저장소의 RFC-0003이 실제 사례).
+    """
+    questions = []
+    for rel_path in paths:
+        path = ROOT / rel_path
+        try:
+            content = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for line in content.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if _OPEN_WORD_RE.search(stripped) or any(marker in stripped for marker in _OPEN_KOREAN_MARKERS):
+                questions.append(f"{rel_path}: {stripped}")
+    return questions[:limit]
+
+
+def build_context_bundle(issue: dict) -> dict:
+    """`collect_relevant_context()`가 반환한 카테고리별 파일 목록을,
+    Planning이 그대로 입력으로 사용할 수 있는 8개 항목짜리 구조화된
+    Context Bundle로 재구성한다.
+
+    새 수집 로직을 추가하지 않는다 — `collect_relevant_context()`가 이미
+    찾은 파일 목록을 재배치(relevant_documents/relevant_code/...)하고,
+    그중 RT 문서와 "Open" 마커가 있는 문서에서 Known Constraints/Open
+    Questions만 규칙 기반으로 뽑아낸다.
+    """
+    context = collect_relevant_context(issue)
+
+    relevant_code = list(context["source_code"])
+    relevant_code += [p for p in context["existing_workflow"] if p not in relevant_code]
+
+    relevant_documents = context["mvp_documents"] + context["rfc_documents"]
+    relevant_decisions = context["adc_documents"] + context["adr_documents"]
+
+    decision_and_doc_paths = relevant_documents + relevant_decisions + context["obs_documents"]
+
+    return {
+        "issue": issue,
+        "goal": issue.get("goal", issue["title"]),
+        "relevant_documents": relevant_documents,
+        "relevant_code": relevant_code,
+        "relevant_observations": context["obs_documents"],
+        "relevant_decisions": relevant_decisions,
+        "known_constraints": context["rt_documents"],
+        "open_questions": _extract_open_questions(decision_and_doc_paths),
+    }
