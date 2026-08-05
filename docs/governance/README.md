@@ -31,12 +31,20 @@ ADC에서 Accept/Promote로 판단된 사항을 실제 Baseline 문서 변경 �
 기록하는 단계. (최초 사용: ADR-0001, ADC-0003 판단 1의 Stage 기반 구조
 반영.)
 
-### Observation (Governance v2)
+### Observation (Governance v2, Baseline)
+
+> Observe First, Decide Later.
+> Accumulate Before Escalate.
 
 MVP가 끝날 때마다 자동으로 RFC를 여는 대신, 사실만 담은 OBS 문서를
-누적한다. RT-0001이 정의한 Trigger가 실제로 충족되었거나(§Pattern 판정
-규칙 A), 같은 주제의 OBS가 3개 이상 쌓였을 때만(§Pattern 판정 규칙 B)
-RFC를 연다. 상세 규칙은 `docs/governance/observations/README.md` 참조.
+누적한다. 새로운 규칙은 다음 두 개뿐이다.
+
+- **Rule A**: RT Trigger 충족 → RFC
+- **Rule B**: 동일 Tag Observation 3회 → RFC
+
+OBS는 사실만 기록한다. Architecture 제안, 판단, Decision은 금지한다.
+Sub Tag와 Impact는 검색 메타데이터로만 쓰며 Governance 판단에는 사용하지
+않는다. 상세 규칙은 `docs/governance/observations/README.md` 참조.
 
 ## 현재까지 확정된 흐름 (Governance v1, 기록용)
 

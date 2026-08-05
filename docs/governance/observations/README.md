@@ -1,5 +1,10 @@
 # Observations (Governance v2)
 
+**Status**: Baseline (공식 도입)
+
+> Observe First, Decide Later.
+> Accumulate Before Escalate.
+
 ## 이 계층이 추가되는 이유
 
 Governance v1(RFC → ADC → ADR)에서는 MVP 하나가 끝날 때마다 그 MVP의
@@ -47,26 +52,39 @@ ADC-0001~0003, RT-0001, ADR-0001은 그대로 유지된다. 이 문서는 그
    Model이나 Development HQ Baseline에 어떤 항목도 추가하지 않는
    순수 기록 문서다.
 
-## Pattern 판정 규칙 (기계적 기준, 판단 아님)
+## Rule (새로운 규칙은 이 두 개뿐이다)
 
-Pattern은 다음 두 가지 방식 중 하나로만 성립한다. 둘 다 "판단"이 아니라
-"조건 충족 여부 확인"이다.
+Governance v2가 도입하는 새 규칙은 Rule A, Rule B 두 개뿐이다. 그 외에는
+아무 규칙도 추가하지 않는다.
 
-- **A. RT-0001 연동**: 하나 이상의 OBS 문서가, `docs/governance/rt/RT-0001.md`
-  에 이미 정의된 Re-evaluation Trigger(예: "Engine 수 ≥ 2", "하드코딩된
-  Task 호출 체인 수 ≥ 2")가 실제로 충족되었다는 사실을 기록하면, 그
-  자체가 Pattern이다. RFC는 그 OBS 문서(들)를 근거로 즉시 열릴 수 있다.
-  이는 새로운 판정 기준이 아니라 RT-0001이 이미 정한 기준을 그대로
-  적용하는 것이다.
-- **B. 반복 관찰(RT-0001이 아직 다루지 않는 주제)**: RT-0001에 대응하는
-  Trigger가 없는 주제에 대해서는, 동일한 `Tag`를 가진 OBS 문서가
-  **3개 이상** 존재하고 서로 모순되지 않을 때 Pattern으로 본다. 이
-  숫자(3)는 Governance v2가 도입하는 유일한 새 규칙이며, "몇 번 반복돼야
-  RFC를 열 자격이 있는가"라는 절차적 기준일 뿐 Architecture 판단이
-  아니다.
+### Rule A
 
-Pattern으로 판정된 OBS 문서(들)는 상태를 `Absorbed into RFC-XXXX`로
-갱신한다. Pattern이 아직 성립하지 않은 OBS는 `Open`으로 남는다.
+```
+RT Trigger 충족
+  ↓
+RFC
+```
+
+하나 이상의 OBS 문서가 `docs/governance/rt/RT-0001.md`에 이미 정의된
+Re-evaluation Trigger(예: "Engine 수 ≥ 2", "하드코딩된 Task 호출 체인
+수 ≥ 2")가 실제로 충족되었다는 사실을 기록하면, RFC를 연다. 새로운 판정
+기준이 아니라 RT-0001이 이미 정한 기준을 그대로 적용하는 것이다.
+
+### Rule B
+
+```
+동일 Tag Observation 3회
+  ↓
+RFC
+```
+
+RT-0001에 대응하는 Trigger가 없는 주제에 대해서는, 동일한 `Tag`를 가진
+OBS 문서가 3개 이상 존재하고 서로 모순되지 않을 때 RFC를 연다.
+
+Rule A와 Rule B 둘 다 "판단"이 아니라 "조건 충족 여부 확인"이다. Rule A
+또는 Rule B로 RFC가 열리면, 그 근거가 된 OBS 문서의 Status를
+`Absorbed into RFC-XXXX`로 갱신한다. 아직 어느 Rule도 충족하지 않은
+OBS는 `Open`으로 남는다.
 
 ## 디렉토리 구조
 
@@ -101,10 +119,25 @@ Candidate와 "그 외" 하나를 그대로 재사용한 것이며, 새로운 분
   없으므로 Pattern 판정은 §Pattern 판정 규칙 B(반복 관찰, 3개 이상)만
   적용된다)
 
+## Sub Tag와 Impact (검색 메타데이터, Governance 판단에 사용하지 않음)
+
+OBS 문서는 `Tag` 외에 선택적으로 `Sub Tag`와 `Impact`를 붙일 수 있다.
+둘 다 **검색과 분류를 돕는 메타데이터일 뿐**이며, Rule A/B의 Pattern
+판정에는 어떤 영향도 주지 않는다.
+
+- **Sub Tag**: `Tag`보다 세부적인 자유 텍스트 키워드(예: `engine.py`,
+  `AGENT_CAPABILITY_MAP`). Pattern 판정은 오직 `Tag` 단위로만 이뤄지며,
+  Sub Tag가 같다고 Rule B의 "동일 Tag 3회"에 포함되지 않는다.
+- **Impact**: 이 사실이 어디에 영향을 줄 수 있는지 자유 텍스트로 남기는
+  참고용 메모(예: "기존 MVP-0001 테스트와 충돌 가능"). 이 필드는 판단이나
+  결론이 아니라 검색 시 맥락을 빠르게 파악하기 위한 메모이며, Rule A/B
+  판정 근거로 쓰지 않는다.
+
 ## 최소 템플릿
 
-`OBS-TEMPLATE.md` 참조. 필드는 다음 6개뿐이다: ID, Source, Tag, Fact,
-Non-Analysis 선언, Status.
+`OBS-TEMPLATE.md` 참조. 필수 필드는 6개(ID, Source, Tag, Fact,
+Non-Analysis 선언, Status)이며, `Sub Tag`·`Impact`는 검색 메타데이터로만
+쓰는 선택 필드다.
 
 ## 기존 MVP Observation 문서와의 관계
 

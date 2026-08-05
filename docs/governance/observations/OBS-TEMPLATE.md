@@ -1,11 +1,13 @@
 # OBS-XXXX
 
 **Source**: (예: MVP-0004, `docs/01_mvp/MVP-0004-observation.md`)
-**Tag**: (Task Dispatcher / Engine Gateway / Registry / Context 전달 메커니즘 / Other 중 하나)
+**Tag**: (Task Dispatcher / Engine Gateway / Registry / Context 전달 메커니즘 / Other 중 하나 — 필수, Rule A/B Pattern 판정에 사용됨)
+**Sub Tag**: (선택. 세부 검색 키워드. Pattern 판정에 사용하지 않음)
+**Impact**: (선택. 어디에 영향을 줄 수 있는지 메모. Pattern 판정에 사용하지 않음)
 **Status**: Open
 
-> 이 문서는 사실만 기록한다. 판단, 설계, Architecture 제안을 하지
-> 않는다.
+> 이 문서는 사실만 기록한다. 판단, 설계, Architecture 제안, Decision을
+> 하지 않는다.
 
 ## Fact
 
