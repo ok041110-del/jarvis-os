@@ -1,9 +1,12 @@
 # RFC-0001: Kernel Boundary
 
 **Status**: Proposed (검토 대상, 결정 아님)
-**Author**: Development HQ MVP-0001 구현 결과
+**Author**: Claude Code (Development HQ MVP-0001 구현 세션)
 **관련 Baseline**: `docs/01_architecture/BASELINE.md` §6 Concept Model, §7 System Boundary
 **관련 ADC**: ADC-01, ADC-02, ADC-07, ADC-09, ADC-10 (`docs/03_adc/ADC.md`)
+
+> 본 RFC는 Kernel의 구현 방법을 제안하지 않는다.
+> 본 RFC는 MVP에서 관찰된 Kernel Extraction Candidate의 Boundary만 논의한다.
 
 ## 배경
 
@@ -43,9 +46,13 @@ MVP 구현 중 Implementation Stop Trigger(딕셔너리 → 클래스/서비스�
    Candidate 4 — Engine의 다대다 공유 관계 — 와 연동)
 3. **Registry**: Agent-Capability 매핑이 여러 HQ에 걸쳐 조회되어야 하는 시점부터
    Registry가 필요한가, 아니면 단일 HQ 내부에서도 Agent 수가 늘면 필요해지는가?
-4. **Context 전달 메커니즘**: in-memory 변수 전달이 실패(Fault)나 재시도를
-   요구하는 순간 무엇으로 대체되어야 하는가? 이는 Memory Service(영속화)와
-   다른 문제인가?
+4. **Context 전달 메커니즘**: in-memory 변수 전달은 어느 시점부터 불충분해지는가
+   (예: 실행 실패 후 재시도가 필요해지는 시점)? 이 시점 판단은 Memory
+   Service(영속화)의 필요 시점 판단과 같은 질문인가, 다른 질문인가?
+
+   > 참고: MVP-0001은 실행 실패·재시도 상황을 직접 관찰하지 않았다(Fault 전파
+   > 인프라는 MVP Out of Scope). 이 질문은 관찰된 사실이 아니라 가설적
+   > 시나리오이며, 답을 전제하지 않는다.
 
 ## 관련 Open Decision과의 연결
 
