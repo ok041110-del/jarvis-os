@@ -236,9 +236,8 @@ MVP 문서 다수). 파일 경로(`docs/architecture/core/`,
 
 ### Evidence
 
-- `docs/01_architecture/BASELINE.md` §14(판단 당시 §11 → v1.1에서
-  §13 → v1.2에서 §14): Architecture State = **Frozen**,
-  Version = v1.0(판단 당시).
+- `docs/01_architecture/BASELINE.md` **§Version 절**(판단 당시 §11):
+  Architecture State = **Frozen**, Version = v1.0(판단 당시).
 - 같은 문서 §10 Out of Scope: **"Kernel Architecture"**, "Component
   Design(Scheduler, Engine Gateway, Registry, Communication, Memory,
   Policy 등)"이 명시되어 있다.

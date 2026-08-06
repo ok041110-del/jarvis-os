@@ -344,11 +344,192 @@ Freeze 원칙에 따라, 미결 사항을 같은 자리에 명시한다.
 이 절은 Kernel이 무엇을 관리하는지를 정의할 뿐, 그것을 관리할
 Component를 설계하지 않는다(KP-1).
 
-## 14. Version
+## 14. Kernel Public Contract (Context 영역)
+
+> 근거: `docs/architecture/core/RFC-0004-kernel-public-contract.md`,
+> `docs/architecture/core/ADC-0004-kernel-public-contract.md` 판단 1~8,
+> `docs/04_adr/ADR-0004-kernel-public-contract-baseline.md`
+
+§11이 Kernel이 **무엇인지**, §12가 **어떻게 설계되어야 하는지**, §13이
+**무엇을 관리하는지**를 정의했다면, 이 절은 Kernel이 **외부에 무엇을
+보장하는지**를 정의한다.
+
+**이 계약은 API가 아니다.** 함수·자료형·프로토콜·직렬화 형식을
+정의하지 않는다. API는 이 계약을 구현하는 다음 단계다 — 계약이 위에
+있고 API가 아래에 있다(KP-1).
+
+### 14.1 계약의 범위
+
+**이 계약은 Kernel 전체가 아니라 Context 영역에 한정된다.** 계약은
+결정된 만큼만 존재한다.
+
+| RFC-0002 §15의 Kernel 책임 후보 | 현재 상태 |
+|---|---|
+| 1. Task 전달 책임 | **미결** — 이 계약의 범위 밖 |
+| 2. Capability 탐색 책임 | **미결** — 이 계약의 범위 밖 |
+| 3. Engine 호출 책임 | **미결** — 이 계약의 범위 밖 |
+| 4. Context 전달 책임 | 결정됨 (§13) |
+| 5. Stable Prefix 책임 | 후보. 형태는 Defer(§13.6) |
+| 6. Context Boundary 책임 | 후보. 형태는 Defer(§13.6) |
+| 7. Context Assembly 책임 | 결정됨 (§13.3) |
+| 8. Context Ordering 책임 | 결정됨 (§13.2·§13.3) |
+
+1~3이 각각 판단되면 그때 이 계약이 확장된다.
+
+**계약의 수신자**: Development HQ(`BOUNDARY.md`), Execution Layer
+(Kernel Module로 Accept됨), 그리고 §3 "Composable HQ"·§4 "Reference
+Architecture"에 따라 미래의 모든 HQ. 다만 미래 HQ가 아직 존재하지
+않으므로, 이 계약이 그들에게도 충분한지는 **검증된 바 없다.**
+
+### 14.2 Public Responsibilities — 외부가 Kernel에 요구할 수 있는 것
+
+| ID | 책임 | 내용 |
+|---|---|---|
+| PR-1 | **Kernel Context 제공** | 외부가 제공한 Segment와 Ordering Policy로부터 조립된 Kernel Context를 값으로 돌려준다. |
+| PR-2 | **Context Assembly** | A-1~A-5 불변식과 O-1~O-4 순서 요구를 만족하는 조립을 수행한다(§13.3). |
+| PR-3 | **Context Validation** | 구조 불변식을 검증하고, 위반을 드러낸다(§13.2). |
+| PR-4 | **Context Rendering 계약 제공** | Kernel Context를 표현으로 변환하는 **계약(R-1·R-2·R-4·R-5)을 보장한다**(§13.4). |
+
+**PR-1의 "제공"은 "내용을 마련한다"는 뜻이 아니다.** Kernel은 완성된
+Context를 **돌려줄** 뿐, 무엇이 Context에 들어가야 하는지는 HQ가
+정한다(§13.5, CM-4). 이 구분이 무너지면 §7과
+`development-hq/BOUNDARY.md`가 동시에 무너진다.
+
+**PR-4는 Renderer를 제공하지 않는다.** Kernel이 보장하는 것은 Renderer
+계약이며, Claude/GPT/Gemini Renderer는 Defer 상태다(§13.6). "계약
+제공"과 "Renderer 제공"은 다르다.
+
+**이 4개는 §13.2의 Kernel 책임 4개(수집·검증·병합·정렬)와 다른
+목록이며, 그것을 대체하지 않는다.** §13.2는 *Kernel 책임*을 정의하고,
+이 표는 *외부가 요청할 수 있는 것*을 정의한다. 수집·병합·정렬은 Kernel
+책임이지만 Public Surface가 아니다 — 외부는 그 단계가 아니라 결과
+(G-2·G-6)를 관찰한다.
+
+### 14.3 Public Guarantees — 외부가 의존해도 되는 성질
+
+깨지면 계약 위반이다. **확인할 수 없는 보장은 계약이 아니라 선언이므로,
+외부의 확인 방법을 함께 적는다.**
+
+| ID | 보장 | 내용 | 외부의 확인 방법 |
+|---|---|---|---|
+| G-1 | **Deterministic** | 같은 (Segment 집합, Ordering Policy) → 같은 Kernel Context. 호출 시각·호출 순서·프로세스 상태·환경 변수는 결과에 영향을 주지 않는다(KP-2, §13.3). | 같은 입력으로 두 번 호출해 결과를 비교 |
+| G-2 | **Stable Ordering** | 순서는 전순서이며 선언된 Order Key에서 나온다. 동률은 Identifier로 해소된다(KP-3, O-1~O-4). | 입력 Segment의 제시 순서를 섞어도 결과 순서가 동일한지 확인 |
+| G-3 | **Engine Agnostic** | Kernel Context에는 특정 Engine에만 의미가 있는 요소가 존재하지 않는다(KP-5, CM-2, R-5). | Context에서 role·token 수·cache key 등이 발견되지 않는지 확인 |
+| G-4 | **Implementation Agnostic** | Kernel은 호출자의 Runtime·언어·저장소·실행 방식을 강제하지 않는다(KP-1, KP-5). | **관찰로 확인할 수 없다** — 아래 참조 |
+| G-5 | **Immutable Inputs** | 외부가 넘긴 Segment는 변경되지 않는다. 반환된 Kernel Context도 변경되지 않는다(A-1, A-3, R-2). | 호출 전후 입력값을 비교 |
+| G-6 | **No Silent Failure** | 구조 불변식 위반과 병합 충돌은 조용히 넘어가지 않는다(§13.2). | 규칙을 어긴 입력이 거부되는지 확인 |
+| G-7 | **Stateless Boundary** | **Context 경로에 한하여**, Kernel은 호출 간 상태를 갖지 않는다. 시계·난수를 읽지 않으며 Identifier·시각을 생성하지 않는다(CM-3, A-4). | 호출 순서를 바꿔도 각 결과가 동일한지 확인 |
+
+**G-4의 비대칭을 숨기지 않는다.** "강요하지 않는다"는 부정 명제이며
+반례가 나타나야 위반이 드러난다. G-4는 검증이 아니라 **검토(Review)로만
+지킬 수 있는 보장**이다.
+
+**G-7의 범위가 Context 경로로 한정된 이유**: KP-6의 문언은 *"Kernel은
+책임을 정의하지만 특정 구현체의 내부 상태를 강제하지 않는다"*이며,
+"Kernel이 상태를 갖지 않는다"와 같은 말이 아니다. 실제로 Kernel
+Module로 Accept된 Governance는 문서의 등록과 상태를 다룬다. **G-7을
+Kernel 전체에 적용하면 그 결정과 충돌한다.** Context 경로 안에서는
+CM-3·A-4가 근거를 제공한다.
+
+### 14.4 Hidden Responsibilities — 외부가 의존해서는 안 되는 것
+
+> **Hidden의 효력**: Hidden에 의존한 코드가 Kernel 변경으로 깨지는 것은
+> **계약 위반이 아니다.** 이 문장이 이 목록의 존재 이유다.
+
+| ID | 항목 | 왜 숨기는가 |
+|---|---|---|
+| H-1 | Ordering Policy의 구현 | 외부가 보장받는 것은 G-2이지 Order Key의 계산 방법이 아니다. |
+| H-2 | Builder 내부 구조 | 수집·검증·병합·정렬의 단계 분할과 실행 순서. 외부가 보장받는 것은 PR-1의 결과와 G-1~G-7이다. |
+| H-3 | Metadata의 **내부 표현** 방식 | §13.1은 "문자열 키-값의 순서 없는 집합"이라는 성질만 정의했다. 영속화는 Hidden이 아니라 Non-Goal이다(N-4). |
+| H-4 | Renderer 내부 구현 | 외부가 보장받는 것은 R-1·R-2·R-4·R-5다. |
+| H-5 | Context Identifier 파생 규칙 | **Defer 상태다**(§13.6). 미결을 Public에 두면 외부가 미결에 의존하게 된다. |
+| H-6 | Segment의 자료구조·직렬화 형식 | 미결 사항이다. |
+
+**Hidden과 Extension Point에 같은 항목이 나오는 것은 모순이 아니다** —
+층이 다르다.
+
+| 층 | 공개 여부 |
+|---|---|
+| 그 지점이 **교체 가능하다는 사실** | **Public** (§14.5) |
+| 그 지점이 **무엇을 지켜야 하는가**(계약) | **Public** (§13.4, §13.2) |
+| 그 지점의 **구현 내용** | **Hidden** (H-1, H-4) |
+
+즉 **계약은 공개하고 구현은 숨긴다.**
+
+### 14.5 Extension Points — 교체 가능하다고 선언된 지점
+
+> **이것은 플러그인 메커니즘이 아니다.** 등록·발견·로딩·버전 협상
+> 방식은 Component Design이며 §10 Out of Scope다. 이 절이 정의하는
+> 것은 **"여기가 교체 지점이다"라는 계약상의 선언**뿐이다.
+
+| ID | 확장 지점 | 무엇을 교체하는가 | 지켜야 할 계약 |
+|---|---|---|---|
+| X-1 | **Renderer** | Kernel Context를 어떤 표현으로 내보낼 것인가 | R-1·R-2·R-4·R-5 |
+| X-2 | **Ordering Policy** | Segment의 Order Key를 어떻게 정할 것인가 | O-1~O-4, G-1 |
+| X-3 | **Context Source** | 무엇이 Context에 들어가는가. **플러그인이 아니라 계약의 입력 경계다.** | CM-4 |
+| X-4 | **Future Context Model** | Context 구성 요소의 확장. **확장이 들어올 자리의 표시이며, 확장이 일어난다는 예고가 아니다.** | CM-1~CM-4 |
+
+**X-4의 의미**: §13.6이 Defer로 남긴 것들이 훗날 확정될 경우 들어올
+자리를 계약 안에 표시해 둔 것이다. 예컨대 4-Layer Context Model이
+확정되면 그것은 **하나의 Ordering Policy(X-2)로** 들어오며, Model
+(§13.1)도 이 계약의 Public 항목도 바뀌지 않는다. **그 확정 여부 자체는
+여전히 미결이다.**
+
+X-1~X-4는 §3 "Everything is Replaceable"(v1.0부터 Frozen)을 Context
+영역에 적용한 것이며 새 원칙이 아니다.
+
+**확장의 위험**: 잘못 만든 Renderer나 Ordering Policy는 G-1을 깨뜨릴
+수 있다(예: 시각을 읽는 Ordering Policy). 이 계약은 그 위험을
+**계약으로만** 다룬다 — 지키지 않은 확장은 Kernel의 보장 밖이다.
+**강제·탐지 메커니즘은 Defer다**(§14.7).
+
+### 14.6 Explicit Non-Goals — Kernel이 하지 않는 것
+
+> **Non-Goal은 "이 계약이 그 Component를 제공하지 않는다"는 뜻이지,
+> "그 책임이 Kernel에 속하지 않는다"는 뜻이 아니다.** KP-1이 이 구분을
+> 요구한다 — Kernel은 책임을 갖고, Component는 그 책임을 구현하는
+> 방법이다. 아래는 전부 **Component 수준의 선언**이다.
+
+| ID | Non-Goal | 제공하지 않는 것 | 이것이 닫지 **않는** 질문 |
+|---|---|---|---|
+| N-1 | Runtime 관리 | Workflow 실행, Task 인스턴스 관리 | "Runtime 개념이 존치하는가"(ADC-02, **Open**) |
+| N-2 | Scheduler 구현 | Task 배분·순서 결정 Component | "Task 전달 책임이 Kernel에 속하는가"(RFC-0002 §15-1, **미결**) |
+| N-3 | Agent 관리 | Agent의 생성·구성·실행 | 없음 — §7이 이미 HQ 책임으로 확정 |
+| N-4 | Memory Service 구현 | Context의 영속화·복원 | "Memory Module이 필요한가"(**Defer**) |
+| N-5 | 내용 품질 판단 | Context 내용의 사실성·관련성·품질 평가 | 없음 — §7, §13.2가 이미 확정 |
+| N-6 | 도메인 내용 선정 | 무엇이 Context에 들어가야 하는지 결정 | 없음 — §13.5, CM-4가 이미 확정 |
+
+**"닫지 않는 질문" 열은 필수다.** 이 열이 없으면 이 표는 시간이
+지나면서 미결 사안을 조용히 닫는 문서가 된다.
+
+### 14.7 계약의 변경 규칙과 미결 항목
+
+| 대상 | 변경 시 필요한 절차 |
+|---|---|
+| Public — PR-*, G-*, X-*의 존재와 그 계약 | **RFC → ADC → ADR → Baseline**(`ARCHITECTURE_GOVERNANCE.md`) |
+| Hidden — H-*의 내용 | 절차 없이 변경 가능. 외부는 여기에 의존하지 않기로 되어 있다(§14.4) |
+
+**이 절이 결정하지 않는 것 (Defer)**
+
+| 항목 | 상태 | 재검토 조건 |
+|---|---|---|
+| Extension Point의 메커니즘(등록·발견·로딩·검증) | **Defer** | 두 번째 Renderer 또는 두 번째 Ordering Policy가 실제로 필요해지는 시점 |
+| Contract Versioning 체계 | **Defer** | 계약이 실제로 변경되어 호환성 문제가 관찰되는 시점 |
+
+**다음 단계**: Kernel API — 이 계약을 어떤 인터페이스로 제공할
+것인가. 이 절은 API를 정의하지 않는다.
+
+§13.6의 Defer 6건은 여기서 다시 나열하지 않는다 — §13.6을 참조한다
+(Single Source of Truth).
+
+**Kernel Architecture와 Component Design은 여전히 §10 Out of Scope다.**
+이 절은 어떤 Component도 정의하지 않는다(KP-1).
+
+## 15. Version
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.2 |
+| Version | v1.3 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -356,6 +537,7 @@ Component를 설계하지 않는다(KP-1).
 
 | Version | 내용 |
 |---|---|
+| v1.3 | Kernel Public Contract(§14) 추가 — 계약 범위, Public Responsibilities, Public Guarantees, Hidden Responsibilities, Extension Points, Explicit Non-Goals, 변경 규칙. 기존 §14 Version → §15. 근거: ADR-0004 |
 | v1.2 | Kernel Context Model(§13) 추가 — Model 5개 요소, Builder 4개 책임, Assembly 불변식, Prompt Output Format, HQ 책임 배치. 기존 §13 Version → §14. 근거: ADR-0003 |
 | v1.1 | Kernel 정의(§11)와 Kernel Design Principles(§12) 추가. Core → Kernel 용어 통합. 근거: ADR-0002 |
 | v1.0 | 최초 Baseline (Frozen) |

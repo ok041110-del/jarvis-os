@@ -76,6 +76,26 @@
 > Prompt는 동일한 Kernel Context의 서로 다른 표현이며, Kernel Context가
 > 정본이다(`BASELINE.md` §13.4).
 
+## Kernel Public Contract (Reference)
+
+상세 정의는 `docs/01_architecture/BASELINE.md` §14 참조. 이 계약은
+Kernel 전체가 아니라 **Context 영역에 한정**된다.
+
+| 용어 | 정의 |
+|---|---|
+| Kernel Public Contract | Kernel이 외부(HQ, Execution Layer)에 보장하는 공식 약속. API가 아니며, API는 이 계약을 구현하는 다음 단계다 |
+| Public Responsibility | 외부가 Kernel에 요구할 수 있고 Kernel이 응답할 의무가 있는 것 (PR-1~PR-4) |
+| Public Guarantee | 외부가 의존해도 되는 성질. 깨지면 계약 위반이다 (G-1~G-7) |
+| Hidden Responsibility | Kernel이 수행하지만 **외부가 의존해서는 안 되는** 것. 여기에 의존한 코드가 깨지는 것은 계약 위반이 아니다 (H-1~H-6) |
+| Extension Point | 교체 가능하다고 **계약상 선언된 지점**. 플러그인 메커니즘이 아니다 (X-1~X-4) |
+
+> **계약은 공개하고 구현은 숨긴다.** 어떤 지점이 교체 가능하다는
+> 사실과 그 지점이 지켜야 할 계약은 Public이고, 그 지점의 구현
+> 내용은 Hidden이다(`BASELINE.md` §14.4).
+>
+> **Non-Goal은 "그 책임이 Kernel에 속하지 않는다"는 뜻이 아니다** —
+> Component 수준의 선언일 뿐이다(`BASELINE.md` §14.6).
+
 ## 핵심 원칙 (Reference)
 
 | 용어 | 정의 |

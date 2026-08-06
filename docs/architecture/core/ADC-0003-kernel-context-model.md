@@ -511,9 +511,8 @@ No ADR Required
 
 ### Evidence
 
-- `docs/01_architecture/BASELINE.md` §13 Version(판단 당시. ADR-0003
-  반영 후 §14로 이동한다): Version v1.1, Status Active, Architecture
-  State **Frozen**.
+- `docs/01_architecture/BASELINE.md` **§Version 절**(판단 당시 §13):
+  Version v1.1, Status Active, Architecture State **Frozen**.
 - 같은 문서 §10 Out of Scope: **Kernel Architecture**, Component
   Design이 명시되어 있다. v1.1이 §11에서 이를 그대로 유지한다고
   다시 못박았다.
