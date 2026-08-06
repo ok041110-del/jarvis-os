@@ -123,7 +123,7 @@ MVP-0001과 동일한 "reverse string"을 사용했다. `run_pipeline()` →
   문자열이 없음을 확인).
 - Development HQ(Planning, Design, Implementation Specification 생성,
   Validation, Project Intelligence, Workflow), `ExecutionRequestBuilder`
-  (MVP-0001), Core RFC-0001, Core ADC-0001 문서 — 모두 수정하지 않았다.
+  (MVP-0001), Kernel RFC-0001, Kernel ADC-0001 문서 — 모두 수정하지 않았다.
 - Prompt Engineering 일반론(어떤 문구가 더 효과적인 Prompt인지, Few-shot
   예시 삽입 여부 등) — 다루지 않았다. 이 MVP는 구조 재배치(Rendering)만
   다룬다.

@@ -1,10 +1,10 @@
-# ADC-0001: Core Baseline Module 채택 판단 (RFC-0001 후속)
+# ADC-0001: Kernel Baseline Module 채택 판단 (RFC-0001 후속)
 
 ## 목적
 
 `docs/architecture/core/RFC-0001-jarvis-os-core-baseline.md`가 정리한 5개
-Core Module 후보 — Governance, Workflow, Memory, Execution Layer, Event Bus
-— 를 **개별적으로** 판단한다. Core 전체를 일괄 승인하지 않는다.
+Kernel Module 후보 — Governance, Workflow, Memory, Execution Layer, Event Bus
+— 를 **개별적으로** 판단한다. Kernel 전체를 일괄 승인하지 않는다.
 
 이 문서는 구현 방법이나 설계를 제안하지 않는다. 근거는 Development HQ가
 Phase 1(MVP-0001~0013) 동안 **실제로 반복 관찰한 사실**과, RFC-0001이
@@ -42,14 +42,14 @@ of Authority**.
 
 Governance는 "필요할 것 같은" 미래 기능이 아니라, 이미 Jarvis OS 수준과
 Development HQ 수준 양쪽에서 반복 실행되어 실패 없이 동작한 절차 그
-자체다. Core Module로 채택하는 것은 새 메커니즘을 만드는 것이 아니라,
-이미 검증된 절차를 Core Baseline 문서에 명시적으로 기록하는 것이다.
+자체다. Kernel Module로 채택하는 것은 새 메커니즘을 만드는 것이 아니라,
+이미 검증된 절차를 Kernel Baseline 문서에 명시적으로 기록하는 것이다.
 
 ### Risks
 
-Governance를 Core Module로 명시해도, 그 실행 주체(누가/무엇이 RFC/ADC/ADR
+Governance를 Kernel Module로 명시해도, 그 실행 주체(누가/무엇이 RFC/ADC/ADR
 문서의 등록과 상태를 물리적으로 관리하는가)는 여전히 미정이다. 이 Accept는
-"이 절차가 Core 수준 공통 기능이어야 한다"는 판단일 뿐, 그 구현 방식을
+"이 절차가 Kernel 수준 공통 기능이어야 한다"는 판단일 뿐, 그 구현 방식을
 결정하지 않는다.
 
 ### Next Step
@@ -87,7 +87,7 @@ Development HQ가 반복적으로(ADC-0001, ADC-0004 두 차례) 동일한 근�
 실패 없음, 진행 차단 없음, 동적 일반화 필요성 미관찰 — 로 **Keep in
 MVP**를 유지했다는 사실 자체가 이 Module에 대한 가장 직접적인 Evidence다.
 `BASELINE.md` §6 Concept Model이 Workflow를 이미 정의해 두었다는 사실은
-Module의 "존재 근거"는 되지만 "지금 Core Module로 확정할 근거"는 되지
+Module의 "존재 근거"는 되지만 "지금 Kernel Module로 확정할 근거"는 되지
 못한다. 지금 Accept하면 "언젠가 필요할 것"이라는 추측에 근거하게 되며,
 이는 이번 판단 기준이 명시적으로 금지한 방식이다. `docs/03_adc/ADC.md`의
 ADC-02(Runtime 개념의 존폐)가 여전히 Open(우선순위 NOW)인 것도 같은
@@ -136,7 +136,7 @@ Memory도 Workflow와 동일한 구조의 Evidence를 가진다: 단일 전달 �
 Phase 1 전 구간(MVP-0001, 0005~0008)에서 한 번도 실패하지 않았고, 승격을
 정당화할 두 번째 경로나 영속화 필요 사례가 관찰된 적이 없다. `BASELINE.md`
 §6이 Memory를 Service로 이미 정의해 둔 것은 Concept의 존재 근거일 뿐,
-지금 Core Module로 확정할 근거가 아니다. 이번 판단 기준이 요구하는 "실제
+지금 Kernel Module로 확정할 근거가 아니다. 이번 판단 기준이 요구하는 "실제
 반복 관찰"은 오히려 "아직 필요하지 않았다"는 방향으로 일관되게 나타난다.
 
 ### Risks
@@ -187,14 +187,14 @@ Execution Layer는 Workflow·Memory와 근본적으로 다른 종류의 Evidence
 없음"을 재확인했고, 이는 반복 관찰의 방향이 흔들린 적이 없다. 또한 이
 경계는 Phase 1 시작 이전부터(`BOUNDARY.md`, `BASELINE.md` §7) 이미
 Frozen 상태로 확정되어 있었으므로, 이번 Accept는 새 경계를 만드는 것이
-아니라 이미 확정되고 반복 재확인된 경계를 Core Module로 명명하는 것이다.
+아니라 이미 확정되고 반복 재확인된 경계를 Kernel Module로 명명하는 것이다.
 ADC-0003 판단 4가 이 사안을 이미 "Development HQ 권한 밖"으로 분리해
-Jarvis OS 수준으로 넘겨 두었다는 사실도, 지금 이 ADC(Core Baseline
+Jarvis OS 수준으로 넘겨 두었다는 사실도, 지금 이 ADC(Kernel Baseline
 수준)가 그 판단을 내릴 정당한 권한 소재라는 것을 뒷받침한다.
 
 ### Risks
 
-이 Accept는 Execution Layer가 Core Module로서 "존재해야 한다"는 것만
+이 Accept는 Execution Layer가 Kernel Module로서 "존재해야 한다"는 것만
 확정한다. 내부 구조(Prompt 구성, Model 선택, 재시도 정책, Multi-Model
 Routing)는 `docs/03_adc/ADC.md`의 ADC-01·ADC-02가 여전히 Open으로
 남겨 두었으므로, 이 Accept를 "Execution Layer의 설계가 결정되었다"는
@@ -239,14 +239,14 @@ Layer(9개 MVP 일관 재확인), Workflow·Memory(각각 2회 이상의 Keep in
 "필요할 것 같다"는 추측과 정확히 같은 형태의 판단이 된다. Reject하지
 않는 이유는, Concept 자체는 이미 Frozen Baseline v1.0의 일부이며 이
 ADC가 Frozen Concept의 존재 자체를 부정할 권한을 갖지 않기 때문이다 —
-이 ADC는 "지금 Core Module로 확정할 근거가 있는가"만 판단하며, 그
+이 ADC는 "지금 Kernel Module로 확정할 근거가 있는가"만 판단하며, 그
 근거가 없다는 결론이 Defer다.
 
 ### Risks
 
 Fault/Event 전파가 실제로 필요한 상황(어떤 HQ에서든 Task 실패가 HQ
 경계를 가로질러 통지되어야 하는 사례)이 실제로 발생하기 전까지, Event
-Bus는 Core Baseline에서 이름만 있고 근거는 없는 상태로 남는다. 이는
+Bus는 Kernel Baseline에서 이름만 있고 근거는 없는 상태로 남는다. 이는
 `ARCHITECTURE_GOVERNANCE.md`의 Freeze 원칙("미결정 사항이 정직하게
 드러나 추적되는 것이 목표")과 일치하는 상태이지, 결함이 아니다.
 
@@ -266,10 +266,10 @@ No ADR Required
 | Execution Layer | **Accept** | 9개 MVP 전부 일관, Phase 1 시작 이전부터 Frozen 경계 | ADR Required |
 | Event Bus | **Defer** | Development HQ 반복 관찰 0건, Concept Model에만 근거 | No ADR Required |
 
-Core 전체는 일괄 승인되지 않았다. 5개 Module 중 2개(Governance, Execution
+Kernel 전체는 일괄 승인되지 않았다. 5개 Module 중 2개(Governance, Execution
 Layer)만 Accept되었고, 3개(Workflow, Memory, Event Bus)는 Defer되었다.
 Reject되거나 Out of Authority로 분류된 Module은 없다 — 5개 모두 Jarvis OS
-Core Baseline 수준의 판단 권한 안에 있었고, 어떤 Module도 명시적으로
+Kernel Baseline 수준의 판단 권한 안에 있었고, 어떤 Module도 명시적으로
 "틀렸다"고 볼 근거는 없었기 때문이다.
 
 ## Self Review
@@ -282,7 +282,7 @@ Core Baseline 수준의 판단 권한 안에 있었고, 어떤 Module도 명시�
   MVP)가 정반대 방향을 가리켰기 때문에 Defer했다.
 - Event Bus를 별도로 검토했는가 — **Pass**. 다른 4개와 분리된 절에서
   "Development HQ 관찰 0건"이라는 사실을 명시적으로 대조했다.
-- Core 전체를 일괄 승인했는가 — **아니오**. 5개 Module을 개별적으로
+- Kernel 전체를 일괄 승인했는가 — **아니오**. 5개 Module을 개별적으로
   판단했고 결과가 2 Accept / 3 Defer로 갈렸다.
 - Architecture를 추가로 설계했는가 — **아니오**. 각 Module의 내부 구조,
   API, 자료구조는 이 문서에서 다루지 않았다.

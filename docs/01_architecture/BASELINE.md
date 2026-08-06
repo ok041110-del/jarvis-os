@@ -136,10 +136,69 @@ Open Decision의 상세 내용은 본 문서에 기록하지 않는다. 전체 �
 - Development HQ 내부 설계
 - Implementation
 
-## 11. Version
+## 11. Kernel
+
+> 근거: `docs/architecture/core/RFC-0002-kernel-definition.md` §8·§9·§10,
+> `docs/architecture/core/ADC-0002-kernel-definition.md` 판단 4,
+> `docs/04_adr/ADR-0002-core-to-kernel-terminology-unification.md`
+
+**Kernel은 모든 HQ가 공통으로 필요로 하지만 어느 HQ에도 속하지 않는 책임(Common Responsibility)을 담당하는 계층이다.**
+
+Kernel은 다음이 아니다.
+
+- Kernel은 Component가 아니다.
+- Kernel은 Framework가 아니다.
+- Kernel은 Runtime이 아니다.
+- Kernel은 Scheduler가 아니다.
+- Kernel은 Registry가 아니다.
+- Kernel은 Event Bus가 아니다.
+
+**Kernel과 Component의 관계**: Kernel은 책임을 가진다. Component는 그 책임을 구현하는 방법이다.
+
+| Kernel 책임 | 구현 후보 |
+|---|---|
+| Task 전달 책임 | Scheduler |
+| Capability 탐색 책임 | Registry |
+| Engine 호출 책임 | Engine Gateway |
+| Context 전달 책임 | Memory |
+
+> 위 표의 Component는 **예시이며, 채택 여부는 결정되지 않았다.** 각 책임이 실제로 Kernel에 속하는지는 개별 RFC로 판단한다.
+
+**핵심 원칙**: Kernel은 구현으로 정의하지 않는다. 책임으로 정의한다.
+
+**Kernel Architecture와 Component Design(Scheduler, Engine Gateway, Registry, Communication, Memory, Policy 등)은 여전히 §10 Out of Scope다.** 이 절은 Kernel이 무엇인지를 정의할 뿐, Kernel을 설계하지 않는다.
+
+> 용어: "Core"는 Kernel의 이전 명칭이며 동일한 것을 가리킨다. 공식 용어는 Kernel이다 (ADR-0002).
+
+## 12. Kernel Design Principles
+
+> 근거: `docs/architecture/core/RFC-0002-kernel-definition.md` §11,
+> `docs/architecture/core/ADC-0002-kernel-definition.md` 판단 1
+
+이 원칙들은 Development HQ, Runtime, Memory, Agent 등 **모든 하위 설계가 공통으로 참조하는 최상위 설계 원칙**이다.
+
+| ID | 원칙 | 내용 |
+|---|---|---|
+| KP-1 | Responsibility over Component | Kernel은 구현 객체가 아니라 책임 경계(Responsibility Boundary)다. |
+| KP-2 | Deterministic Context Assembly | 동일한 입력은 항상 동일한 Context를 구성해야 한다. |
+| KP-3 | Stable Context Ordering | Context는 항상 동일한 순서로 조립되어야 한다. |
+| KP-4 | Stable Context by Design | Kernel은 결정론적이고 안정적이며 재사용 가능한 Context 구조를 만들어내도록 설계된다. Prompt Caching과 같은 최적화는 그 설계의 **결과이지 목적이 아니다.** |
+| KP-5 | Implementation Agnostic | Kernel은 특정 모델(Claude, GPT, Gemini 등)이나 특정 Runtime에 종속되지 않는다. |
+| KP-6 | Stateless Responsibility Boundary | Kernel은 책임을 정의하지만, 특정 구현체의 내부 상태를 강제하지 않는다. |
+
+KP-4의 인과 방향은 한쪽으로만 성립한다: 안정적인 Context 구조를 설계한다(목적) → 그 결과로 Prompt Cache 등 최적화가 가능해진다(결과). 역방향은 성립하지 않는다.
+
+## 13. Version
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.0 |
+| Version | v1.1 |
 | Status | Active |
 | Architecture State | Frozen |
+
+**변경 이력**
+
+| Version | 내용 |
+|---|---|
+| v1.1 | Kernel 정의(§11)와 Kernel Design Principles(§12) 추가. Core → Kernel 용어 통합. 근거: ADR-0002 |
+| v1.0 | 최초 Baseline (Frozen) |

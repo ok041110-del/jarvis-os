@@ -105,7 +105,7 @@ implementation_specification in execution_request: True
   코드 안에 `call_engine`, `openai`, `anthropic`, `requests.`, `subprocess`
   문자열이 없음을 확인).
 - Development HQ(Planning, Design, Implementation Specification 생성,
-  Validation, Project Intelligence, Workflow), Core RFC-0001, Core
+  Validation, Project Intelligence, Workflow), Kernel RFC-0001, Kernel
   ADC-0001 문서 — 모두 수정하지 않았다.
 - Execution Request의 8개 항목을 파싱해 별도 자료구조(dict, class)로
   재구성하는 것 — `build_execution_request()`는 문자열을 그대로 다룬다.

@@ -2,7 +2,7 @@
 
 ## 목적
 
-Jarvis OS Core 최초의 구현 Module로 Execution Layer를 시작한다. 이번
+Jarvis OS Kernel 최초의 구현 Module로 Execution Layer를 시작한다. 이번
 MVP의 목적은 실행이 아니라, `docs/architecture/core/RFC-0001-jarvis-os-core-baseline.md`와
 `docs/architecture/core/ADC-0001-core-baseline.md`가 이미 정리한 경계 —
 Development HQ의 Implementation Specification이 끝나는 지점에서 Execution
@@ -16,7 +16,7 @@ Layer가 시작된다는 경계 — 위에서, 가장 작은 단위 하나를 �
 
 - Development HQ는 Phase 1을 완료한 것으로 간주하며, 이 MVP는 Development
   HQ의 어떤 코드·문서도 수정하지 않는다.
-- `ADC-0001-core-baseline.md`에 따라 Core에서 Accept된 Module은 Governance와
+- `ADC-0001-core-baseline.md`에 따라 Kernel에서 Accept된 Module은 Governance와
   Execution Layer 둘뿐이다. Workflow, Memory, Event Bus는 Defer 상태이므로,
   이 MVP는 그것들을 전제하거나 사용하지 않는다.
 - Governance는 이미 반복 검증되어 Accept된 절차(RFC → ADC → ADR)이며, 이
@@ -32,10 +32,10 @@ Layer가 시작된다는 경계 — 위에서, 가장 작은 단위 하나를 �
   Edge Cases / Validation Notes)을 이 MVP의 Input Artifact 정의로 그대로
   채택한다 — 새 형식을 설계하지 않는다.
 - `docs/architecture/core/RFC-0001-jarvis-os-core-baseline.md` §4.4:
-  Execution Layer의 Core Module 책임은 "Specification 기반 AI 실행"이다.
+  Execution Layer의 Kernel Module 책임은 "Specification 기반 AI 실행"이다.
 - `docs/architecture/core/ADC-0001-core-baseline.md` Module 4: Execution
   Layer는 **Accept**되었고 Next Step은 ADR Required다. 이 MVP는 그 Accept
-  이후 Execution Layer의 첫 구현 단계이며, Core Baseline 문서 자체를
+  이후 Execution Layer의 첫 구현 단계이며, Kernel Baseline 문서 자체를
   변경하지 않는다.
 - `docs/01_mvp/MVP-0013-observation.md`: `_generate_code()`가 실제로
   생성하는 8개 항목의 정확한 형태(각 항목이 무엇을 담는지, 값이 비었을
@@ -134,7 +134,7 @@ Execution Layer MVP-0001이 책임지는 것은 다음 하나뿐이다.
   다룬다.
 - 이 MVP는 Governance, Workflow, Memory, Event Bus Module을 다루지 않는다
   (ADC-0001에서 Workflow/Memory/Event Bus는 Defer됨).
-- 이 MVP는 Core Baseline 문서(RFC-0001, ADC-0001)를 변경하지 않는다.
+- 이 MVP는 Kernel Baseline 문서(RFC-0001, ADC-0001)를 변경하지 않는다.
 - 이 MVP는 Development HQ의 어떤 문서·코드도 수정하지 않는다.
 - 이 MVP는 새 Architecture, 새 Layer, 새 Concept을 발명하지 않는다 —
   Execution Request는 RFC-0005 §3이 이미 "Execution Layer가 사용하는
@@ -143,7 +143,7 @@ Execution Layer MVP-0001이 책임지는 것은 다음 하나뿐이다.
 
 ## Self Review
 
-- Evidence만 사용했는가 — **Pass**. RFC-0005, Core RFC-0001, Core
+- Evidence만 사용했는가 — **Pass**. RFC-0005, Kernel RFC-0001, Kernel
   ADC-0001, MVP-0013 Observation에 실제로 기록된 내용만 인용했다.
 - AI 호출(Claude Code/GPT/Codex)을 다뤘는가 — **아니오**. Out of Scope에
   명시했고 본문에서 다루지 않았다.
@@ -155,7 +155,7 @@ Execution Layer MVP-0001이 책임지는 것은 다음 하나뿐이다.
 - 새 Architecture를 발명했는가 — **아니오**. Execution Request의 8개
   항목·형식은 모두 RFC-0005·MVP-0013에서 이미 관찰된 것을 그대로
   재사용했다.
-- Core Baseline(ADC-0001)의 Decision과 모순되지 않는가 — **Pass**. Accept된
+- Kernel Baseline(ADC-0001)의 Decision과 모순되지 않는가 — **Pass**. Accept된
   Module(Governance, Execution Layer)만 전제했고, Defer된 Module
   (Workflow, Memory, Event Bus)은 사용하지 않았다.
 - 구현했는가 — **아니오**. 계획 문서 하나만 작성했다.
