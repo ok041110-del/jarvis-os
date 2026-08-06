@@ -188,11 +188,167 @@ Kernel은 다음이 아니다.
 
 KP-4의 인과 방향은 한쪽으로만 성립한다: 안정적인 Context 구조를 설계한다(목적) → 그 결과로 Prompt Cache 등 최적화가 가능해진다(결과). 역방향은 성립하지 않는다.
 
-## 13. Version
+## 13. Kernel Context Model
+
+> 근거: `docs/architecture/core/RFC-0003-kernel-context-model.md`,
+> `docs/architecture/core/ADC-0003-kernel-context-model.md` 판단 1·2·3·5·6a,
+> `docs/04_adr/ADR-0003-kernel-context-model-baseline.md`
+
+§11이 Kernel이 **무엇인지**를, §12가 Kernel이 **어떻게 설계되어야
+하는지**를 정의했다면, 이 절은 그 원칙이 적용되는 **대상**을 정의한다.
+
+**Kernel Context는 Prompt 이전에 존재한다. Prompt는 그 결과물 중 하나다.**
+
+### 13.1 Kernel Context Model
+
+```
+Context
+├── Context Identifier          (이 Context를 무엇이라 부르는가)
+├── Context Metadata            (이 Context에 대한 서술)
+└── Context Segment  [ordered]  (Context를 이루는 최소 단위)
+    ├── Context Identifier
+    ├── Context Source          (이 Segment가 어디에서 왔는가)
+    ├── Content                 (Kernel이 해석하지 않는 불투명한 값)
+    ├── Context Metadata
+    └── Order Key               (이 Segment가 어디에 놓이는가)
+```
+
+| 요소 | 정의 |
+|---|---|
+| Context | 순서가 정해진 유한한 Context Segment 열과 그 Identifier·Metadata. **값(Value)이며 서비스가 아니다** — 조립된 뒤 변경되지 않는다. |
+| Context Segment | Kernel이 독립적으로 식별·정렬·포함/제외할 수 있는 Context의 최소 단위. |
+| Context Source | Segment가 어디에서 왔는가를 식별하는 값. Kernel은 이를 **비교**할 뿐 해석하지 않는다. |
+| Context Metadata | Segment 또는 Context **에 대한** 서술. 문자열 키-값의 순서 없는 집합. |
+| Context Identifier | Context 또는 Segment의 동일성 판정 기준. |
+
+**Model 제약 (4건)**
+
+| ID | 제약 | 근거 |
+|---|---|---|
+| CM-1 | Segment에 **계층·안정성 분류 필드를 두지 않는다.** | 4-Layer Context Model은 Defer 상태다(§13.6) |
+| CM-2 | Model에 **Engine 종속 요소를 두지 않는다**(role, token 수, cache key 등). | KP-5 |
+| CM-3 | Kernel은 **Identifier와 시각을 스스로 생성하지 않는다.** 호출자가 주입하거나 결정론적으로 파생한다. | KP-6 |
+| CM-4 | Kernel은 **Content와 Source를 해석하지 않는다.** | §7(도메인 내용은 Jarvis OS 책임 아님) |
+
+> **§6 Concept Model과의 관계**: §6의 Context("Task 실행 중에만 유효한
+> 임시 State")와 이름이 겹친다. Kernel Context는 §6 Context의
+> **구체화(refinement)이며, §6을 재정의하지 않는다** — §6이 "무엇인가"를
+> 말했고, 이 절은 "무엇으로 구성되는가"를 말한다. 영속화(Memory)는 이
+> 절의 범위가 아니다.
+
+### 13.2 Context Builder 책임
+
+Kernel Context를 만드는 책임은 4개다. 이 절은 **책임을 정의할 뿐 어떤
+Component가 구현할지는 정하지 않는다**(KP-1).
+
+| 책임 | 내용 | 하지 않는 것 |
+|---|---|---|
+| 수집(Collect) | 하나 이상의 Context Source로부터 Segment를 모은다. | Source를 **발견**하지 않는다 — 어떤 Source를 볼지는 호출자가 정한다. |
+| 검증(Validate) | **구조 불변식만** 검사한다(Identifier 존재·유일성, Source 존재, Order Key 비교 가능성). | 내용의 사실 여부·관련성·품질·토큰 예산을 검사하지 않는다. 어긋나면 조용히 통과시키지 않는다(No Silent Failure). |
+| 병합(Merge) | 복수 Source의 Segment 집합을 합친다. 같은 Identifier + 같은 Content는 중복 제거하고, **같은 Identifier + 다른 Content는 오류**다. | Content를 합치거나 요약하지 않는다. Segment 경계를 무너뜨리지 않는다. |
+| 정렬(Order) | Segment 집합에 **전순서**를 부여한다. | — |
+
+**정렬의 핵심 조건**: **Ordering Policy는 Builder의 입력이며, Model에
+박힌 분류가 아니다.** 순서 규칙이 Model 안에 들어가면 그것이 곧 계층
+분류가 되어 CM-1을 위반한다. 이 외부화 덕분에, 훗날 계층 분류가
+확정되더라도 그것은 **하나의 Ordering Policy로** 들어올 뿐 Model은
+바뀌지 않는다.
+
+### 13.3 Assembly 불변식
+
+Assembly는 검증되고 정렬된 Segment 열을 하나의 Kernel Context 값으로
+확정하는 단계다.
+
+| ID | 불변식 |
+|---|---|
+| A-1 | Segment Content는 조립 과정에서 한 글자도 바뀌지 않는다. |
+| A-2 | Segment가 조용히 추가되거나 사라지지 않는다. |
+| A-3 | 입력 Segment는 조립 후에도 변경되지 않는다. 결과는 새 값이다. |
+| A-4 | 조립은 시계·난수·외부 I/O를 읽지 않는다. |
+| A-5 | 같은 입력 + 같은 Policy → 같은 Context. |
+
+**KP-2의 구체화**: **Assembly의 입력은 (Segment 집합, Ordering Policy)
+둘뿐이다.** 호출 시각, 호출 순서, 프로세스 상태, 환경 변수는 결과에
+영향을 주지 않는다. 이 진술이 있어야 KP-2를 테스트할 수 있다.
+
+**KP-3의 구체화 — Stable Ordering**
+
+| ID | 요구 |
+|---|---|
+| O-1 | 순서는 **전순서**여야 한다. 부분 순서는 KP-3을 만족하지 않는다. |
+| O-2 | 동률이 남으면 결정론이 깨진다. 유일한 Identifier를 최종 tie-break로 사용한다. |
+| O-3 | 순서는 선언된 Order Key에서 나오며, **수집 순서·해시 순회 순서·삽입 순서에서 나오지 않는다.** |
+| O-4 | 순서 규칙은 Policy로 명시되며 코드에 암묵적으로 흩어지지 않는다. |
+
+### 13.4 Prompt는 Output Format이다
+
+```
+Kernel Context   (Canonical — 정본)
+        │
+        ├── Renderer A ──▶ Claude Prompt      (표현)
+        ├── Renderer B ──▶ GPT Prompt         (표현)
+        └── Renderer C ──▶ Gemini Prompt      (표현)
+```
+
+- Kernel Context가 정본이고 **Prompt는 파생물이다.** 역방향(Prompt →
+  Context)은 정의하지 않는다.
+- Claude / GPT / Gemini Prompt는 **동일한 Kernel Context의 서로 다른
+  표현**이다.
+- 어떤 Engine이 무엇을 요구하든 그것은 Renderer가 흡수한다 — Prompt가
+  Model의 형태를 바꾸지 않는다(KP-5).
+
+**Renderer 계약**
+
+| ID | 계약 |
+|---|---|
+| R-1 | Renderer는 순수하며 결정론적이다. |
+| R-2 | Renderer는 Kernel Context를 변경하지 않는다. |
+| R-4 | Renderer가 덧붙이는 것은 고정된 구조 틀뿐이며, Context에 없는 내용을 만들어내지 않는다. |
+| R-5 | Engine 고유 개념(role, 메시지 배열, 캐시 지시자 등)은 Renderer 안에서만 존재한다. Model에 새지 않는다. |
+
+> **R-3의 부재는 누락이 아니다.** RFC-0003 §5.3이 제안한 R-3
+> ("Renderer는 Segment 순서를 재배치하지 않는다")은 기존 Execution
+> Layer 구현(MVP-0002 `RENDERING_MAP`)과 충돌하며 코드 재설계를
+> 수반하므로, ADC-0003 판단 5가 **Accept 범위에서 의도적으로
+> 제외**했다. 채택하려면 별도 RFC가 필요하다.
+
+### 13.5 Kernel과 HQ의 Context 책임 배치
+
+| 주체 | 책임 |
+|---|---|
+| HQ | **무엇이 Context에 들어가야 하는가**를 정한다. Source를 선언하고 Segment의 Content를 제공한다. |
+| Kernel | **그것이 어떻게 식별·검증·병합·정렬·조립·표현되는가**를 담당한다. |
+
+HQ는 Prompt를 만들지 않는다. 이 배치는 새로 만드는 것이 아니라 §7과
+`development-hq/BOUNDARY.md`(Frozen)를 Context 영역에 그대로 적용한
+것이다.
+
+### 13.6 이 절이 결정하지 않는 것 (Defer)
+
+Freeze 원칙에 따라, 미결 사항을 같은 자리에 명시한다.
+
+| 항목 | 상태 | 근거 |
+|---|---|---|
+| 4-Layer Context Model (Immutable/Stable/Working/Ephemeral) | **Defer** | ADC-0002 판단 2b |
+| Context Identifier 파생 규칙(주입/해시/그 외) | **Defer** | ADC-0003 판단 1b |
+| Context Boundary의 확정 형태 | **Defer** (Kernel 책임 후보 지위는 유지) | ADC-0003 판단 4, ADC-0002 판단 2a |
+| Engine별 Renderer(Claude/GPT/Gemini) | **Defer** | ADC-0003 판단 5b |
+| R-3 (Renderer의 순서 재배치 금지) | **미채택** (Reject 아님) | ADC-0003 판단 5 |
+| 활용 사례(Prompt Cache / Conversation Resume / Context Snapshot / Memory Restore) 및 실제 HQ 통합 | **Defer** | ADC-0003 판단 6b |
+
+위 6건 중 3건(Context Boundary, Engine별 Renderer, 활용 사례·실제
+통합)의 재검토 조건은 **실제 Engine 호출이 최소 1회 관찰되는 것**으로
+동일하다.
+
+**Kernel Architecture와 Component Design은 여전히 §10 Out of Scope다.**
+이 절은 Kernel이 무엇을 관리하는지를 정의할 뿐, 그것을 관리할
+Component를 설계하지 않는다(KP-1).
+
+## 14. Version
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.1 |
+| Version | v1.2 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -200,5 +356,6 @@ KP-4의 인과 방향은 한쪽으로만 성립한다: 안정적인 Context 구�
 
 | Version | 내용 |
 |---|---|
+| v1.2 | Kernel Context Model(§13) 추가 — Model 5개 요소, Builder 4개 책임, Assembly 불변식, Prompt Output Format, HQ 책임 배치. 기존 §13 Version → §14. 근거: ADR-0003 |
 | v1.1 | Kernel 정의(§11)와 Kernel Design Principles(§12) 추가. Core → Kernel 용어 통합. 근거: ADR-0002 |
 | v1.0 | 최초 Baseline (Frozen) |

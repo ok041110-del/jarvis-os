@@ -55,6 +55,27 @@
 | KP-5 | Implementation Agnostic |
 | KP-6 | Stateless Responsibility Boundary |
 
+## Kernel Context Model (Reference)
+
+상세 정의는 `docs/01_architecture/BASELINE.md` §13 참조.
+
+| 용어 | 정의 |
+|---|---|
+| Kernel Context | 순서가 정해진 유한한 Context Segment 열과 그 Identifier·Metadata. 값(Value)이며 서비스가 아니다 |
+| Context Segment | Kernel이 독립적으로 식별·정렬·포함/제외할 수 있는 Kernel Context의 최소 단위 |
+| Context Source | Segment가 어디에서 왔는가를 식별하는 값. Kernel은 비교만 하고 해석하지 않는다 |
+| Context Metadata | Segment 또는 Context **에 대한** 서술. 계층 분류나 Engine 종속 키를 담지 않는다 |
+| Context Identifier | Context 또는 Segment의 동일성 판정 기준. Kernel이 스스로 생성하지 않는다 |
+| Ordering Policy | Segment의 순서를 정하는 규칙. Model에 박힌 분류가 아니라 Context Builder의 **입력**이다 |
+
+> 위 Concept Model 표의 `State | Context`("Task 실행 중에만 유효한 임시
+> State")와 이름이 겹친다. Kernel Context는 그 Concept의
+> **구체화이며 재정의가 아니다** — `BASELINE.md` §13.1 참조.
+>
+> **Prompt는 Kernel Context의 Output Format이다.** Claude/GPT/Gemini
+> Prompt는 동일한 Kernel Context의 서로 다른 표현이며, Kernel Context가
+> 정본이다(`BASELINE.md` §13.4).
+
 ## 핵심 원칙 (Reference)
 
 | 용어 | 정의 |
