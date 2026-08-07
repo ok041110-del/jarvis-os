@@ -130,11 +130,27 @@ Open Decision의 상세 내용은 본 문서에 기록하지 않는다. 전체 �
 
 ## 10. Out of Scope
 
-- Kernel Architecture
+- Kernel Component Architecture (Component의 존재·설계·상호작용 구조)
 - Component Design (Scheduler, Engine Gateway, Registry, Communication, Memory, Policy 등)
 - Workflow Runtime 내부 구조
 - Development HQ 내부 설계
 - Implementation
+
+> **v1.4에서 첫 번째 항목의 범위가 한정되었다** (근거: ADR-0005,
+> ADC-0005 판단 1). v1.0~v1.3에서 이 항목은 "Kernel Architecture"였다.
+>
+> **더 이상 Out of Scope가 아닌 것**: 이미 이 Baseline에 결정된
+> 책임들의 **논리적 연결**(§15 Kernel Reference Architecture). 결정되지
+> 않은 책임의 배선은 열리지 않는다.
+>
+> **여전히 Out of Scope인 것**: Component가 무엇이고 어떻게 통합되는가.
+> `GOVERNANCE-REVIEW-0001-post-adc-0001.md` §5가 "Kernel을 설계할
+> Evidence가 없다"고 판단한 근거 6개는 **전부 지금도 유효하며**, 그
+> 6개는 이 영역에 대한 것이다.
+>
+> **이 한정은 다음 단계의 선례가 아니다.** Kernel API가 위 "Implementation"
+> 항목과 충돌하는지는 별도로 판단되어야 하며, 이번 한정을 근거로 자동
+> 통과시키지 않는다.
 
 ## 11. Kernel
 
@@ -525,11 +541,228 @@ X-1~X-4는 §3 "Everything is Replaceable"(v1.0부터 Frozen)을 Context
 **Kernel Architecture와 Component Design은 여전히 §10 Out of Scope다.**
 이 절은 어떤 Component도 정의하지 않는다(KP-1).
 
-## 15. Version
+## 15. Kernel Reference Architecture (Logical)
+
+> 근거: `docs/architecture/core/RFC-0005-kernel-logical-reference-architecture.md`,
+> `docs/architecture/core/ADC-0005-kernel-logical-reference-architecture.md` 판단 1~8,
+> `docs/04_adr/ADR-0005-kernel-logical-reference-architecture-baseline.md`
+
+§13이 Kernel이 **무엇을 관리하는지**, §14가 **외부에 무엇을
+보장하는지**를 정의했다면, 이 절은 그 책임들이 **내부에서 어떻게
+연결되는지**를 정의한다.
+
+**이 절은 새 책임·새 Model 요소·새 Component를 만들지 않는다.** 이미
+§13·§14가 결정한 것들의 연결만 기록한다 — 논리적 배선도다.
+
+**이 절은 API가 아니다.** 함수 시그니처, 클래스 구조, DI, Runtime
+구현, 동시성 모델을 정의하지 않는다.
+
+**§10과의 관계**: v1.4에서 §10의 첫 항목이 "Kernel Component
+Architecture"로 한정되어 이 절이 가능해졌다. **Component가 무엇이고
+어떻게 통합되는가는 여전히 §10 Out of Scope다.**
+
+### 15.1 Responsibility Flow
+
+```
+        ┌─────────────────────── Kernel 경계 밖 (HQ 책임) ───────────────────────┐
+        │   Context Source 선언        Segment Content 제공     Policy 선택       │
+        │        (X-3)                       (§13.5)            (X-2, X-1)       │
+        └───────────┬────────────────────────┬────────────────────┬──────────────┘
+                    │                        │                    │
+════════════════════▼════════════════════════▼════════════════════▼═══════ Kernel 경계
+              ┌─────┴────────────────────────┴────────┐           │
+              │  ① Collect        (§13.2 수집)        │           │
+              └──────────────────┬────────────────────┘           │
+              ┌──────────────────▼────────────────────┐           │
+              │  ② Merge          (§13.2 병합)        │           │
+              └──────────────────┬────────────────────┘           │
+              ┌──────────────────▼────────────────────┐           │
+              │  ③ Validate       (§13.2 검증)        │◀── G-6    │
+              └──────────────────┬────────────────────┘           │
+              ┌──────────────────▼────────────────────┐           │
+              │  ④ Order          (§13.2 정렬)        │◀──────────┘ Ordering Policy
+              └──────────────────┬────────────────────┘
+              ┌──────────────────▼────────────────────┐
+              │  ⑤ Assemble       (§13.3)             │◀── A-1~A-5, O-1~O-4
+              └──────────────────┬────────────────────┘
+                        ╔════════▼════════╗
+                        ║  Kernel Context ║  ← 정본 (§13.1). 여기서 불변이 된다
+                        ╚════════┬════════╝
+              ┌──────────────────▼────────────────────┐
+              │  ⑥ Render         (§13.4)             │◀── Renderer (X-1)
+              └──────────────────┬────────────────────┘
+════════════════════════════════▼═════════════════════════════════════ Kernel 경계
+                            Output (표현)
+```
+
+| 단계 | 책임 | 하지 않는 것 | 근거 |
+|---|---|---|---|
+| ① Collect | 지정된 Source들로부터 Segment를 모은다 | Source를 **발견**하지 않는다. 내용을 **해석**하지 않는다 | §13.2, CM-4 |
+| ② Merge | 복수 Source의 Segment 집합을 하나로 합친다 | Content를 합치거나 요약하지 않는다 | §13.2 |
+| ③ Validate | 구조 불변식을 검사한다. 위반은 드러낸다 | 내용의 사실성·관련성·품질을 판단하지 않는다 | §13.2, G-6 |
+| ④ Order | Ordering Policy에 따라 전순서를 부여한다 | 순서 규칙을 스스로 만들지 않는다 | §13.2, O-1~O-4 |
+| ⑤ Assemble | 정렬된 Segment 열을 하나의 불변 값으로 확정한다 | Content 변경, Segment 추가·삭제 없음 | §13.3 |
+| ⑥ Render | Kernel Context를 표현으로 변환한다 | 정본 변경, 내용 생성, 재정렬 없음 | §13.4, R-1·R-2·R-4·R-5 |
+
+**단계 간 순서에 대해 이 Baseline이 요구하는 것은 하나뿐이다:
+검증은 ⑤Assemble 이전에 완료되어야 한다.** 근거는 §13.2의 병합 규칙
+(같은 Identifier + 다른 Content는 오류 — 병합을 시도해야만 판정
+가능하다), G-6, A-2다.
+
+**위 배선도의 ②Merge → ③Validate 배치는 가능한 배치 하나의 예시다.**
+검증이 몇 번 일어나는지, 어느 검사가 어느 지점에 놓이는지는 규정하지
+않는다 — H-2(Builder 내부 구조, Hidden)에 속한다.
+
+**Kernel 경계선의 배치**
+
+| 요소 | 안/밖 | 근거 |
+|---|---|---|
+| Context Source의 **선언** | **밖**(HQ) | §13.5, PR-1 |
+| Segment의 **Content** | **밖에서 들어옴** | §13.5, CM-4 |
+| Ordering Policy의 **선택** | **밖** | §13.2, X-2 |
+| ① ~ ⑤ | **안** | §13.2·§13.3 |
+| Kernel Context | 안에서 생성, 밖으로 나감 | PR-1 |
+| ⑥ Render | **경계 위** — 계약은 안(PR-4), 구현은 교체 가능(X-1)·내부는 Hidden(H-4) | §14.2·§14.4·§14.5 |
+| Output | **밖** | §13.4 |
+
+### 15.2 Data Flow
+
+> **아래 이름들은 §13.1의 Model에 추가되는 새 요소가 아니다.** 동일한
+> Segment 집합이 흐름을 지나며 갖는 **논리적 상태**의 이름일 뿐이다.
+> §13.1의 Model은 5개 요소(Context / Segment / Source / Metadata /
+> Identifier) 그대로이며, 이 표가 그것을 확장하지 않는다. 6개 중 실제
+> Model 요소는 **Kernel Context 하나뿐**이다.
+
+| 지점 | 논리적 상태 | 이전과 무엇이 달라졌는가 | 보장 |
+|---|---|---|---|
+| ①의 출력 | 수집된 Segment들 | Source별로 흩어져 있던 것이 한자리에 모임 | — |
+| ②의 출력 | 중복이 제거된 Segment 집합 | 같은 Identifier + 같은 Content가 하나로 | — |
+| ③의 출력 | 검증된 Segment 집합 | 구조 불변식 위반이 없음이 확인됨 | G-6 |
+| ④의 출력 | 순서가 부여된 Segment 열 | 집합이 **열**이 됨 | G-2 |
+| ⑤의 출력 | **Kernel Context** | 열이 **불변 값**이 됨 | G-1, G-5 |
+| ⑥의 출력 | 표현(Output) | 정본의 파생물. 정본은 그대로 남음 | R-2, R-4 |
+
+**Content는 ①에서 ⑥까지 어느 단계도 쓰지 않는다.** 단계들이 하는 일은
+모으기·합치기·검사하기·순서 정하기·굳히기·표현하기다(A-1, §13.2 병합
+규칙, R-4).
+
+> 단 ⑥에 대해서는 구분이 필요하다 — "Content를 **쓰지** 않는다"는
+> 뜻이며, **R-4가 허용한 고정 구조 틀의 추가를 금지하지 않는다.**
+
+**정보는 한 방향으로만 흐른다.** 역방향 경로(Output → Kernel Context,
+Kernel Context → Segment)는 정의되지 않는다(§13.4).
+
+**이 흐름에는 영속화 지점이 없다.** 각 상태는 다음 단계로 넘어가는
+중간값이다(N-4, G-7). "Kernel Context를 보관한다"는 것은 **호출자가**
+그 값을 들고 있는 것이지 Kernel이 저장하는 것이 아니다.
+
+### 15.3 Responsibility Relationship
+
+**"Component Relationship"이 아니라 "Responsibility Relationship"인
+이유**: KP-1(*"Kernel은 구현 객체가 아니라 책임 경계다"*)과 §11
+(*"구현으로 정의하지 않는다"*) 때문이다. Collect/Merge/Validate/
+Order/Assemble/Render를 Component로 다루면 그것들이 별개의 객체·모듈·
+서비스여야 한다는 전제가 생기고, 그 전제는 §10이 배제한 영역이다.
+
+| 관계 | 내용 | 성격 |
+|---|---|---|
+| ①②③④ **→** ⑤ | 앞의 넷은 ⑤의 **전제 조건**을 만든다 | 순차 의존 |
+| ③ **↔** ② | Validate의 일부(Identifier 충돌)는 Merge 이후에만 판정 가능 | 부분 순서 |
+| ④ **←** Ordering Policy | 규칙을 **주입받는다.** 스스로 만들지 않는다 | 입력 의존 |
+| ⑤ **→** Kernel Context | 값을 **생산**한다. 소유하지 않는다 | 생산 |
+| ⑥ **←** Kernel Context | 값을 **소비**한다. 변경하지 않는다 | 읽기 전용 |
+| ⑥ **↛** ①②④ | 앞 단계 어디에도 영향을 주지 않는다 | **비의존** |
+
+| ID | 금지 | 근거 |
+|---|---|---|
+| RR-1 | **역방향 의존 금지** — 뒤 단계가 앞 단계의 동작을 바꿀 수 없다 | §13.4, G-1 |
+| RR-2 | **단계 건너뛰기 금지** — ⑤는 검증되지 않은 입력을 받지 않는다 | G-6, A-2 |
+| RR-3 | **공유 가변 상태 금지** — 값 전달 외의 경로로 소통하지 않는다 | G-1, G-7 |
+| RR-4 | **⑥Render가 정렬에 관여하는 것 금지** — 순서는 ④에서 확정된다 | O-4 |
+
+> **RR-4의 적용 범위**: RR-4는 **이 Reference Architecture의 ⑥Render에만
+> 적용된다.** Execution Layer의 기존 Builder를 판정하지 않는다 —
+> `prompt_specification_builder.py`는 Kernel Context를 입력으로 받지
+> 않으므로 Kernel Renderer가 아니다.
+>
+> **RR-4는 R-3의 상태를 변경하지 않는다.** §13.4 각주가 기록한 R-3의
+> 의도적 제외는 그대로 유지된다. Execution Layer가 훗날 Kernel
+> Context를 사용하도록 정렬되면 그 질문이 다시 열린다.
+
+### 15.4 Extension Flow
+
+§14.5가 선언한 4개 확장 지점이 흐름의 어디에 붙는가.
+
+| 확장 지점 | 흐름상의 위치 | 무엇을 바꾸는가 | 무엇을 바꿀 수 없는가 |
+|---|---|---|---|
+| **X-3** Context Source | ①의 **입력** (경계 밖에서 선언) | 무엇이 들어오는가 | 들어온 것이 어떻게 처리되는가 |
+| **X-2** Ordering Policy | ④의 **입력** | Segment의 상대 순서 | 전순서라는 사실(O-1), tie-break가 Identifier라는 사실(O-2) |
+| **X-1** Renderer | ⑥의 **자리** | 표현의 형태 | 정본·순서·내용(R-2·R-4, RR-4) |
+| **X-4** Future Context Model | §13.1 Model — **흐름 밖** | Model 구성 요소 | CM-1~CM-4 |
+
+**확장 지점은 단계의 개수나 순서를 바꾸지 않는다.** 4개 전부 특정
+단계의 **입력**이거나 특정 단계의 **자리**다. Renderer가 10개로
+늘어나도, Ordering Policy가 바뀌어도, Source가 추가되어도 배선도는
+동일하다.
+
+**X-4만 단계에 붙지 않는다.** Model이 확장되면 흐르는 데이터의 구조가
+달라지지만 흐름 자체는 같다. 예컨대 §13.6이 Defer한 4-Layer Context
+Model이 훗날 확정된다면 그것은 X-2를 통해 **하나의 Ordering Policy로**
+들어오며 단계는 6개 그대로다. **4-Layer는 여전히 Defer이며, 이 절은
+그것이 확정될 것이라고 말하지 않는다.**
+
+확장의 **메커니즘**(등록·발견·로딩·검증)은 Defer 상태다(§14.7). 이
+절이 정하는 것은 **위치**뿐이다.
+
+### 15.5 Implementation Neutrality
+
+이 배선도는 특정 언어·프레임워크·실행 모델에 종속되지 않는다.
+
+| ID | 규칙 |
+|---|---|
+| IN-1 | 단계는 **책임**이며 객체·클래스·모듈·서비스가 아니다. 하나의 단계가 여러 구현 단위에 나뉘거나 여러 단계가 하나에 합쳐져도 계약은 유지된다 |
+| IN-2 | 단계 간 전달은 **논리적 값의 전달**이며, 특정 전달 방식(함수 인자, 메시지, 스트림, 파일)을 전제하지 않는다 |
+| IN-3 | **동기/비동기, 순차/병렬 어느 실행 모델도 전제하지 않는다.** 요구되는 것은 순서 의존(§15.3)이지 실행 방식이 아니다 |
+| IN-4 | 어떤 타입 시스템·상속·제네릭·DI 방식도 전제하지 않는다 |
+| IN-5 | 데이터의 직렬화 형식을 전제하지 않는다(H-6, 미결) |
+
+**중립성 판정 기준**: 동일한 배선도가 최소 3개의 서로 다른 실행
+형태로 표현될 수 있어야 한다 — **순수 함수 파이프라인 / 메시지
+전달(액터 등) / 서비스 체인.** 세 형태 모두에서 G-1~G-7이 유지되어야
+한다. 어느 하나에서만 성립하는 배선은 중립적이지 않다.
+
+> **이것은 판정 기준이지 구현 계획이 아니다.** 세 형태 중 어느 것도
+> 채택되지 않았다.
+
+이 기준은 §14.3이 "관찰로 확인할 수 없다"고 기록한 G-4(Implementation
+Agnostic)에 부분적 실질을 준다 — 전체를 검증하지는 못하지만, 세
+실행 모델에서 계약이 유지되는지는 검토할 수 있다.
+
+### 15.6 이 절이 결정하지 않는 것
+
+| 항목 | 상태 |
+|---|---|
+| Kernel API — 인터페이스 형태·함수 시그니처·자료형 | **다음 단계** |
+| 클래스 구조·모듈 분할·DI 방식·패키지 구성 | 결정하지 않음 |
+| 실제 Runtime 구현·동시성 모델·오류 전달 방식 | 결정하지 않음 |
+| 검증이 흐름 안에서 몇 번, 어디에서 일어나는가 | H-2(Hidden) |
+| 확장 메커니즘 | Defer (§14.7) |
+| 직렬화 형식 | H-6 |
+
+**다음 단계는 Kernel API이지만, 이 절의 채택이 그 단계를 미리 허가하지
+않는다.** Kernel API가 §10의 "Implementation"과 충돌하는지는 별도로
+판단되어야 한다.
+
+§13.6·§14.7의 Defer 항목은 여기서 다시 나열하지 않는다 — 각 절을
+참조한다(Single Source of Truth).
+
+**Kernel Component Architecture는 여전히 §10 Out of Scope다.**
+
+## 16. Version
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.3 |
+| Version | v1.4 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -537,6 +770,7 @@ X-1~X-4는 §3 "Everything is Replaceable"(v1.0부터 Frozen)을 Context
 
 | Version | 내용 |
 |---|---|
+| v1.4 | Kernel Reference Architecture(§15) 추가 — Responsibility Flow, Data Flow, Responsibility Relationship, Extension Flow, Implementation Neutrality. **§10 첫 항목을 "Kernel Architecture" → "Kernel Component Architecture"로 한정**(Frozen 절의 문언을 변경한 첫 사례). 기존 §15 Version → §16. 근거: ADR-0005 |
 | v1.3 | Kernel Public Contract(§14) 추가 — 계약 범위, Public Responsibilities, Public Guarantees, Hidden Responsibilities, Extension Points, Explicit Non-Goals, 변경 규칙. 기존 §14 Version → §15. 근거: ADR-0004 |
 | v1.2 | Kernel Context Model(§13) 추가 — Model 5개 요소, Builder 4개 책임, Assembly 불변식, Prompt Output Format, HQ 책임 배치. 기존 §13 Version → §14. 근거: ADR-0003 |
 | v1.1 | Kernel 정의(§11)와 Kernel Design Principles(§12) 추가. Core → Kernel 용어 통합. 근거: ADR-0002 |

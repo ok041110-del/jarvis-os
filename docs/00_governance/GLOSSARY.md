@@ -96,6 +96,23 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 > **Non-Goal은 "그 책임이 Kernel에 속하지 않는다"는 뜻이 아니다** —
 > Component 수준의 선언일 뿐이다(`BASELINE.md` §14.6).
 
+## Kernel Reference Architecture (Reference)
+
+상세 정의는 `docs/01_architecture/BASELINE.md` §15 참조. **논리적
+배선도이며 API가 아니다.**
+
+| 용어 | 정의 |
+|---|---|
+| Responsibility Flow | Kernel 내부에서 책임이 이어지는 순서 — Collect → Merge → Validate → Order → Assemble → Render (6단계) |
+| Data Flow | 각 단계에서 데이터가 갖는 논리적 상태. **§13.1의 Model 요소를 확장하지 않는다** |
+| Responsibility Relationship | 단계 간 의존 관계와 금지 사항(RR-1~RR-4). "Component 관계"가 아니다(KP-1) |
+| Extension Flow | 확장 지점(X-1~X-4)이 흐름의 어느 지점에 붙는가. **확장은 단계의 개수나 순서를 바꾸지 않는다** |
+| Implementation Neutrality | 특정 언어·프레임워크·실행 모델에 종속되지 않기 위한 규칙(IN-1~IN-5)과 3형태 판정 기준 |
+
+> **이 절에 "Component"라는 표현을 쓰지 않는 것은 의도적이다.** Kernel은
+> 책임으로 정의되고 구현으로 정의되지 않는다(KP-1, `BASELINE.md` §11).
+> **Kernel Component Architecture는 §10 Out of Scope다.**
+
 ## 핵심 원칙 (Reference)
 
 | 용어 | 정의 |
