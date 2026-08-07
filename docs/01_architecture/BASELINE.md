@@ -1,4 +1,4 @@
-# Jarvis OS Architecture Baseline v1.0
+# Jarvis OS Architecture Baseline v1.4
 
 ## 1. Purpose
 
