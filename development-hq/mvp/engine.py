@@ -18,12 +18,27 @@ import re
 import subprocess
 
 
+DISALLOWED_TOOLS = "Write,Edit,Bash,Read,Glob,Grep,NotebookEdit,WebFetch,WebSearch"
+
+
 def call_engine(prompt: str) -> str:
     """단일 Engine 호출 지점. 실제 Engine(Claude Code CLI, `claude -p`)을
     호출하고 Raw Output(stdout)을 그대로 반환한다. Engine Routing/Gateway
-    없음 — 이 함수 하나가 유일한 호출 지점이다(ENGINE-CONNECT-0001)."""
+    없음 — 이 함수 하나가 유일한 호출 지점이다(ENGINE-CONNECT-0001).
+
+    `--disallowedTools`로 파일/셸 도구를 막는다 — hello_sdlc Pipeline을
+    실제 Engine으로 실행했을 때(2026-08-08 관찰), 도구가 허용된 상태의
+    Engine이 텍스트 응답 대신 실제 파일 쓰기 권한을 요청해 그 요청 문구
+    자체가 다음 Task의 입력으로 전파되는 것이 관찰됐다. 이 함수의 계약은
+    "텍스트를 받아 텍스트를 반환한다"이며, 도구 차단은 그 계약을 실제
+    Engine 위에서 유지하기 위한 것이다 — 새 Gateway/Adapter가 아니라
+    같은 단일 함수의 호출 인자일 뿐이다."""
     result = subprocess.run(
-        ["claude", "-p", prompt, "--output-format", "text"],
+        [
+            "claude", "-p", prompt,
+            "--output-format", "text",
+            "--disallowedTools", DISALLOWED_TOOLS,
+        ],
         capture_output=True,
         text=True,
         timeout=180,
