@@ -10,8 +10,10 @@ MVP-0001~0005에서 이미 검증된 내용만 일반화한다.
 
 Execution Result(여섯 번째 Artifact)의 **형태(shape)** 는
 `ADC-0002-execution-result-contract.md`가 결정했다 — 산출물
-목록(list)이다. 이 문서는 그 형태만 반영하며, 목록 항목의 필드
-스키마는 여전히 설계하지 않는다.
+목록(list)이다. 목록 항목의 타입(opaque `str`)은
+`ADC-0003-execution-result-item-schema.md`가 결정했다. 그 문자열이
+의미론적으로 무엇을 나타내는지(파일/로그/텍스트 보고 구분)는 여전히
+결정되지 않았다.
 
 ## Artifact Chain (전체 개요)
 
@@ -119,8 +121,8 @@ Execution Result
 |---|---|
 | Mission | Engine이 실제로 만들어낸 산출물을 Execution Layer 내부에서 다룰 수 있는 여섯 번째 Artifact로 담는다. |
 | Input | Execution State(`str`). |
-| Output | Execution Result — **형태: 산출물 목록(list)**(ADC-0002 Decision). 구체적 직렬화 형식(`str` 내 목록 표현인지, 다른 타입인지)은 미정(ADC-0002 범위 밖). |
-| Canonical Fields | 미정(ADC-0002 범위 밖) — 목록 항목의 타입 스키마는 후속 결정 대상. |
+| Output | Execution Result — **형태: 산출물 목록(list)**(ADC-0002 Decision), **항목 타입: opaque `str`**(ADC-0003 Decision). 목록을 최종적으로 어떤 컨테이너로 감쌀지(`str` 안에 렌더링된 목록인지, 다른 표현인지)는 미정(ADC-0003 범위 밖 — Builder 구현 단계 대상). |
+| Canonical Fields | 목록 항목의 타입은 `str`(ADC-0003 Decision). 개별 항목이 나타내는 의미(파일/로그/텍스트 보고 구분), 목록의 개수 제한은 여전히 미정(ADC-0003 범위 밖). |
 | Version | 미정. |
 | Producer | 미구현. |
 | Consumer | 아직 없음. |
@@ -128,10 +130,15 @@ Execution Result
 | Immutable 여부 | 미정 — Builder가 구현되지 않아 확인 불가. |
 
 이 절은 `ADC-0002-execution-result-contract.md`가 결정한 형태(산출물
-목록)만 반영한다. 5개 Builder(Artifact 1~5)와 달리, 이 Artifact는
-Deterministic/Immutable 여부를 실측(테스트)으로 확인한 적이 없다 —
-Builder 자체가 아직 구현되지 않았기 때문이다. "미정" 표시는 누락이
-아니라 의도적 표기다(Freeze 원칙).
+목록)와 `ADC-0003-execution-result-item-schema.md`가 결정한 항목
+타입(`str`)만 반영한다. 5개 Builder(Artifact 1~5)와 달리, 이
+Artifact는 Deterministic/Immutable 여부를 실측(테스트)으로 확인한
+적이 없다 — Builder 자체가 아직 구현되지 않았기 때문이다. "미정"
+표시는 누락이 아니라 의도적 표기다(Freeze 원칙).
+
+항목 타입(`str`)은 `ADC-0003`이 결정했다. 이 문자열이 무엇을
+의미하는지는 이 문서가 결정하지 않는다 — `list[dict]`(구조화
+레코드)는 `ADC-0003` Q0에서 Evidence 부족으로 Not Accepted됐다.
 
 ## 공통 패턴 (5개 Artifact에 걸쳐 반복 확인된 사실)
 
@@ -201,3 +208,6 @@ Builder 자체가 아직 구현되지 않았기 때문이다. "미정" 표시는
 - `docs/core/execution-layer/RFC-0002-execution-result-contract.md`
 - `docs/core/execution-layer/ADC-0002-execution-result-contract.md`
 - `docs/core/execution-layer/ADR-0001-execution-result-contract.md`
+- `docs/core/execution-layer/RFC-0003-execution-result-item-schema.md`
+- `docs/core/execution-layer/ADC-0003-execution-result-item-schema.md`
+- `docs/core/execution-layer/ADR-0002-execution-result-item-schema.md`
