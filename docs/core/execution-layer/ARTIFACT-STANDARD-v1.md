@@ -5,10 +5,13 @@ Execution Layer MVP-0001~0005에서 실제로 구현되고 Dogfooding으로
 구현이 아니라, 이미 검증된 사실을 정리한 Standard다.
 
 새 Architecture를 만들지 않는다. 새 Builder를 만들지 않는다.
-Execution Result를 설계하지 않는다(아직 구현되지 않은 여섯 번째
-Artifact이며, 이 문서는 그 자리를 예고만 할 뿐 설계하지 않는다).
 Runtime, Claude Code, Prompt Engineering은 논의하지 않는다.
 MVP-0001~0005에서 이미 검증된 내용만 일반화한다.
+
+Execution Result(여섯 번째 Artifact)의 **형태(shape)** 는
+`ADC-0002-execution-result-contract.md`가 결정했다 — 산출물
+목록(list)이다. 이 문서는 그 형태만 반영하며, 목록 항목의 필드
+스키마는 여전히 설계하지 않는다.
 
 ## Artifact Chain (전체 개요)
 
@@ -30,7 +33,8 @@ Execution Handle
             ▼  ExecutionStateBuilder        (MVP-0005)
 Execution State
             │
-            ▼  (미구현 — Execution Result, 이 문서의 범위 밖)
+            ▼  (미구현 Builder — ADC-0002: 형태는 산출물 목록)
+Execution Result
 ```
 
 각 화살표는 "Transformation" 하나이며, 모든 Builder는 입력 Artifact의
@@ -109,11 +113,33 @@ Execution State
 | Deterministic 여부 | Yes, `handle_id`/`state`/`changed_at`을 포함한 4개 인자가 모두 같을 때 — 세 값 모두 호출자 주입이며 Builder는 시계·난수·상태 결정 로직을 쓰지 않는다(MVP-0005 `test_transformation_is_deterministic`로 확인). |
 | Immutable 여부 | Yes(생성 시점 기준) — Execution State는 그 자체가 특정 시점의 스냅샷이며, 이 Standard 범위 안에서 그것을 다시 수정하는 Builder는 존재하지 않는다. |
 
+## Artifact 6: Execution Result
+
+| 항목 | 내용 |
+|---|---|
+| Mission | Engine이 실제로 만들어낸 산출물을 Execution Layer 내부에서 다룰 수 있는 여섯 번째 Artifact로 담는다. |
+| Input | Execution State(`str`). |
+| Output | Execution Result — **형태: 산출물 목록(list)**(ADC-0002 Decision). 구체적 직렬화 형식(`str` 내 목록 표현인지, 다른 타입인지)은 미정(ADC-0002 범위 밖). |
+| Canonical Fields | 미정(ADC-0002 범위 밖) — 목록 항목의 타입 스키마는 후속 결정 대상. |
+| Version | 미정. |
+| Producer | 미구현. |
+| Consumer | 아직 없음. |
+| Deterministic 여부 | 미정 — Builder가 구현되지 않아 확인 불가. |
+| Immutable 여부 | 미정 — Builder가 구현되지 않아 확인 불가. |
+
+이 절은 `ADC-0002-execution-result-contract.md`가 결정한 형태(산출물
+목록)만 반영한다. 5개 Builder(Artifact 1~5)와 달리, 이 Artifact는
+Deterministic/Immutable 여부를 실측(테스트)으로 확인한 적이 없다 —
+Builder 자체가 아직 구현되지 않았기 때문이다. "미정" 표시는 누락이
+아니라 의도적 표기다(Freeze 원칙).
+
 ## 공통 패턴 (5개 Artifact에 걸쳐 반복 확인된 사실)
 
 - **Wrap, not rewrite.** 5개 Builder 모두 입력 Artifact의 텍스트를
   한 글자도 바꾸지 않고, 고정된 메타데이터/구조 절만 추가한다
-  (Transformation, Interpretation 아님).
+  (Transformation, Interpretation 아님). Execution Result(Artifact
+  6)는 이 패턴을 따르지 않는 첫 사례로 결정됐다(ADC-0002) — 단일
+  텍스트 Wrap이 아니라 목록을 담는다.
 - **Fixed structural overhead.** 각 변환 단계의 길이 증가분은 입력
   내용과 무관하게 항상 동일했다(MVP-0002: 77자, MVP-0003: 183자,
   MVP-0004: 199자, MVP-0005: 197자 — 각 Artifact Mapping 문서에서
@@ -146,9 +172,9 @@ Execution State
 - 새 Architecture, 새 Layer, 새 Component를 만들지 않는다.
 - 새 Builder를 만들지 않는다 — 5개 Builder(MVP-0001~0005)는 이미
   구현된 것을 그대로 인용했을 뿐이다.
-- Execution Result(여섯 번째, 아직 구현되지 않은 Artifact)를 설계하지
-  않는다 — Execution State의 "Consumer" 칸에 그 자리가 아직 비어
-  있다는 사실만 기록했다.
+- Execution Result의 **필드 스키마**는 설계하지 않는다 — ADC-0002가
+  결정한 것은 형태(목록)뿐이다. Builder 구현, 목록 항목의 타입
+  분류는 여전히 이 문서의 범위 밖이다.
 - Runtime, Scheduler, Retry, Session의 내부 구조를 논의하지 않는다.
 - Claude Code, GPT, Codex 등 실제 모델 호출을 논의하지 않는다.
 - Prompt Engineering(어떤 문구가 효과적인지)을 논의하지 않는다.
@@ -172,5 +198,6 @@ Execution State
   `MVP-0004-artifact-mapping.md`
 - `docs/core/execution-layer/MVP-0005-observation.md`,
   `MVP-0005-artifact-mapping.md`
-
-이 문서는 커밋하지 않는다.
+- `docs/core/execution-layer/RFC-0002-execution-result-contract.md`
+- `docs/core/execution-layer/ADC-0002-execution-result-contract.md`
+- `docs/core/execution-layer/ADR-0001-execution-result-contract.md`
