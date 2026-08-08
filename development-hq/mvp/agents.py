@@ -39,17 +39,39 @@ def qa_agent_test_execution(code: str, review: str) -> str:
 
 
 def requirements_agent_requirement_analysis(issue: dict) -> str:
-    """Requirements Agent가 requirement_analysis Capability를 수행한다."""
+    """Requirements Agent가 requirement_analysis Capability를 수행한다.
+
+    프롬프트 앞에 한 문장짜리 자연어 지시를 붙인다 — 실제 Engine으로
+    실행했을 때(2026-08-08) 리터럴 마커(`REQUIREMENT_ANALYSIS:`) 단독으로는
+    Engine이 코드를 바로 작성해 버리는 등 Capability 의도를 놓치는 사례가
+    관찰됐다. 이 문장은 무엇을 요구하는지만 밝힐 뿐, 출력 구조(필드·헤더)를
+    지정하지 않는다 — Output Contract가 아니라 입력 프롬프트 보강이다.
+    """
+    instruction = (
+        "Analyze the following feature request and describe the "
+        "requirement in prose (goal, scope, risks) — do not write code."
+    )
     payload = f"{issue['title']}|||{issue['description']}"
-    return call_engine(f"REQUIREMENT_ANALYSIS:{payload}")
+    return call_engine(f"REQUIREMENT_ANALYSIS:{instruction}\n\n{payload}")
 
 
 def design_agent_design(issue: dict, requirement: str) -> str:
-    """Design Agent가 design Capability를 수행한다."""
+    """Design Agent가 design Capability를 수행한다. 지시 문장의 목적은
+    `requirements_agent_requirement_analysis`와 같다."""
+    instruction = (
+        "Based on the following requirement, describe a design in prose "
+        "(approach, responsibilities, risks) — do not write code yet."
+    )
     payload = f"{issue['title']}\n---REQUIREMENT---\n{requirement}"
-    return call_engine(f"DESIGN:{payload}")
+    return call_engine(f"DESIGN:{instruction}\n\n{payload}")
 
 
 def backend_agent_code_generation(design: str) -> str:
-    """Backend Agent가 code_generation Capability를 수행한다."""
-    return call_engine(f"CODE_GENERATION:{design}")
+    """Backend Agent가 code_generation Capability를 수행한다. 지시 문장의
+    목적은 위와 같다 — 이번에는 반대로 코드**만** 요구한다(다음 Task인
+    code_review/test_execution이 코드를 직접 입력으로 받기 때문)."""
+    instruction = (
+        "Based on the following design, write the implementation code. "
+        "Return only the code, with no surrounding commentary."
+    )
+    return call_engine(f"CODE_GENERATION:{instruction}\n\n{design}")
