@@ -1,57 +1,79 @@
 # CLAUDE.md
 
-Claude Code가 이 저장소에서 작업을 시작할 때 가장 먼저 읽는 문서다.
+Claude Code가 이 저장소에서 항상 알아야 하는 최소 persistent instruction.
 
-## 이 저장소는 무엇인가
+## Project Identity
 
-Jarvis OS v2 Starter Kit이다. `README.md`가 프로젝트 구조 개요를, `development-hq/HANDOVER.md`가 구현 인수인계 시작점을 갖는다.
+Jarvis OS v2 Starter Kit. 이 저장소는 Development HQ MVP-0001 구현을 위한 문서/실행환경 패키지다.
 
-## 절대 규칙 — Frozen Architecture
+## Core Rules
 
-다음 문서는 **참조 대상이며 변경 대상이 아니다**:
+### Frozen Architecture
 
-- `docs/01_architecture/BASELINE.md` — Jarvis OS Architecture Baseline v1.0
-- `development-hq/BASELINE.md` — Development HQ Baseline v1.0
-- `development-hq/*` 전체 (MISSION/RESPONSIBILITY/BOUNDARY/STRUCTURE/MVP/IMPLEMENTATION_RULES/HANDOVER)
-- `docs/02_rfc/`, `docs/03_adc/`, `docs/04_adr/`
+Architecture / Baseline은 직접 수정하지 않는다. Architecture 변경이 필요하면:
 
-Architecture 변경이 필요하다고 판단되면 **직접 수정하지 않고** `docs/02_rfc` → `docs/03_adc` → `docs/04_adr` 절차로 제안만 기록한다. 자세한 금지 사항은 `development-hq/IMPLEMENTATION_RULES.md`를 그대로 따른다.
+RFC → ADC → ADR
 
-## 작업 시작 순서
+순서로 제안한다. (`docs/02_rfc/` → `docs/03_adc/` → `docs/04_adr/`)
 
-1. `README.md`
-2. `development-hq/HANDOVER.md` — 인수인계 요약, Next Step
-3. `docs/01_architecture/BASELINE.md`
-4. `development-hq/BASELINE.md`
-5. `development-hq/MVP.md`
-6. `development-hq/IMPLEMENTATION_RULES.md`
+### Scope Boundary
 
-## 실행환경 (Development HQ Execution Environment)
+Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 사항은 `development-hq/IMPLEMENTATION_RULES.md`를 따른다.
 
-이 저장소는 아래 실행환경 구성요소를 사용한다. 각 구성요소의 검증 결과와 설치 방법은 `.claude/docs/integrations/`에 기록되어 있다.
+### Completion Standard
 
-| 구성요소 | 역할 | 스코프 | 문서 |
-|---|---|---|---|
-| Task Observer | 작업 세션 관찰 및 스킬 개선 기회 기록 | 저장소(`.claude/skills/`) | `.claude/docs/integrations/task-observer.md` |
-| Claude-Mem | 세션 간 영속 메모리 | 사용자 머신(`~/.claude-mem`) | `.claude/docs/integrations/claude-mem.md` |
-| OmniRoute | AI Gateway (Provider/Model 라우팅) | 사용자 머신(`~/.omniroute`) | `.claude/docs/integrations/omniroute.md` |
+작업 완료를 주장하기 전에:
 
-Headroom(컨텍스트 압축 proxy)은 2026-08-08 검증에서 OmniRoute와 동일하게 `ANTHROPIC_BASE_URL`을 점유하려 하고, Claude Code 연동 관련 활성 버그(1M 컨텍스트 축소, Remote Control 비활성화 등)가 다수 확인되어 이번 실행환경 구성에서 **의도적으로 제외**했다. 재검토 시 `.claude/docs/integrations/omniroute.md`의 "Headroom과의 동시 사용 주의" 절을 먼저 참고한다.
+- 실제 변경 범위를 확인
+- 관련 검증 수행
+- 실제 evidence 확인
+- 실패한 검증을 성공으로 표현하지 않음
+- 불필요한 변경 확인
 
-Claude-Mem과 OmniRoute는 사용자 로컬 머신에서 상시 실행되어야 의미가 있는 도구이므로, 이 저장소 자체에는 실행 상태나 자격 증명을 커밋하지 않는다. 각 사용자가 자신의 머신에서 통합 문서의 설치 절차를 1회 수행한다.
+## Context Loading
 
-## Task Observer 활성화
+작업에 필요한 문서만 선택적으로 읽는다.
 
-`.claude/skills/task-observer/SKILL.md`가 이 저장소에 설치되어 있다. 이 스킬은 설명 매칭만으로는 안정적으로 트리거되지 않으므로, **작업 지향 세션을 시작할 때(도구를 사용해 산출물을 만들기 시작하기 전) task-observer 스킬을 먼저 호출한다.**
+- 프로젝트 개요 → `README.md`
+- 현재 작업 상태 → `development-hq/HANDOVER.md`
+- Architecture → `docs/01_architecture/BASELINE.md`
+- Development HQ 규칙 → `development-hq/IMPLEMENTATION_RULES.md`
+- Development HQ 구조 → `development-hq/BASELINE.md`
+- MVP → `development-hq/MVP.md`
+- Governance → `docs/02_rfc/`, `docs/03_adc/`, `docs/04_adr/`
+- 세션 기억 → Claude-Mem
+
+전체 문서를 작업마다 일괄 로드하지 않는다.
+
+## Development HQ
+
+작업 지향 세션에서 task-observer를 활성화한다.
+
+## Execution Environment
+
+- Task Observer — 작업 세션 관찰
+- Claude-Mem — 세션 간 영속 메모리
+- OmniRoute — Provider/Model routing
+
+설치/검증 상세: `.claude/docs/integrations/`
 
 ## Skills
 
-`.claude/skills/`에 등록된 스킬:
+- `task-observer`
+- `task-intake`
+- `context-loader`
+- `task-planner`
+- `validation`
+- `md-writer`
+- `handover`
 
-- `task-observer` — 세션 관찰 및 스킬 개선 후보 기록 (위 참조)
+각 Skill의 상세 동작은 해당 SKILL.md에서 관리한다.
 
-새 스킬을 추가할 때는 기존 스킬과의 이름 충돌 여부를 먼저 확인한다.
+## Maintenance
 
-## 이 문서를 변경할 때
+CLAUDE.md 변경 시:
 
-CLAUDE.md는 실행환경 설정 문서이며 Frozen Architecture 대상이 아니다. 실행환경 구성요소가 바뀌면 이 문서와 `.claude/docs/integrations/`를 함께 갱신한다.
+- 프로젝트 핵심 규칙이 실제 상태와 일치하는지 확인
+- 불필요한 상세 내용을 추가하지 않음
+- 변경된 실행환경/Skill 목록을 반영
+- Architecture 문서를 직접 수정하지 않음
