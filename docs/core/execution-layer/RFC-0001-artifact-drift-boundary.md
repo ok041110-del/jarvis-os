@@ -1,6 +1,6 @@
 # RFC-0001: Spec-Repository Artifact Drift — Boundary
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0001-artifact-drift-boundary.md`로 종결됨(Not Accepted, based on current evidence; ADR 불필요, STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Execution Protocol Research, Governance v2 Rule B 적용)
 **Governance v2 근거**: Rule B(Observation Count ≥ 3인 반복 Pattern → RFC)
 **Evidence**: `docs/research/ENGINE-INTEGRATION-0001-Claude-Code.md`,

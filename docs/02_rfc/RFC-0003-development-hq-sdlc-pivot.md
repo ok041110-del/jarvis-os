@@ -1,6 +1,6 @@
 # RFC-0003: Development HQ를 AI Native SDLC Platform으로 재정의
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `docs/governance/adc/ADC-0003.md` → `ADR-0001`(판단 1에 한해)로 종결됨(STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (사용자 요청에 따른 방향 전환 제안 정리)
 **범위**: Development HQ 내부 구조(Workflow 내용, 내부 조직 구조, Agent 구성,
 Capability 목록) — Jarvis OS Architecture Baseline, Meta Architecture,

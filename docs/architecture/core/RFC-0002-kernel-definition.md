@@ -1,6 +1,6 @@
 # RFC-0002: Kernel Definition — Responsibility, Not Component
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0002.md` → `ADR-0002`로 종결됨(STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Version**: Draft
 **Author**: Claude Code (Kernel Definition Discussion → RFC 전환)
 **관련 문서**: `docs/architecture/core/RFC-0001-jarvis-os-core-baseline.md`,

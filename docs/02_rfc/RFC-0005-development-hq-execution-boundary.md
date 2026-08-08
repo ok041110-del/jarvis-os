@@ -1,6 +1,6 @@
 # RFC-0005: Development HQ ↔ Execution Layer Boundary
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Proposed (검토 대상, 결정 아님) — 저장소 내 13개 RFC 중 유일하게 후속 ADC가 아직 작성되지 않은 채 Open으로 남아 있다(STABILITY-0001 §1.3: Kernel/Development HQ 어느 영역도 막고 있지 않음).
 **Author**: Claude Code (Development HQ Phase 1 종료 시점 요청에 대한 RFC)
 **대상**: Development HQ의 종료 지점과 Execution Layer의 시작 지점 (경계 정의만)
 **Evidence 범위**: `docs/01_mvp/MVP-0005-observation.md` ~

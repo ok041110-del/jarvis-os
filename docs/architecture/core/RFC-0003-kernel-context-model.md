@@ -1,6 +1,6 @@
 # RFC-0003: Kernel Context Model — Context, Builder, Assembly, Prompt Projection
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0003.md` → `ADR-0003`로 종결됨(STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Version**: Draft
 **Author**: Claude Code (Phase K-1 ~ K-5 요청 → RFC 전환)
 **상위 근거**: `docs/01_architecture/BASELINE.md` v1.1 §11(Kernel 정의)·§12(KP-1~KP-6)

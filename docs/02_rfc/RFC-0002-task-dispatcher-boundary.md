@@ -1,6 +1,6 @@
 # RFC-0002: Task Dispatcher Boundary (재평가)
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `docs/governance/adc/ADC-0002.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (MVP-0002 구현 세션)
 **대상 Candidate**: Task Dispatcher (단 하나)
 **근거 문서**:

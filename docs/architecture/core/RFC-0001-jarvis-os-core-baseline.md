@@ -1,6 +1,6 @@
 # RFC-0001: Jarvis OS Kernel Baseline
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0001-core-baseline.md`로 종결됨(STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Development HQ Phase 1 종료 → Kernel 설계 단계 진입 시점 요청에 대한 RFC)
 **대상**: Jarvis OS Kernel의 Mission, Boundary, Kernel Module, Kernel API, Design Principle (Baseline 정의만)
 **전제**: Development HQ는 Phase 1(Capability Foundation)을 완료한 것으로 간주하며, 더 이상 수정하지 않는다.

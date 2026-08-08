@@ -1,6 +1,6 @@
 # RFC-0005: Kernel Logical Reference Architecture — 책임의 배선도
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0005.md` → `ADR-0005`로 종결됨(STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Version**: Draft
 **Author**: Claude Code (Kernel Reference Architecture 요청 → RFC 전환)
 **상위 근거**: `docs/01_architecture/BASELINE.md` v1.3 §11·§12·§13·§14

@@ -1,6 +1,6 @@
 # RFC-0004: Kernel Public Contract — 무엇을 보장하고, 무엇을 숨기고, 무엇을 하지 않는가
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0004.md` → `ADR-0004`로 종결됨(STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Version**: Draft
 **Author**: Claude Code (Kernel Public Contract 요청 → RFC 전환)
 **상위 근거**: `docs/01_architecture/BASELINE.md` v1.2 §11(Kernel 정의)·

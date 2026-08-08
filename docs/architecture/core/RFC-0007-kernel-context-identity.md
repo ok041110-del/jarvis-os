@@ -1,6 +1,6 @@
 # RFC-0007: Kernel Context Identity — Identity는 Reference의 문제인가, Component의 문제인가
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0007.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Version**: Draft
 **Author**: Claude Code (VALIDATION-0001 V-1 / ADC-0006 OQ-1·OQ-8 후속)
 **상위 근거**: `docs/01_architecture/BASELINE.md` v1.4 §13·§14·§15
