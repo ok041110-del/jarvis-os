@@ -318,24 +318,35 @@ def _review_python_code(code: str) -> str:
     """MVP-0005~0011까지 써온 Python 코드 전용 규칙(bare except, TODO
     주석, docstring, line length, mutable default)을 그대로 유지한다
     — Success Criteria("Code 입력은 기존 Python Rule을 유지한다")에
-    따라 로직을 바꾸지 않았다. line length 규칙만 MVP-0016에서 범위를
-    좁혔다: docstring/삼중 따옴표 문자열 내부(참고 텍스트가 그대로
-    인용되는 자리, MVP-0008/0011에서 관찰된 축적 현상)는 코드
-    가독성 문제가 아니므로 검사하지 않는다. 실제 코드 줄의 100자
-    제한은 그대로 유지한다."""
+    따라 로직을 바꾸지 않았다. line length 규칙은 MVP-0016에서, TODO
+    규칙은 MVP-0023에서, bare except/mutable default 규칙은 MVP-0024
+    에서 범위를 좁혔다: docstring/삼중 따옴표 문자열 내부(참고
+    텍스트가 그대로 인용되는 자리, MVP-0008/0011에서 관찰된 축적
+    현상)는 코드 문제가 아니므로 검사하지 않는다. 실제 코드 줄에
+    대한 4개 규칙(line length/TODO/bare except/mutable default)은
+    그대로 유지한다."""
     findings = []
     lines = code.splitlines()
 
-    if "except:" in code or "except :" in code:
+    if any(
+        ("except:" in line or "except :" in line) and not _line_is_inside_triple_quoted_string(lines, i)
+        for i, line in enumerate(lines)
+    ):
         findings.append("bare except 절이 있습니다. 구체적인 예외 타입을 지정하세요.")
-    if "def " in code and "TODO" in code:
+    if "def " in code and any(
+        "TODO" in line and not _line_is_inside_triple_quoted_string(lines, i)
+        for i, line in enumerate(lines)
+    ):
         findings.append("TODO 주석이 남아있습니다. 구현을 완료하거나 이슈로 분리하세요.")
     if '"""' not in code and "'''" not in code:
         findings.append("함수/모듈에 docstring이 없습니다. 목적과 입출력을 문서화하세요.")
     for i, line in enumerate(lines, start=1):
         if len(line) > 100 and not _line_is_inside_triple_quoted_string(lines, i - 1):
             findings.append(f"{i}번째 줄이 100자를 초과합니다. 가독성을 위해 줄바꿈하세요.")
-    if "def " in code and "=[]" in code.replace(" ", ""):
+    if "def " in code and any(
+        "=[]" in line.replace(" ", "") and not _line_is_inside_triple_quoted_string(lines, i)
+        for i, line in enumerate(lines)
+    ):
         findings.append("mutable default argument(빈 리스트)가 있습니다. None 기본값 후 내부에서 초기화하세요.")
 
     if not findings:
@@ -429,6 +440,12 @@ QUESTION_MARKERS = ("검토가 필요", "확인이 필요", "판단이 필요", 
 # 없다" 형태의 부정형을 직접 실행으로 재현·확인해 등록했다. 각 마커당
 # 실제로 재현된 문구만 등록했다 — 재현하지 않은 다른 활용형(과거형
 # 등)은 등록하지 않는다.
+# MVP-0021: GOAL_MARKERS/QUESTION_MARKERS가 공유하는 "검토가 필요"/
+# "확인이 필요"와, QUESTION_MARKERS의 "판단이 필요"가 각각 "...필요
+# 없다" 부정형(필요하지 않다는 뜻) 안에서 걸려 "검토가 필요 없다"
+# 같은 문장이 Goal/Open Question으로 잘못 뽑히는 오탐을 직접 실행으로
+# 확인했다. "해야 한다"는 같은 방식으로 재현을 시도했으나("하지
+# 않아야 한다") 오탐이 재현되지 않아 등록하지 않았다.
 # 모든 사례는 실제로 관찰된 것만 등록한다 — 마커의 부정형 전수 처리를
 # 위한 일반 규칙(형태소 분석 등)은 만들지 않는다.
 NEGATED_MARKER_EXCEPTIONS = {
@@ -440,6 +457,9 @@ NEGATED_MARKER_EXCEPTIONS = {
     "왜곡": ("왜곡되지 않는다", "왜곡 없이"),
     "결함": ("결함이 없다", "결함 없이"),
     "누락": ("누락되지 않는다", "누락 없이"),
+    "검토가 필요": ("검토가 필요 없다",),
+    "확인이 필요": ("확인이 필요 없다",),
+    "판단이 필요": ("판단이 필요 없다",),
 }
 
 
