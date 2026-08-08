@@ -96,6 +96,21 @@ DESIGN_REQUIRED_SECTIONS = (
     "## Open Questions",
     "## Reference Requirement",
 )
+
+# MVP-0014: Implementation Specification(MVP-0013 `_generate_code`)의
+# 필수 절. `_review_implementation`/`_suggest_implementation_checks`
+# 전용이며, Design/Requirement 규칙과 공유하지 않는다.
+IMPLEMENTATION_REQUIRED_SECTIONS = (
+    "## Target File",
+    "## Public Interface",
+    "## Functions",
+    "## Classes",
+    "## Dependencies",
+    "## Algorithm Outline",
+    "## Edge Cases",
+    "## Validation Notes",
+    "## Reference Design",
+)
 REQUIREMENT_REQUIRED_SECTIONS = (
     "## Goal",
     "## In Scope",
@@ -121,6 +136,19 @@ def _looks_like_design(text: str) -> bool:
     return "## Interfaces" in text or "## Reference Requirement" in text
 
 
+def _looks_like_implementation(text: str) -> bool:
+    """Implementation Specification(MVP-0013)만 갖는 마커로 판단한다.
+    `## Target File`과 `## Public Interface`는 Implementation
+    Specification만 만드는 절이다 — Design에는 없다. 이 함수는 코드
+    판정 다음, Design 판정보다 먼저 호출되어야 한다: Implementation
+    Specification은 `## Reference Design`으로 Design 전체를 그대로
+    품고 있어(MVP-0005부터의 Reference X 관례), Design 판정을 먼저
+    하면 그 중첩된 `## Interfaces`/`## Reference Requirement`에 걸려
+    Design으로 오판된다(MVP-0013 Observation "Regression 확인"에서
+    실제로 관찰됨)."""
+    return "## Target File" in text and "## Public Interface" in text
+
+
 def _looks_like_requirement(text: str) -> bool:
     """Requirement Specification(MVP-0005/0010)만 갖는 마커로
     판단한다. `_looks_like_design`이 먼저 걸러지므로, 이 함수에
@@ -130,15 +158,20 @@ def _looks_like_requirement(text: str) -> bool:
 
 
 def _detect_artifact_stage(text: str) -> str:
-    """입력 Artifact가 Requirement/Design(Architecture Draft)/Code 중
-    무엇인지 규칙 기반으로 판단한다. 순서가 결과를 좌우한다 — 코드
-    판정을 가장 먼저 하는 이유는, Implementation 산출물(코드)의
-    docstring 안에는 Design 텍스트가, 그 안에는 다시 Requirement
-    텍스트가 verbatim으로 중첩되어 있기 때문이다(MVP-0007/0008에서
-    관찰된 Artifact 누적 이어붙이기). 코드 판정을 먼저 해야 실제
-    Python 코드가 Design/Requirement로 오판되지 않는다."""
+    """입력 Artifact가 Requirement/Design(Architecture Draft)/
+    Implementation Specification/Code 중 무엇인지 규칙 기반으로
+    판단한다. 순서가 결과를 좌우한다 — 코드 판정을 가장 먼저 하는
+    이유는, Implementation 산출물(코드)의 docstring 안에는 Design
+    텍스트가, 그 안에는 다시 Requirement 텍스트가 verbatim으로
+    중첩되어 있기 때문이다(MVP-0007/0008에서 관찰된 Artifact 누적
+    이어붙이기). 코드 판정을 먼저 해야 실제 Python 코드가
+    Design/Requirement로 오판되지 않는다. Implementation Specification
+    판정을 Design 판정보다 먼저 하는 이유는 `_looks_like_implementation`
+    docstring 참고(MVP-0014)."""
     if _looks_like_code(text):
         return "code"
+    if _looks_like_implementation(text):
+        return "implementation"
     if _looks_like_design(text):
         return "design"
     if _looks_like_requirement(text):
@@ -180,6 +213,42 @@ def _review_design(design_text: str) -> str:
     if not findings:
         findings.append("Architecture Draft에 필수 섹션(Component/Responsibility/Interfaces/Constraints/Open Questions/Reference Requirement)이 모두 포함되어 있습니다.")
     return "\n".join(f"- {f}" for f in findings)
+
+
+def _review_implementation(implementation_text: str) -> str:
+    """Implementation Specification(MVP-0013 `_generate_code`)을 Design/
+    Code가 아닌 별도 산출물로 인식하고, 필수 절(Target File/Public
+    Interface/Functions/Classes/Dependencies/Algorithm Outline/Edge
+    Cases/Validation Notes/Reference Design) 존재 여부만 규칙 기반으로
+    확인한다. `_review_design`의 Component/Responsibility 규칙이나
+    `_review_python_code`의 Python 코드 전용 규칙은 적용하지 않는다 —
+    이 산출물에는 둘 다 의미가 없기 때문이다."""
+    findings = [
+        f"'{section}' 섹션이 없습니다. Implementation Specification에 포함되어야 합니다."
+        for section in IMPLEMENTATION_REQUIRED_SECTIONS
+        if section not in implementation_text
+    ]
+    if not findings:
+        findings.append("Implementation Specification에 필수 섹션(Target File/Public Interface/Functions/Classes/Dependencies/Algorithm Outline/Edge Cases/Validation Notes/Reference Design)이 모두 포함되어 있습니다.")
+    return "\n".join(f"- {f}" for f in findings)
+
+
+def _suggest_implementation_checks(implementation_text: str) -> str:
+    """Implementation Specification에 대해, Python 코드 전용 테스트
+    케이스나 Design 전용 검증 항목 대신 Implementation Specification
+    구조에서 실제로 도출 가능한 검증 항목만 규칙 기반으로 제시한다."""
+    cases = []
+    if "## Functions" in implementation_text:
+        cases.append("Functions에 나열된 각 함수가 Target File에 실제로 정의되는지 확인")
+    if "## Dependencies" in implementation_text:
+        cases.append("Dependencies에 나열된 각 파일이 실제로 존재하고 import 가능한지 확인")
+    if "## Edge Cases" in implementation_text:
+        cases.append("Edge Cases에 나열된 각 항목이 실제 구현에서 처리되는지 확인")
+    if "## Validation Notes" in implementation_text:
+        cases.append("Validation Notes에 나열된 각 항목이 Validation Stage에서 실제로 확인되는지 확인")
+    if not cases:
+        cases.append("Implementation Specification에서 검증 가능한 섹션(Functions/Dependencies/Edge Cases/Validation Notes)을 찾지 못해 기본 검증 항목을 생성할 수 없음")
+    return "\n".join(f"- {c}" for c in cases)
 
 
 def _suggest_requirement_checks(requirement_text: str) -> str:
@@ -240,17 +309,20 @@ def _review_python_code(code: str) -> str:
 
 def _review_code(code: str) -> str:
     """Validation(code_review) Capability의 진입점. 입력이 Requirement/
-    Design/Code 중 무엇인지 `_detect_artifact_stage()`로 판단해 해당
-    Stage 전용 규칙만 적용한다(Stage-Aware Validation, MVP-0012).
-    Stage를 판단할 수 없는 입력(`unknown`)은 MVP-0005~0011까지의
-    기존 fallback 동작(Design 규칙 적용)을 그대로 유지한다 — 이전
-    동작과의 호환을 위해서다.
+    Design/Implementation Specification/Code 중 무엇인지
+    `_detect_artifact_stage()`로 판단해 해당 Stage 전용 규칙만
+    적용한다(Stage-Aware Validation, MVP-0012; Implementation
+    Specification 인식 추가는 MVP-0014). Stage를 판단할 수 없는
+    입력(`unknown`)은 MVP-0005~0011까지의 기존 fallback 동작(Design
+    규칙 적용)을 그대로 유지한다 — 이전 동작과의 호환을 위해서다.
     """
     stage = _detect_artifact_stage(code)
     if stage == "code":
         return _review_python_code(code)
     if stage == "requirement":
         return _review_requirement(code)
+    if stage == "implementation":
+        return _review_implementation(code)
     return _review_design(code)
 
 
@@ -260,6 +332,8 @@ def _suggest_tests(payload: str) -> str:
     stage = _detect_artifact_stage(code)
     if stage == "requirement":
         return _suggest_requirement_checks(code)
+    if stage == "implementation":
+        return _suggest_implementation_checks(code)
     if stage != "code":
         return _suggest_design_checks(code)
 
