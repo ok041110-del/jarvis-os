@@ -299,11 +299,30 @@ def _suggest_unknown_checks(text: str) -> str:
     return "- 입력의 Stage를 판단할 수 없어 구조 기반 검증 항목을 생성할 수 없습니다."
 
 
+def _line_is_inside_triple_quoted_string(lines: list, index: int) -> bool:
+    """`lines[index]`가 삼중 따옴표(`\"\"\"`/`'''`) 문자열 리터럴(주로
+    docstring) 내부에 있는지 판단한다. 각 줄의 `\"\"\"`/`'''` 등장 횟수
+    누적 홀짝으로 토글하는 단순 스캐너다 — 실제 Python 파서가 아니라
+    MVP-0005부터 유지해 온 규칙 기반 스타일과 일치시킨 근사치다.
+    한 줄 안에서 열고 닫는 경우(`\"\"\"...\"\"\"`)는 상태를 바꾸지
+    않는다."""
+    inside = False
+    for line in lines[:index]:
+        markers = line.count('"""') + line.count("'''")
+        if markers % 2 == 1:
+            inside = not inside
+    return inside
+
+
 def _review_python_code(code: str) -> str:
     """MVP-0005~0011까지 써온 Python 코드 전용 규칙(bare except, TODO
     주석, docstring, line length, mutable default)을 그대로 유지한다
     — Success Criteria("Code 입력은 기존 Python Rule을 유지한다")에
-    따라 로직을 바꾸지 않았다."""
+    따라 로직을 바꾸지 않았다. line length 규칙만 MVP-0016에서 범위를
+    좁혔다: docstring/삼중 따옴표 문자열 내부(참고 텍스트가 그대로
+    인용되는 자리, MVP-0008/0011에서 관찰된 축적 현상)는 코드
+    가독성 문제가 아니므로 검사하지 않는다. 실제 코드 줄의 100자
+    제한은 그대로 유지한다."""
     findings = []
     lines = code.splitlines()
 
@@ -314,7 +333,7 @@ def _review_python_code(code: str) -> str:
     if '"""' not in code and "'''" not in code:
         findings.append("함수/모듈에 docstring이 없습니다. 목적과 입출력을 문서화하세요.")
     for i, line in enumerate(lines, start=1):
-        if len(line) > 100:
+        if len(line) > 100 and not _line_is_inside_triple_quoted_string(lines, i - 1):
             findings.append(f"{i}번째 줄이 100자를 초과합니다. 가독성을 위해 줄바꿈하세요.")
     if "def " in code and "=[]" in code.replace(" ", ""):
         findings.append("mutable default argument(빈 리스트)가 있습니다. None 기본값 후 내부에서 초기화하세요.")
