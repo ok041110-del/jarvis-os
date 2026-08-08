@@ -4,17 +4,31 @@ IMPLEMENTATION_RULES.md: "Engine Gateway(Port/Adapter 추상화) 구현 금지 �
 단일 함수로 Engine을 호출하는 것으로 충분하다." 이 파일은 그 단일 함수만 가진다.
 여러 Engine 중 선택하는 로직(Engine Routing)은 두지 않는다.
 
-Kernel Extraction Candidate: 이 함수가 실제 LLM Engine 호출로 교체되거나,
-Task 종류에 따라 다른 Engine을 골라야 하는 필요가 생기면 그것이
-Engine Gateway(Port/Adapter) 추출 신호다. RFC 없이 여기서 분기를 늘리지 않는다.
+ENGINE-CONNECT-0001(worktree 실험)에서 이 함수를 실제 Claude Code Engine
+호출로 교체해도 Stop Trigger가 발동하지 않음을 확인했다 — 단일 함수 구조를
+유지한 채 본문만 실제 호출로 바꿨다. 그 실험 결과를 그대로 tracked
+branch에 반영한다.
+
+Kernel Extraction Candidate: Task 종류에 따라 다른 Engine을 골라야 하는
+필요가 생기면 그것이 Engine Gateway(Port/Adapter) 추출 신호다. RFC 없이
+여기서 분기를 늘리지 않는다.
 """
 
 import re
+import subprocess
 
 
 def call_engine(prompt: str) -> str:
-    """단일 Engine 호출 지점. 지금은 규칙 기반 응답을 반환한다."""
-    return _rule_based_response(prompt)
+    """단일 Engine 호출 지점. 실제 Engine(Claude Code CLI, `claude -p`)을
+    호출하고 Raw Output(stdout)을 그대로 반환한다. Engine Routing/Gateway
+    없음 — 이 함수 하나가 유일한 호출 지점이다(ENGINE-CONNECT-0001)."""
+    result = subprocess.run(
+        ["claude", "-p", prompt, "--output-format", "text"],
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    return result.stdout
 
 
 def _rule_based_response(prompt: str) -> str:
