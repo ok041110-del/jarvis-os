@@ -417,6 +417,28 @@ GOAL_MARKERS = ("필요하다", "해야 한다", "검토가 필요", "확인이 
 RISK_MARKERS = ("문제", "실패", "오류", "위험", "왜곡", "결함", "누락", "의도치 않게")
 QUESTION_MARKERS = ("검토가 필요", "확인이 필요", "판단이 필요", "?")
 
+# MVP-0018: "필요하다" 마커가 "불필요하다"(불필요를 뜻함, 정반대 의미)
+# 안에 부분 문자열로 걸려, "이 기능은 불필요하다" 같은 문장이 Goal로
+# 잘못 뽑히는 오탐을 직접 실행으로 확인했다(MVP-0009가 "open"이
+# "OpenHands" 안에서 걸리던 것과 같은 종류). 관찰된 이 사례 하나만
+# 제외한다 — 다른 마커의 부정형 전수 처리는 하지 않는다.
+NEGATED_MARKER_EXCEPTIONS = {
+    "필요하다": ("불필요하다",),
+}
+
+
+def _contains_marker(sentence: str, marker: str) -> bool:
+    """`marker in sentence`와 같지만, `NEGATED_MARKER_EXCEPTIONS`에
+    등록된 부정형 안에서 부분 문자열로만 걸리는 경우는 매칭에서
+    제외한다. 그 부정형을 지운 나머지 문장에 marker가 여전히 남아
+    있으면(별도 위치에서 실제로 쓰였다면) 매칭으로 인정한다."""
+    if marker not in sentence:
+        return False
+    for negated in NEGATED_MARKER_EXCEPTIONS.get(marker, ()):
+        if negated in sentence and marker not in sentence.replace(negated, ""):
+            return False
+    return True
+
 
 def _split_sentences(text: str) -> list:
     sentences = [s.strip() for s in re.split(r"(?<=\.)\s+", text)]
@@ -429,13 +451,13 @@ def _extract_goal(sentences: list, title: str) -> str:
     문장이 전혀 없는 Issue(예: 순수 사실 나열)에서도 Planning이 빈
     Goal을 반환하지 않도록 하기 위함이다."""
     for sentence in sentences:
-        if any(marker in sentence for marker in GOAL_MARKERS):
+        if any(_contains_marker(sentence, marker) for marker in GOAL_MARKERS):
             return sentence
     return f"'{title}' 기능을 추가한다."
 
 
 def _extract_marked_sentences(sentences: list, markers: tuple, empty_note: str) -> str:
-    matched = [s for s in sentences if any(marker in s for marker in markers)]
+    matched = [s for s in sentences if any(_contains_marker(s, marker) for marker in markers)]
     if not matched:
         return f"- {empty_note}"
     return "\n".join(f"- {s}" for s in matched)
