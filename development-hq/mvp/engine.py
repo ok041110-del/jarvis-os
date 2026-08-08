@@ -318,17 +318,20 @@ def _review_python_code(code: str) -> str:
     """MVP-0005~0011까지 써온 Python 코드 전용 규칙(bare except, TODO
     주석, docstring, line length, mutable default)을 그대로 유지한다
     — Success Criteria("Code 입력은 기존 Python Rule을 유지한다")에
-    따라 로직을 바꾸지 않았다. line length 규칙만 MVP-0016에서 범위를
-    좁혔다: docstring/삼중 따옴표 문자열 내부(참고 텍스트가 그대로
-    인용되는 자리, MVP-0008/0011에서 관찰된 축적 현상)는 코드
-    가독성 문제가 아니므로 검사하지 않는다. 실제 코드 줄의 100자
-    제한은 그대로 유지한다."""
+    따라 로직을 바꾸지 않았다. line length 규칙은 MVP-0016에서, TODO
+    규칙은 MVP-0023에서 범위를 좁혔다: docstring/삼중 따옴표 문자열
+    내부(참고 텍스트가 그대로 인용되는 자리, MVP-0008/0011에서 관찰된
+    축적 현상)는 코드 가독성/유지보수 문제가 아니므로 검사하지 않는다.
+    실제 코드 줄의 100자 제한, 실제 TODO 주석 탐지는 그대로 유지한다."""
     findings = []
     lines = code.splitlines()
 
     if "except:" in code or "except :" in code:
         findings.append("bare except 절이 있습니다. 구체적인 예외 타입을 지정하세요.")
-    if "def " in code and "TODO" in code:
+    if "def " in code and any(
+        "TODO" in line and not _line_is_inside_triple_quoted_string(lines, i)
+        for i, line in enumerate(lines)
+    ):
         findings.append("TODO 주석이 남아있습니다. 구현을 완료하거나 이슈로 분리하세요.")
     if '"""' not in code and "'''" not in code:
         findings.append("함수/모듈에 docstring이 없습니다. 목적과 입출력을 문서화하세요.")
