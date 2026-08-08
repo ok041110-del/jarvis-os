@@ -679,6 +679,14 @@ def _extract_dependencies(reference_context_body: str) -> list:
     return deps
 
 
+def _slug_to_class_name(slug: str) -> str:
+    """`{slug}` 함수 이름(snake_case)을 PascalCase Class 이름으로
+    바꾼다. 새 명명 Contract가 아니라, 이미 존재하는 `slug` 값(Design
+    Component의 함수 시그니처에서 뽑음, `_extract_slug`)을 Python
+    Class 이름 관례에 맞게 표기만 바꾸는 것이다."""
+    return "".join(part.capitalize() for part in slug.split("_") if part) or "GeneratedComponent"
+
+
 def _generate_code(design_text: str) -> str:
     """Architecture Draft(Design 산출물, MVP-0011)를 입력받아 코드를
     작성하지 않고 Implementation Specification(Target File / Public
@@ -698,8 +706,14 @@ def _generate_code(design_text: str) -> str:
     - Functions: Public Interface 1개 + Design Interfaces 절의 각
       검증 함수(MVP-0011의 `{slug}_check_N`) — 모두 구현 대상으로
       나열한다.
-    - Classes: 이 Design은 항상 단일 함수형 Component만 제안하므로
-      (MVP-0011), 고정적으로 "필요 없음"을 명시한다.
+    - Classes: MVP-0013은 Design이 항상 단일 함수형 Component만
+      제안한다는 이유로(MVP-0011) 고정적으로 "필요 없음"을 명시했다.
+      MVP-0017은 Design을 바꾸지 않고, 이미 Functions 절에 있는 두
+      역할(Public Interface 1개 / Interfaces 절의 검증 함수 N개,
+      MVP-0011)을 근거로 최소 분해를 시도한다: 검증 함수가 1개 이상
+      있으면 Public Interface를 담는 Class 1개와 검증 함수를 모으는
+      Validator Class 1개로 나눈다. 검증 함수가 0개(Public Interface
+      뿐인 경우)는 나눌 근거가 없으므로 기존 "필요 없음"을 유지한다.
     - Dependencies: Requirement의 Reference Context(Project
       Intelligence)에서 찾은 관련 기존 코드 파일.
     - Algorithm Outline: Design Responsibility 절의 각 항목을 순서
@@ -727,12 +741,23 @@ def _generate_code(design_text: str) -> str:
     target_file = f"development-hq/mvp/generated/{slug}.py"
     public_interface = f"`def {slug}(*args, **kwargs)`"
 
+    check_entries = _parse_interface_lines(interfaces_body)
+
     function_lines = [f"- `def {slug}(*args, **kwargs)` (Public Interface): {component_body if component_body else '(Component 설명 없음)'}"]
-    for sig, desc in _parse_interface_lines(interfaces_body):
+    for sig, desc in check_entries:
         function_lines.append(f"- `def {sig}`: {desc}")
     functions_lines = "\n".join(function_lines)
 
-    classes_lines = "- (필요 없음: Design이 단일 함수형 Component만 제안했다)"
+    if check_entries:
+        class_name = _slug_to_class_name(slug)
+        validator_class_name = f"{class_name}Validator"
+        check_names = ", ".join(f"`{sig.split('(', 1)[0]}`" for sig, _ in check_entries)
+        classes_lines = (
+            f"- `class {class_name}`: Public Interface(`{slug}`)를 구현하는 Component 본체.\n"
+            f"- `class {validator_class_name}`: Interfaces 절의 검증 함수({check_names})를 모아 구현하는 Class."
+        )
+    else:
+        classes_lines = "- (필요 없음: Interfaces에 검증 함수가 없어 Public Interface 하나로 충분하다)"
 
     dependencies = _extract_dependencies(reference_context_body)
     dependencies_lines = (
