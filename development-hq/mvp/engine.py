@@ -319,14 +319,19 @@ def _review_python_code(code: str) -> str:
     주석, docstring, line length, mutable default)을 그대로 유지한다
     — Success Criteria("Code 입력은 기존 Python Rule을 유지한다")에
     따라 로직을 바꾸지 않았다. line length 규칙은 MVP-0016에서, TODO
-    규칙은 MVP-0023에서 범위를 좁혔다: docstring/삼중 따옴표 문자열
-    내부(참고 텍스트가 그대로 인용되는 자리, MVP-0008/0011에서 관찰된
-    축적 현상)는 코드 가독성/유지보수 문제가 아니므로 검사하지 않는다.
-    실제 코드 줄의 100자 제한, 실제 TODO 주석 탐지는 그대로 유지한다."""
+    규칙은 MVP-0023에서, bare except/mutable default 규칙은 MVP-0024
+    에서 범위를 좁혔다: docstring/삼중 따옴표 문자열 내부(참고
+    텍스트가 그대로 인용되는 자리, MVP-0008/0011에서 관찰된 축적
+    현상)는 코드 문제가 아니므로 검사하지 않는다. 실제 코드 줄에
+    대한 4개 규칙(line length/TODO/bare except/mutable default)은
+    그대로 유지한다."""
     findings = []
     lines = code.splitlines()
 
-    if "except:" in code or "except :" in code:
+    if any(
+        ("except:" in line or "except :" in line) and not _line_is_inside_triple_quoted_string(lines, i)
+        for i, line in enumerate(lines)
+    ):
         findings.append("bare except 절이 있습니다. 구체적인 예외 타입을 지정하세요.")
     if "def " in code and any(
         "TODO" in line and not _line_is_inside_triple_quoted_string(lines, i)
@@ -338,7 +343,10 @@ def _review_python_code(code: str) -> str:
     for i, line in enumerate(lines, start=1):
         if len(line) > 100 and not _line_is_inside_triple_quoted_string(lines, i - 1):
             findings.append(f"{i}번째 줄이 100자를 초과합니다. 가독성을 위해 줄바꿈하세요.")
-    if "def " in code and "=[]" in code.replace(" ", ""):
+    if "def " in code and any(
+        "=[]" in line.replace(" ", "") and not _line_is_inside_triple_quoted_string(lines, i)
+        for i, line in enumerate(lines)
+    ):
         findings.append("mutable default argument(빈 리스트)가 있습니다. None 기본값 후 내부에서 초기화하세요.")
 
     if not findings:
