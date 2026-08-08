@@ -299,11 +299,30 @@ def _suggest_unknown_checks(text: str) -> str:
     return "- 입력의 Stage를 판단할 수 없어 구조 기반 검증 항목을 생성할 수 없습니다."
 
 
+def _line_is_inside_triple_quoted_string(lines: list, index: int) -> bool:
+    """`lines[index]`가 삼중 따옴표(`\"\"\"`/`'''`) 문자열 리터럴(주로
+    docstring) 내부에 있는지 판단한다. 각 줄의 `\"\"\"`/`'''` 등장 횟수
+    누적 홀짝으로 토글하는 단순 스캐너다 — 실제 Python 파서가 아니라
+    MVP-0005부터 유지해 온 규칙 기반 스타일과 일치시킨 근사치다.
+    한 줄 안에서 열고 닫는 경우(`\"\"\"...\"\"\"`)는 상태를 바꾸지
+    않는다."""
+    inside = False
+    for line in lines[:index]:
+        markers = line.count('"""') + line.count("'''")
+        if markers % 2 == 1:
+            inside = not inside
+    return inside
+
+
 def _review_python_code(code: str) -> str:
     """MVP-0005~0011까지 써온 Python 코드 전용 규칙(bare except, TODO
     주석, docstring, line length, mutable default)을 그대로 유지한다
     — Success Criteria("Code 입력은 기존 Python Rule을 유지한다")에
-    따라 로직을 바꾸지 않았다."""
+    따라 로직을 바꾸지 않았다. line length 규칙만 MVP-0016에서 범위를
+    좁혔다: docstring/삼중 따옴표 문자열 내부(참고 텍스트가 그대로
+    인용되는 자리, MVP-0008/0011에서 관찰된 축적 현상)는 코드
+    가독성 문제가 아니므로 검사하지 않는다. 실제 코드 줄의 100자
+    제한은 그대로 유지한다."""
     findings = []
     lines = code.splitlines()
 
@@ -314,7 +333,7 @@ def _review_python_code(code: str) -> str:
     if '"""' not in code and "'''" not in code:
         findings.append("함수/모듈에 docstring이 없습니다. 목적과 입출력을 문서화하세요.")
     for i, line in enumerate(lines, start=1):
-        if len(line) > 100:
+        if len(line) > 100 and not _line_is_inside_triple_quoted_string(lines, i - 1):
             findings.append(f"{i}번째 줄이 100자를 초과합니다. 가독성을 위해 줄바꿈하세요.")
     if "def " in code and "=[]" in code.replace(" ", ""):
         findings.append("mutable default argument(빈 리스트)가 있습니다. None 기본값 후 내부에서 초기화하세요.")
@@ -398,6 +417,44 @@ GOAL_MARKERS = ("필요하다", "해야 한다", "검토가 필요", "확인이 
 RISK_MARKERS = ("문제", "실패", "오류", "위험", "왜곡", "결함", "누락", "의도치 않게")
 QUESTION_MARKERS = ("검토가 필요", "확인이 필요", "판단이 필요", "?")
 
+# MVP-0018: "필요하다" 마커가 "불필요하다"(불필요를 뜻함, 정반대 의미)
+# 안에 부분 문자열로 걸려, "이 기능은 불필요하다" 같은 문장이 Goal로
+# 잘못 뽑히는 오탐을 직접 실행으로 확인했다(MVP-0009가 "open"이
+# "OpenHands" 안에서 걸리던 것과 같은 종류).
+# MVP-0019: 같은 방식으로 RISK_MARKERS의 "문제"가 "문제없다"(문제가
+# 없음을 뜻함, 정반대 의미) 안에서 걸려, "이 기능은 문제없다" 같은
+# 문장이 Risk로 잘못 뽑히는 오탐을 실행으로 확인했다.
+# MVP-0020: RISK_MARKERS의 나머지 6개(실패/오류/위험/왜곡/결함/누락)
+# 각각에 대해 "{마커}하지/되지 않는다"·"{마커} 없이"·"{마커}이/가
+# 없다" 형태의 부정형을 직접 실행으로 재현·확인해 등록했다. 각 마커당
+# 실제로 재현된 문구만 등록했다 — 재현하지 않은 다른 활용형(과거형
+# 등)은 등록하지 않는다.
+# 모든 사례는 실제로 관찰된 것만 등록한다 — 마커의 부정형 전수 처리를
+# 위한 일반 규칙(형태소 분석 등)은 만들지 않는다.
+NEGATED_MARKER_EXCEPTIONS = {
+    "필요하다": ("불필요하다",),
+    "문제": ("문제없다",),
+    "실패": ("실패하지 않는다", "실패 없이"),
+    "오류": ("오류가 없다", "오류 없이"),
+    "위험": ("위험하지 않다", "위험 없이"),
+    "왜곡": ("왜곡되지 않는다", "왜곡 없이"),
+    "결함": ("결함이 없다", "결함 없이"),
+    "누락": ("누락되지 않는다", "누락 없이"),
+}
+
+
+def _contains_marker(sentence: str, marker: str) -> bool:
+    """`marker in sentence`와 같지만, `NEGATED_MARKER_EXCEPTIONS`에
+    등록된 부정형 안에서 부분 문자열로만 걸리는 경우는 매칭에서
+    제외한다. 그 부정형을 지운 나머지 문장에 marker가 여전히 남아
+    있으면(별도 위치에서 실제로 쓰였다면) 매칭으로 인정한다."""
+    if marker not in sentence:
+        return False
+    for negated in NEGATED_MARKER_EXCEPTIONS.get(marker, ()):
+        if negated in sentence and marker not in sentence.replace(negated, ""):
+            return False
+    return True
+
 
 def _split_sentences(text: str) -> list:
     sentences = [s.strip() for s in re.split(r"(?<=\.)\s+", text)]
@@ -410,13 +467,13 @@ def _extract_goal(sentences: list, title: str) -> str:
     문장이 전혀 없는 Issue(예: 순수 사실 나열)에서도 Planning이 빈
     Goal을 반환하지 않도록 하기 위함이다."""
     for sentence in sentences:
-        if any(marker in sentence for marker in GOAL_MARKERS):
+        if any(_contains_marker(sentence, marker) for marker in GOAL_MARKERS):
             return sentence
     return f"'{title}' 기능을 추가한다."
 
 
 def _extract_marked_sentences(sentences: list, markers: tuple, empty_note: str) -> str:
-    matched = [s for s in sentences if any(marker in s for marker in markers)]
+    matched = [s for s in sentences if any(_contains_marker(s, marker) for marker in markers)]
     if not matched:
         return f"- {empty_note}"
     return "\n".join(f"- {s}" for s in matched)
@@ -660,6 +717,14 @@ def _extract_dependencies(reference_context_body: str) -> list:
     return deps
 
 
+def _slug_to_class_name(slug: str) -> str:
+    """`{slug}` 함수 이름(snake_case)을 PascalCase Class 이름으로
+    바꾼다. 새 명명 Contract가 아니라, 이미 존재하는 `slug` 값(Design
+    Component의 함수 시그니처에서 뽑음, `_extract_slug`)을 Python
+    Class 이름 관례에 맞게 표기만 바꾸는 것이다."""
+    return "".join(part.capitalize() for part in slug.split("_") if part) or "GeneratedComponent"
+
+
 def _generate_code(design_text: str) -> str:
     """Architecture Draft(Design 산출물, MVP-0011)를 입력받아 코드를
     작성하지 않고 Implementation Specification(Target File / Public
@@ -679,8 +744,14 @@ def _generate_code(design_text: str) -> str:
     - Functions: Public Interface 1개 + Design Interfaces 절의 각
       검증 함수(MVP-0011의 `{slug}_check_N`) — 모두 구현 대상으로
       나열한다.
-    - Classes: 이 Design은 항상 단일 함수형 Component만 제안하므로
-      (MVP-0011), 고정적으로 "필요 없음"을 명시한다.
+    - Classes: MVP-0013은 Design이 항상 단일 함수형 Component만
+      제안한다는 이유로(MVP-0011) 고정적으로 "필요 없음"을 명시했다.
+      MVP-0017은 Design을 바꾸지 않고, 이미 Functions 절에 있는 두
+      역할(Public Interface 1개 / Interfaces 절의 검증 함수 N개,
+      MVP-0011)을 근거로 최소 분해를 시도한다: 검증 함수가 1개 이상
+      있으면 Public Interface를 담는 Class 1개와 검증 함수를 모으는
+      Validator Class 1개로 나눈다. 검증 함수가 0개(Public Interface
+      뿐인 경우)는 나눌 근거가 없으므로 기존 "필요 없음"을 유지한다.
     - Dependencies: Requirement의 Reference Context(Project
       Intelligence)에서 찾은 관련 기존 코드 파일.
     - Algorithm Outline: Design Responsibility 절의 각 항목을 순서
@@ -708,12 +779,23 @@ def _generate_code(design_text: str) -> str:
     target_file = f"development-hq/mvp/generated/{slug}.py"
     public_interface = f"`def {slug}(*args, **kwargs)`"
 
+    check_entries = _parse_interface_lines(interfaces_body)
+
     function_lines = [f"- `def {slug}(*args, **kwargs)` (Public Interface): {component_body if component_body else '(Component 설명 없음)'}"]
-    for sig, desc in _parse_interface_lines(interfaces_body):
+    for sig, desc in check_entries:
         function_lines.append(f"- `def {sig}`: {desc}")
     functions_lines = "\n".join(function_lines)
 
-    classes_lines = "- (필요 없음: Design이 단일 함수형 Component만 제안했다)"
+    if check_entries:
+        class_name = _slug_to_class_name(slug)
+        validator_class_name = f"{class_name}Validator"
+        check_names = ", ".join(f"`{sig.split('(', 1)[0]}`" for sig, _ in check_entries)
+        classes_lines = (
+            f"- `class {class_name}`: Public Interface(`{slug}`)를 구현하는 Component 본체.\n"
+            f"- `class {validator_class_name}`: Interfaces 절의 검증 함수({check_names})를 모아 구현하는 Class."
+        )
+    else:
+        classes_lines = "- (필요 없음: Interfaces에 검증 함수가 없어 Public Interface 하나로 충분하다)"
 
     dependencies = _extract_dependencies(reference_context_body)
     dependencies_lines = (
