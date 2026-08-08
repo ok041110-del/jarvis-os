@@ -281,6 +281,24 @@ def _suggest_design_checks(design_text: str) -> str:
     return "\n".join(f"- {c}" for c in cases)
 
 
+def _review_unknown(text: str) -> str:
+    """MVP-0012 "범위 밖"에 남아 있던 항목: `_detect_artifact_stage()`가
+    `unknown`을 반환하는 입력(Requirement/Design/Implementation
+    Specification/Code 중 어느 마커도 없는 임의 텍스트)을 지금까지는
+    Design fallback으로 처리해, 실제로는 없는 Component/Responsibility/
+    Interfaces 등 6개 섹션이 "없습니다"라는 False Positive Finding을
+    냈다(직접 실행으로 확인). 이 함수는 그 대신, Stage를 판단할 수
+    없다는 사실 자체를 정직하게 반환한다 — 존재하지 않는 Stage의
+    누락 섹션을 지어내지 않는다."""
+    return "- 입력이 Requirement/Design/Implementation Specification/Code 중 어느 구조와도 일치하지 않아 Stage를 판단할 수 없습니다. 형식이 올바른지 확인하세요."
+
+
+def _suggest_unknown_checks(text: str) -> str:
+    """`_review_unknown()`과 동일한 이유로, 존재하지 않는 Design 구조
+    기반 검증 항목을 지어내지 않는다."""
+    return "- 입력의 Stage를 판단할 수 없어 구조 기반 검증 항목을 생성할 수 없습니다."
+
+
 def _review_python_code(code: str) -> str:
     """MVP-0005~0011까지 써온 Python 코드 전용 규칙(bare except, TODO
     주석, docstring, line length, mutable default)을 그대로 유지한다
@@ -312,9 +330,10 @@ def _review_code(code: str) -> str:
     Design/Implementation Specification/Code 중 무엇인지
     `_detect_artifact_stage()`로 판단해 해당 Stage 전용 규칙만
     적용한다(Stage-Aware Validation, MVP-0012; Implementation
-    Specification 인식 추가는 MVP-0014). Stage를 판단할 수 없는
-    입력(`unknown`)은 MVP-0005~0011까지의 기존 fallback 동작(Design
-    규칙 적용)을 그대로 유지한다 — 이전 동작과의 호환을 위해서다.
+    Specification 인식은 MVP-0014). Stage를 판단할 수 없는 입력
+    (`unknown`)은 더 이상 Design fallback을 쓰지 않는다 — 존재하지
+    않는 Design 섹션 누락을 지어내던 False Positive를 없앴다
+    (MVP-0015).
     """
     stage = _detect_artifact_stage(code)
     if stage == "code":
@@ -323,7 +342,9 @@ def _review_code(code: str) -> str:
         return _review_requirement(code)
     if stage == "implementation":
         return _review_implementation(code)
-    return _review_design(code)
+    if stage == "design":
+        return _review_design(code)
+    return _review_unknown(code)
 
 
 def _suggest_tests(payload: str) -> str:
@@ -334,8 +355,10 @@ def _suggest_tests(payload: str) -> str:
         return _suggest_requirement_checks(code)
     if stage == "implementation":
         return _suggest_implementation_checks(code)
-    if stage != "code":
+    if stage == "design":
         return _suggest_design_checks(code)
+    if stage != "code":
+        return _suggest_unknown_checks(code)
 
     func_names = []
     for line in code.splitlines():
