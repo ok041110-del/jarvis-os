@@ -5,6 +5,7 @@
 | 용어 | 정의 |
 |---|---|
 | Jarvis OS | AI Organization Operating System |
+| Kernel | 모든 HQ가 공통으로 필요로 하지만 어느 HQ에도 속하지 않는 책임을 담당하는 계층. Component가 아니라 책임 경계다. *(정의: `docs/01_architecture/BASELINE.md` §11)* |
 | HQ | 업무 영역. Jarvis OS가 실행하는 최상위 조직 단위 |
 | Division | HQ 내부의 선택적 책임 단위. Jarvis OS 필수 계층 아님 |
 | Team | HQ 내부의 선택적 전문 분야 단위. Jarvis OS 필수 계층 아님 |
@@ -34,6 +35,83 @@
 | State | Context | Task 실행 중에만 유효한 임시 State |
 | State | Lifecycle State | HQ의 생명주기 상태 |
 | Resource | Resource | Runtime이 Task 실행에 배분하는 용량 (CPU/GPU/Token 등) |
+
+## 용어 변경 이력
+
+| 이전 명칭 | 현재 명칭 | 비고 |
+|---|---|---|
+| Core | Kernel | 동일한 것을 가리킨다. 공식 용어는 **Kernel**이다(ADR-0002). 과거 커밋 이력과 `archive/v1/`에는 "Core" 표기가 그대로 남아 있으며, 그 경우에도 Kernel과 같은 것을 뜻한다. 단, "Core Principles"·"Core Philosophy"·"Core Component 검토"처럼 **"핵심"이라는 일반적 의미로 쓰인 "Core"는 Kernel과 무관하며 변경되지 않았다.** |
+
+## Kernel Design Principles (Reference)
+
+상세 정의는 `docs/01_architecture/BASELINE.md` §12 참조.
+
+| ID | 원칙 |
+|---|---|
+| KP-1 | Responsibility over Component |
+| KP-2 | Deterministic Context Assembly |
+| KP-3 | Stable Context Ordering |
+| KP-4 | Stable Context by Design |
+| KP-5 | Implementation Agnostic |
+| KP-6 | Stateless Responsibility Boundary |
+
+## Kernel Context Model (Reference)
+
+상세 정의는 `docs/01_architecture/BASELINE.md` §13 참조.
+
+| 용어 | 정의 |
+|---|---|
+| Kernel Context | 순서가 정해진 유한한 Context Segment 열과 그 Identifier·Metadata. 값(Value)이며 서비스가 아니다 |
+| Context Segment | Kernel이 독립적으로 식별·정렬·포함/제외할 수 있는 Kernel Context의 최소 단위 |
+| Context Source | Segment가 어디에서 왔는가를 식별하는 값. Kernel은 비교만 하고 해석하지 않는다 |
+| Context Metadata | Segment 또는 Context **에 대한** 서술. 계층 분류나 Engine 종속 키를 담지 않는다 |
+| Context Identifier | Context 또는 Segment의 동일성 판정 기준. Kernel이 스스로 생성하지 않는다 |
+| Ordering Policy | Segment의 순서를 정하는 규칙. Model에 박힌 분류가 아니라 Context Builder의 **입력**이다 |
+
+> 위 Concept Model 표의 `State | Context`("Task 실행 중에만 유효한 임시
+> State")와 이름이 겹친다. Kernel Context는 그 Concept의
+> **구체화이며 재정의가 아니다** — `BASELINE.md` §13.1 참조.
+>
+> **Prompt는 Kernel Context의 Output Format이다.** Claude/GPT/Gemini
+> Prompt는 동일한 Kernel Context의 서로 다른 표현이며, Kernel Context가
+> 정본이다(`BASELINE.md` §13.4).
+
+## Kernel Public Contract (Reference)
+
+상세 정의는 `docs/01_architecture/BASELINE.md` §14 참조. 이 계약은
+Kernel 전체가 아니라 **Context 영역에 한정**된다.
+
+| 용어 | 정의 |
+|---|---|
+| Kernel Public Contract | Kernel이 외부(HQ, Execution Layer)에 보장하는 공식 약속. API가 아니며, API는 이 계약을 구현하는 다음 단계다 |
+| Public Responsibility | 외부가 Kernel에 요구할 수 있고 Kernel이 응답할 의무가 있는 것 (PR-1~PR-4) |
+| Public Guarantee | 외부가 의존해도 되는 성질. 깨지면 계약 위반이다 (G-1~G-7) |
+| Hidden Responsibility | Kernel이 수행하지만 **외부가 의존해서는 안 되는** 것. 여기에 의존한 코드가 깨지는 것은 계약 위반이 아니다 (H-1~H-6) |
+| Extension Point | 교체 가능하다고 **계약상 선언된 지점**. 플러그인 메커니즘이 아니다 (X-1~X-4) |
+
+> **계약은 공개하고 구현은 숨긴다.** 어떤 지점이 교체 가능하다는
+> 사실과 그 지점이 지켜야 할 계약은 Public이고, 그 지점의 구현
+> 내용은 Hidden이다(`BASELINE.md` §14.4).
+>
+> **Non-Goal은 "그 책임이 Kernel에 속하지 않는다"는 뜻이 아니다** —
+> Component 수준의 선언일 뿐이다(`BASELINE.md` §14.6).
+
+## Kernel Reference Architecture (Reference)
+
+상세 정의는 `docs/01_architecture/BASELINE.md` §15 참조. **논리적
+배선도이며 API가 아니다.**
+
+| 용어 | 정의 |
+|---|---|
+| Responsibility Flow | Kernel 내부에서 책임이 이어지는 순서 — Collect → Merge → Validate → Order → Assemble → Render (6단계) |
+| Data Flow | 각 단계에서 데이터가 갖는 논리적 상태. **§13.1의 Model 요소를 확장하지 않는다** |
+| Responsibility Relationship | 단계 간 의존 관계와 금지 사항(RR-1~RR-4). "Component 관계"가 아니다(KP-1) |
+| Extension Flow | 확장 지점(X-1~X-4)이 흐름의 어느 지점에 붙는가. **확장은 단계의 개수나 순서를 바꾸지 않는다** |
+| Implementation Neutrality | 특정 언어·프레임워크·실행 모델에 종속되지 않기 위한 규칙(IN-1~IN-5)과 3형태 판정 기준 |
+
+> **이 절에 "Component"라는 표현을 쓰지 않는 것은 의도적이다.** Kernel은
+> 책임으로 정의되고 구현으로 정의되지 않는다(KP-1, `BASELINE.md` §11).
+> **Kernel Component Architecture는 §10 Out of Scope다.**
 
 ## 핵심 원칙 (Reference)
 

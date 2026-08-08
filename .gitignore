@@ -16,3 +16,6 @@ venv/
 # IDE
 .vscode/
 .idea/
+
+# Claude Code 작업 디렉토리 (실험용 worktree 등, 산출물 아님)
+.claude/worktrees/

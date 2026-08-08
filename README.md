@@ -2,7 +2,7 @@
 
 ## 이 Starter Kit은 무엇인가
 
-Jarvis OS Architecture Baseline v1.0과 Development HQ Baseline v1.0을 기반으로, Claude Code가 Development HQ MVP-0001 구현에 바로 착수할 수 있도록 구성된 문서 패키지다.
+Jarvis OS Architecture Baseline v1.4와 Development HQ Baseline v1.0을 기반으로 구성된 문서 패키지다. Development HQ MVP-0001은 이 Starter Kit의 최초 착수 대상이었고, 현재는 MVP-0013까지 완료된 상태다.
 
 Architecture 자체에 대한 설명은 이 문서에서 반복하지 않는다. `docs/01_architecture/BASELINE.md`가 유일한 Architecture 원본이다.
 
@@ -10,9 +10,10 @@ Architecture 자체에 대한 설명은 이 문서에서 반복하지 않는다.
 
 | 항목 | 상태 |
 |---|---|
-| Jarvis OS Architecture Baseline | v1.0, Frozen |
+| Jarvis OS Architecture Baseline | v1.4, Frozen |
 | Development HQ Baseline | v1.0, Frozen |
-| Development HQ MVP-0001 | Approved |
+| Development HQ MVP | MVP-0001 ~ MVP-0013 완료 (Phase 1 종료) |
+| Execution Layer MVP | MVP-0001 ~ MVP-0005 완료 |
 | Starter Kit | **v1.0 Final** |
 
 이 Starter Kit은 Frozen 상태다. Architecture, Concept, Layer, Component를 새로 추가하지 않는다. 변경이 필요하다고 판단되면 직접 수정하지 않고 `docs/02_rfc` → `docs/03_adc` → `docs/04_adr` 절차를 따른다.

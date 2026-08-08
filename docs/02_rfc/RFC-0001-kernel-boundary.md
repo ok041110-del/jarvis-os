@@ -1,6 +1,6 @@
 # RFC-0001: Kernel Boundary
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `docs/governance/adc/ADC-0001.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Development HQ MVP-0001 구현 세션)
 **관련 Baseline**: `docs/01_architecture/BASELINE.md` §6 Concept Model, §7 System Boundary
 **관련 ADC**: ADC-01, ADC-02, ADC-07, ADC-09, ADC-10 (`docs/03_adc/ADC.md`)

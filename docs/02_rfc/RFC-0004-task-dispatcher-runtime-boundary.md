@@ -1,6 +1,6 @@
 # RFC-0004: Task Dispatcher → Runtime 승격 Boundary (Governance v2, Rule A)
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `docs/governance/adc/ADC-0004.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (MVP-0005 요청에 대한 Governance v2 절차 적용)
 **대상 Candidate**: Task Dispatcher (단 하나)
 **Governance v2 근거**: Rule A(RT Trigger 충족 → RFC), `docs/governance/observations/OBS-0001.md`,
