@@ -38,22 +38,54 @@ CATEGORY_PATHS = {
 }
 
 
+# 실제 Issue("Investigate timeout handling" 등 영문 관사/전치사/접속사가
+# 섞인 문장)로 `_score()`를 직접 실행해 확인함: "in"/"an"/"the"/"of"/
+# "not"/"does"/"but"/"when"/"should"/"instead" 같은 순수 문법 기능어는
+# `development-hq/mvp/`의 거의 모든 `.py` 파일 docstring/주석에 등장해,
+# 실제로 그 Issue와 무관한 파일까지 `engine.py`(가장 직접적으로 관련된
+# 파일)와 동점에 가까운 점수를 받게 만든다 — Issue의 진짜 주제어
+# (timeout/crash/handling 등)가 내는 신호가 기능어의 "어디에나 있음"
+# 신호에 묻힌다. 여기 등록한 목록은 도메인과 무관하게 항상 의미가
+# 없는 영문 관사/전치사/접속사/대명사/조동사만 담는다 — 도메인 단어
+# (workflow/engine/exception 등, 위 실측에서도 실제로 의미가 있었다)는
+# 제외하지 않는다.
+_STOPWORDS = frozenset(
+    (
+        "a", "an", "the",
+        "in", "on", "of", "at", "by", "to", "for", "with", "from", "as",
+        "and", "or", "but", "if", "when", "while",
+        "is", "are", "was", "were", "be", "been", "being",
+        "do", "does", "did", "doing",
+        "not", "no",
+        "it", "its", "this", "that", "these", "those",
+        "can", "could", "should", "would", "will", "may", "might", "must",
+        "instead",
+    )
+)
+
+
 def _keywords(text: str) -> set:
     # 라틴 문자/숫자 토큰과 한글 음절 토큰을 별도로 추출한다. `\w+` 하나로
     # 묶으면 "Dispatcher를"처럼 한글 조사가 영문 단어에 그대로 붙어 하나의
     # 토큰이 되어, 조사 없는 원어(RFC/ADC 본문 등)와 매칭되지 않는다.
     latin = re.findall(r"[A-Za-z0-9_]+", text)
     hangul = re.findall(r"[가-힣]+", text)
-    return {w.lower() for w in latin + hangul if len(w) >= 2}
+    return {w.lower() for w in latin + hangul if len(w) >= 2 and w.lower() not in _STOPWORDS}
 
 
 def _score(keywords: set, path: Path) -> int:
+    # 부분 문자열 매칭("so" in "also", "on" in "constitution")이 실제로
+    # 무관한 파일의 점수를 부풀리는 것을 위 `_STOPWORDS` 테스트 중
+    # 직접 확인했다(`_extract_open_questions`의 `_OPEN_WORD_RE`가 이미
+    # "OpenHands"/"OpenAI" 오탐을 막기 위해 쓰던 것과 같은 종류의 문제).
+    # 그 함수가 이미 쓰는 단어 경계(`\b`) 매칭을 여기도 그대로 적용한다
+    # — 새 기법이 아니라 기존에 검증된 기법의 재사용이다.
     try:
         content = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return 0
     haystack = (path.name + "\n" + content).lower()
-    return sum(1 for kw in keywords if kw in haystack)
+    return sum(1 for kw in keywords if re.search(rf"\b{re.escape(kw)}\b", haystack))
 
 
 def _relevant_files(keywords: set, directory: Path, pattern: str, exclude_dirs: set, limit: int = 3) -> list:
