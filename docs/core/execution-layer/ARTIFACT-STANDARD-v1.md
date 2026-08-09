@@ -1,12 +1,12 @@
 # Execution Layer Artifact Standard v1
 
-Execution Layer MVP-0001~0005에서 실제로 구현되고 Dogfooding으로
-검증된 5개 Artifact의 Contract를 Baseline으로 고정한다. 이 문서는
+Execution Layer MVP-0001~0006에서 실제로 구현되고 Dogfooding으로
+검증된 6개 Artifact의 Contract를 Baseline으로 고정한다. 이 문서는
 구현이 아니라, 이미 검증된 사실을 정리한 Standard다.
 
 새 Architecture를 만들지 않는다. 새 Builder를 만들지 않는다.
 Runtime, Claude Code, Prompt Engineering은 논의하지 않는다.
-MVP-0001~0005에서 이미 검증된 내용만 일반화한다.
+MVP-0001~0006에서 이미 검증된 내용만 일반화한다.
 
 Execution Result(여섯 번째 Artifact)의 **형태(shape)** 는
 `ADC-0002-execution-result-contract.md`가 결정했다 — 산출물
@@ -35,7 +35,7 @@ Execution Handle
             ▼  ExecutionStateBuilder        (MVP-0005)
 Execution State
             │
-            ▼  (미구현 Builder — ADC-0002: 형태는 산출물 목록)
+            ▼  ExecutionResultBuilder       (MVP-0006)
 Execution Result
 ```
 
@@ -121,20 +121,21 @@ Execution Result
 |---|---|
 | Mission | Engine이 실제로 만들어낸 산출물을 Execution Layer 내부에서 다룰 수 있는 여섯 번째 Artifact로 담는다. |
 | Input | Execution State(`str`). |
-| Output | Execution Result — **형태: 산출물 목록(list)**(ADC-0002 Decision), **항목 타입: opaque `str`**(ADC-0003 Decision). 목록을 최종적으로 어떤 컨테이너로 감쌀지(`str` 안에 렌더링된 목록인지, 다른 표현인지)는 미정(ADC-0003 범위 밖 — Builder 구현 단계 대상). |
-| Canonical Fields | 목록 항목의 타입은 `str`(ADC-0003 Decision). 개별 항목이 나타내는 의미(파일/로그/텍스트 보고 구분), 목록의 개수 제한은 여전히 미정(ADC-0003 범위 밖). |
-| Version | 미정. |
-| Producer | 미구현. |
-| Consumer | 아직 없음. |
-| Deterministic 여부 | 미정 — Builder가 구현되지 않아 확인 불가. |
-| Immutable 여부 | 미정 — Builder가 구현되지 않아 확인 불가. |
+| Output | Execution Result(`str`) — 머리말 `"# Execution Result\n\n"` + `## Result` 절(4개 필드) + `## Results` 절(산출물 목록) + `## Execution State`(원문 verbatim). **형태: 산출물 목록(list)**(ADC-0002 Decision), **항목 타입: opaque `str`**(ADC-0003 Decision). 목록을 최종적으로 어떤 컨테이너로 감쌀지(`str` 안에 렌더링된 목록인지, 다른 표현인지)는 MVP-0006 구현이 결정했다 — 다른 5개 Builder와 동일하게 `str` 안에 `"- {item}"` 형식의 bullet 목록으로 렌더링한다(ADR-0002가 "Builder 구현 단계 대상"으로 남겨둔 것이 이 형태로 해소됨). |
+| Canonical Fields | `handle_id`(호출자 제공), `request_id`(Execution State의 `## State` 절에서 그대로 읽음 — 새로 주입받지 않음), `produced_at`(호출자 제공), `artifact_version`(모듈 상수, 항상 `"execution-layer-mvp-0006"`), `results`(호출자 제공, `list[str]`, opaque 문자열 목록 — 개수 검증 없음, 빈 목록도 허용). 개별 항목이 나타내는 의미(파일/로그/텍스트 보고 구분)는 여전히 미정(ADC-0003 범위 밖 — Builder도 해석하지 않는다). |
+| Version | `"execution-layer-mvp-0006"`(모듈 상수 `ARTIFACT_VERSION`). |
+| Producer | `ExecutionResultBuilder`(`core/execution_layer/mvp_0006/execution_result_builder.py`, `build_execution_result()`). |
+| Consumer | 아직 없음(Execution Layer 안에서 Execution Result를 소비하는 일곱 번째 Artifact/Builder는 구현되지 않았다. `core/execution_layer/pipeline.py`의 `run_execution_layer_pipeline()`은 Execution Result를 최종 반환값으로 넘길 뿐, 그 내용을 소비·해석하지 않는다). |
+| Deterministic 여부 | Yes, `handle_id`/`produced_at`/`results`를 포함한 인자가 모두 같을 때 — 이 값들은 Builder가 생성하지 않고 호출자가 주입한다(시계·난수 미사용). 동일한 인자 → 항상 동일한 Execution Result(MVP-0006 `test_transformation_is_deterministic`로 확인). |
+| Immutable 여부 | Yes — Execution Result가 만들어진 뒤에도 Execution State 자체는 수정되지 않는다(MVP-0006 `test_execution_state_itself_is_unchanged_by_result_creation`로 확인). |
 
 이 절은 `ADC-0002-execution-result-contract.md`가 결정한 형태(산출물
 목록)와 `ADC-0003-execution-result-item-schema.md`가 결정한 항목
-타입(`str`)만 반영한다. 5개 Builder(Artifact 1~5)와 달리, 이
-Artifact는 Deterministic/Immutable 여부를 실측(테스트)으로 확인한
-적이 없다 — Builder 자체가 아직 구현되지 않았기 때문이다. "미정"
-표시는 누락이 아니라 의도적 표기다(Freeze 원칙).
+타입(`str`)을 `core/execution_layer/mvp_0006/execution_result_builder.py`
+가 실제로 구현한 결과를 반영한다. 다른 5개 Builder와 동일하게,
+Deterministic/Immutable 여부는 실측(테스트)으로 확인됐다(MVP-0006
+`core/execution_layer/mvp_0006/tests/test_execution_result_builder.py`,
+9건 전부 통과).
 
 항목 타입(`str`)은 `ADC-0003`이 결정했다. 이 문자열이 무엇을
 의미하는지는 이 문서가 결정하지 않는다 — `list[dict]`(구조화
@@ -165,11 +166,11 @@ Artifact는 Deterministic/Immutable 여부를 실측(테스트)으로 확인한
   침범하지 않기 위함이다.
 - **artifact_version은 MVP-0003부터 도입되었다.** Execution Request
   (MVP-0001), Prompt Specification(MVP-0002)에는 `artifact_version`
-  필드가 없다. Model Request(MVP-0003)부터 Execution State
-  (MVP-0005)까지는 각 Builder 모듈에 고정 상수로 존재한다. 이 불일치는
+  필드가 없다. Model Request(MVP-0003)부터 Execution Result
+  (MVP-0006)까지는 각 Builder 모듈에 고정 상수로 존재한다. 이 불일치는
   이번 Standard가 "정리"하는 것이지 "해소"하는 것이 아니다 — 필드를
   소급 추가하지 않는다.
-- **AI 호출 없음, Runtime 없음.** 5개 MVP 전체에서 `call_engine`,
+- **AI 호출 없음, Runtime 없음.** 6개 MVP 전체에서 `call_engine`,
   `openai`, `anthropic`, `requests.`, `subprocess`, `urllib`,
   `http.client`, `datetime.now`, `uuid.uuid4`, `time.time` 문자열이
   소스 코드에 없음을 각 MVP의 테스트로 확인했다.
@@ -177,15 +178,16 @@ Artifact는 Deterministic/Immutable 여부를 실측(테스트)으로 확인한
 ## Boundary (이 문서가 하지 않는 것)
 
 - 새 Architecture, 새 Layer, 새 Component를 만들지 않는다.
-- 새 Builder를 만들지 않는다 — 5개 Builder(MVP-0001~0005)는 이미
+- 새 Builder를 만들지 않는다 — 6개 Builder(MVP-0001~0006)는 이미
   구현된 것을 그대로 인용했을 뿐이다.
-- Execution Result의 **필드 스키마**는 설계하지 않는다 — ADC-0002가
-  결정한 것은 형태(목록)뿐이다. Builder 구현, 목록 항목의 타입
-  분류는 여전히 이 문서의 범위 밖이다.
+- Execution Result 목록 항목이 나타내는 의미(파일/로그/텍스트 보고
+  구분)는 설계하지 않는다 — ADC-0003 Q0에서 Evidence 부족으로 Not
+  Accepted됐다. Builder(`ExecutionResultBuilder`, MVP-0006)는 이미
+  구현됐으나, 그 항목의 의미 분류는 여전히 이 문서의 범위 밖이다.
 - Runtime, Scheduler, Retry, Session의 내부 구조를 논의하지 않는다.
 - Claude Code, GPT, Codex 등 실제 모델 호출을 논의하지 않는다.
 - Prompt Engineering(어떤 문구가 효과적인지)을 논의하지 않는다.
-- MVP-0001~0005에서 실제로 구현·테스트·Dogfooding으로 검증된 사실
+- MVP-0001~0006에서 실제로 구현·테스트·Dogfooding으로 검증된 사실
   외의 내용은 포함하지 않는다.
 
 ## 근거
@@ -195,6 +197,8 @@ Artifact는 Deterministic/Immutable 여부를 실측(테스트)으로 확인한
 - `core/execution_layer/mvp_0003/model_request_builder.py`
 - `core/execution_layer/mvp_0004/execution_handle_builder.py`
 - `core/execution_layer/mvp_0005/execution_state_builder.py`
+- `core/execution_layer/mvp_0006/execution_result_builder.py`
+- `core/execution_layer/mvp_0006/tests/test_execution_result_builder.py`
 - `docs/core/execution-layer/MVP-0001-plan.md`,
   `MVP-0001-observation.md`, `MVP-0001-artifact-mapping.md`
 - `docs/core/execution-layer/MVP-0002-observation.md`,
