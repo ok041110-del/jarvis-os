@@ -14,8 +14,12 @@ from mvp.workflow import run_mvp_0001  # noqa: E402
 
 def main() -> None:
     if len(sys.argv) > 1:
-        with open(sys.argv[1], "r", encoding="utf-8") as f:
-            code = f.read()
+        try:
+            with open(sys.argv[1], "r", encoding="utf-8") as f:
+                code = f.read()
+        except OSError as exc:
+            print(f"Cannot read '{sys.argv[1]}': {exc.strerror}", file=sys.stderr)
+            sys.exit(1)
     else:
         code = sys.stdin.read()
 
