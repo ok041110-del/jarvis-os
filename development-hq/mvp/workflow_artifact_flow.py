@@ -26,13 +26,27 @@ from .workflow_project_intelligence import _enrich_issue
 def run_issue_to_implementation(issue: dict) -> dict:
     """Issue를 Planning(PI 포함) -> Design -> Implementation까지
     순서대로 통과시키고, 각 단계에서 실제로 넘어간 Artifact를 그대로
-    반환해 전달 경로를 관찰할 수 있게 한다."""
+    반환해 전달 경로를 관찰할 수 있게 한다.
+
+    MVP-0037: `run_mvp_0001`(MVP-0036)과 동일한 이유로 Engine 호출
+    실패(예: timeout)를 잡아 기존 반환 계약(4개 키)을 유지한 채
+    반환한다. `context`는 Engine 호출 없이 이미 계산된 값이므로
+    실패 시에도 그대로 유지한다."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 
-    requirement = requirements_agent_requirement_analysis(enriched_issue)
-    design = design_agent_design(issue, requirement)
-    code = backend_agent_code_generation(design)
+    try:
+        requirement = requirements_agent_requirement_analysis(enriched_issue)
+        design = design_agent_design(issue, requirement)
+        code = backend_agent_code_generation(design)
+    except Exception as exc:
+        error_message = f"Engine call failed: {exc}"
+        return {
+            "context": context,
+            "planning": error_message,
+            "design": error_message,
+            "implementation": error_message,
+        }
 
     return {
         "context": context,

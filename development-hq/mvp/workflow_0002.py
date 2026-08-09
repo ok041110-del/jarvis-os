@@ -23,13 +23,24 @@ from .agents import NO_ISSUES_MARKER, backend_agent_code_review, qa_agent_test_e
 
 
 def run_mvp_0002(code: str) -> dict:
-    """code_review -> (조건 분기) -> test_execution 또는 생략."""
-    review = backend_agent_code_review(code)
+    """code_review -> (조건 분기) -> test_execution 또는 생략.
 
-    if NO_ISSUES_MARKER in review:
-        test_cases = "(생략됨: code_review에서 이슈가 발견되지 않아 test_execution을 건너뜀)"
-    else:
-        test_cases = qa_agent_test_execution(code, review)
+    MVP-0037: `run_mvp_0001`(MVP-0036)과 동일한 이유로 Engine 호출
+    실패(예: timeout)를 잡아 기존 반환 계약(2개 키)을 유지한 채
+    반환한다."""
+    try:
+        review = backend_agent_code_review(code)
+
+        if NO_ISSUES_MARKER in review:
+            test_cases = "(생략됨: code_review에서 이슈가 발견되지 않아 test_execution을 건너뜀)"
+        else:
+            test_cases = qa_agent_test_execution(code, review)
+    except Exception as exc:
+        error_message = f"Engine call failed: {exc}"
+        return {
+            "code_review": error_message,
+            "test_execution": error_message,
+        }
 
     return {
         "code_review": review,
