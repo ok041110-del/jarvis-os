@@ -34,11 +34,24 @@ def _enrich_issue(issue: dict, context: dict) -> dict:
 
 def run_issue_to_planning(issue: dict) -> dict:
     """Issue를 받아 Project Intelligence로 Relevant Context를 수집하고,
-    Planning(requirement_analysis)에 그대로 전달한다."""
+    Planning(requirement_analysis)에 그대로 전달한다.
+
+    MVP-0037: `run_mvp_0001`(MVP-0036)과 동일한 이유로 Engine 호출
+    실패(예: timeout)를 잡아 기존 반환 계약(2개 키)을 유지한 채
+    반환한다. `context`는 Engine 호출 없이 이미 계산된 값이므로
+    실패 시에도 그대로 유지한다. `workflow_0009.run_comparison()`의
+    flat-context 절반이 이 함수를 그대로 호출하므로, 이 예외 처리가
+    그쪽에도 그대로 적용된다."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 
-    requirement = requirements_agent_requirement_analysis(enriched_issue)
+    try:
+        requirement = requirements_agent_requirement_analysis(enriched_issue)
+    except Exception as exc:
+        return {
+            "context": context,
+            "planning": f"Engine call failed: {exc}",
+        }
 
     return {
         "context": context,
@@ -50,12 +63,25 @@ def run_issue_to_design(issue: dict) -> dict:
     """Issue를 받아 Project Intelligence로 Relevant Context를 한 번
     수집하고, 동일한 Context가 담긴 Issue를 Planning과 Design 양쪽에
     그대로 전달한다 — `collect_relevant_context()`를 Stage마다 다시
-    호출하지 않고 재사용하는지를 관찰하기 위함이다."""
+    호출하지 않고 재사용하는지를 관찰하기 위함이다.
+
+    MVP-0037: `run_mvp_0001`(MVP-0036)과 동일한 이유로 Engine 호출
+    실패(예: timeout)를 잡아 기존 반환 계약(3개 키)을 유지한 채
+    반환한다. `context`는 Engine 호출 없이 이미 계산된 값이므로
+    실패 시에도 그대로 유지한다."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 
-    requirement = requirements_agent_requirement_analysis(enriched_issue)
-    design = design_agent_design(enriched_issue, requirement)
+    try:
+        requirement = requirements_agent_requirement_analysis(enriched_issue)
+        design = design_agent_design(enriched_issue, requirement)
+    except Exception as exc:
+        error_message = f"Engine call failed: {exc}"
+        return {
+            "context": context,
+            "planning": error_message,
+            "design": error_message,
+        }
 
     return {
         "context": context,

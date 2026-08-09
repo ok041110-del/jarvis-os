@@ -47,15 +47,30 @@ REAL_ISSUE = {
 
 def run_pipeline(issue: dict) -> dict:
     """Issue를 Planning(PI 포함) -> Design -> Implementation ->
-    Validation까지 순서대로 통과시킨다."""
+    Validation까지 순서대로 통과시킨다.
+
+    MVP-0037: `run_mvp_0001`(MVP-0036)과 동일한 이유로 Engine 호출
+    실패(예: timeout)를 잡아 기존 반환 계약(5개 키)을 유지한 채
+    반환한다. `context`는 Engine 호출 없이 이미 계산된 값이므로
+    실패 시에도 그대로 유지한다."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 
-    requirement = requirements_agent_requirement_analysis(enriched_issue)
-    design = design_agent_design(issue, requirement)
-    code = backend_agent_code_generation(design)
-    review = backend_agent_code_review(code)
-    test_cases = qa_agent_test_execution(code, review)
+    try:
+        requirement = requirements_agent_requirement_analysis(enriched_issue)
+        design = design_agent_design(issue, requirement)
+        code = backend_agent_code_generation(design)
+        review = backend_agent_code_review(code)
+        test_cases = qa_agent_test_execution(code, review)
+    except Exception as exc:
+        error_message = f"Engine call failed: {exc}"
+        return {
+            "context": context,
+            "planning": error_message,
+            "design": error_message,
+            "implementation": error_message,
+            "validation": {"code_review": error_message, "test_execution": error_message},
+        }
 
     return {
         "context": context,

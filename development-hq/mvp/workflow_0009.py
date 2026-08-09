@@ -54,11 +54,24 @@ def run_issue_to_planning_with_bundle(issue: dict) -> dict:
     """Issue를 받아 `build_context_bundle()`로 구조화된 Context Bundle을
     만들고, Planning에는 그 Bundle을 렌더링한 내용만 전달한다 —
     Planning이 실제로 보는 것은 Context Bundle(과 그것이 감싼 원본
-    Issue)뿐이다."""
+    Issue)뿐이다.
+
+    MVP-0037: `run_mvp_0001`(MVP-0036)과 동일한 이유로 Engine 호출
+    실패(예: timeout)를 잡아 기존 반환 계약(2개 키)을 유지한 채
+    반환한다. `bundle`은 Engine 호출 없이 이미 계산된 값이므로 실패
+    시에도 그대로 유지한다. `run_comparison()`은 이 함수와
+    `run_issue_to_planning()`(둘 다 개별적으로 예외를 처리함)만
+    호출하므로 별도 처리가 필요 없다."""
     bundle = build_context_bundle(issue)
     enriched_issue = _enrich_issue_with_bundle(issue, bundle)
 
-    requirement = requirements_agent_requirement_analysis(enriched_issue)
+    try:
+        requirement = requirements_agent_requirement_analysis(enriched_issue)
+    except Exception as exc:
+        return {
+            "context_bundle": bundle,
+            "planning": f"Engine call failed: {exc}",
+        }
 
     return {
         "context_bundle": bundle,
