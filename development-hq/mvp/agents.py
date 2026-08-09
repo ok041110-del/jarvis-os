@@ -27,6 +27,9 @@ HELLO_SDLC_CAPABILITY_MAP = {
 }
 
 
+NO_ISSUES_MARKER = "NO_ISSUES_FOUND"
+
+
 def backend_agent_code_review(code: str) -> str:
     """Backend Agent가 code_review Capability를 수행한다.
 
@@ -38,11 +41,24 @@ def backend_agent_code_review(code: str) -> str:
     문장이 붙어 있었다(위 각 함수 docstring 참고). 실제로 동일한
     문제가 test_execution에서 재현됐다(MVP-0025 Observation): Engine이
     테스트 케이스 대신 코드를 다시 리뷰하거나, 입력을 명확화 요청으로
-    오인했다. 두 함수 모두 같은 패턴(지시 문장 추가)으로 맞춘다 — 새
-    Output Contract는 지정하지 않는다."""
+    오인했다. 두 함수 모두 같은 패턴(지시 문장 추가)으로 맞웠다.
+
+    MVP-0027: `workflow_0002.py`(RT-0001 관찰용 1개 분기)는 code_review
+    결과에 이슈가 없으면 test_execution을 건너뛴다는 계약을 갖고 있다.
+    그 판단은 원래 rule-based Engine이 항상 반환하던 고정 문자열
+    ("뚜렷한 이슈가 발견되지 않았습니다.")로 이뤄졌는데, ENGINE-CONNECT-0001
+    이후 `call_engine()`이 실제 Engine을 호출하면서 그 고정 문자열은
+    더 이상 나오지 않는다 — 실제 실행으로 확인한 결과 분기가 항상
+    test_execution을 실행하는 쪽으로만 동작했다(MVP-0027 Observation).
+    이를 고치기 위해, 이슈가 없을 때만 끝에 `NO_ISSUES_MARKER`를
+    그대로 적으라는 지시를 추가한다 — 특정 응답 구조(섹션/헤더)를
+    요구하는 것이 아니라, MVP-0002가 이미 필요로 하던 단일 신호
+    하나만 명시적으로 요청하는 것이다."""
     instruction = (
         "Review the following code and describe issues in prose "
-        "(bugs, risks, style) — do not rewrite or restate the code as your answer."
+        "(bugs, risks, style) — do not rewrite or restate the code as your answer. "
+        f"If and only if you find no real issues, end your response with the "
+        f"exact line: {NO_ISSUES_MARKER}"
     )
     return call_engine(f"CODE_REVIEW:{instruction}\n\n{code}")
 
