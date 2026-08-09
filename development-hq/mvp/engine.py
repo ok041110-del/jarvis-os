@@ -16,6 +16,7 @@ Kernel Extraction Candidate: Task 종류에 따라 다른 Engine을 골라야 �
 
 import re
 import subprocess
+import tempfile
 
 
 DISALLOWED_TOOLS = "Write,Edit,Bash,Read,Glob,Grep,NotebookEdit,WebFetch,WebSearch"
@@ -51,7 +52,22 @@ def call_engine(prompt: str) -> str:
     "텍스트를 받아 텍스트를 반환한다"이며, 도구 차단은 그 계약을 실제
     Engine 위에서 유지하기 위한 것이다 — 새 Gateway/Adapter가 아니라
     같은 단일 함수의 호출 인자일 뿐이다. `STATELESS_CALL_NOTICE`도 같은
-    계약을 유지하기 위한 것이다 — 새 출력 형식을 요구하지 않는다."""
+    계약을 유지하기 위한 것이다 — 새 출력 형식을 요구하지 않는다.
+
+    MVP-0028: 이 함수는 `cwd`를 지정하지 않아 호출한 Python 프로세스의
+    작업 디렉터리(이 저장소 안)를 그대로 물려받았다. `claude -p`는 실행
+    디렉터리의 `CLAUDE.md`/Skill을 자동으로 읽으므로, Engine으로 호출된
+    것이 실제로는 이 저장소의 project-level 지시(task-intake/
+    context-loader 같은 Skill, "Architecture 경계" 절 등)를 그대로 읽고
+    따르는 또 다른 대화형 Claude Code 세션처럼 동작했다 — 실제 실행으로
+    확인된 사례(MVP-0009 Observation): REQUIREMENT_ANALYSIS 호출인데도
+    "다음 Skill: context-loader"를 제안하거나 하위 조사 에이전트를
+    언급하는 등, `STATELESS_CALL_NOTICE`가 요구하는 "텍스트를 받아
+    텍스트만 반환하는 상태 없는 호출"과 다르게 동작했다. `cwd`를 이
+    저장소 밖의 중립 디렉터리(`tempfile.gettempdir()`)로 고정하면 이
+    문제가 사라짐을 같은 prompt로 직접 확인했다 — 새 Gateway/Adapter가
+    아니라 기존 단일 함수 호출의 인자(`subprocess.run`의 `cwd`) 하나일
+    뿐이다."""
     result = subprocess.run(
         [
             "claude", "-p", prompt,
@@ -62,6 +78,7 @@ def call_engine(prompt: str) -> str:
         capture_output=True,
         text=True,
         timeout=180,
+        cwd=tempfile.gettempdir(),
     )
     return result.stdout
 
