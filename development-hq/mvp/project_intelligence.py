@@ -104,6 +104,17 @@ def _relevant_files(keywords: set, directory: Path, pattern: str, exclude_dirs: 
     return [str(p.relative_to(ROOT)) for _, p in candidates[:limit]]
 
 
+# MVP-0044: `_directory_structure()`가 이미 제외하던 `__pycache__` 외에도,
+# `.gitignore`에 등록된 다른 도구 캐시 디렉토리(`.pytest_cache`/`.mypy_cache`/
+# `.ruff_cache`)가 실제로 이 저장소에서 pytest/mypy/ruff를 한 번이라도
+# 실행하면 생성되고, 그대로 `_directory_structure()`에 잡혀 Planning에
+# 전달되는 Context Bundle에 프로젝트 구조가 아닌 빌드 산출물로 노출되는
+# 것을 직접 실행으로 재현했다(`development-hq/.pytest_cache/`가 실제로
+# 나타남). `__pycache__` 제외와 같은 이유(생성된 산출물은 프로젝트
+# 구조가 아니다)로 같은 방식(디렉터리 이름 리터럴 집합)으로 확장한다.
+_NOISE_DIR_NAMES = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"})
+
+
 def _directory_structure(max_depth: int = 2) -> list:
     structure = []
     for base in (ROOT / "development-hq", ROOT / "docs"):
@@ -111,7 +122,7 @@ def _directory_structure(max_depth: int = 2) -> list:
             continue
         for path in sorted(base.rglob("*")):
             rel = path.relative_to(ROOT)
-            if len(rel.parts) > max_depth or "__pycache__" in rel.parts:
+            if len(rel.parts) > max_depth or _NOISE_DIR_NAMES & set(rel.parts):
                 continue
             structure.append(str(rel) + ("/" if path.is_dir() else ""))
     return structure
