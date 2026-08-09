@@ -103,12 +103,37 @@ def design_agent_design(issue: dict, requirement: str) -> str:
     return call_engine(f"DESIGN:{instruction}\n\n{payload}")
 
 
+def _strip_code_fence(text: str) -> str:
+    """실제 Engine 3회 독립 호출(Python/JavaScript 각각, 서로 다른
+    Issue)로 직접 확인함: `backend_agent_code_generation`이 "Return
+    only the code, with no surrounding commentary"라고 명시적으로
+    요청해도, 실제 Engine은 매번 ```{lang}\\n...\\n``` 마크다운 fence로
+    감싸서 반환했다 — 지시가 요구한 Contract("코드만")를 텍스트
+    형태(fence 포함)가 어긴다. 이 결과는 `backend_agent_code_review`/
+    `qa_agent_test_execution`의 `code` 입력으로 그대로 전달되므로,
+    fence를 벗겨 실제로 코드만 남기는 것이 지시된 Contract와 일치한다.
+    감싸진 형태(첫 줄이 ```로 시작하고 마지막 줄이 정확히 ```인 경우)만
+    벗긴다 — 그 형태가 아니면(Engine이 fence 없이 코드만 반환한 경우
+    등) 원문을 그대로 반환한다. 새 Capability/파싱 로직이 아니라, 이미
+    존재하는 단일 Capability(code_generation)의 출력을 그 Capability
+    자신의 지시문 Contract에 맞게 정리하는 후처리다."""
+    lines = text.strip().splitlines()
+    if len(lines) >= 2 and lines[0].startswith("```") and lines[-1].strip() == "```":
+        return "\n".join(lines[1:-1])
+    return text
+
+
 def backend_agent_code_generation(design: str) -> str:
     """Backend Agent가 code_generation Capability를 수행한다. 지시 문장의
     목적은 위와 같다 — 이번에는 반대로 코드**만** 요구한다(다음 Task인
-    code_review/test_execution이 코드를 직접 입력으로 받기 때문)."""
+    code_review/test_execution이 코드를 직접 입력으로 받기 때문).
+
+    `_strip_code_fence` 적용 이유는 그 함수 docstring 참고 — 실제
+    Engine이 지시를 어기고 마크다운 fence로 감싸는 것을 직접 확인해
+    벗긴다."""
     instruction = (
         "Based on the following design, write the implementation code. "
         "Return only the code, with no surrounding commentary."
     )
-    return call_engine(f"CODE_GENERATION:{instruction}\n\n{design}")
+    code = call_engine(f"CODE_GENERATION:{instruction}\n\n{design}")
+    return _strip_code_fence(code)
