@@ -1,6 +1,6 @@
 # RFC-0004: Execution Result Consumer — 소비 주체와 방식
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0004-execution-result-consumer.md`로 종결됨(Not Accepted, based on current evidence; ADR 불필요). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Execution Layer 6개 Builder + Pipeline 구현 완료 후속)
 **Evidence**: `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md`,
 `docs/core/execution-layer/RFC-0002~ADR-0002` 전체,

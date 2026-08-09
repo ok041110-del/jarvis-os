@@ -1,6 +1,6 @@
 # RFC-0008: Runtime 개념의 존폐 — Boundary (ADC-02 후속)
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0008-runtime-existence-boundary.md`로 종결됨(Not Accepted, based on current evidence; ADR 불필요). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Execution Result Consumer Governance 후속)
 **대상**: `docs/03_adc/ADC.md` ADC-02("Runtime 개념의 존폐") — Kernel
 Baseline v1.0부터 Open(우선순위 NOW)으로 남아 있던 항목
