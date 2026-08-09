@@ -1,6 +1,6 @@
 # RFC-0002: Execution Result Contract — 산출물을 묶는 방식
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0002-execution-result-contract.md` → `ADR-0001-execution-result-contract.md`로 종결됨. RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Execution Layer Governance Priority Review 후속)
 **Evidence**: `docs/core/execution-layer/IMPL-STOP-0001-execution-result.md`,
 `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md`,

@@ -1,4 +1,4 @@
-# Jarvis OS Architecture Baseline v1.4
+# Jarvis OS Architecture Baseline v1.6
 
 ## 1. Purpose
 
@@ -758,11 +758,82 @@ Agnostic)에 부분적 실질을 준다 — 전체를 검증하지는 못하지�
 
 **Kernel Component Architecture는 여전히 §10 Out of Scope다.**
 
-## 16. Version
+## 16. Kernel Modules
+
+> 근거: `docs/architecture/core/ADC-0001-core-baseline.md`(Module 1~5
+> 판단), `docs/architecture/core/RFC-0001-jarvis-os-core-baseline.md`
+> §4(Module 정의)
+
+Kernel은 5개 Module 후보(Governance/Workflow/Memory/Execution
+Layer/Event Bus)에 대해 각각 Kernel Module로서의 존재 여부를
+판단했다(`ADC-0001-core-baseline.md` 종합). 이 절은 그중 **Accept된
+Module만** Baseline에 반영한다 — Defer된 Module은 상태만 기록하고
+설계하지 않는다.
+
+### 16.1 Governance (Accept)
+
+**책임**: Architecture Decision 관리.
+
+**근거**: `RFC → ADC → ADR → Baseline Update` 절차
+(`docs/00_governance/ARCHITECTURE_GOVERNANCE.md`)가 Jarvis OS
+수준(`docs/03_adc/ADC.md` ADC-01~12)과 Development HQ 수준
+(`docs/governance/adc/ADC-0001~0004`, `docs/04_adr/ADR-0001`) 양쪽에서
+반복 실행되어 실패 없이 동작했다(`ADC-0001-core-baseline.md` Module 1
+Decision Rationale: "이미 Jarvis OS 수준과 Development HQ 수준 양쪽에서
+반복 실행되어 실패 없이 동작한 절차 그 자체").
+
+**Kernel Module로서 다루는 것**: RFC/ADC/ADR 문서의 등록과 상태
+(§14.3 G-7 각주가 이미 이 사실을 전제로 인용했다: "Kernel Module로
+Accept된 Governance는 문서의 등록과 상태를 다룬다").
+
+**이 Accept가 결정하지 않는 것**: 그 실행 주체(누가/무엇이 문서
+등록·상태를 물리적으로 관리하는가)는 여전히 미정이다
+(`ADC-0001-core-baseline.md` Module 1 Risks). Registry나 자동화 등
+Component Design은 §10 Out of Scope 그대로다.
+
+### 16.2 Execution Layer (Accept)
+
+**책임**: Specification 기반 AI 실행.
+
+**근거**: `docs/02_rfc/RFC-0005-development-hq-execution-boundary.md`가
+Development HQ는 Implementation Specification(Target File / Public
+Interface / Functions / Classes / Dependencies / Algorithm Outline /
+Edge Cases / Validation Notes 8개 항목)을 생성하고 그 구조적
+완전성만 검증하는 지점에서 끝난다는 것과, 그 Specification으로부터
+실제 코드를 생성·실행·테스트하고 Model/Engine을 선택·호출하는
+지점부터 Execution Layer가 시작된다는 것을 사실 근거로 이미
+정리했다. `development-hq/BOUNDARY.md`("Engine 호출 — Kernel Engine
+Port/Adapter의 책임")와 §7("Engine 호출의 표준 인터페이스 제공
+(Port/Adapter)")은 이 경계를 이미 확정해 두었다
+(`ADC-0001-core-baseline.md` Module 4 Decision Rationale: "9개 MVP
+전부 일관, Phase 1 시작 이전부터 Frozen 경계").
+
+**Kernel Module로서 다루는 것**: Development HQ가 만든 Implementation
+Specification을 입력으로 받아, 코드 생성·실행·테스트, Model/Engine
+선택·호출까지의 경계(`RFC-0001-jarvis-os-core-baseline.md` §4.4).
+
+**이 Accept가 결정하지 않는 것**: 내부 구조(Prompt 구성, Model 선택,
+재시도 정책, Multi-Model Routing)는 `docs/03_adc/ADC.md`의
+ADC-01(Model↔Component 대응)·ADC-02(Runtime 존폐)와
+`docs/governance/adc/ADC-0003.md` 판단 4(Multi-Model, Out of
+Authority)가 여전히 Open으로 남긴 영역이다
+(`ADC-0001-core-baseline.md` Module 4 Risks: "이 Accept를 'Execution
+Layer의 설계가 결정되었다'는 의미로 확장 해석하면 안 된다"). 이 두
+Open Decision은 각각 `ADC-0008-runtime-existence-boundary.md`(ADC-02,
+Not Accepted)로 한 차례 대조됐으나 여전히 미해소다.
+
+### 16.3 미결 항목
+
+Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
+**Defer**됐다(`ADC-0001-core-baseline.md` Module 2·3·5) — 재평가
+조건은 각 Module의 Decision Rationale·Risks를 참조한다. 이 절은 그
+상태를 재판단하지 않는다.
+
+## 17. Version
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.4 |
+| Version | v1.6 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -770,6 +841,8 @@ Agnostic)에 부분적 실질을 준다 — 전체를 검증하지는 못하지�
 
 | Version | 내용 |
 |---|---|
+| v1.6 | §16.2 Execution Layer Module(Accept) 내용 반영 — 책임·근거·미결(ADC-01·02) 명시. 절 구조 변경 없음(신설 절 없음). 근거: `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` |
+| v1.5 | Kernel Modules(§16) 추가 — Governance Module(Accept) 반영. Execution Layer Module(Accept)은 별도 ADR 대기, Workflow/Memory/Event Bus(Defer)는 상태만 기록. 기존 §16 Version → §17. 근거: `docs/architecture/core/ADR-0001-governance-module-baseline.md` |
 | v1.4 | Kernel Reference Architecture(§15) 추가 — Responsibility Flow, Data Flow, Responsibility Relationship, Extension Flow, Implementation Neutrality. **§10 첫 항목을 "Kernel Architecture" → "Kernel Component Architecture"로 한정**(Frozen 절의 문언을 변경한 첫 사례). 기존 §15 Version → §16. 근거: ADR-0005 |
 | v1.3 | Kernel Public Contract(§14) 추가 — 계약 범위, Public Responsibilities, Public Guarantees, Hidden Responsibilities, Extension Points, Explicit Non-Goals, 변경 규칙. 기존 §14 Version → §15. 근거: ADR-0004 |
 | v1.2 | Kernel Context Model(§13) 추가 — Model 5개 요소, Builder 4개 책임, Assembly 불변식, Prompt Output Format, HQ 책임 배치. 기존 §13 Version → §14. 근거: ADR-0003 |

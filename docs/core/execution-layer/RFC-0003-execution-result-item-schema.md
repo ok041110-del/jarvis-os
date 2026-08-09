@@ -1,6 +1,6 @@
 # RFC-0003: Execution Result Item Schema — 목록 항목의 형태
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: Resolved — `ADC-0003-execution-result-item-schema.md` → `ADR-0002-execution-result-item-schema.md`로 종결됨. RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Execution Result Builder 구현 시도 후속)
 **Evidence**: `docs/core/execution-layer/IMPL-STOP-0002-execution-result-builder.md`,
 `docs/core/execution-layer/ADC-0002-execution-result-contract.md`,

@@ -124,7 +124,7 @@ T3의 **조작적 기준**("Architecture 의미에 영향을 주지 않음")은
 |---|---|
 | **파일** | `docs/02_rfc/README.md:17` |
 | **현재 문구** | *"Jarvis OS Architecture Baseline **v1.0**과 Development HQ Baseline v1.0은 Frozen이다."* |
-| **실제 저장소 사실** | Architecture Baseline은 **v1.4**(§16 Version). Development HQ Baseline은 **v1.0이 맞다**(`development-hq/BASELINE.md` Version = 1.0.0) |
+| **실제 저장소 사실** | Architecture Baseline은 v1.4 당시 **§16 Version**이었으나, `ADR-0001-governance-module-baseline.md`(Kernel Modules §16 신설)로 **§17 Version**·v1.5로 이동했다(스냅샷 당시 사실은 T1 판단에 영향 없음). Development HQ Baseline은 **v1.0이 맞다**(`development-hq/BASELINE.md` Version = 1.0.0) |
 | **분류** | **T1 Factual Error** (앞부분만. 뒷부분은 정확) |
 | **Architecture 영향** | **없음** |
 | **Implementation 차단** | **없음** |
@@ -199,7 +199,7 @@ T3의 **조작적 기준**("Architecture 의미에 영향을 주지 않음")은
 |---|---|
 | **파일** | `docs/01_architecture/BASELINE.md` **1행** |
 | **현재 문구** | `# Jarvis OS Architecture Baseline **v1.0**` |
-| **실제 저장소 사실** | 같은 문서 **§16 Version = v1.4** |
+| **실제 저장소 사실** | 스냅샷 당시 같은 문서 **§16 Version = v1.4**. 현재는 `ADR-0001-governance-module-baseline.md`로 **§17 Version = v1.5**(스냅샷 당시 사실은 T1 판단에 영향 없음) |
 | **분류** | **T1 Factual Error** — **이번 검토에서 발견한 것 중 가장 중대하다** |
 | **Architecture 영향** | **없음** — 제목은 Architecture 진술이 아니다 |
 | **Implementation 차단** | **없음** |

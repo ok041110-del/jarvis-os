@@ -2,6 +2,8 @@
 
 이 문서는 Jarvis OS의 모든 Open Decision에 대한 Single Source of Truth다. 구현 진행 여부와 무관하게, 여기 기록된 항목은 상태가 갱신될 때까지 Open으로 유지된다.
 
+이 문서는 Jarvis OS(Kernel) 수준 Open Decision(ADC-01~12)만 다룬다. Development HQ 수준 ADC는 `docs/governance/adc/`, Kernel Architecture RFC 후속 ADC는 `docs/architecture/core/`, Execution Layer 수준 ADC는 `docs/core/execution-layer/`에 각각 별도로 등록되어 있다(`DOC-TRIAGE-0001` D-7).
+
 ---
 
 ## ADC-01. Model 축과 Component 축의 대응 관계
