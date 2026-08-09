@@ -117,8 +117,38 @@ def _directory_structure(max_depth: int = 2) -> list:
     return structure
 
 
+class IssueValidationError(ValueError):
+    """`issue`가 dict가 아니거나 필수 필드(title/description)가 없거나
+    빈 값일 때 발생한다. `collect_relevant_context({'title': 'x'})`가
+    `KeyError('description')`만 던져 무엇이 문제인지 알 수 없던 것을
+    직접 실행으로 확인해(MVP-0041), 어떤 필드가 문제인지 명시한 이
+    예외로 대체한다."""
+
+
+def validate_issue(issue: dict) -> None:
+    """`collect_relevant_context()`가 `issue['title']`/`issue['description']`를
+    참조하기 전에, 그 두 필드가 존재하고 비어 있지 않은 문자열인지
+    확인한다. 이 저장소의 모든 실제 Issue(`REAL_ISSUE`/`CODE_ISSUE`
+    fixture 포함, MVP-0007~0032)는 `title`/`description`만 필수로
+    쓴다 — 다른 식별자 필드(`id` 등)를 쓴 적이 없으므로 그런 필드는
+    검사하지 않는다."""
+    if not isinstance(issue, dict):
+        raise IssueValidationError(f"issue must be a dict, got {type(issue).__name__}")
+
+    missing = [
+        field
+        for field in ("title", "description")
+        if not isinstance(issue.get(field), str) or not issue.get(field).strip()
+    ]
+    if missing:
+        raise IssueValidationError(
+            f"issue is missing required non-empty string field(s): {', '.join(missing)}"
+        )
+
+
 def collect_relevant_context(issue: dict) -> dict:
     """Issue와 관련된 Project 자료를 규칙 기반으로 수집해 dict로 반환한다."""
+    validate_issue(issue)
     keywords = _keywords(f"{issue['title']} {issue['description']}")
 
     context = {"directory_structure": _directory_structure()}
