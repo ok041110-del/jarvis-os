@@ -28,14 +28,35 @@ HELLO_SDLC_CAPABILITY_MAP = {
 
 
 def backend_agent_code_review(code: str) -> str:
-    """Backend Agent가 code_review Capability를 수행한다."""
-    return call_engine(f"CODE_REVIEW:{code}")
+    """Backend Agent가 code_review Capability를 수행한다.
+
+    MVP-0025: 실제 Engine 실행(run_mvp_0001)에서, 이 함수와
+    `qa_agent_test_execution`만 지시 문장 없이 `CODE_REVIEW:`/
+    `TEST_EXECUTION:` 리터럴 마커만 붙여 호출하고 있었다 — 나머지 3개
+    Agent 함수(requirement_analysis/design/code_generation)는 이미
+    "리터럴 마커 단독으로는 Engine이 의도를 놓친다"는 이유로 지시
+    문장이 붙어 있었다(위 각 함수 docstring 참고). 실제로 동일한
+    문제가 test_execution에서 재현됐다(MVP-0025 Observation): Engine이
+    테스트 케이스 대신 코드를 다시 리뷰하거나, 입력을 명확화 요청으로
+    오인했다. 두 함수 모두 같은 패턴(지시 문장 추가)으로 맞춘다 — 새
+    Output Contract는 지정하지 않는다."""
+    instruction = (
+        "Review the following code and describe issues in prose "
+        "(bugs, risks, style) — do not rewrite or restate the code as your answer."
+    )
+    return call_engine(f"CODE_REVIEW:{instruction}\n\n{code}")
 
 
 def qa_agent_test_execution(code: str, review: str) -> str:
-    """QA Agent가 test_execution Capability(테스트 케이스 제안)를 수행한다."""
+    """QA Agent가 test_execution Capability(테스트 케이스 제안)를 수행한다.
+    지시 문장을 추가한 이유는 `backend_agent_code_review` docstring 참고
+    (MVP-0025)."""
+    instruction = (
+        "Based on the following code and its review, propose a list of "
+        "test cases to add — do not review the code again."
+    )
     payload = f"{code}\n---REVIEW---\n{review}"
-    return call_engine(f"TEST_EXECUTION:{payload}")
+    return call_engine(f"TEST_EXECUTION:{instruction}\n\n{payload}")
 
 
 def requirements_agent_requirement_analysis(issue: dict) -> str:
