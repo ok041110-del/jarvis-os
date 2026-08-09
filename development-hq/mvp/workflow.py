@@ -17,9 +17,23 @@ from .agents import backend_agent_code_review, qa_agent_test_execution
 
 
 def run_mvp_0001(code: str) -> dict:
-    """입력 코드에 대해 code_review -> test_execution을 순서대로 실행한다."""
-    review = backend_agent_code_review(code)
-    test_cases = qa_agent_test_execution(code, review)
+    """입력 코드에 대해 code_review -> test_execution을 순서대로 실행한다.
+
+    MVP-0036: `call_engine()`은 Engine 호출 실패(예: timeout)를 별도로
+    처리하지 않고 그대로 전파한다 — 이전에는 이 함수가 그 예외를 그대로
+    다시 전파해 `cli.py`가 raw traceback으로 죽었다(실제 timeout으로
+    재현). `workflow_hello_sdlc.run_hello_sdlc()`가 이미 쓰는 것과 같은
+    `try/except`로, MVP.md의 반환 계약(`code_review`/`test_execution`
+    두 키)을 그대로 유지한 채 오류 메시지를 담아 반환한다."""
+    try:
+        review = backend_agent_code_review(code)
+        test_cases = qa_agent_test_execution(code, review)
+    except Exception as exc:
+        error_message = f"Engine call failed: {exc}"
+        return {
+            "code_review": error_message,
+            "test_execution": error_message,
+        }
 
     return {
         "code_review": review,
