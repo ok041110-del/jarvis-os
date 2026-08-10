@@ -53,10 +53,37 @@ def backend_agent_code_review(code: str) -> str:
     이를 고치기 위해, 이슈가 없을 때만 끝에 `NO_ISSUES_MARKER`를
     그대로 적으라는 지시를 추가한다 — 특정 응답 구조(섹션/헤더)를
     요구하는 것이 아니라, MVP-0002가 이미 필요로 하던 단일 신호
-    하나만 명시적으로 요청하는 것이다."""
+    하나만 명시적으로 요청하는 것이다.
+
+    MVP-0047: `code_review` Capability의 입력은 파일 하나의 텍스트뿐이라
+    (`agents.py`/`engine.py` 어디에도 다른 프로젝트 파일을 함께 보여주는
+    경로가 없다 — `call_engine()`의 `--disallowedTools`가 Read/Bash 등을
+    전부 막아 Engine이 스스로 다른 파일을 열어볼 수도 없다), 상대 import가
+    가리키는 파일이 실제로 존재하는지·실제로 그 이름을 정의하는지는
+    이 Capability의 계약 안에서 원천적으로 검증 불가능하다. 실제
+    프로젝트 Dogfooding(MVP-0046, `projects/notekeeper/issues/0002-store`)
+    에서 `from .note import Note`(실재하지 않는 모듈)가 real Review에서
+    아무 언급 없이 통과하는 것을 직접 재현해 확인했다. 이 함수의
+    반환값(`str`)과 호출 형태(`call_engine()` 한 번)는 그대로 두고,
+    지시 문장에 한 문장만 추가해 실제로 이 결함을 재현·검증했다
+    (MVP-0047 Evidence): 상대 import를 발견하면 그 대상을 검증할 수
+    없다는 사실 자체를 리뷰에 명시적으로 적으라고 요청한다. 새 입력
+    Context(다른 파일 내용)를 넘기지 않는다 — 그러면 이 함수의 시그니처
+    (`code: str`)를 넘어서는 Contract 변경이 된다. 대신 이미 참인
+    사실(자신이 볼 수 있는 범위의 한계)을 명시적으로 말하게 할 뿐이다.
+    실제 실행으로 확인한 결과, 존재하지 않는 모듈을 가리키는 import는
+    "unverified"로 정확히 지목했고, 존재하는 모듈을 가리키는 import에는
+    "틀렸다"고 오탐하지 않았다(둘 다 "검증 불가"라고만 말한다 — 그것이
+    사실이므로)."""
     instruction = (
         "Review the following code and describe issues in prose "
         "(bugs, risks, style) — do not rewrite or restate the code as your answer. "
+        "You are shown only this single file, not the rest of the project. "
+        "For every `from .module import Name`-style relative import, you cannot "
+        "verify that `module` actually exists as a sibling file or that `Name` is "
+        "actually defined there — explicitly call out each such import as an "
+        "unverified assumption that must be checked against the real project "
+        "files, and say so even if the import looks syntactically fine. "
         f"If and only if you find no real issues, end your response with the "
         f"exact line: {NO_ISSUES_MARKER}"
     )
