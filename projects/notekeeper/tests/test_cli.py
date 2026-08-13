@@ -121,3 +121,56 @@ def test_missing_subcommand_raises_systemexit(tmp_path):
 
     with pytest.raises(SystemExit):
         cli.main(["--store", str(tmp_path / "notes.json")])
+
+
+def test_edit_updates_title_and_prints_id(tmp_path, capsys):
+    store_path = str(tmp_path / "notes.json")
+    cli.main(["add", "Original", "body", "--store", store_path])
+    note_id = capsys.readouterr().out.strip()
+
+    rc = cli.main(["edit", note_id, "--title", "Edited", "--store", store_path])
+    printed_id = capsys.readouterr().out.strip()
+    assert rc == 0
+    assert printed_id == note_id
+    assert NoteStore(store_path).get(note_id).title == "Edited"
+
+
+def test_edit_missing_id_errors_cleanly(tmp_path, capsys):
+    store_path = str(tmp_path / "notes.json")
+    rc = cli.main(["edit", "does-not-exist", "--title", "x", "--store", store_path])
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "Note not found" in err
+
+
+def test_edit_without_tags_leaves_tags_unchanged(tmp_path, capsys):
+    store_path = str(tmp_path / "notes.json")
+    cli.main(["add", "A", "a", "--tags", "x,y", "--store", store_path])
+    note_id = capsys.readouterr().out.strip()
+
+    cli.main(["edit", note_id, "--title", "New", "--store", store_path])
+    capsys.readouterr()
+    assert NoteStore(store_path).get(note_id).tags == ["x", "y"]
+
+
+def test_edit_with_tags_replaces_tags(tmp_path, capsys):
+    store_path = str(tmp_path / "notes.json")
+    cli.main(["add", "A", "a", "--tags", "x,y", "--store", store_path])
+    note_id = capsys.readouterr().out.strip()
+
+    cli.main(["edit", note_id, "--tags", "z", "--store", store_path])
+    capsys.readouterr()
+    assert NoteStore(store_path).get(note_id).tags == ["z"]
+
+
+def test_edit_store_option_works_before_and_after_subcommand(tmp_path, capsys):
+    store_path = str(tmp_path / "notes.json")
+    cli.main(["add", "A", "a", "--store", store_path])
+    note_id = capsys.readouterr().out.strip()
+
+    rc1 = cli.main(["--store", store_path, "edit", note_id, "--title", "T1"])
+    capsys.readouterr()
+    rc2 = cli.main(["edit", note_id, "--title", "T2", "--store", store_path])
+    capsys.readouterr()
+    assert rc1 == 0 and rc2 == 0
+    assert NoteStore(store_path).get(note_id).title == "T2"

@@ -1,3 +1,8 @@
+# Implementation: Add update() to NoteStore
+
+실제 저장 위치: `src/notekeeper/store.py`
+
+```python
 from __future__ import annotations
 
 import json
@@ -80,3 +85,4 @@ class NoteStore:
 
         self.save()
         return note
+```

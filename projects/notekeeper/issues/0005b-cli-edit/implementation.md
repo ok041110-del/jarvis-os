@@ -1,3 +1,8 @@
+# Implementation: Add edit subcommand to notekeeper CLI
+
+실제 저장 위치: `src/notekeeper/cli.py`
+
+```python
 """Command-line interface for notekeeper."""
 
 from __future__ import annotations
@@ -144,3 +149,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
+```
