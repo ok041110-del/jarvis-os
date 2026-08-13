@@ -92,3 +92,71 @@ def test_empty_json_array_loads_to_empty_store(tmp_path):
     path.write_text("[]", encoding="utf-8")
     store = NoteStore(path)
     assert store.list() == []
+
+
+def test_update_missing_id_returns_none(tmp_path):
+    store = NoteStore(tmp_path / "notes.json")
+    assert store.update("does-not-exist", title="x") is None
+
+
+def test_update_only_title(tmp_path):
+    store = NoteStore(tmp_path / "notes.json")
+    note = Note.new("Title", "Body", tags=["a"])
+    store.add(note)
+
+    updated = store.update(note.id, title="New Title")
+    assert updated.title == "New Title"
+    assert updated.body == "Body"
+    assert updated.tags == ["a"]
+
+
+def test_update_only_body(tmp_path):
+    store = NoteStore(tmp_path / "notes.json")
+    note = Note.new("Title", "Body")
+    store.add(note)
+
+    updated = store.update(note.id, body="New Body")
+    assert updated.title == "Title"
+    assert updated.body == "New Body"
+
+
+def test_update_only_tags(tmp_path):
+    store = NoteStore(tmp_path / "notes.json")
+    note = Note.new("Title", "Body", tags=["a"])
+    store.add(note)
+
+    updated = store.update(note.id, tags=["x", "y"])
+    assert updated.tags == ["x", "y"]
+    assert updated.title == "Title"
+
+
+def test_update_no_fields_leaves_note_unchanged(tmp_path):
+    store = NoteStore(tmp_path / "notes.json")
+    note = Note.new("Title", "Body", tags=["a"])
+    store.add(note)
+
+    updated = store.update(note.id)
+    assert updated.title == "Title"
+    assert updated.body == "Body"
+    assert updated.tags == ["a"]
+
+
+def test_update_never_changes_id_or_created_at(tmp_path):
+    store = NoteStore(tmp_path / "notes.json")
+    note = Note.new("Title", "Body")
+    store.add(note)
+
+    updated = store.update(note.id, title="New Title")
+    assert updated.id == note.id
+    assert updated.created_at == note.created_at
+
+
+def test_update_persists_to_disk(tmp_path):
+    path = tmp_path / "notes.json"
+    store = NoteStore(path)
+    note = Note.new("Title", "Body")
+    store.add(note)
+    store.update(note.id, title="New Title")
+
+    reloaded = NoteStore(path)
+    assert reloaded.get(note.id).title == "New Title"
