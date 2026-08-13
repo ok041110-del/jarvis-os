@@ -1,0 +1,56 @@
+[
+  {
+    "role": "fundamental_analyst_fundamental_analysis",
+    "input_chars": 819,
+    "output_chars": 1914,
+    "elapsed_sec": 38.4
+  },
+  {
+    "role": "technical_analyst_technical_analysis",
+    "input_chars": 684,
+    "output_chars": 2971,
+    "elapsed_sec": 16.7
+  },
+  {
+    "role": "industry_analyst_industry_analysis",
+    "input_chars": 748,
+    "output_chars": 1544,
+    "elapsed_sec": 31.2
+  },
+  {
+    "role": "news_analyst_news_event_analysis",
+    "input_chars": 947,
+    "output_chars": 2402,
+    "elapsed_sec": 36.7
+  },
+  {
+    "role": "sentiment_analyst_sentiment_analysis",
+    "input_chars": 746,
+    "output_chars": 1533,
+    "elapsed_sec": 25.8
+  },
+  {
+    "role": "bull_researcher_bull_case",
+    "input_chars": 10479,
+    "output_chars": 6799,
+    "elapsed_sec": 34.9
+  },
+  {
+    "role": "bear_researcher_bear_case",
+    "input_chars": 10479,
+    "output_chars": 9018,
+    "elapsed_sec": 45.2
+  },
+  {
+    "role": "synthesis_judgment",
+    "input_chars": 15817,
+    "output_chars": 6089,
+    "elapsed_sec": 33.2
+  },
+  {
+    "role": "report_writer_final_report",
+    "input_chars": 32270,
+    "output_chars": 12808,
+    "elapsed_sec": 50.9
+  }
+]
