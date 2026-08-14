@@ -130,3 +130,42 @@ Contract 위반으로 분류된 것이다.
 않았다. `docs/03_adc/ADC.md`도 이 문서로 수정하지 않는다(관련 ADC 항목
 없음 — 이 발견은 ADC-02/09/10 어디와도 직접 연결되지 않는다,
 `GOVERNANCE-REVIEW-0006` 참조).
+
+---
+
+## Follow-up (KO/PG Dividend Stock Dogfooding에서 추가 확인, 결론 유지)
+
+KO(`projects/dividend-stock-analysis-ko/issues/0001-ko-analysis/EVIDENCE.md`
+§"Data Boundary 재확인")·PG(`projects/dividend-stock-analysis-pg/issues/0001-pg-analysis/EVIDENCE.md`
+§"Data Boundary 재확인")에서도 동일한 조건(비교 대상 자산의 수치를
+의도적으로 섹션 안에 포함)으로 재현을 시도했다. 두 실행(11개 산출물씩,
+총 22개) 전수 확인 결과 **새로운 이상 징후는 관찰되지 않았다** —
+제공된 비교 수치는 매번 원래 그 정보가 제공된 섹션에서 파생된
+산출물에만 정확히 국한됐다.
+
+**결론 유지**: 이 발견을 Execution Layer violation으로 확정하지
+않는다. Acquisition/Workflow 경계 가능성을 계속 유지한다(§Boundary
+원 판단 그대로). 재현 표본은 이제 4건(AGG 원본 재실행 2회 + KO + PG)
+으로 늘었으나 전부 "재현 안 됨" 방향이므로, 최초 관찰(AGG 1건)이
+이례적이었을 가능성이 더 강해졌을 뿐 결론 자체는 바뀌지 않는다.
+
+**기존 문서 직접 수정 여부 판단**: `projects/etf-analysis-agg/issues/0001-agg-analysis/EVIDENCE.md`,
+`docs/research/ETF-DOGFOODING-REVIEW-0003.md`,
+`docs/research/ETF-TEAM-DEFINITION-0001.md`는 **이번에도 직접 수정하지
+않는다.** 이유:
+1. 세 문서 모두 "특정 시점에 실제로 관찰된 것"을 기록한 point-in-time
+   Evidence/확정 문서다 — 사후에 다른 세션의 재해석으로 원문을 고치는
+   것은 이 저장소의 관행(예: `VALIDATION_REPORT.md`를 그대로 두는 것)
+   과 어긋난다.
+2. 특히 `ETF-TEAM-DEFINITION-0001.md`는 **이미 승격이 확정된 문서**다
+   — 확정 문서를 다른 세션이 사후에 고치는 것은 그 문서가 대표하는
+   사용자 결정 자체를 소급 수정하는 것과 같다.
+3. 재분류 Evidence는 이미 별도의 발견 가능한 문서(이 문서 + 각 EVIDENCE.md
+   의 "Data Boundary 재확인" 절)에 남아 있어, 향후 세션이 `docs/research/`
+   를 훑으면 자연히 발견할 수 있다.
+
+**대신 권고하는 것**: 다음에 ETF Team 관련 공식 Governance 문서(예:
+ETF Team의 4번째 Dogfooding, 또는 별도 재평가)가 실제로 열릴 때, 그
+문서가 이 재분류 Evidence를 인용해 "Capability 개선 후보"·"재평가
+조건" 절을 갱신하는 것이 적절하다 — 지금 이 문서가 선제적으로 그
+갱신을 대신하지 않는다.
