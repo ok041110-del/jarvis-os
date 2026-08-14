@@ -22,9 +22,10 @@ Jarvis OS는 AI Organization Operating System이다. 여러 HQ(업무 영역)를
 | Development HQ MVP | MVP-0001 완료(원 구현) + MVP-0002~MVP-0048 Dogfooding/결함 수정 완료 (Evidence 기반, `docs/01_mvp/`) |
 | Kernel | Responsibility·Public Contract·Logical Reference Architecture는 BASELINE.md §11 이하에 정의됨(ADR-0002~0005). Component Architecture(Scheduler/Registry 등 실제 구현)는 여전히 Out of Scope — "설계 안 함"이 아니라 "책임은 정의됨, 구현은 의도적으로 미착수" |
 | Engine MVP | 종료 대상으로 판정됨 (`GOVERNANCE-REVIEW-0004`) — success/실패 경로 모두 real-Engine Evidence로 검증 완료 |
+| Development HQ MVP Validation | **종료 권고됨** (`GOVERNANCE-REVIEW-0007`) — `development-hq/mvp/`는 MVP-0047 이후 11회 연속 검증 라운드(MVP-0048 + Investment Dogfooding 10건) 동안 무수정. Production 진입 Blocking과는 별개(그쪽은 계속 Open) |
 | Stock Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/STOCK-TEAM-DEFINITION-0001.md` |
 | ETF Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/ETF-TEAM-DEFINITION-0001.md` |
-| Dividend Stock Team (Investment 영역) | Dogfooding 1회(JNJ) 진행, 승격 여부 미결정 — 최소 2회 이상 추가 실행 필요 (`docs/research/DIVIDEND-STOCK-DOGFOODING-REVIEW-0001.md`) |
+| Dividend Stock Team (Investment 영역) | **Promoted** (독립 명명 + Stock Team 확장으로 문서화, Agent/Architecture 미확정) — `docs/research/DIVIDEND-STOCK-TEAM-DEFINITION-0001.md` (JNJ/KO/PG 3/3 Evidence 기반) |
 | Investment HQ 자체 | 아직 이 저장소에 인스턴스화되어 있지 않음 (Stock/ETF/Dividend Stock은 모두 project-local Dogfooding, Development HQ Registry 등록 없음) |
 
 ## Frozen Architecture
@@ -118,16 +119,33 @@ Kernel은 만드는 것이 아니라 발견(Extraction)하는 것이다. MVP 구
 
 ## Next Step
 
-MVP-0001의 최소 스크립트 작성(위 1~4단계에 해당하는 작업)은 이미 완료되었다
-(`development-hq/mvp/`, `docs/01_mvp/MVP-0001~0048`). 현재 실제로 열려 있는
-작업은 다음과 같다.
+MVP-0001의 최소 스크립트 작성은 이미 완료되었고
+(`development-hq/mvp/`, `docs/01_mvp/MVP-0001~0048`), **Development HQ
+MVP Validation 자체가 종료 권고된 상태다**(`GOVERNANCE-REVIEW-0007`).
+Stock/ETF/Dividend Stock Team 3개 트랙 모두 3회 이상 반복으로 Promoted
+됐다(`STOCK-TEAM-DEFINITION-0001.md`, `ETF-TEAM-DEFINITION-0001.md`,
+`DIVIDEND-STOCK-TEAM-DEFINITION-0001.md`). 이는 "앞으로 아무 것도 하지
+않는다"는 뜻이 아니라 — 새로운 결함이 실제로 발견되면 MVP 번호를 이어서
+계속 기록한다 — 새 MVP를 선제적으로 만들어 검증 범위를 확장하지는
+않는다는 뜻이다.
 
-1. Dividend Stock Team: 추가 Dogfooding 1~2회 실행(예: KO, PG 등 다른 산업의
-   배당주) — Dividend Quality/Valuation 역할의 반복성과 "Stock Team 확장 vs
-   독립 Team" 판단 근거 확보 (`docs/research/DIVIDEND-STOCK-DOGFOODING-REVIEW-0001.md` §7)
-2. AGG 실행에서 1회 관찰된 "Engine의 데이터 범위 이탈"의 재현 여부 계속 관찰
-   (JNJ에서는 미재현, 현재 1/2)
-3. `docs/03_adc/ADC.md`의 NOW 우선순위 Open Decision(ADC-02, ADC-09, ADC-10)은
-   여전히 Open — MVP/Dogfooding 진행과 무관하게 별도 트랙으로 존재
-4. Implementation Stop Trigger·Kernel Extraction Candidate 발생 여부는 신규
-   MVP/Dogfooding마다 계속 점검한다 (지금까지 발동 사례 없음)
+**다음 단계는 새 기능 개발이 아니라 Kernel Validation이다.**
+
+1. **Kernel Boundary/Component 책임 검증**을 우선한다 —
+   `docs/01_architecture/BASELINE.md` §11(Kernel Responsibility)과
+   §10(Out of Scope, Component Architecture)의 경계가 실제 Evidence
+   (Development HQ + Investment Dogfooding 누적 14건: MVP 10건 +
+   Stock/ETF/Dividend Stock)와 계속 일치하는지 확인하는 것이 다음
+   작업이다. 새 Kernel Component를 미리 설계하지 않는다 — Extraction
+   Candidate가 실제로 나타났을 때만 다룬다.
+2. `docs/03_adc/ADC.md`의 NOW 우선순위 Open Decision(ADC-01, ADC-02,
+   ADC-09, ADC-10)은 **구현 근거가 생길 때까지 계속 Open으로 유지한다**
+   (`GOVERNANCE-REVIEW-0006`) — 지금 억지로 결정하지 않는다.
+3. Production 진입 Blocking(Engine caller 위치, `ADC-0010`/`ADC-0011`
+   Not Accepted)은 별도 트랙으로 계속 열려 있다 — Kernel Validation과
+   순서상 무관하게 진행 가능.
+4. AGG Data Boundary 관찰은 4회 재현 시도(AGG 재실행 2회 + JNJ + KO +
+   PG) 전부 미재현 — Execution 문제로 확정하지 않는다
+   (`docs/research/AGG-DATA-BOUNDARY-REPRODUCTION-0001.md`).
+5. Implementation Stop Trigger·Kernel Extraction Candidate 발생 여부는
+   신규 작업마다 계속 점검한다 (지금까지 발동 사례 없음).

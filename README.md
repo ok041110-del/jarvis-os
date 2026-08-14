@@ -14,7 +14,8 @@ Architecture 자체에 대한 설명은 이 문서에서 반복하지 않는다.
 | Development HQ Baseline | v1.0, Frozen |
 | Development HQ MVP | MVP-0001 ~ MVP-0048 완료 (Evidence 기반, `docs/01_mvp/`) |
 | Execution Layer MVP | MVP-0001 ~ MVP-0006 완료 (`core/execution_layer/`) |
-| Investment 영역 Dogfooding | Stock Team·ETF Team Promoted, Dividend Stock Team Dogfooding 진행 중 (`docs/research/`) |
+| Investment 영역 Dogfooding | Stock Team·ETF Team·Dividend Stock Team 모두 Promoted (`docs/research/`) |
+| Development HQ MVP Validation | 종료 권고됨(`GOVERNANCE-REVIEW-0007`), Kernel Validation 단계로 전환 |
 | 원본 Starter Kit 문서 패키지 | v1.0 Final (그 이후 문서·코드가 이 패키지 범위 밖으로 확장됨) |
 
 Architecture Baseline과 Development HQ Baseline은 직접 수정하지 않는다. 변경이 필요하다고 판단되면 `docs/02_rfc` → `docs/03_adc` → `docs/04_adr` 절차를 따른다.
