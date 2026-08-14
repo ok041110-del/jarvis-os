@@ -50,19 +50,19 @@
   {
     "role": "bear_researcher_bear_case",
     "input_chars": 19385,
-    "output_chars": 52,
-    "elapsed_sec": 2.5
+    "output_chars": 9940,
+    "elapsed_sec": 49.6
   },
   {
     "role": "synthesis_judgment",
-    "input_chars": 8876,
-    "output_chars": 52,
-    "elapsed_sec": 2.5
+    "input_chars": 18764,
+    "output_chars": 8011,
+    "elapsed_sec": 65.3
   },
   {
     "role": "report_writer_final_report",
-    "input_chars": 28145,
-    "output_chars": 52,
-    "elapsed_sec": 2.0
+    "input_chars": 45992,
+    "output_chars": 18254,
+    "elapsed_sec": 78.1
   }
 ]
