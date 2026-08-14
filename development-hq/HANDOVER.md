@@ -4,7 +4,7 @@
 
 Jarvis OS는 AI Organization Operating System이다. 여러 HQ(업무 영역)를 실행하고 관리하는 운영체제를 목표로 하며, Development HQ는 그 첫 번째 HQ이자 향후 모든 HQ의 Reference Architecture다.
 
-지금까지의 Architecture 설계 단계(Vision → Principles → Meta Architecture → Concept Model → System Boundary → Core Component 검토 → Baseline Freeze → Development HQ Reference Architecture → MVP 정의)가 모두 완료되었고, 이제 실제 구현 단계로 넘어간다.
+지금까지의 Architecture 설계 단계(Vision → Principles → Meta Architecture → Concept Model → System Boundary → Core Component 검토 → Baseline Freeze → Development HQ Reference Architecture → MVP 정의)가 완료되었고, Development HQ MVP-0001 구현과 그 이후 MVP-0002~MVP-0048 Dogfooding·결함 수정, Kernel Architecture 연구(RFC/ADC/ADR), Investment 영역(Stock/ETF/Dividend Stock) Dogfooding까지 실제로 진행된 상태다. 아래 "Current Status"가 현재 실제 진행 상태이며, "Next Step"은 그 다음에 남은 작업이다.
 
 ## Core Principles (필독)
 
@@ -17,10 +17,15 @@ Jarvis OS는 AI Organization Operating System이다. 여러 HQ(업무 영역)를
 
 | 항목 | 상태 |
 |---|---|
-| Jarvis OS Architecture Baseline | v1.0, Frozen |
-| Development HQ Baseline | v1.0, Frozen |
-| Development HQ MVP-0001 | Approved |
-| Kernel | 미설계. MVP 구현 중 발견되는 후보만 기록, 직접 구현하지 않음 |
+| Jarvis OS Architecture Baseline | v1.6 (RFC → ADC → ADR 경로로만 갱신, 직접 수정은 여전히 금지) |
+| Development HQ Baseline | v1.0, Frozen (미변경) |
+| Development HQ MVP | MVP-0001 완료(원 구현) + MVP-0002~MVP-0048 Dogfooding/결함 수정 완료 (Evidence 기반, `docs/01_mvp/`) |
+| Kernel | Responsibility·Public Contract·Logical Reference Architecture는 BASELINE.md §11 이하에 정의됨(ADR-0002~0005). Component Architecture(Scheduler/Registry 등 실제 구현)는 여전히 Out of Scope — "설계 안 함"이 아니라 "책임은 정의됨, 구현은 의도적으로 미착수" |
+| Engine MVP | 종료 대상으로 판정됨 (`GOVERNANCE-REVIEW-0004`) — success/실패 경로 모두 real-Engine Evidence로 검증 완료 |
+| Stock Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/STOCK-TEAM-DEFINITION-0001.md` |
+| ETF Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/ETF-TEAM-DEFINITION-0001.md` |
+| Dividend Stock Team (Investment 영역) | Dogfooding 1회(JNJ) 진행, 승격 여부 미결정 — 최소 2회 이상 추가 실행 필요 (`docs/research/DIVIDEND-STOCK-DOGFOODING-REVIEW-0001.md`) |
+| Investment HQ 자체 | 아직 이 저장소에 인스턴스화되어 있지 않음 (Stock/ETF/Dividend Stock은 모두 project-local Dogfooding, Development HQ Registry 등록 없음) |
 
 ## Frozen Architecture
 
@@ -33,7 +38,7 @@ Jarvis OS는 AI Organization Operating System이다. 여러 HQ(업무 영역)를
 
 ## Approved Baselines
 
-- `docs/01_architecture/BASELINE.md` — Jarvis OS Architecture Baseline v1.0
+- `docs/01_architecture/BASELINE.md` — Jarvis OS Architecture Baseline (현재 v1.6, RFC → ADC → ADR 경로로만 갱신)
 - `development-hq/BASELINE.md` — Development HQ Baseline v1.0
 
 두 문서 모두 이 Starter Kit의 최우선 참조 문서다. 이 문서들과 충돌하는 어떤 판단도 우선하지 않는다.
@@ -113,8 +118,16 @@ Kernel은 만드는 것이 아니라 발견(Extraction)하는 것이다. MVP 구
 
 ## Next Step
 
-1. `development-hq/MVP.md`의 User Scenario를 만족하는 최소 스크립트 작성
-2. Backend Agent(`code_review`) → QA Agent(`test_execution`) 순서로 직접 함수 호출 연결
-3. Exit Criteria 충족 여부 확인
-4. Implementation Stop Trigger 발생 여부 지속 점검
-5. 완료 시 결과를 보고하고, Kernel Extraction Candidate로 기록된 항목(Task Dispatcher, Engine Gateway, Registry, Context 전달 메커니즘)을 정리하여 다음 단계(Kernel Boundary RFC) 논의 자료로 남긴다
+MVP-0001의 최소 스크립트 작성(위 1~4단계에 해당하는 작업)은 이미 완료되었다
+(`development-hq/mvp/`, `docs/01_mvp/MVP-0001~0048`). 현재 실제로 열려 있는
+작업은 다음과 같다.
+
+1. Dividend Stock Team: 추가 Dogfooding 1~2회 실행(예: KO, PG 등 다른 산업의
+   배당주) — Dividend Quality/Valuation 역할의 반복성과 "Stock Team 확장 vs
+   독립 Team" 판단 근거 확보 (`docs/research/DIVIDEND-STOCK-DOGFOODING-REVIEW-0001.md` §7)
+2. AGG 실행에서 1회 관찰된 "Engine의 데이터 범위 이탈"의 재현 여부 계속 관찰
+   (JNJ에서는 미재현, 현재 1/2)
+3. `docs/03_adc/ADC.md`의 NOW 우선순위 Open Decision(ADC-02, ADC-09, ADC-10)은
+   여전히 Open — MVP/Dogfooding 진행과 무관하게 별도 트랙으로 존재
+4. Implementation Stop Trigger·Kernel Extraction Candidate 발생 여부는 신규
+   MVP/Dogfooding마다 계속 점검한다 (지금까지 발동 사례 없음)
