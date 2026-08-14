@@ -26,7 +26,7 @@ Jarvis OS는 AI Organization Operating System이다. 여러 HQ(업무 영역)를
 | Stock Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/STOCK-TEAM-DEFINITION-0001.md` |
 | ETF Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/ETF-TEAM-DEFINITION-0001.md` |
 | Dividend Stock Team (Investment 영역) | **Promoted** (독립 명명 + Stock Team 확장으로 문서화, Agent/Architecture 미확정) — `docs/research/DIVIDEND-STOCK-TEAM-DEFINITION-0001.md` (JNJ/KO/PG 3/3 Evidence 기반) |
-| Investment HQ 자체 | 아직 이 저장소에 인스턴스화되어 있지 않음 (Stock/ETF/Dividend Stock은 모두 project-local Dogfooding, Development HQ Registry 등록 없음) |
+| Investment HQ 자체 | 최소 구조(Investment HQ → Investment Division → Stock/ETF/Dividend Stock Team)를 문서 수준에서 확인함 — `docs/research/INVESTMENT-HQ-MINIMAL-STRUCTURE-REVIEW-0001.md`. Registry 미등록·Lifecycle 없음(Kernel 기능 자체가 미구현 — Development HQ와 동일한 비-live 상태). 전체 Architecture 설계(Mission/Boundary/Capability 등록)는 RFC 대상이며 아직 열리지 않음(ADC 채택 기준 미충족) |
 
 ## Frozen Architecture
 
