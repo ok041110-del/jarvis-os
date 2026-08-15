@@ -37,6 +37,16 @@ Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 �
 - 실패한 검증을 성공으로 표현하지 않음
 - 불필요한 변경 확인
 
+### Output Compression
+
+최종 보고는 기본 8줄 이내로 압축한다. 사용자가 상세 보고를 요청한 경우에만 확장한다.
+
+- 이미 확인된 내용(같은 세션에서 이미 보고한 사실)을 반복하지 않는다
+- Audit 작업: `RESULT / REASON / NEXT`만 보고
+- Implementation 작업: `WHAT / FIXED / VERIFIED / REMAINING`만 보고
+- 불필요한 명령어, 전체 Evidence 목록, 장황한 조사 과정은 생략한다
+- commit hash·파일 경로는 필요할 때만 표시한다
+
 ## Context Loading
 
 작업에 필요한 문서만 선택적으로 읽는다.
