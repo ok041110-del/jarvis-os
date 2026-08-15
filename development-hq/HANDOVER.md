@@ -19,10 +19,11 @@ Jarvis OS는 AI Organization Operating System이다. 여러 HQ(업무 영역)를
 |---|---|
 | Jarvis OS Architecture Baseline | v1.6 (RFC → ADC → ADR 경로로만 갱신, 직접 수정은 여전히 금지) |
 | Development HQ Baseline | v1.0, Frozen (미변경) |
-| Development HQ MVP | MVP-0001 완료(원 구현) + MVP-0002~MVP-0048 Dogfooding/결함 수정 완료 (Evidence 기반, `docs/01_mvp/`) |
+| Development HQ MVP | MVP-0001 완료(원 구현) + MVP-0002~MVP-0052 Dogfooding/결함 수정/Capability Prototype 완료 (Evidence 기반, `docs/01_mvp/`) |
 | Kernel | Responsibility·Public Contract·Logical Reference Architecture는 BASELINE.md §11 이하에 정의됨(ADR-0002~0005). Component Architecture(Scheduler/Registry 등 실제 구현)는 여전히 Out of Scope — "설계 안 함"이 아니라 "책임은 정의됨, 구현은 의도적으로 미착수" |
 | Engine MVP | 종료 대상으로 판정됨 (`GOVERNANCE-REVIEW-0004`) — success/실패 경로 모두 real-Engine Evidence로 검증 완료 |
-| Development HQ MVP Validation | **종료 권고됨** (`GOVERNANCE-REVIEW-0007`) — `development-hq/mvp/`는 MVP-0047 이후 11회 연속 검증 라운드(MVP-0048 + Investment Dogfooding 10건) 동안 무수정. Production 진입 Blocking과는 별개(그쪽은 계속 Open) |
+| Development HQ MVP Validation | **종료 확정 — Stable v1.0 Freeze** (`GOVERNANCE-REVIEW-0007` 권고 → `DEVELOPMENT-HQ-V1.0-FREEZE-0001.md`로 승인·확정). Production 진입 Blocking과는 별개(그쪽은 계속 Open) |
+| Phase 9~12 (Engine Adapter/Prompt Specification/Prompt Cache/Runtime·Automation) | 전부 종료, NEED-DRIVEN DEFER — `PHASE9-CLOSURE-0001.md`, `PHASE10-CLOSURE-0001.md`, `PHASE11-PROMPT-CACHE-AUDIT-0001.md`, `PHASE12-RUNTIME-AUTOMATION-AUDIT-0001.md`/`PHASE12-AUTOMATION-WORKFLOW-AUDIT-0001.md`. 재개 조건은 각 원문서 참조 |
 | Stock Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/STOCK-TEAM-DEFINITION-0001.md` |
 | ETF Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/ETF-TEAM-DEFINITION-0001.md` |
 | Dividend Stock Team (Investment 영역) | **Promoted** (독립 명명 + Stock Team 확장으로 문서화, Agent/Architecture 미확정) — `docs/research/DIVIDEND-STOCK-TEAM-DEFINITION-0001.md` (JNJ/KO/PG 3/3 Evidence 기반) |
@@ -120,13 +121,17 @@ Kernel은 만드는 것이 아니라 발견(Extraction)하는 것이다. MVP 구
 ## Next Step
 
 MVP-0001의 최소 스크립트 작성은 이미 완료되었고
-(`development-hq/mvp/`, `docs/01_mvp/MVP-0001~0048`), **Development HQ
-MVP Validation 자체가 종료 권고된 상태다**(`GOVERNANCE-REVIEW-0007`).
+(`development-hq/mvp/`, `docs/01_mvp/MVP-0001~0052`), **Development HQ
+MVP Validation은 종료 확정되어 Stable v1.0으로 Freeze됐다**
+(`docs/architecture/core/DEVELOPMENT-HQ-V1.0-FREEZE-0001.md`).
 Stock/ETF/Dividend Stock Team 3개 트랙 모두 3회 이상 반복으로 Promoted
 됐다(`STOCK-TEAM-DEFINITION-0001.md`, `ETF-TEAM-DEFINITION-0001.md`,
-`DIVIDEND-STOCK-TEAM-DEFINITION-0001.md`). 이는 "앞으로 아무 것도 하지
+`DIVIDEND-STOCK-TEAM-DEFINITION-0001.md`). Phase 9~12(Engine Adapter/
+Prompt Specification/Prompt Cache/Runtime·Automation)도 전부 종료됐다
+— 각 재개 조건은 해당 Phase 원문서 참조. 이는 "앞으로 아무 것도 하지
 않는다"는 뜻이 아니라 — 새로운 결함이 실제로 발견되면 MVP 번호를 이어서
-계속 기록한다 — 새 MVP를 선제적으로 만들어 검증 범위를 확장하지는
+계속 기록하고, 각 Phase 재개 조건이 실제로 충족되면 그 Phase를 다시
+연다 — 새 MVP나 Phase를 선제적으로 만들어 검증 범위를 확장하지는
 않는다는 뜻이다.
 
 **다음 단계는 새 기능 개발이 아니라 Kernel Validation이다.**
