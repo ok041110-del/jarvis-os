@@ -4,17 +4,11 @@ IMPLEMENTATION_RULES.md: "Engine Gateway(Port/Adapter 추상화) 구현 금지 �
 단일 함수로 Engine을 호출하는 것으로 충분하다." 이 파일은 그 단일 함수만 가진다.
 여러 Engine 중 선택하는 로직(Engine Routing)은 두지 않는다.
 
-ENGINE-CONNECT-0001(worktree 실험)에서 이 함수를 실제 Claude Code Engine
-호출로 교체해도 Stop Trigger가 발동하지 않음을 확인했다 — 단일 함수 구조를
-유지한 채 본문만 실제 호출로 바꿨다. 그 실험 결과를 그대로 tracked
-branch에 반영한다.
-
-MVP-0043: 실제 Engine 배선(ENGINE-CONNECT-0001) 이전에 이 파일이 쓰던
-rule-based 응답 로직(`_rule_based_response`와 그 하위 함수 전체, 약 790줄)을
-삭제했다. `call_engine()`은 그 배선 이후 한 번도 그 경로를 호출한 적이
-없고(`_rule_based_response` 자체가 미사용), 저장소 안 다른 어떤 파일도 그
-함수들을 참조하지 않는다는 것을 실제 grep으로 확인했다 — 죽은 코드였다.
-이 파일은 이제 실제로 호출되는 유일한 함수(`call_engine`)만 가진다.
+이 파일은 실제로 호출되는 유일한 함수(`call_engine`)만 가진다 — 실제 Engine
+배선 경위는 `docs/research/ENGINE-CONNECT-0001-call-engine-real-wiring.md`,
+그 이전에 쓰던 rule-based 응답 로직(약 790줄) 삭제 경위는
+`docs/01_mvp/MVP-0043-observation.md`를 참조한다(P2-4: 두 문서와
+중복되던 서술만 압축, 사실 관계는 바뀌지 않음).
 
 Kernel Extraction Candidate: Task 종류에 따라 다른 Engine을 골라야 하는
 필요가 생기면 그것이 Engine Gateway(Port/Adapter) 추출 신호다. RFC 없이
@@ -24,6 +18,9 @@ Kernel Extraction Candidate: Task 종류에 따라 다른 Engine을 골라야 �
 import subprocess
 import tempfile
 
+
+ENGINE_CLI = "claude"
+ENGINE_TIMEOUT_SECONDS = 180
 
 DISALLOWED_TOOLS = "Write,Edit,Bash,Read,Glob,Grep,NotebookEdit,WebFetch,WebSearch"
 
@@ -58,30 +55,24 @@ def call_engine(prompt: str) -> str:
     같은 단일 함수의 호출 인자일 뿐이다. `STATELESS_CALL_NOTICE`도 같은
     계약을 유지하기 위한 것이다 — 새 출력 형식을 요구하지 않는다.
 
-    MVP-0028: 이 함수는 `cwd`를 지정하지 않아 호출한 Python 프로세스의
-    작업 디렉터리(이 저장소 안)를 그대로 물려받았다. `claude -p`는 실행
-    디렉터리의 `CLAUDE.md`/Skill을 자동으로 읽으므로, Engine으로 호출된
-    것이 실제로는 이 저장소의 project-level 지시(task-intake/
-    context-loader 같은 Skill, "Architecture 경계" 절 등)를 그대로 읽고
-    따르는 또 다른 대화형 Claude Code 세션처럼 동작했다 — 실제 실행으로
-    확인된 사례(MVP-0009 Observation): REQUIREMENT_ANALYSIS 호출인데도
-    "다음 Skill: context-loader"를 제안하거나 하위 조사 에이전트를
-    언급하는 등, `STATELESS_CALL_NOTICE`가 요구하는 "텍스트를 받아
-    텍스트만 반환하는 상태 없는 호출"과 다르게 동작했다. `cwd`를 이
-    저장소 밖의 중립 디렉터리(`tempfile.gettempdir()`)로 고정하면 이
-    문제가 사라짐을 같은 prompt로 직접 확인했다 — 새 Gateway/Adapter가
-    아니라 기존 단일 함수 호출의 인자(`subprocess.run`의 `cwd`) 하나일
-    뿐이다."""
+    MVP-0028: `cwd`를 지정하지 않으면 호출한 Python 프로세스의 작업
+    디렉터리(이 저장소 안)를 그대로 물려받아, `claude -p`가 이 저장소의
+    `CLAUDE.md`/Skill을 읽고 그 지시를 따르는 대화형 세션처럼 오염되어
+    동작하는 것을 실제 실행으로 확인했다(전체 재현 기록:
+    `docs/01_mvp/MVP-0028-observation.md`). `cwd`를 저장소 밖 중립
+    디렉터리(`tempfile.gettempdir()`)로 고정해 해소했다 — 새 Gateway/
+    Adapter가 아니라 기존 단일 함수 호출의 인자 하나일 뿐이다(P2-4:
+    위 관찰 문서와 중복되던 서술만 압축)."""
     result = subprocess.run(
         [
-            "claude", "-p", prompt,
+            ENGINE_CLI, "-p", prompt,
             "--output-format", "text",
             "--disallowedTools", DISALLOWED_TOOLS,
             "--append-system-prompt", STATELESS_CALL_NOTICE,
         ],
         capture_output=True,
         text=True,
-        timeout=180,
+        timeout=ENGINE_TIMEOUT_SECONDS,
         cwd=tempfile.gettempdir(),
     )
     return result.stdout
