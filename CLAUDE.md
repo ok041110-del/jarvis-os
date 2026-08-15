@@ -27,6 +27,15 @@ Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 �
 - 작업 완료 후 main 반영 여부를 확인한다. main에 반영된 완료 브랜치는 원격에서 정리하고, 미완료/후속 작업/Evidence 보존이 필요한 브랜치는 삭제하지 않는다(orphaned branch 방지, 장기 존속하는 `claude/*` 브랜치를 만들지 않는다).
 - Branch Strategy는 Architecture/Governance 절차를 대체하지 않는다 — Architecture/Governance 변경은 이 규칙과 무관하게 항상 RFC → ADC → ADR 절차(Frozen Architecture 항목)를 그대로 따른다.
 
+**PR Creation Criteria**
+
+- PR 필수: 실제 코드/Capability 변경, main에 반영할 실제 산출물이 있는 작업.
+- PR 권장: Governance 판단, Freeze/중요 문서 변경, 리뷰 가치가 있는 문서 변경.
+- PR 불필요: READ-ONLY Audit, 폐기된 실험, main에 반영할 diff가 없는 브랜치.
+- 예외: (1) 사용자가 세션 중 명시적으로 직접 반영을 승인한 경우 PR을 생략할 수 있다. (2) RFC → ADC → ADR은 PR과 별개이며, PR이 Governance 승인을 대체하지 않는다. (3) Merge·브랜치 삭제는 기존 승인 절차를 그대로 유지한다.
+
+**표준 흐름**: 작업 → PR 필요성 판단 → PR → 사용자 승인 → Merge → GitHub 자동 브랜치 삭제 → `fetch --prune`.
+
 ### Completion Standard
 
 작업 완료를 주장하기 전에:
