@@ -73,6 +73,7 @@ Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 �
 - `validation`
 - `md-writer`
 - `handover`
+- `automation-candidate-watch`
 
 각 Skill의 상세 동작은 해당 SKILL.md에서 관리한다.
 
