@@ -17,6 +17,7 @@ Design Stage까지 그대로 재사용하는 `run_issue_to_design`을 추가한�
 
 from .agents import design_agent_design, requirements_agent_requirement_analysis
 from .project_intelligence import collect_relevant_context
+from .workflow import _engine_failure_message
 
 
 def _summarize_context(context: dict) -> str:
@@ -50,7 +51,7 @@ def run_issue_to_planning(issue: dict) -> dict:
     except Exception as exc:
         return {
             "context": context,
-            "planning": f"Engine call failed: {exc}",
+            "planning": _engine_failure_message(exc),
         }
 
     return {
@@ -76,7 +77,7 @@ def run_issue_to_design(issue: dict) -> dict:
         requirement = requirements_agent_requirement_analysis(enriched_issue)
         design = design_agent_design(enriched_issue, requirement)
     except Exception as exc:
-        error_message = f"Engine call failed: {exc}"
+        error_message = _engine_failure_message(exc)
         return {
             "context": context,
             "planning": error_message,

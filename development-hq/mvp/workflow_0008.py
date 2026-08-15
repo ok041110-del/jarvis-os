@@ -28,6 +28,7 @@ from .agents import (
     requirements_agent_requirement_analysis,
 )
 from .project_intelligence import collect_relevant_context
+from .workflow import _engine_failure_message
 from .workflow_project_intelligence import _enrich_issue
 
 REAL_ISSUE = {
@@ -63,7 +64,7 @@ def run_pipeline(issue: dict) -> dict:
         review = backend_agent_code_review(code)
         test_cases = qa_agent_test_execution(code, review)
     except Exception as exc:
-        error_message = f"Engine call failed: {exc}"
+        error_message = _engine_failure_message(exc)
         return {
             "context": context,
             "planning": error_message,

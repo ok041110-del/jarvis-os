@@ -29,6 +29,7 @@ MVP-0040: 실제 Engine으로 재확인함 — 이슈가 없는 코드를 실제
 """
 
 from .agents import NO_ISSUES_MARKER, backend_agent_code_review, qa_agent_test_execution
+from .workflow import _engine_failure_message
 
 
 def _strip_trailing_marker(review: str, marker: str) -> str:
@@ -58,7 +59,7 @@ def run_mvp_0002(code: str) -> dict:
         else:
             test_cases = qa_agent_test_execution(code, review)
     except Exception as exc:
-        error_message = f"Engine call failed: {exc}"
+        error_message = _engine_failure_message(exc)
         return {
             "code_review": error_message,
             "test_execution": error_message,

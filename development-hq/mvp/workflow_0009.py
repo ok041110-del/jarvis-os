@@ -21,6 +21,7 @@ Context)과 새 방식(Context Bundle)으로 각각 Planning을 실행해 두
 
 from .agents import requirements_agent_requirement_analysis
 from .project_intelligence import build_context_bundle
+from .workflow import _engine_failure_message
 from .workflow_0008 import REAL_ISSUE
 from .workflow_project_intelligence import run_issue_to_planning
 
@@ -70,7 +71,7 @@ def run_issue_to_planning_with_bundle(issue: dict) -> dict:
     except Exception as exc:
         return {
             "context_bundle": bundle,
-            "planning": f"Engine call failed: {exc}",
+            "planning": _engine_failure_message(exc),
         }
 
     return {

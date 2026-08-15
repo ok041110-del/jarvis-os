@@ -20,6 +20,7 @@ from .agents import (
     requirements_agent_requirement_analysis,
 )
 from .project_intelligence import collect_relevant_context
+from .workflow import _engine_failure_message
 from .workflow_project_intelligence import _enrich_issue
 
 
@@ -40,7 +41,7 @@ def run_issue_to_implementation(issue: dict) -> dict:
         design = design_agent_design(issue, requirement)
         code = backend_agent_code_generation(design)
     except Exception as exc:
-        error_message = f"Engine call failed: {exc}"
+        error_message = _engine_failure_message(exc)
         return {
             "context": context,
             "planning": error_message,
