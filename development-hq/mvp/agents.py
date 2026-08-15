@@ -74,7 +74,17 @@ def backend_agent_code_review(code: str) -> str:
     실제 실행으로 확인한 결과, 존재하지 않는 모듈을 가리키는 import는
     "unverified"로 정확히 지목했고, 존재하는 모듈을 가리키는 import에는
     "틀렸다"고 오탐하지 않았다(둘 다 "검증 불가"라고만 말한다 — 그것이
-    사실이므로)."""
+    사실이므로).
+
+    MVP-0050: `PHASE10-PROMPT-SPECIFICATION-AUDIT-0001.md`가 실제 Engine
+    3회 반복 실행으로 `NO_ISSUES_MARKER`가 "실이슈 없음" 입력에서도 3회
+    중 1회만 등장하는 것을 확인했다. "minor/style-level observation도
+    이슈로 취급하라"는 한 문장을 지시문에 추가해 실제로 재검증했으나
+    (`MVP-0050-observation.md`), 결과가 3회 중 0회로 오히려 악화됐다 —
+    Engine이 그 문장을 받고 사소한 관찰까지 더 적극적으로 "issue"로
+    적어, 마커가 더 나오지 않게 됐다. Failure로 판정하고 이 변경은
+    되돌렸다(git 이력에 시도가 남아 있다) — 아래 instruction은 MVP-0047
+    이전 원문과 동일하다."""
     instruction = (
         "Review the following code and describe issues in prose "
         "(bugs, risks, style) — do not rewrite or restate the code as your answer. "
