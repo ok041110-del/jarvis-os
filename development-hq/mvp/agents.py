@@ -76,15 +76,22 @@ def backend_agent_code_review(code: str) -> str:
     "틀렸다"고 오탐하지 않았다(둘 다 "검증 불가"라고만 말한다 — 그것이
     사실이므로).
 
-    MVP-0050: `PHASE10-PROMPT-SPECIFICATION-AUDIT-0001.md`가 실제 Engine
-    3회 반복 실행으로 `NO_ISSUES_MARKER`가 "실이슈 없음" 입력에서도 3회
-    중 1회만 등장하는 것을 확인했다. "minor/style-level observation도
-    이슈로 취급하라"는 한 문장을 지시문에 추가해 실제로 재검증했으나
-    (`MVP-0050-observation.md`), 결과가 3회 중 0회로 오히려 악화됐다 —
-    Engine이 그 문장을 받고 사소한 관찰까지 더 적극적으로 "issue"로
-    적어, 마커가 더 나오지 않게 됐다. Failure로 판정하고 이 변경은
-    되돌렸다(git 이력에 시도가 남아 있다) — 아래 instruction은 MVP-0047
-    이전 원문과 동일하다."""
+    MVP-0050: `NO_ISSUES_MARKER`가 실이슈 없는 입력에서도 3회 중 1회만
+    등장하는 반복성 한계가 real Engine 3회 반복으로 확인됐다. 1차
+    시도("minor/style-level observation도 이슈로 취급하라")는 마커
+    등장률을 0/3으로 오히려 악화시켜 실패·되돌림(`MVP-0050-observation.md`).
+
+    MVP-0051: 1차 시도가 실패한 원인은 "이슈"의 범위를 넓히는 방향(더
+    엄격하게)으로 움직였기 때문이라고 분석했다 — 이 함수는 이미 "describe
+    issues in prose (bugs, risks, style)"이라고 style까지 적극적으로
+    쓰라고 지시하면서, 동시에 "실이슈 없음" 판정은 그 style 언급을
+    빼고 판단해야 하는 이중 기준이 원래 지시문에 없었다. 2차 시도는
+    반대로 "무엇이 real issue인가"를 구체적으로 정의(정답 동작을
+    깨는 결함만 issue, 개선 제안은 issue 아님)하는 문장으로
+    바꿨다 — marker 자체를 강조하거나 강제하지 않고, 판정 기준만
+    명확히 했다. real Engine 3+3회 재실행 결과 CLEAN_CODE 마커 등장률
+    1/3 → 3/3, SAMPLE_CODE는 3/3 유지(위양성 없음) — 채택
+    (`MVP-0051-observation.md`)."""
     instruction = (
         "Review the following code and describe issues in prose "
         "(bugs, risks, style) — do not rewrite or restate the code as your answer. "
@@ -96,8 +103,12 @@ def backend_agent_code_review(code: str) -> str:
         "files, and say so even if the import looks syntactically fine. "
         "Respond entirely in English, regardless of the language used in the "
         "code's comments or identifiers. "
-        f"If and only if you find no real issues, end your response with the "
-        f"exact line: {NO_ISSUES_MARKER}"
+        "A real issue is a concrete defect that would cause wrong output, a "
+        "crash, or a violation of the function's own stated behavior — "
+        "improvement ideas (add validation, add tests, add docs, style "
+        "preferences) are not real issues by themselves. "
+        f"If and only if you find no real issues by that definition, end "
+        f"your response with the exact line: {NO_ISSUES_MARKER}"
     )
     return call_engine(f"CODE_REVIEW:{instruction}\n\n{code}")
 
