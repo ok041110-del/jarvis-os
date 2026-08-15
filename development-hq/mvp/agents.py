@@ -84,6 +84,8 @@ def backend_agent_code_review(code: str) -> str:
         "actually defined there — explicitly call out each such import as an "
         "unverified assumption that must be checked against the real project "
         "files, and say so even if the import looks syntactically fine. "
+        "Respond entirely in English, regardless of the language used in the "
+        "code's comments or identifiers. "
         f"If and only if you find no real issues, end your response with the "
         f"exact line: {NO_ISSUES_MARKER}"
     )
