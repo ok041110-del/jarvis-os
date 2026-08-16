@@ -1,0 +1,15 @@
+{
+  "note": "이 파일은 표준 call_log.json 형식(JNJ/KO/PG와 동일)이 아니다. runner.py는 call_log.json을 11개 호출이 전부 성공한 뒤 마지막에 한 번만 기록하므로, Final Report 단계에서 5회 연속 실패한 이번 실행에서는 앞 10개 호출의 실측 input/output/elapsed가 프로세스 크래시로 유실됐다(이 자체가 관찰 대상 — 아래 timing_data_loss 참조). Final Report 호출만 별도 진단 스크립트(retry_final_report.py)로 780초 timeout 없이 재현했고, 그 실측치만 기록한다.",
+  "pipeline_attempts": [
+    {"attempt": 1, "method": "runner.py (full 11-step pipeline)", "result": "FINAL_REPORT step: subprocess.TimeoutExpired at 180s"},
+    {"attempt": 2, "method": "runner.py (full 11-step pipeline)", "result": "FINAL_REPORT step: subprocess.TimeoutExpired at 180s"},
+    {"attempt": 3, "method": "runner.py (full 11-step pipeline)", "result": "FINAL_REPORT step: subprocess.TimeoutExpired at 180s"},
+    {"attempt": 4, "method": "runner.py (full 11-step pipeline)", "result": "FINAL_REPORT step: subprocess.TimeoutExpired at 180s"},
+    {"attempt": 5, "method": "runner.py (full 11-step pipeline)", "result": "FINAL_REPORT step: subprocess.TimeoutExpired at 180s"},
+    {"attempt": 6, "method": "retry_final_report.py (isolated FINAL_REPORT call, reusing prompt captured from attempt 5's traceback, still using engine.py's call_engine() i.e. still bound by ENGINE_TIMEOUT_SECONDS=180)", "result": "subprocess.TimeoutExpired at 180s"},
+    {"attempt": 7, "method": "raw `claude -p` subprocess invoked directly via Bash with a manual 400s wrapper timeout (same CLI args as engine.py: --output-format text --disallowedTools ... --append-system-prompt ...), NOT through call_engine() — diagnostic only, does not modify development-hq/mvp/engine.py", "result": "SUCCESS", "elapsed_sec": 324.2, "output_chars": 25072}
+  ],
+  "role": "report_writer_final_report / FINAL_REPORT",
+  "input_chars": 47445,
+  "timing_data_loss": "attempts 1-5의 FUNDAMENTAL/DIVIDEND_QUALITY/VALUATION/TECHNICAL/INDUSTRY/NEWS_EVENT/SENTIMENT/BULL_CASE/BEAR_CASE/SYNTHESIS 10개 호출은 매번 성공했으나(각 산출물의 실제 텍스트는 attempt 5의 FINAL_REPORT 프롬프트에 그대로 보존되어 있어 issues/0001-nestle-analysis/*.md로 복구함), runner.py가 call_log.json을 전체 11단계 성공 후 한 번에만 기록하는 구조라 이 10개 호출의 input_chars/output_chars/elapsed_sec 실측값은 유실됐다. JNJ/KO/PG/UUP에서는 이 손실이 관찰되지 않았는데, 그 실행들은 전부 완주해 call_log.json이 정상 기록됐기 때문이다 — 이번이 '11단계 중 일부만 반복 실패'가 실제로 발생한 첫 사례라 처음 드러난 구조적 한계다."
+}
