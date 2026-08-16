@@ -1,0 +1,19 @@
+## Nestlé S.A. (NESN.SW / NSRGY) — Fundamental Analysis: H1 2026 Results
+
+**Revenue and earnings trend**
+
+Nestlé reported H1 2026 sales of CHF 43.1B, with organic growth of +3.6%, split between real internal growth (RIG) of +1.5% and pricing effects of +2.1%. This means roughly three-fifths of organic growth in the period came from price increases rather than volume/mix gains, and volume growth remains modest. Q2 alone showed organic growth of +3.7% (RIG +1.8%, pricing +1.9%), a slightly more balanced mix than the H1 average but still price-led. Growth was markedly stronger in emerging markets excluding China (+7.1% organic, RIG +3.9%) than in developed markets (+2.3% organic, RIG +0.6%), indicating that developed-market demand is close to stagnant in volume terms and that emerging markets (ex-China) are the primary growth engine.
+
+On profitability, the data shows a sharp divergence depending on which earnings figure is used. Reported (GAAP) net profit was CHF 3.5B, down 31.4% from CHF 5.1B in the prior-year period — a substantial decline. However, underlying (adjusted) net profit was CHF 5.7B, down only 2.4% year-over-year, or actually up 3.4% on a constant-currency basis. The provided data does not explain what accounts for the gap between reported and underlying net profit (e.g., one-off items, impairments, restructuring charges, or currency effects), so the cause of the 31.4% GAAP decline cannot be determined from this material. This is a significant gap: the two profit measures point in opposite directions (sharp decline vs. modest decline/slight underlying growth), and the data does not allow a reconciliation.
+
+**Margin trend**
+
+The data does not include specific historical or current margin figures (e.g., gross margin, UTOP margin percentage) for H1 2026 — only forward guidance that UTOP (underlying trading operating profit) margin is expected to improve versus full-year 2025. Without a stated current-period UTOP margin or a comparable prior-period figure, no actual margin trend can be assessed from this data; only management's directional expectation for the full year is available.
+
+**Guidance and cash flow**
+
+Full-year 2026 guidance was maintained but narrowed to organic growth of 3-4%, alongside an expectation of UTOP margin improvement versus 2025 and free cash flow (FCF) of at least CHF 9B for the year. H1 FCF of CHF 3.4B represents an improvement over the CHF 2.3B generated in H1 2025, suggesting better cash conversion so far this year, which is consistent with (though not proof of) the underlying-earnings narrative rather than the GAAP-decline narrative. The company's "Fuel for Growth" cost-reduction program has delivered CHF 1.7B cumulatively toward a 2026 target of CHF 2B, implying it is close to on track (85% of target) with the year not yet complete.
+
+**What this implies**
+
+Taken together, the data describes a company with continued top-line growth that is more price-driven than volume-driven, a widening growth gap favoring emerging markets over developed markets, and cash flow generation that appears to be improving year-over-year. However, the bottom-line picture is genuinely ambiguous in this data set: reported net profit fell sharply (-31.4%) while the underlying/adjusted measure barely declined or slightly grew, and no explanation for this divergence is provided. Any conclusion about overall earnings health would require knowing what drove the gap between GAAP and underlying profit — information this data does not contain. Similarly, no margin trend conclusion can be drawn beyond management's stated expectation of improvement, since no current-period margin figures are given. I would treat the profit picture as unresolved pending the missing detail on the reported-vs-underlying reconciliation, rather than characterizing it as either a genuine earnings decline or genuine earnings stability.

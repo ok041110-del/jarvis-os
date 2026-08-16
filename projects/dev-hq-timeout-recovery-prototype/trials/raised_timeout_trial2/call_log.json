@@ -1,0 +1,68 @@
+[
+  {
+    "role": "fundamental_analyst_fundamental_analysis",
+    "input_chars": 1809,
+    "output_chars": 5836,
+    "elapsed_sec": 27.5
+  },
+  {
+    "role": "dividend_quality_analyst_dividend_quality_analysis",
+    "input_chars": 1897,
+    "output_chars": 2051,
+    "elapsed_sec": 36.2
+  },
+  {
+    "role": "valuation_analyst_valuation_analysis",
+    "input_chars": 1817,
+    "output_chars": 4228,
+    "elapsed_sec": 29.3
+  },
+  {
+    "role": "technical_analyst_technical_analysis",
+    "input_chars": 1468,
+    "output_chars": 1911,
+    "elapsed_sec": 28.7
+  },
+  {
+    "role": "industry_analyst_industry_analysis",
+    "input_chars": 1602,
+    "output_chars": 2299,
+    "elapsed_sec": 35.3
+  },
+  {
+    "role": "news_analyst_news_event_analysis",
+    "input_chars": 1735,
+    "output_chars": 2345,
+    "elapsed_sec": 37.7
+  },
+  {
+    "role": "sentiment_analyst_sentiment_analysis",
+    "input_chars": 1576,
+    "output_chars": 2060,
+    "elapsed_sec": 43.5
+  },
+  {
+    "role": "bull_researcher_bull_case",
+    "input_chars": 20898,
+    "output_chars": 6975,
+    "elapsed_sec": 38.4
+  },
+  {
+    "role": "bear_researcher_bear_case",
+    "input_chars": 20898,
+    "output_chars": 9749,
+    "elapsed_sec": 49.9
+  },
+  {
+    "role": "synthesis_judgment",
+    "input_chars": 16724,
+    "output_chars": 6445,
+    "elapsed_sec": 66.5
+  },
+  {
+    "role": "report_writer_final_report",
+    "input_chars": 43899,
+    "output_chars": 25176,
+    "elapsed_sec": 238.7
+  }
+]

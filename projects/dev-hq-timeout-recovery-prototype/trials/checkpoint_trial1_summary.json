@@ -1,0 +1,35 @@
+{
+  "variant": "checkpointing",
+  "trial_id": "trial1",
+  "timeout_seconds": 180,
+  "status": "success",
+  "elapsed_this_invocation_sec": 264.8,
+  "steps_completed_before_this_invocation": [],
+  "steps_completed_after_this_invocation": [
+    "fundamental_analysis",
+    "dividend_quality_analysis",
+    "valuation_analysis",
+    "technical_analysis",
+    "industry_analysis",
+    "news_event_analysis",
+    "sentiment_analysis",
+    "bull_case",
+    "bear_case",
+    "synthesis",
+    "final_report"
+  ],
+  "steps_skipped_via_checkpoint_this_invocation": [],
+  "steps_newly_run_this_invocation": [
+    "fundamental_analysis",
+    "dividend_quality_analysis",
+    "valuation_analysis",
+    "technical_analysis",
+    "industry_analysis",
+    "news_event_analysis",
+    "sentiment_analysis",
+    "bull_case",
+    "bear_case",
+    "synthesis",
+    "final_report"
+  ]
+}
