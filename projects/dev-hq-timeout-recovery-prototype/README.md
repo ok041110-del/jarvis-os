@@ -5,8 +5,11 @@
 저장 구조로 인한 중간 산출물 유실 위험)에 대해, **개선안을 실제
 채택하기 전에 최소 Prototype으로 먼저 검증**하기 위한 실험 공간이다.
 PR #76(Timeout 상향 vs Checkpointing 비교)에 이어, PR #77에서
-**병렬화(Prototype C)를 포함한 End-to-End 실행시간 최적화** 검증까지
-확장됐다 — `parallel/`, `E2E-OPTIMIZATION-EVIDENCE.md` 참조.
+**병렬화(Prototype C)를 포함한 End-to-End 실행시간 최적화** 검증까지,
+그리고 PR #78에서 **모델 교체/출력 최적화(Prototype D)** 검증까지
+확장됐다 — `parallel/`, `model_comparison/`,
+`E2E-OPTIMIZATION-EVIDENCE.md`, `LLM-CALL-OPTIMIZATION-EVIDENCE.md`
+참조.
 
 ## 이 디렉터리가 하지 않는 것
 
@@ -34,6 +37,7 @@ Final Report가 180초를 안정적으로, 큰 폭으로 초과하는 것으로 
 | A. `raised_timeout/` | Engine 호출의 timeout을 180초 → 400초로(프로세스 내부 함수 교체, 파일 수정 아님) | 저장 구조(all-or-nothing, 기존 `runner.py`와 동일) |
 | B. `checkpointing/` | 각 단계 완료 즉시 디스크에 기록 + 재실행 시 완료된 단계는 건너뛰고 이어서 실행 | Engine 호출(180초, 진짜 `call_engine()` 그대로) |
 | C. `parallel/` | 서로 독립적인 호출(7개 분석, Bull/Bear)을 `ThreadPoolExecutor`로 동시 실행(의존관계는 원래대로, 4-wave 순서 하드코딩) | Engine 호출(180초, 진짜 `call_engine()` 그대로), Role/지시문 전부 |
+| D. `model_comparison/` | Sonnet(Baseline)/Haiku/Opus를 `--model` 플래그로 비교 + Sonnet 고정 상태에서 출력 길이 제약(Prototype 전용 부칙) 비교 | Team 역할 지시문 본문(부칙만 덧붙임, `agents.py`는 미수정) |
 
 ## 측정 항목
 
