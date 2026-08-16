@@ -18,6 +18,11 @@ ADR은 ADC 중 NOW로 분류되어 실제로 결정된 사항을 기록하는 �
 
 ## 현재 상태
 
+이 표는 `docs/04_adr/`(Development HQ 수준) ADR만 다룬다. Kernel 수준 ADR은
+`docs/architecture/core/`에 별도로 등록되어 있다(`ADR-0001-governance-module-baseline.md`,
+`ADR-0002-execution-layer-module-baseline.md` — `docs/01_architecture/BASELINE.md`를
+v1.4 → v1.6으로 갱신).
+
 작성된 ADR 5건. 전부 Accepted다.
 
 | ID | 제목 | 종결시킨 ADC |

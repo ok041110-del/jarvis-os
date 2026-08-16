@@ -143,7 +143,7 @@ Prompt Specification/Prompt Cache/Runtime·Automation)도 전부 종료됐다
    Stock/ETF/Dividend Stock)와 계속 일치하는지 확인하는 것이 다음
    작업이다. 새 Kernel Component를 미리 설계하지 않는다 — Extraction
    Candidate가 실제로 나타났을 때만 다룬다.
-2. `docs/03_adc/ADC.md`의 NOW 우선순위 Open Decision(ADC-01, ADC-02,
+2. `docs/03_adc/ADC.md`의 NOW 우선순위 Open Decision(ADC-02,
    ADC-09, ADC-10)은 **구현 근거가 생길 때까지 계속 Open으로 유지한다**
    (`GOVERNANCE-REVIEW-0006`) — 지금 억지로 결정하지 않는다.
 3. Production 진입 Blocking(Engine caller 위치, `ADC-0010`/`ADC-0011`
