@@ -28,10 +28,10 @@ v1.4 → v1.6으로 갱신).
 | ID | 제목 | 종결시킨 ADC |
 |---|---|---|
 | ADR-0001 | Development HQ Baseline에 Stage 기반 구조 반영 | `docs/governance/adc/ADC-0003.md` 판단 1 |
-| ADR-0002 | Core → Kernel 용어 통합 및 Kernel 정의의 Baseline 반영 | `docs/architecture/core/ADC-0002.md` 판단 1·3·4 |
-| ADR-0003 | Kernel Context Model의 Baseline 반영 | `docs/architecture/core/ADC-0003.md` 판단 1·2·3·5·6a |
-| ADR-0004 | Kernel Public Contract의 Baseline 반영 | `docs/architecture/core/ADC-0004.md` 판단 1~8 |
-| ADR-0005 | Kernel Logical Reference Architecture의 Baseline 반영과 §10 범위 한정 | `docs/architecture/core/ADC-0005.md` 판단 1~8 |
+| ADR-0002 | Core → Kernel 용어 통합 및 Kernel 정의의 Baseline 반영 | `docs/architecture/core/ADC-0002-kernel-definition.md` 판단 1·3·4 |
+| ADR-0003 | Kernel Context Model의 Baseline 반영 | `docs/architecture/core/ADC-0003-kernel-context-model.md` 판단 1·2·3·5·6a |
+| ADR-0004 | Kernel Public Contract의 Baseline 반영 | `docs/architecture/core/ADC-0004-kernel-public-contract.md` 판단 1~8 |
+| ADR-0005 | Kernel Logical Reference Architecture의 Baseline 반영과 §10 범위 한정 | `docs/architecture/core/ADC-0005-kernel-logical-reference-architecture.md` 판단 1~8 |
 
 ADR-0002 ~ ADR-0005가 `docs/01_architecture/BASELINE.md`를 v1.0 → v1.4로 갱신했다.
 
