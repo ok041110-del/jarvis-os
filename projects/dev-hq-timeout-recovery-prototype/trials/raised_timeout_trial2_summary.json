@@ -1,0 +1,8 @@
+{
+  "variant": "raised_timeout",
+  "trial_id": "trial2",
+  "timeout_seconds": 400,
+  "status": "success",
+  "elapsed_total_sec": 631.8,
+  "steps_completed": 11
+}
