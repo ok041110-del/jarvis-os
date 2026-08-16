@@ -1,0 +1,50 @@
+{
+  "variant": "combined(parallel+output_opt+checkpointing)",
+  "trial_id": "normal_trial1",
+  "status": "success",
+  "elapsed_this_invocation_sec": 100.7,
+  "steps_completed_before_this_invocation": [
+    "fundamental_analysis",
+    "news_event_analysis",
+    "sentiment_analysis",
+    "valuation_analysis",
+    "industry_analysis",
+    "technical_analysis",
+    "dividend_quality_analysis",
+    "bear_case",
+    "bull_case"
+  ],
+  "steps_completed_after_this_invocation": [
+    "fundamental_analysis",
+    "news_event_analysis",
+    "sentiment_analysis",
+    "valuation_analysis",
+    "industry_analysis",
+    "technical_analysis",
+    "dividend_quality_analysis",
+    "bear_case",
+    "bull_case",
+    "synthesis",
+    "final_report"
+  ],
+  "steps_skipped_via_checkpoint_this_invocation": [
+    "fundamental_analysis",
+    "news_event_analysis",
+    "sentiment_analysis",
+    "valuation_analysis",
+    "industry_analysis",
+    "technical_analysis",
+    "dividend_quality_analysis",
+    "bear_case",
+    "bull_case"
+  ],
+  "steps_newly_run_this_invocation": [
+    "synthesis",
+    "final_report"
+  ],
+  "wave1_elapsed_sec": 0.0,
+  "wave2_elapsed_sec": 0.0,
+  "wave3_elapsed_sec": 62.5,
+  "wave4_elapsed_sec": 38.2,
+  "pipeline_total_elapsed_sec": 100.7
+}
