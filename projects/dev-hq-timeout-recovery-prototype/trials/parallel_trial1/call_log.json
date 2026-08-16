@@ -1,0 +1,90 @@
+{
+  "calls": [
+    {
+      "role": "fundamental_analysis",
+      "input_chars": 1809,
+      "output_chars": 4116,
+      "elapsed_sec": 29.0,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "industry_analysis",
+      "input_chars": 1602,
+      "output_chars": 1412,
+      "elapsed_sec": 35.3,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "sentiment_analysis",
+      "input_chars": 1576,
+      "output_chars": 1363,
+      "elapsed_sec": 35.6,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "valuation_analysis",
+      "input_chars": 1817,
+      "output_chars": 4087,
+      "elapsed_sec": 38.5,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "technical_analysis",
+      "input_chars": 1468,
+      "output_chars": 1859,
+      "elapsed_sec": 39.3,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "dividend_quality_analysis",
+      "input_chars": 1897,
+      "output_chars": 1925,
+      "elapsed_sec": 41.0,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "news_event_analysis",
+      "input_chars": 1735,
+      "output_chars": 2506,
+      "elapsed_sec": 47.0,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 17436,
+      "output_chars": 8604,
+      "elapsed_sec": 44.8,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 17436,
+      "output_chars": 8632,
+      "elapsed_sec": 44.9,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "synthesis",
+      "input_chars": 17236,
+      "output_chars": 7689,
+      "elapsed_sec": 74.5,
+      "wall_start_offset_sec": null
+    },
+    {
+      "role": "final_report",
+      "input_chars": 42193,
+      "output_chars": 26837,
+      "elapsed_sec": 111.6,
+      "wall_start_offset_sec": null
+    }
+  ],
+  "wave_summary": {
+    "wave1_7_analyses_parallel_elapsed_sec": 47.0,
+    "wave1_sum_individual_elapsed_sec": 265.7,
+    "wave2_bull_bear_parallel_elapsed_sec": 44.9,
+    "wave2_sum_individual_elapsed_sec": 89.7,
+    "wave3_synthesis_elapsed_sec": 74.5,
+    "wave4_final_report_elapsed_sec": 111.6,
+    "pipeline_total_elapsed_sec": 278.0
+  }
+}

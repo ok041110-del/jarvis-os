@@ -1,0 +1,14 @@
+{
+  "variant": "parallel",
+  "trial_id": "trial1",
+  "status": "success",
+  "elapsed_total_sec": 278.0,
+  "steps_completed": 11,
+  "wave1_7_analyses_parallel_elapsed_sec": 47.0,
+  "wave1_sum_individual_elapsed_sec": 265.7,
+  "wave2_bull_bear_parallel_elapsed_sec": 44.9,
+  "wave2_sum_individual_elapsed_sec": 89.7,
+  "wave3_synthesis_elapsed_sec": 74.5,
+  "wave4_final_report_elapsed_sec": 111.6,
+  "pipeline_total_elapsed_sec": 278.0
+}
