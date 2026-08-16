@@ -14,7 +14,7 @@ RFC에서 논의된 내용 중 결정이 필요한 항목은 `docs/03_adc/ADC.md
 
 ## 현재 상태
 
-Jarvis OS Architecture Baseline v1.4와 Development HQ Baseline v1.0은 Frozen이다. 새로운 RFC는 Baseline 변경이 불가피하다고 판단될 때만 작성한다.
+Jarvis OS Architecture Baseline v1.6과 Development HQ Baseline v1.0은 Frozen이다. 새로운 RFC는 Baseline 변경이 불가피하다고 판단될 때만 작성한다.
 
 과거 RFC(Meta Architecture, Concept Model, Core Component 등 논의)의 결과는 `docs/01_architecture/BASELINE.md`와 `docs/03_adc/ADC.md`에 이미 반영되어 있다.
 
