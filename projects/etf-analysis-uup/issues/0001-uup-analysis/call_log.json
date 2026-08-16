@@ -1,0 +1,62 @@
+[
+  {
+    "role": "composition_analyst_composition_analysis",
+    "input_chars": 1005,
+    "output_chars": 4250,
+    "elapsed_sec": 20.1
+  },
+  {
+    "role": "holdings_exposure_analyst_holdings_exposure_analysis",
+    "input_chars": 809,
+    "output_chars": 1846,
+    "elapsed_sec": 29.8
+  },
+  {
+    "role": "cost_tracking_analyst_cost_tracking_analysis",
+    "input_chars": 801,
+    "output_chars": 1990,
+    "elapsed_sec": 30.5
+  },
+  {
+    "role": "performance_risk_analyst_performance_risk_analysis",
+    "input_chars": 902,
+    "output_chars": 3206,
+    "elapsed_sec": 17.6
+  },
+  {
+    "role": "distribution_analyst_distribution_analysis",
+    "input_chars": 765,
+    "output_chars": 2614,
+    "elapsed_sec": 22.2
+  },
+  {
+    "role": "macro_analyst_macro_analysis",
+    "input_chars": 1149,
+    "output_chars": 4387,
+    "elapsed_sec": 25.4
+  },
+  {
+    "role": "bull_researcher_bull_case",
+    "input_chars": 18449,
+    "output_chars": 5203,
+    "elapsed_sec": 34.2
+  },
+  {
+    "role": "bear_researcher_bear_case",
+    "input_chars": 18449,
+    "output_chars": 7124,
+    "elapsed_sec": 42.4
+  },
+  {
+    "role": "synthesis_judgment",
+    "input_chars": 12327,
+    "output_chars": 5116,
+    "elapsed_sec": 49.4
+  },
+  {
+    "role": "report_writer_final_report",
+    "input_chars": 35736,
+    "output_chars": 25538,
+    "elapsed_sec": 174.1
+  }
+]
