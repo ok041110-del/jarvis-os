@@ -1,0 +1,15 @@
+{
+  "note": "Nestlé와 동일한 이유로 표준 call_log.json 형식이 아니다. runner.py는 11단계 전부 성공 후에만 한 번에 기록하므로, Final Report에서 반복 실패한 이번 실행에서는 앞 10단계의 실측 input/output/elapsed가 유실됐다(트레이스백에서 텍스트만 복구, 타이밍은 복구 불가 — Recovery 분석 참조).",
+  "pipeline_attempts": [
+    {"attempt": 1, "method": "runner.py (full 11-step pipeline)", "result": "FINAL_REPORT step: subprocess.TimeoutExpired at 180s"},
+    {"attempt": 2, "method": "diagnostic: raw `claude -p` via Bash with manual 400s wrapper, reusing prompt recovered from attempt 1's traceback, NOT through call_engine() (does not modify development-hq/mvp/engine.py)", "result": "SUCCESS", "elapsed_sec": 153.8, "output_chars": 27197},
+    {"attempt": 3, "method": "runner.py (full 11-step pipeline, normal 180s call_engine path, re-running all 11 steps fresh)", "result": "FINAL_REPORT step: subprocess.TimeoutExpired at 180s"}
+  ],
+  "role": "report_writer_final_report / FINAL_REPORT",
+  "input_chars": 43695,
+  "cross_ticker_comparison": {
+    "nestle": {"pipeline_attempts_timed_out": 6, "diagnostic_success_elapsed_sec": 324.2, "note": "180초를 명확히, 큰 폭으로 초과(324.2초, 180초 대비 +80%) — 반복해도 180초 이내로 수렴하지 않음"},
+    "toyota": {"pipeline_attempts_timed_out": 2, "diagnostic_success_elapsed_sec": 153.8, "note": "진단 호출은 180초 이내(153.8초)로 성공했으나, 동일 프롬프트가 아닌 별도 호출이라 변동성(같은 콘텐츠도 매 호출마다 소요시간이 다름)을 시사 — 180초 경계선 부근에서 성공/실패가 갈리는 사례로, Nestlé(항상 명확히 초과)와는 다른 유형"}
+  },
+  "timing_data_loss": "attempt 1, 3의 FUNDAMENTAL/DIVIDEND_QUALITY/VALUATION/TECHNICAL/INDUSTRY/NEWS_EVENT/SENTIMENT/BULL_CASE/BEAR_CASE/SYNTHESIS 10개 호출은 매번 성공했으나(텍스트는 attempt 1의 트레이스백에서 복구해 issues/0001-toyota-analysis/*.md로 저장함), input_chars/output_chars/elapsed_sec 실측값은 Nestlé와 동일한 구조적 이유로 유실됐다."
+}
