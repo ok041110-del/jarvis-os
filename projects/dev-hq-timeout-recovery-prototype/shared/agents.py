@@ -170,7 +170,11 @@ def report_writer_final_report(
         "Dividend Quality, Valuation, Technical, Industry, News/Event, "
         "Sentiment, Bull Case, Bear Case, Synthesis). End with an explicit "
         "disclaimer that this is an analysis exercise, not investment advice "
-        "or a trade recommendation."
+        "or a trade recommendation. Keep the report concise: target roughly "
+        "800-1200 words total. Still cover every required section and still "
+        "flag every data inconsistency noted in the source sections — just "
+        "express each section more tersely (short paragraphs or bullet "
+        "points) rather than omitting content."
     )
     payload = (
         f"[FUNDAMENTAL]\n{fundamental}\n\n[DIVIDEND QUALITY]\n{dividend_quality}\n\n"

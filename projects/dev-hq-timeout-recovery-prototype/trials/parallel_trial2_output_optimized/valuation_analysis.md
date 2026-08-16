@@ -1,0 +1,29 @@
+## Valuation Analysis: Nestlé S.A. (NESN.SW / NSRGY)
+
+**Note on scope:** This analysis relies solely on the data set provided, which is itself a web-search snapshot as of 2026-08-16, not verified against primary filings or exchange data. Several inconsistencies in the source data materially limit how far any conclusion can be pushed, and those limits are flagged below rather than resolved.
+
+### Earnings multiples: mixed signal, and an unexplained internal gap
+
+On a trailing basis, Nestlé trades at a P/E of 28.53x. On a forward basis, that multiple compresses sharply to 17.62–17.72x. This is a large gap (roughly 38% compression from trailing to forward), and the data provided does not explain why — it notes the possibility that a reported -31.4% net income decline is involved, but does not confirm this is the driver of the trailing/forward divergence. Without that explanation, the two P/E figures point in different directions: the trailing multiple alone would suggest the stock is richly valued, while the forward multiple looks far more moderate. Any assessment of "cheap vs. expensive" on P/E therefore depends heavily on which figure — and which underlying earnings base — is treated as reliable, and the data doesn't let us adjudicate that.
+
+Taking the forward P/E as the comparison point: at 17.62–17.72x, Nestlé sits about 23.1% above the Consumer Packaged Goods sector median forward P/E of 14.32x, which on its face reads as expensive relative to the broader industry.
+
+Against direct peers, however, the picture is more centrist rather than clearly expensive: Unilever trades at a trailing P/E of 12.93x (described as 28% below its own 10-year median — i.e., Unilever itself looks statistically cheap on a historical basis), while Danone trades at a trailing P/E of 22.54x (in line with its own 10-year median). Nestlé's forward P/E of 17.62–17.72x falls between these two peers. So relative to the sector median, Nestlé screens expensive; relative to its two closest named peers, it screens as a mid-point, neither the cheapest nor the most expensive of the three. These are two different reference frames producing two different characterizations, and the data doesn't reconcile them — nor does it provide Unilever's or Danone's forward P/E or sector-relative standing, which would be needed for a like-for-like comparison across all three metrics (trailing vs. trailing, forward vs. forward).
+
+### DCF intrinsic value: the data is internally contradictory and unusable as presented
+
+This is the most serious issue in the data set. Two DCF-based fair value estimates are given:
+- One source: fair value of $113.62 against a stated current price of $77.76 (implying +46.1% upside)
+- Another source: fair value of $179.01 against a stated current price of $102 (implying +43% undervaluation)
+
+Both estimates independently suggest the stock trades below its DCF-derived intrinsic value — but the two sources disagree with each other on what the "current price" even is ($77.76 vs. $102), a difference of about 31%, before even comparing the fair value estimates themselves. The data explicitly flags that this could stem from ADR-vs-ordinary-share currency mixing (USD ADR vs. CHF-denominated NESN.SW) or from different snapshot dates, but does not confirm which. Given that the baseline price inputs themselves aren't reconciled, these two DCF outputs cannot be treated as two corroborating data points — they are two incompatible calculations, and averaging or otherwise combining them would not be defensible. At most, the data supports a weak, heavily caveated observation that multiple DCF sources direction-agree on undervaluation, while disagreeing substantially on magnitude and even on the reference price.
+
+### Additional inconsistencies that constrain confidence further
+
+- **Market capitalization** is given as both $258.56B and $385B across sources — roughly a 1.5x discrepancy with no stated cause. This is large enough to suggest a currency, share-count, or date-of-record mismatch, but the data doesn't specify which.
+- **Currency labeling is inconsistent throughout** (CHF ordinary-share pricing vs. USD ADR pricing), and no exchange rate is provided anywhere in the data set to reconcile figures across sections. This means price-based comparisons (DCF fair value vs. current price, market cap, etc.) cannot be safely cross-checked even internally.
+- **Payout ratio (86.9%)** is mentioned in connection with a -31.4% net income decline, but the data does not specify whether this payout ratio is calculated on a GAAP or adjusted earnings basis, which affects how meaningful the figure is alongside the P/E discrepancy noted above.
+
+### Summary
+
+The data provided does not support a clean "cheap" or "expensive" characterization. On a sector-median forward P/E basis, Nestlé appears moderately expensive (+23.1%). On a direct-peer basis (Unilever, Danone), it appears mid-range rather than expensive. The trailing P/E (28.53x) tells a more expensive story than the forward P/E (17.62–17.72x), and the data does not explain the gap. The DCF evidence nominally points toward undervaluation from two independent sources, but those two sources contradict each other on the basic input price by roughly 31%, which undermines using either figure with confidence. Compounding all of this, a ~1.5x market-cap discrepancy and unreconciled CHF/USD currency mixing throughout the data set mean that several of the headline figures cannot be verified as comparing like with like. Given these unresolved internal contradictions, the data as provided is insufficient to support a confident valuation judgment — it would require currency reconciliation, a single consistent pricing snapshot, and clarification of the trailing/forward earnings gap before the multiples and DCF estimates could be meaningfully compared.
