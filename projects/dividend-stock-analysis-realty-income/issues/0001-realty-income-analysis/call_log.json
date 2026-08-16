@@ -1,0 +1,77 @@
+{
+  "calls": [
+    {
+      "role": "technical_analysis",
+      "input_chars": 1498,
+      "output_chars": 3061,
+      "elapsed_sec": 19.6
+    },
+    {
+      "role": "sentiment_analysis",
+      "input_chars": 1478,
+      "output_chars": 3562,
+      "elapsed_sec": 28.2
+    },
+    {
+      "role": "valuation_analysis",
+      "input_chars": 1818,
+      "output_chars": 1369,
+      "elapsed_sec": 30.0
+    },
+    {
+      "role": "industry_analysis",
+      "input_chars": 1631,
+      "output_chars": 1688,
+      "elapsed_sec": 31.6
+    },
+    {
+      "role": "news_event_analysis",
+      "input_chars": 1844,
+      "output_chars": 2433,
+      "elapsed_sec": 39.8
+    },
+    {
+      "role": "fundamental_analysis",
+      "input_chars": 1802,
+      "output_chars": 2334,
+      "elapsed_sec": 43.2
+    },
+    {
+      "role": "dividend_quality_analysis",
+      "input_chars": 1869,
+      "output_chars": 2635,
+      "elapsed_sec": 47.7
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 17250,
+      "output_chars": 7179,
+      "elapsed_sec": 35.5
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 17250,
+      "output_chars": 9159,
+      "elapsed_sec": 48.2
+    },
+    {
+      "role": "synthesis",
+      "input_chars": 16338,
+      "output_chars": 7351,
+      "elapsed_sec": 44.4
+    },
+    {
+      "role": "final_report",
+      "input_chars": 40771,
+      "output_chars": 9882,
+      "elapsed_sec": 43.3
+    }
+  ],
+  "wave_summary": {
+    "wave1_elapsed_sec": 0.0,
+    "wave2_elapsed_sec": 0.0,
+    "wave3_elapsed_sec": 44.4,
+    "wave4_elapsed_sec": 43.3,
+    "pipeline_total_elapsed_sec": 87.7
+  }
+}
