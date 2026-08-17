@@ -1,0 +1,13 @@
+## Technical Analysis — Caterpillar Inc. (CAT), as of 2026-08 snapshot
+
+**Trend direction: indeterminate from the data provided.** The technical signals collected across sources are internally contradictory rather than merely divergent between sources. One source's own moving-average summary states a "Neutral" reading (6 buy signals vs. 6 sell signals), while elsewhere in that same source the price is described as sitting below its 5-, 20-, and 50-day exponential moving averages, which it characterizes as "strongly bearish." A separate daily-timeframe reading from the same source shows a tighter Neutral split (3 buy vs. 3 sell signals). Taken together, these three statements do not describe a coherent trend — a stock cannot simultaneously be neutral on moving averages and strongly bearish on the same set of moving averages without either a methodological difference (e.g., different MA sets or weighting schemes) or a data inconsistency, and nothing in the provided material explains which is the case. No directional trend conclusion can be drawn from this data as given.
+
+**Momentum:** RSI(14) is reported at 40.55. This is a below-midline reading, consistent with softening momentum, though 40.55 sits within the conventional 30–70 neutral band rather than in oversold territory (below 30). The source's own characterization of this level as "oversold" appears inconsistent with the standard RSI convention — this is a labeling discrepancy in the data as provided, and readers should not treat 40.55 as a classic oversold signal without further clarification from the original source.
+
+**Support/resistance:** No specific support or resistance price levels are included in the data provided. No judgment can be offered on this dimension.
+
+**Conflicting signals across sources:**
+- Directional trend: "Neutral" (6/6 and 3/3 buy-sell splits) directly conflicts with "strongly bearish" (price below 5/20/50-day EMAs), within the same source.
+- RSI level (40.55) is labeled "oversold" in the data despite falling within the standard neutral RSI range, an apparent mismatch between the numeric value and its stated interpretation.
+
+**Data limitations (as disclosed in the source material):** The underlying data itself notes that the most recent readings may reflect late July 2026 rather than current August conditions, meaning the technical picture could have shifted since collection. Given the combination of (a) an internally inconsistent trend read, (b) a questionable RSI interpretation, and (c) an acknowledged staleness risk, this dataset is insufficient to support a clear technical judgment on trend or momentum direction. Any conclusion drawn beyond restating these conflicts would not be supported by the data provided.
