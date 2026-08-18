@@ -7,36 +7,20 @@ Execution Result)을 검증한다.
 
 MVP-0001~0005 코드는 읽기(호출)만 한다. 어떤 파일도 수정하지 않는다.
 
-## MVP-0005 Dogfooding과의 차이 — Development HQ `run_pipeline()`을 쓰지 않는 이유
-
-MVP-0001~0005의 Dogfooding 스크립트는 Development HQ
-`mvp.workflow_0008.run_pipeline()`으로 Implementation Specification을
-만들었다. 이 저장소의 현재 `development-hq/mvp/engine.py`
-`call_engine()`은 더 이상 규칙 기반이 아니라 실제 Engine(Claude Code
-CLI, `claude -p`, 최대 180초 timeout)을 호출한다
-(`ENGINE-CONNECT-0001`이 tracked 브랜치에 반영된 상태). `run_pipeline()`
-은 내부에서 `call_engine()`을 5회 호출하므로, 이 스크립트가
-`run_pipeline()`을 그대로 재사용하면 Dogfooding 1회 실행마다 최대 10회
-(Real Issue + Toy Issue) 실제 Engine 호출이 발생한다 — 이는 이번
-작업(Execution Result Builder 검증)이 요구하지 않는 실제 비용·시간이며,
-사용자에게 사전 고지되지 않은 부작용이다.
-
-Execution Result Builder(MVP-0006)의 Contract는 Execution State
-(문자열)를 입력으로 받을 뿐, Implementation Specification의 실제
-생성 방식과 무관하다 — MVP-0001~0005 각 Dogfooding이 이미 실측
-검증한 부분을 다시 확인할 필요가 없다. 따라서 이 스크립트는
-`run_pipeline()`을 호출하지 않고, MVP-0001 테스트가 쓰는 것과 같은
-고정 샘플 Implementation Specification에서 시작한다. 이는 Contract
-결정이 아니라 **검증 방법 선택**이며, Execution Result의 Architecture/
-Contract를 바꾸지 않는다.
+`development-hq/mvp/workflow_0008.run_pipeline()`을 호출하지 않는다 —
+ExecutionResultBuilder의 Contract는 Execution State(문자열)만 입력으로
+받을 뿐, 그 상위 Artifact가 실제로 어떻게 생성됐는지와 무관하기
+때문이다. 대신 `core/execution_layer/mvp_0001/tests/`가 쓰는 것과 같은
+고정 샘플(`SAMPLE_IMPLEMENTATION_SPECIFICATION`)에서 시작한다. 판단
+근거와 실측 결과는 `docs/core/execution-layer/MVP-0006-observation.md`
+참조.
 
 `handle_id`/`produced_at`/`results`는 ExecutionResultBuilder가 스스로
 생성하지 않는 값이므로(Runtime/Scheduler/Engine 책임 영역,
-`execution_result_builder.py` 참조), 이 스크립트가 호출자로서 값을
-주입한다. `results`는 Engine 산출물을 실제로 만들지 않으므로(위 이유로
-`call_engine`을 호출하지 않는다), 이 스크립트가 opaque placeholder
-문자열 목록을 caller로서 직접 주입한다 — Builder는 이 값의 의미를
-해석하지 않는다.
+`execution_result_builder.py` 참조) 이 스크립트가 호출자로서 값을
+주입한다. `results`는 Engine을 호출하지 않으므로 opaque placeholder
+문자열 목록을 직접 주입한다 — Builder는 이 값의 의미를 해석하지
+않는다.
 """
 
 import hashlib

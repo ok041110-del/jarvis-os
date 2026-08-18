@@ -1,23 +1,5 @@
-"""MVP-0008: Development HQ가 Development HQ의 실제 Issue 하나를
-Planning -> Design -> Implementation -> Validation까지 처리한다.
-
-Issue는 이 저장소 자신의 실제 백로그 항목이다 — MVP-0007 Observation
-(`docs/01_mvp/MVP-0007-observation.md`)에서 실측으로 발견한 문제
-("Design/Implementation Stage가 상위 Artifact를 요약 없이 그대로
-이어붙여, Project Intelligence가 Planning에서 수집한 Relevant
-Context가 의도치 않게 Design/Implementation까지 전달된다")를 다루는
-"Project Intelligence 개선" Issue를 그대로 입력으로 사용한다.
-
-Pipeline은 Planning -> Design -> Implementation -> Validation까지
-유지한다(MVP-0004 `workflow_hello_sdlc.py`와 동일한 4단계). Project
-Intelligence(`collect_relevant_context`, MVP-0005/0006)는 Planning
-호출 직전에서만 사용한다 — Design에는 원본(Context 없는) Issue를
-그대로 넘긴다(MVP-0007과 동일).
-
-새 Capability를 추가하지 않는다 — `agents.py`의 기존 5개 함수
-(requirement_analysis, design, code_generation, code_review,
-test_execution)만 그대로 순서대로 호출한다. Task Dispatcher, Runtime,
-Stage Runner, Pipeline Runner는 구현하지 않는다.
+"""MVP-0008: Planning -> Design -> Implementation -> Validation.
+Project Intelligence는 Planning 직전에만 사용한다 — Design에는 원본 Issue를 그대로 넘긴다.
 """
 
 from .agents import (
@@ -47,13 +29,8 @@ REAL_ISSUE = {
 
 
 def run_pipeline(issue: dict) -> dict:
-    """Issue를 Planning(PI 포함) -> Design -> Implementation ->
-    Validation까지 순서대로 통과시킨다.
-
-    MVP-0037: `run_mvp_0001`(MVP-0036)과 동일한 이유로 Engine 호출
-    실패(예: timeout)를 잡아 기존 반환 계약(5개 키)을 유지한 채
-    반환한다. `context`는 Engine 호출 없이 이미 계산된 값이므로
-    실패 시에도 그대로 유지한다."""
+    """Engine 호출 실패 시에도 기존 반환 계약(5개 키)을 유지하며,
+    `context`는 실패 시에도 그대로 유지한다."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 

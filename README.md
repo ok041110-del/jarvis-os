@@ -12,7 +12,7 @@ Architecture 자체에 대한 설명은 이 문서에서 반복하지 않는다.
 |---|---|
 | Jarvis OS Architecture Baseline | v1.6 (RFC → ADC → ADR 경로로만 갱신) |
 | Development HQ Baseline | v1.0, Frozen |
-| Development HQ MVP | MVP-0001 ~ MVP-0048 완료 (Evidence 기반, `docs/01_mvp/`) |
+| Development HQ MVP | MVP-0001 ~ MVP-0052 완료 (Evidence 기반, `docs/01_mvp/`) |
 | Execution Layer MVP | MVP-0001 ~ MVP-0006 완료 (`core/execution_layer/`) |
 | Investment 영역 Dogfooding | Stock Team·ETF Team·Dividend Stock Team 모두 Promoted (`docs/research/`) |
 | Development HQ MVP Validation | 종료 권고됨(`GOVERNANCE-REVIEW-0007`), Kernel Validation 단계로 전환 |
@@ -36,6 +36,7 @@ jarvis-os/
 │   ├── 02_rfc/                   RFC (Architecture 변경 제안)
 │   ├── 03_adc/                   ADC.md — Open Decision Single Source of Truth
 │   ├── 04_adr/                   ADR (채택된 결정)
+│   ├── governance/                Dev HQ 수준 RFC/ADC/RT/Observation 보조 문서
 │   ├── architecture/core/        Kernel Architecture RFC/ADC/ADR·Governance Review
 │   ├── core/execution-layer/     Execution Layer 수준 ADC/관찰
 │   └── research/                 Investment 영역(Stock/ETF/Dividend Stock) Dogfooding 검토
@@ -44,6 +45,7 @@ jarvis-os/
 │   ├── BASELINE.md, MVP.md, IMPLEMENTATION_RULES.md, HANDOVER.md
 │   └── mvp/                      MVP-0001 구현 코드
 ├── core/execution_layer/         Execution Layer MVP 코드
+├── investment-hq/                Investment HQ(Stock/ETF/Dividend Stock Team) 실행 코드
 └── projects/                     Dogfooding 대상 실제 프로젝트(notekeeper, textkit, stock/etf 분석 등)
 ```
 

@@ -4,7 +4,7 @@ Claude Code가 이 저장소에서 항상 알아야 하는 최소 persistent ins
 
 ## Project Identity
 
-Jarvis OS v2 Starter Kit. 이 저장소는 Development HQ MVP-0001 구현을 위한 문서/실행환경 패키지다.
+Jarvis OS v2 Starter Kit. Development HQ MVP-0001 구현을 시작점으로, Development HQ MVP Dogfooding, Kernel Architecture 연구(RFC/ADC/ADR), Investment HQ(Stock/ETF/Dividend Stock) Dogfooding까지 확장된 문서/실행환경 패키지다.
 
 ## Core Rules
 
@@ -56,7 +56,10 @@ Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 �
 - Development HQ 규칙 → `development-hq/IMPLEMENTATION_RULES.md`
 - Development HQ 구조 → `development-hq/BASELINE.md`
 - MVP → `development-hq/MVP.md`
-- Governance → `docs/02_rfc/`, `docs/03_adc/`, `docs/04_adr/`
+- Governance → `docs/02_rfc/`, `docs/03_adc/`, `docs/04_adr/`, `docs/governance/`
+- Kernel Architecture 연구 → `docs/architecture/core/`
+- Execution Layer → `docs/core/execution-layer/`
+- Investment HQ → `investment-hq/`
 - 세션 기억 → Claude-Mem
 
 전체 문서를 작업마다 일괄 로드하지 않는다.
