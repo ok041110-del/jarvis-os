@@ -1,21 +1,5 @@
-"""Prototype E — 3종 통합(병렬화 + 출력 최적화 + Checkpointing).
-
-`parallel/parallel_runner.py`의 Wave 구조(의존관계 그대로, 4-wave
-하드코딩)와 `checkpointing/checkpoint_runner.py`의 체크포인트 구조
-(단계 완료 즉시 디스크 기록 + 재실행 시 완료 단계 스킵)를 하나로
-합친다. `shared/agents.py`는 PR #79에서 이미 Report Writer
-instruction에 출력 길이 제약이 반영된 사본을 그대로 쓴다(출력
-최적화는 이 파일을 바꾸지 않고 자동으로 포함됨). 진짜
-`call_engine()`(180초, 미수정)을 그대로 쓴다.
-
-병렬 실행과 체크포인팅을 결합할 때의 유일한 새 위험은 "여러 스레드가
-동시에 완료돼 `manifest.json`에 동시에 쓰려고 하는 것"이다 —
-`threading.Lock`으로 manifest 쓰기만 직렬화한다(개별 결과 파일은
-스레드마다 파일명이 달라 충돌하지 않는다).
-
-사용법: python3 combined_runner.py <trial_id>  (같은 trial_id로
-재실행하면 완료된 단계는 스킵하고 이어서 실행한다 — Wave 병렬 실행
-중에도 동일하게 적용된다.)
+"""Usage: python3 combined_runner.py <trial_id>
+Re-running with the same trial_id skips completed steps, including within a wave.
 """
 
 import json
@@ -28,7 +12,7 @@ from pathlib import Path
 PROTO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROTO_ROOT / "shared"))
 
-import agents  # noqa: E402  (shared/agents.py — 출력 최적화 instruction 포함, 진짜 call_engine 사용)
+import agents  # noqa: E402
 
 RAW_DATA_PATH = PROTO_ROOT / "shared" / "raw_data.md"
 
@@ -46,8 +30,8 @@ _COMPANY_HEADER = "Company: Nestlé S.A. (Primary: NESN.SW, ADR: NSRGY)"
 
 
 class Checkpointer:
-    """checkpoint_runner.py와 동일한 파일 포맷(같은 issue_dir을 계속
-    재사용할 수 있게), 다만 병렬 호출에 대비해 manifest 쓰기에 락을 건다."""
+    # Same on-disk format as checkpoint_runner.py's Checkpointer, plus a lock
+    # around manifest writes since multiple waves' threads can finish concurrently.
 
     def __init__(self, issue_dir: Path):
         self.dir = issue_dir / "checkpoints"
@@ -76,8 +60,6 @@ class Checkpointer:
     def save(self, step: str, content: str, input_chars: int, elapsed_sec: float):
         (self.dir / f"{step}.md").write_text(content.rstrip() + "\n", encoding="utf-8")
         with self._lock:
-            # 재확인(re-check) — 동시에 두 스레드가 같은 step을 실행할 일은
-            # 없지만(step 이름이 항상 서로 다름), manifest 갱신 자체는 락으로 보호한다.
             if step not in self.manifest["completed_steps"]:
                 self.manifest["completed_steps"].append(step)
             self.manifest["call_log"].append(
@@ -102,10 +84,11 @@ def _extract_section(raw_text: str, tag: str) -> str:
 
 def _run_step(cp: Checkpointer, step: str, fn, *args) -> str:
     if cp.has(step):
-        return cp.load(step)  # Engine 재호출 없음 — 체크포인트에서 로드
+        return cp.load(step)
     input_len = sum(len(a) for a in args)
     t0 = time.monotonic()
-    output = fn(*args)  # 여기서 예외가 나면 저장 없이 그대로 전파(그 단계만 유실)
+    # On exception here, nothing is saved for this step and it propagates uncaught.
+    output = fn(*args)
     elapsed = time.monotonic() - t0
     cp.save(step, output, input_len, elapsed)
     return output
@@ -122,8 +105,6 @@ def run(issue_dir: Path) -> dict:
         for tag in _SECTION_TAGS
     }
 
-    # Wave 1 — 7개 분석, 상호 독립. 이미 체크포인트된 것은 스레드를
-    # 만들지 않고 즉시 디스크에서 읽는다(Engine 재호출 없음).
     wave1_jobs = {
         "fundamental_analysis": (agents.fundamental_analyst_fundamental_analysis, f"{sections['[FUNDAMENTAL]']}\n\n{limitation}"),
         "dividend_quality_analysis": (agents.dividend_quality_analyst_dividend_quality_analysis, f"{sections['[DIVIDEND_QUALITY]']}\n\n{limitation}"),
@@ -164,7 +145,6 @@ def run(issue_dir: Path) -> dict:
         f"[SENTIMENT ANALYSIS]\n{sentiment}"
     )
 
-    # Wave 2 — Bull/Bear, 상호 독립.
     wave2_t0 = time.monotonic()
     wave2_jobs = {
         "bull_case": (agents.bull_researcher_bull_case, all_analyses),
@@ -185,13 +165,10 @@ def run(issue_dir: Path) -> dict:
     bull_case = wave2_results["bull_case"]
     bear_case = wave2_results["bear_case"]
 
-    # Wave 3 — Synthesis, 순차(Bull+Bear 둘 다 필요).
     wave3_t0 = time.monotonic()
     synthesis = _run_step(cp, "synthesis", agents.synthesis_judgment, bull_case, bear_case)
     wave3_elapsed = time.monotonic() - wave3_t0
 
-    # Wave 4 — Final Report, 순차(전부 필요). shared/agents.py의
-    # instruction에 출력 길이 제약이 이미 반영되어 있다(PR #79).
     wave4_t0 = time.monotonic()
     final_report = _run_step(
         cp, "final_report", agents.report_writer_final_report,

@@ -1,19 +1,3 @@
-"""SCHD ETF Analysis runner — 두 번째 ETF Dogfooding.
-
-raw_data.md(이 세션이 WebSearch로 미리 수집한 실제 데이터) -> 7개 전문 분석
-(Composition/Holdings/Cost/Performance/Exposure/Distribution/Macro) -> Bull
-Case/Bear Case -> Synthesis -> Final Report. 각 단계는 `agents.py`의 함수를
-순서대로 직접 호출하는 하드코딩된 흐름이다 — Workflow Parser/Scheduler/
-Dispatcher를 만들지 않는다(QQQ runner.py와 동일한 성격, 코드는 공유하지
-않음).
-
-QQQ와 동일하게 각 호출의 입력 길이/출력 길이/소요 시간을 `call_log.json`에
-기록해, 두 ETF 간 Context 규모·실행시간 변화를 정량적으로 비교할 수 있게
-한다.
-
-이 파일은 Development HQ(`development-hq/mvp`)를 수정하지 않는다.
-"""
-
 import json
 import time
 from pathlib import Path

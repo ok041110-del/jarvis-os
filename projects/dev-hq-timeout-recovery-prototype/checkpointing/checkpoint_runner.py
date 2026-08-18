@@ -1,19 +1,5 @@
-"""Prototype B — Checkpointing. `shared/agents.py`(Nestlé/Toyota와 동일한
-7분석→Bull/Bear→Synthesis→Final Report, 11단계) 파이프라인을 그대로
-쓰고, `development-hq/mvp/engine.py`의 진짜 `call_engine()`(180초,
-수정하지 않음)도 그대로 쓴다 — 이 Prototype이 바꾸는 것은 오직
-"각 단계 결과를 언제 디스크에 쓰는가"뿐이다.
-
-기존 `runner.py`(Nestlé/Toyota/JNJ 전부 동일)는 11단계가 전부 성공한
-뒤 한 번에만 파일을 쓴다(all-or-nothing). 이 Prototype은 **각 단계가
-끝나는 즉시** 그 결과를 `<issue_dir>/checkpoints/<step>.md`에 쓰고
-`<issue_dir>/checkpoints/manifest.json`에 진행 상태를 기록한다.
-재실행 시 이미 체크포인트가 있는 단계는 Engine을 다시 호출하지 않고
-디스크에서 읽어 재사용하며, 처음으로 체크포인트가 없는 단계부터
-이어서 실행한다.
-
-사용법: python3 checkpoint_runner.py <trial_id>  (같은 trial_id로
-재실행하면 자동으로 마지막 성공 지점부터 재개한다)
+"""Usage: python3 checkpoint_runner.py <trial_id>
+Re-running with the same trial_id resumes from the last completed step.
 """
 
 import json
@@ -40,8 +26,6 @@ _SECTION_TAGS = [
 
 _COMPANY_HEADER = "Company: Nestlé S.A. (Primary: NESN.SW, ADR: NSRGY)"
 
-# 순서가 곧 파이프라인 순서다. 각 단계는 (파일명, agents 함수명, 입력을
-# 만드는 방법)을 담는다 — "prior"는 이미 끝난 단계들의 결과 dict.
 STEP_ORDER = [
     "fundamental_analysis",
     "dividend_quality_analysis",
@@ -92,7 +76,7 @@ class Checkpointer:
                 "elapsed_sec": round(elapsed_sec, 1),
             }
         )
-        self._save_manifest()  # 이 단계까지는 확정적으로 디스크에 남는다
+        self._save_manifest()
 
 
 def _extract_section(raw_text: str, tag: str) -> str:
@@ -106,11 +90,11 @@ def _extract_section(raw_text: str, tag: str) -> str:
 
 def _run_step(cp: Checkpointer, step: str, fn, *args) -> str:
     if cp.has(step):
-        # 이미 완료된 단계 — Engine을 재호출하지 않고 체크포인트에서 읽는다.
         return cp.load(step)
     input_len = sum(len(a) for a in args)
     t0 = time.monotonic()
-    output = fn(*args)  # 여기서 예외(TimeoutExpired 등)가 나면 저장 없이 그대로 전파
+    # On exception here, nothing is saved for this step and it propagates uncaught.
+    output = fn(*args)
     elapsed = time.monotonic() - t0
     cp.save(step, output, input_len, elapsed)
     return output

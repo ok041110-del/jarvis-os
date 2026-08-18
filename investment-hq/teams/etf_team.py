@@ -1,12 +1,4 @@
-"""ETF Team — `projects/etf-analysis-{qqq,schd,agg,gld,vnq,uup}`에서
-6회 반복 검증된 6개 역할(Composition/Index, Holdings/Exposure,
-Cost/Tracking, Performance/Risk, Distribution, Macro) 지시문을 그대로
-옮긴 것이다. 지시문은 한 글자도 바꾸지 않았다 — 펀드명/티커만 인자로
-받는다.
-
-`docs/research/ETF-TEAM-DEFINITION-0001.md`, `docs/research/
-INVESTMENT-HQ-TEAM-VALIDATION-CLOSURE-0001.md` 참조.
-"""
+"""ETF Team — 지시문 정의는 `docs/research/ETF-TEAM-DEFINITION-0001.md` 참조."""
 
 import json
 import time

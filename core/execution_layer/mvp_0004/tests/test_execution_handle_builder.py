@@ -1,12 +1,4 @@
-"""Execution Layer MVP-0004 Exit Criteria 검증.
-
-Success Criteria(요청 원문):
-- Model Request 100% 보존.
-- Execution Handle 메타데이터만 추가.
-- status=PENDING.
-- 동일 입력 -> 동일 Handle (Deterministic Transformation).
-- AI 호출 없음.
-"""
+"""Execution Layer MVP-0004 Exit Criteria 검증."""
 
 import sys
 from pathlib import Path

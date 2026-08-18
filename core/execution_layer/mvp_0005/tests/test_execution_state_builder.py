@@ -1,12 +1,4 @@
-"""Execution Layer MVP-0005 Exit Criteria 검증.
-
-Success Criteria(요청 원문):
-- Execution Handle 100% 보존.
-- Execution State 메타데이터만 추가.
-- State 이름만 검증(Transition 규칙 없음).
-- Deterministic Transformation.
-- AI 호출 없음. Runtime 없음.
-"""
+"""Execution Layer MVP-0005 Exit Criteria 검증."""
 
 import sys
 from pathlib import Path
@@ -140,10 +132,6 @@ def test_unknown_state_is_rejected():
 
 
 def test_state_validation_does_not_check_transition_rules():
-    # State Transition(이전 상태 -> 다음 상태 허용 여부)을 검증하지
-    # 않는다는 사실을 확인한다: 동일한 Execution Handle에 대해 순서와
-    # 무관하게 임의의 허용된 state로 여러 번 Execution State를 만들 수
-    # 있어야 한다(예: COMPLETED 다음에 PENDING을 만들어도 거부되지 않음).
     build_execution_state(
         SAMPLE_EXECUTION_HANDLE,
         handle_id="test-handle-id-0001",

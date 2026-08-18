@@ -1,14 +1,3 @@
-"""Stock Analysis Capability 함수 (NVDA) — `projects/stock-analysis-aapl/agents.py`와
-동일한 패턴의 project-local 재사용이다. Development HQ Platform
-(`development-hq/mvp`)을 수정하지 않고, 그 안의 유일한 Engine 호출 지점인
-`call_engine()`만 그대로 import해서 쓴다.
-
-AAPL 프로젝트와 코드를 공유하지 않는다 — `textkit`/`notekeeper`가 서로 독립적인
-project-local 코드를 갖는 것과 같은 이유다(각 프로젝트는 Development HQ만
-참조하고, 프로젝트끼리는 참조하지 않는다). 지시문 자체는 도메인 일반적이므로
-AAPL 버전과 내용이 사실상 동일하다 — 이는 재사용성의 증거이지 실수가 아니다.
-"""
-
 import sys
 from pathlib import Path
 

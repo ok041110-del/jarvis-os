@@ -1,25 +1,11 @@
 """Execution Layer MVP-0005 Dogfooding.
 
-Development HQ MVP-0013(`_generate_code()`)이 실제로 생성하는
-Implementation Specification부터, Execution Layer MVP-0001~0005를 그대로
-통과시켜 전체 Artifact Chain(Implementation Specification → Execution
-Request → Prompt Specification → Model Request → Execution Handle →
-Execution State)을 검증한다.
+Development HQ가 생성하는 Implementation Specification부터 MVP-0001~0005
+Builder를 통과시켜 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤
+파일도 수정하지 않는다.
 
-Development HQ, MVP-0001~0004 코드는 읽기(호출)만 한다. 어떤 파일도
-수정하지 않는다. 이전 MVP와 동일하게 실제 Issue
-(`workflow_0008.REAL_ISSUE`)와 토이 Issue("reverse string")를 모두
-사용한다.
-
-`state`/`changed_at`/`handle_id`는 ExecutionStateBuilder가 스스로
-생성하지 않는 값이므로(Runtime/Scheduler 책임 영역,
-`execution_state_builder.py` 참조), 이 스크립트가 호출자로서 값을
-주입한다. `handle_id`는 방금 만든 Execution Handle 자신의 handle_id를
-그대로 재사용한다(같은 Execution Handle을 가리키는 Execution State이므로
-당연히 같아야 하며, 이 스크립트가 그 일관성을 직접 보장한다).
-`changed_at`은 이전 MVP의 `created_at`/`submitted_at`과 동일하게 고정
-placeholder 문자열을 사용하고, `state`는 이번 MVP가 다루는 5개 값 중
-`"PENDING"`(Execution Handle이 만들어진 직후의 최초 상태)을 사용한다.
+`state`/`changed_at`/`handle_id`는 Builder가 생성하지 않으므로
+(Runtime/Scheduler 책임 영역) 이 스크립트가 호출자로서 주입한다.
 """
 
 import hashlib
@@ -94,8 +80,6 @@ def _run_case(name: str, issue: dict) -> None:
         handle_id=handle_id,
         submitted_at=SUBMITTED_AT_PLACEHOLDER,
     )
-    # handle_id는 방금 만든 Execution Handle 자신의 값을 그대로
-    # 재사용한다 — 새로 유도하지 않는다.
     handle_id_from_handle = _extract_handle_id(execution_handle)
     execution_state = build_execution_state(
         execution_handle,

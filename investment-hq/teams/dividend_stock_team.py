@@ -1,12 +1,4 @@
-"""Dividend Stock Team — `projects/dividend-stock-analysis-{jnj,ko,pg,
-nestle,toyota,realty-income,epd}`에서 7회 반복 검증된 7개 역할
-(Fundamental/Dividend Quality/Valuation/Technical/Industry-Competition/
-News-Event/Sentiment) 지시문을 그대로 옮긴 것이다. 지시문은 한 글자도
-바꾸지 않았다 — 회사명/티커만 인자로 받는다.
-
-`docs/research/DIVIDEND-STOCK-TEAM-DEFINITION-0001.md`, `docs/research/
-INVESTMENT-HQ-TEAM-VALIDATION-CLOSURE-0001.md` 참조.
-"""
+"""Dividend Stock Team — 지시문 정의는 `docs/research/DIVIDEND-STOCK-TEAM-DEFINITION-0001.md` 참조."""
 
 import json
 import time

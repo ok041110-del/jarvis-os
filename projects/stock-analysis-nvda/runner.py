@@ -1,17 +1,3 @@
-"""NVDA Stock Analysis runner.
-
-`projects/stock-analysis-aapl/runner.py`와 동일한 흐름: raw_data.md -> 5개
-전문 분석 -> Bull Case/Bear Case -> Synthesis -> Final Report, 하드코딩된
-순차 호출. AAPL 1차 실행에서 발견된 "raw_data.md 섹션에 회사명이 없어 Engine이
-회사를 추정"하는 문제가 이번에도 재발할 수 있으므로, AAPL에서 검증된 수정
-(`_COMPANY_HEADER` 프리픽스)을 그대로 재사용한다 — 새로 발견한 문제가 아니라
-이미 검증된 수정의 재사용이다. 추가로 이번 `raw_data.md` 원본 자체에도 각
-섹션에 회사명을 직접 적어, 두 프로젝트의 raw_data.md 작성 방식 차이가 실제
-재현 여부에 영향을 주는지 관찰한다(EVIDENCE.md 참고).
-
-이 파일은 Development HQ(`development-hq/mvp`)를 수정하지 않는다.
-"""
-
 from pathlib import Path
 
 from agents import (

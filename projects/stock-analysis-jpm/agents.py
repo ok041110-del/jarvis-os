@@ -1,14 +1,3 @@
-"""Stock Analysis Capability 함수 — Development HQ Platform(`development-hq/mvp`)을
-수정하지 않고, 그 안의 유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서
-쓴다. `projects/stock-analysis-aapl/agents.py`와 코드를 공유하지 않는 project-local
-복제(4번째 반복 실행, JPM) — textkit/notekeeper/AAPL/NVDA/MSFT가 이미 이 재사용
-방식을 검증했다.
-
-이번 실행의 목적은 새 Agent를 만드는 것이 아니라, 동일한 리터럴 dict + 지시문-프리픽스
-함수 + call_engine 단일 호출 패턴을 4번째로 반복해 역할/Agent 분리가 실제로
-필요한지 Evidence를 쌓는 것이다.
-"""
-
 import sys
 from pathlib import Path
 

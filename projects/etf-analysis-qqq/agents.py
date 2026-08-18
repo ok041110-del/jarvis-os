@@ -1,18 +1,3 @@
-"""ETF Analysis Capability 함수 — Development HQ Platform(`development-hq/mvp`)을
-수정하지 않고, 그 안의 유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서
-쓴다. `projects/stock-analysis-*`와 코드를 공유하지 않는 완전히 별도의 project-local
-구현이다(사용자 지시: ETF Team/Agent를 선행 설계하지 않는다 — Stock의
-`STOCK_CAPABILITY_MAP`을 import하거나 상속하지 않고, 필요하면 각 함수를
-새로 작성한다).
-
-이 파일은 Stock의 5개 분석과 이름이 다른 7개 분석(구성/추적지수, 보유종목/
-집중도, 비용/추적오차, 성과/변동성, 섹터/산업/지역 노출, 분배금/배당,
-시장/거시환경) + Bull/Bear + Synthesis + Final Report, 총 11개 Capability를
-가진다. Stock과 동일한 함수를 그대로 재사용하지 않는다 — 재사용 여부는
-이번 실행에서 실제로 필요가 발생하는지 관찰한 뒤 EVIDENCE.md에 기록하고,
-필요가 확인되기 전에는 공유 코드를 만들지 않는다.
-"""
-
 import sys
 from pathlib import Path
 

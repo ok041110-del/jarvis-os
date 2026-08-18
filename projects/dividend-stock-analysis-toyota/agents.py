@@ -1,17 +1,3 @@
-"""Dividend Stock Analysis Capability 함수 — Development HQ Platform
-(`development-hq/mvp`)을 수정하지 않고, 그 안의 유일한 Engine 호출
-지점인 `call_engine()`만 그대로 import해서 쓴다. `projects/stock-analysis-*`
-와 코드를 공유하지 않는 별도의 project-local 구현이다(Toyota — Nestlé에서
-관찰된 Final Report 180초 타임아웃의 재현성 검증. 기존 Dividend Stock
-Team 역할 구조를 신규 설계 없이 그대로 재사용한다).
-
-Stock Team의 5개 분석(Fundamental/Technical/Industry-Competition/
-News-Event/Sentiment)과 최대한 동일한 지시문 패턴을 유지하고(공통 역할
-반복 여부를 공정하게 관찰하기 위해), Dividend Quality와 Valuation
-2개를 새로 추가해 총 7개 분석 → Bull/Bear → Synthesis → Final Report
-구조를 쓴다.
-"""
-
 import sys
 from pathlib import Path
 

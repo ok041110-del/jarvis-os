@@ -1,13 +1,4 @@
-"""Execution Layer MVP-0006 Exit Criteria 검증.
-
-Success Criteria(Governance 사이클 기준 — RFC-0002/ADC-0002/ADR-0001,
-RFC-0003/ADC-0003/ADR-0002):
-- Execution State 100% 보존.
-- Execution Result는 메타데이터와 산출물 목록만 추가.
-- results는 opaque 문자열 목록(list[str]) — 개수·의미 검증 없음.
-- Deterministic Transformation.
-- AI 호출 없음. Runtime 없음.
-"""
+"""Execution Layer MVP-0006 Exit Criteria 검증(RFC-0002/ADC-0002/ADR-0001, RFC-0003/ADC-0003/ADR-0002)."""
 
 import sys
 from pathlib import Path
@@ -138,7 +129,6 @@ def test_results_items_are_embedded_verbatim_and_unopened():
 
 
 def test_empty_results_list_is_accepted():
-    # ADC-0003 범위 밖: 개수 제한(빈 목록 허용 여부)은 검증하지 않는다.
     execution_result = build_execution_result(
         SAMPLE_EXECUTION_STATE,
         handle_id="test-handle-id-0001",

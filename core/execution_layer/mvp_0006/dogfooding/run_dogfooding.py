@@ -1,26 +1,15 @@
 """Execution Layer MVP-0006 Dogfooding.
 
-Execution Layer MVP-0001~0006을 그대로 통과시켜 전체 Artifact Chain
-(Implementation Specification → Execution Request → Prompt
-Specification → Model Request → Execution Handle → Execution State →
-Execution Result)을 검증한다.
-
-MVP-0001~0005 코드는 읽기(호출)만 한다. 어떤 파일도 수정하지 않는다.
+Execution Layer MVP-0001~0006을 그대로 통과시켜 전체 Artifact Chain을
+검증한다. 읽기(호출)만 하며 어떤 파일도 수정하지 않는다.
 
 `development-hq/mvp/workflow_0008.run_pipeline()`을 호출하지 않는다 —
-ExecutionResultBuilder의 Contract는 Execution State(문자열)만 입력으로
-받을 뿐, 그 상위 Artifact가 실제로 어떻게 생성됐는지와 무관하기
-때문이다. 대신 `core/execution_layer/mvp_0001/tests/`가 쓰는 것과 같은
-고정 샘플(`SAMPLE_IMPLEMENTATION_SPECIFICATION`)에서 시작한다. 판단
-근거와 실측 결과는 `docs/core/execution-layer/MVP-0006-observation.md`
-참조.
+ExecutionResultBuilder는 Execution State(문자열)만 입력받으므로 상위
+Artifact 생성 경로와 무관하다. 대신 고정 샘플에서 시작한다.
 
-`handle_id`/`produced_at`/`results`는 ExecutionResultBuilder가 스스로
-생성하지 않는 값이므로(Runtime/Scheduler/Engine 책임 영역,
-`execution_result_builder.py` 참조) 이 스크립트가 호출자로서 값을
-주입한다. `results`는 Engine을 호출하지 않으므로 opaque placeholder
-문자열 목록을 직접 주입한다 — Builder는 이 값의 의미를 해석하지
-않는다.
+`handle_id`/`produced_at`/`results`는 Builder가 생성하지 않으므로
+(Runtime/Scheduler/Engine 책임 영역) 이 스크립트가 주입한다. `results`는
+opaque placeholder 문자열 목록이다.
 """
 
 import hashlib
@@ -50,8 +39,6 @@ from execution_layer.mvp_0006.execution_result_builder import (  # noqa: E402
     build_execution_result,
 )
 
-# MVP-0001 테스트가 쓰는 것과 동일한 고정 샘플. call_engine을 호출하지
-# 않고 확보할 수 있는 실제 Implementation Specification 형식이다.
 SAMPLE_IMPLEMENTATION_SPECIFICATION = (
     "## Target File\n"
     "development-hq/mvp/generated/reverse_string.py\n\n"
@@ -80,9 +67,6 @@ CHANGED_AT_PLACEHOLDER = "unresolved"
 PRODUCED_AT_PLACEHOLDER = "unresolved"
 INITIAL_STATE = "COMPLETED"
 
-# Engine 산출물을 실제로 만들지 않는다(call_engine 미사용, 위 docstring
-# 참고). 이 목록은 caller가 주입하는 opaque placeholder다 — Builder는
-# 의미를 해석하지 않는다(ADC-0003 Decision).
 PLACEHOLDER_RESULTS = [
     "placeholder: diff not produced (call_engine not invoked, see run_dogfooding.py docstring)",
     "placeholder: log not produced (call_engine not invoked, see run_dogfooding.py docstring)",

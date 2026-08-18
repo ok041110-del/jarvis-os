@@ -1,21 +1,3 @@
-"""Stock Analysis Capability 함수 — Development HQ Platform(`development-hq/mvp`)을
-수정하지 않고, 그 안의 유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서
-쓴다. Investment 도메인 Capability(fundamental_analysis 등)는 `development-hq/mvp`의
-기존 예시 Capability 목록(`STRUCTURE.md`: code_review, test_execution, ...)에
-없다 — STRUCTURE.md 자신이 "다른 HQ는 전혀 다른 Capability 집합을 가질 수 있다"고
-명시하므로, Platform을 확장하는 대신 이 프로젝트가 `development-hq/mvp/agents.py`와
-동일한 패턴(리터럴 dict + 지시문-프리픽스 함수 + call_engine 단일 호출)을
-project-local로 재사용한다. `textkit`/`notekeeper`가 이미 이 재사용 방식을
-검증했다(README 참고).
-
-Engine(`call_engine`)은 stateless text-in/text-out이며 WebFetch/WebSearch/Bash
-등이 전부 차단된다 — 실시간 금융 데이터를 스스로 가져올 수 없다. 그래서 실제
-데이터 수집은 이 프로젝트를 실행하는 세션(runner 바깥)이 WebSearch로 직접
-수행하고, 그 결과(`issues/0001-aapl-analysis/raw_data.md`)를 각 함수의 입력
-Context로 그대로 넘긴다 — `notekeeper`의 `_enrich_with_existing_code`와 같은
-위치의 역할이며, 새 Capability나 Architecture가 아니다.
-"""
-
 import sys
 from pathlib import Path
 
@@ -24,9 +6,6 @@ sys.path.insert(0, str(DEV_HQ_ROOT))
 
 from mvp.engine import call_engine  # noqa: E402
 
-# Registry 구현 금지(IMPLEMENTATION_RULES.md) 원칙을 그대로 따르는 리터럴 dict.
-# 조회 함수/클래스로 감싸지 않는다 — development-hq/mvp/agents.py의
-# AGENT_CAPABILITY_MAP과 동일한 성격.
 STOCK_CAPABILITY_MAP = {
     "fundamental_analysis": "Fundamental Analyst",
     "technical_analysis": "Technical Analyst",

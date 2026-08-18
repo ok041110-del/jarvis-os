@@ -17,12 +17,8 @@ from .agents import backend_agent_code_review, qa_agent_test_execution
 
 
 def _engine_failure_message(exc: Exception) -> str:
-    """Engine 호출 실패(예: timeout) 시 반환 dict에 채워 넣는 공통 오류
-    메시지 포맷. P1-1: `workflow_0002/0008/0009/artifact_flow/
-    project_intelligence.py`에 반복되던 동일한 `f"Engine call failed:
-    {exc}"` 포맷 한 줄만 추출한 것이며, 각 호출부의 반환 dict shape·
-    Task 순서·Agent-Capability 매핑·Prompt는 전혀 바꾸지 않는다
-    (`workflow_hello_sdlc.py`는 이 포맷을 쓰지 않으므로 제외됨)."""
+    """`workflow_0002/0008/0009/artifact_flow/project_intelligence.py`가
+    공유하는 오류 메시지 포맷 (`workflow_hello_sdlc.py`는 제외)."""
     return f"Engine call failed: {exc}"
 
 

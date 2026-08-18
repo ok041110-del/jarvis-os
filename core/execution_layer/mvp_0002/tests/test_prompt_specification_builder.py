@@ -1,12 +1,4 @@
-"""Execution Layer MVP-0002 Exit Criteria 검증.
-
-Success Criteria(요청 원문):
-- Execution Request의 정보가 100% 보존된다.
-- Prompt Specification은 LLM이 읽기 쉬운 구조(5개 절)를 가진다.
-- 새 의미를 추가하지 않는다.
-- 동일한 Execution Request는 항상 동일한 Prompt Specification을
-  생성한다(Deterministic Rendering).
-"""
+"""Execution Layer MVP-0002 Exit Criteria 검증."""
 
 import sys
 from pathlib import Path
@@ -80,11 +72,7 @@ def test_no_new_information_beyond_headers_is_added():
         len(_extract_section_body(SAMPLE_EXECUTION_REQUEST, section))
         for section in SOURCE_SECTIONS_IN_ORDER
     )
-    # 구조용 머리말(Prompt Specification 제목 1개, Prompt Section 제목
-    # 5개, 원본 소제목 9개, 그 사이 구분자 개행)을 뺀 나머지는 모두
-    # 원본 절 본문이어야 한다 — 정확한 문자 수 일치까지는 요구하지
-    # 않지만(개행 구성이 다를 수 있음), 본문 총 길이가 렌더링 결과보다
-    # 클 수는 없다(=새 콘텐츠가 추가되지 않았다는 하한 검증).
+    # 본문 총 길이가 렌더링 결과 길이를 넘을 수 없다(새 콘텐츠 미추가 하한 검증).
     assert source_bodies_total_len <= len(prompt_spec)
 
 

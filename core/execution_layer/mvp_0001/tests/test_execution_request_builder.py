@@ -1,10 +1,4 @@
-"""Execution Layer MVP-0001 Exit Criteria 검증.
-
-Success Criteria(docs/core/execution-layer/MVP-0001-plan.md):
-- Execution Request가 Implementation Specification의 8개 항목을 100%
-  보존한다(새 의미 추가 없음, 정보 제거 없음).
-- 동일한 입력은 항상 동일한 Execution Request를 생성한다(Deterministic).
-"""
+"""Execution Layer MVP-0001 Exit Criteria 검증. See docs/core/execution-layer/MVP-0001-plan.md"""
 
 import sys
 from pathlib import Path

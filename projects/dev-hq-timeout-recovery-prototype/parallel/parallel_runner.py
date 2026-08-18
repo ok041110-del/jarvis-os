@@ -1,25 +1,4 @@
-"""Prototype C — 병렬화. `shared/agents.py`(Nestlé/Toyota와 동일한 7분석→
-Bull/Bear→Synthesis→Final Report, 11단계, 지시문 불변) 파이프라인의
-**의존관계**를 그대로 존중하되, 서로 의존하지 않는 호출은 동시에 실행한다.
-Engine은 진짜 `call_engine()`(180초, 미수정)을 그대로 쓴다.
-
-의존관계(변경 없음, 원래 데이터 흐름 그대로):
-  Wave 1 (병렬, 7개): 7개 분석 — 전부 raw_data.md의 서로 다른 섹션만
-    입력으로 받고, 서로의 출력에 의존하지 않는다.
-  Wave 2 (병렬, 2개): Bull Case / Bear Case — 둘 다 Wave 1의 결과를
-    합친 것(all_analyses)만 입력으로 받고, 서로에게 의존하지 않는다.
-  Wave 3 (순차, 1개): Synthesis — Bull+Bear 둘 다 끝나야 시작 가능.
-  Wave 4 (순차, 1개): Final Report — 전부 끝나야 시작 가능.
-
-이것은 "Workflow Parser/Scheduler"가 아니다 — 의존관계를 런타임에
-해석하는 범용 엔진이 아니라, `runner.py`와 동일하게 이 4개 Wave
-순서를 코드에 그대로 하드코딩했다(어떤 호출이 어느 Wave에 속하는지
-동적으로 계산하지 않는다). `concurrent.futures.ThreadPoolExecutor`는
-각 호출이 `subprocess.run()`으로 대부분의 시간을 대기하므로
-(GIL이 그 동안 해제됨) 실제 OS 프로세스 수준 병렬성을 낸다.
-
-사용법: python3 parallel_runner.py <trial_id>
-"""
+"""Usage: python3 parallel_runner.py <trial_id>"""
 
 import json
 import sys
@@ -59,8 +38,7 @@ def _extract_section(raw_text: str, tag: str) -> str:
 
 
 def _timed_call(role: str, fn, *args) -> str:
-    """스레드 안에서 실행되는 개별 호출. 리스트 append는 CPython GIL
-    덕분에 원자적이라 별도 락 없이도 안전하다."""
+    # Runs inside a worker thread; list.append is GIL-atomic so no lock needed.
     input_len = sum(len(a) for a in args)
     t0 = time.monotonic()
     output = fn(*args)
@@ -86,7 +64,6 @@ def run(issue_dir: Path) -> dict:
         for tag in _SECTION_TAGS
     }
 
-    # Wave 1 — 7개 분석, 전부 서로 독립적이므로 동시에 제출한다.
     wave1_jobs = {
         "fundamental_analysis": (agents.fundamental_analyst_fundamental_analysis, f"{sections['[FUNDAMENTAL]']}\n\n{limitation}"),
         "dividend_quality_analysis": (agents.dividend_quality_analyst_dividend_quality_analysis, f"{sections['[DIVIDEND_QUALITY]']}\n\n{limitation}"),
@@ -120,8 +97,6 @@ def run(issue_dir: Path) -> dict:
         f"[SENTIMENT ANALYSIS]\n{sentiment}"
     )
 
-    # Wave 2 — Bull Case / Bear Case, 둘 다 all_analyses만 입력으로 받고
-    # 서로 독립적이므로 동시에 제출한다.
     wave2_t0 = time.monotonic()
     with ThreadPoolExecutor(max_workers=2) as pool:
         f_bull = pool.submit(_timed_call, "bull_case", agents.bull_researcher_bull_case, all_analyses)
@@ -130,12 +105,10 @@ def run(issue_dir: Path) -> dict:
         bear_case = f_bear.result()
     wave2_elapsed = time.monotonic() - wave2_t0
 
-    # Wave 3 — Synthesis, Bull+Bear 둘 다 끝나야 시작 가능(순차).
     wave3_t0 = time.monotonic()
     synthesis = _timed_call("synthesis", agents.synthesis_judgment, bull_case, bear_case)
     wave3_elapsed = time.monotonic() - wave3_t0
 
-    # Wave 4 — Final Report, 전부 끝나야 시작 가능(순차).
     wave4_t0 = time.monotonic()
     final_report = _timed_call(
         "final_report", agents.report_writer_final_report,

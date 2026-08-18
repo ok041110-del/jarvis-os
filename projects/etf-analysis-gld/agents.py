@@ -1,19 +1,3 @@
-"""ETF Analysis Capability 함수 — Development HQ Platform(`development-hq/mvp`)을
-수정하지 않고, 그 안의 유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서
-쓴다. `projects/etf-analysis-{qqq,schd,agg}`와 코드를 공유하지 않는 project-local
-복제(네 번째 ETF Dogfooding, 최초의 원자재형(Commodity) ETF) — ETF Team/Agent를
-이 파일에서 선행 설계하지 않는다.
-
-QQQ(주식)/SCHD(주식)/AGG(채권)에 이어 자산군 자체가 완전히 다른 GLD(실물 금)
-에서도 동일한 6개 역할(Composition/Index, Holdings/Exposure, Cost/Tracking,
-Performance/Risk, Distribution, Macro) 구조가 반복되는지 검증하는 것이 목적이다.
-`docs/research/ETF-TEAM-DEFINITION-0001.md`의 재평가 조건("원자재/리츠/통화 등
-다른 자산군에서도 이 범위가 반복되는지 — 미검증")을 이번 실행에서 처음 다룬다.
-역할 개수·이름을 바꾸지 않고 AGG와 동일한 6개 함수를 그대로 유지한다 — GLD가
-지수도 배당도 없는 자산이라는 사실 자체가 각 역할이 스스로 관찰해야 할 대상이지,
-이 파일이 미리 역할을 없애거나 재구성하지 않는다.
-"""
-
 import sys
 from pathlib import Path
 

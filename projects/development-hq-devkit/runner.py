@@ -1,26 +1,3 @@
-"""Development HQ DevKit runner.
-
-Issue -> Project Intelligence -> Planning -> Design -> Validation.
-
-이 파일은 Development HQ(`development-hq/mvp`)를 수정하지 않는다. 그
-안의 기존 함수(`collect_relevant_context`,
-`requirements_agent_requirement_analysis`, `design_agent_design`,
-`backend_agent_code_review`, `qa_agent_test_execution`)를 그대로
-import해서 순서대로 호출하고, 결과를 Markdown 파일 3개로 저장하는
-하드코딩된 순차 호출 하나만 담는다. 새 Capability/Dispatcher/Runtime/
-Stage Runner/Pipeline Runner는 만들지 않는다.
-
-Project Intelligence(`collect_relevant_context`)는 Planning 호출
-직전에서만 사용한다 — Design에는 Context가 섞이지 않은 원본 Issue를
-그대로 넘긴다(MVP-0007/0008과 동일한 방식).
-
-Implementation(Code Generation)은 이번 단계 범위 밖이다. 실제 코드가
-없으므로, Validation Capability(`code_review`, `test_execution`)에는
-Design 산출물 텍스트를 그대로 입력한다 — 이 두 Capability가 원래
-코드용으로 만들어졌다는 사실을 바꾸지 않고, 코드가 아닌 입력에 대해
-그대로 실행했을 때 무엇을 반환하는지를 관찰하기 위함이다.
-"""
-
 import sys
 from pathlib import Path
 
@@ -40,10 +17,9 @@ ISSUES_DIR = Path(__file__).resolve().parent / "issues"
 
 
 def run_issue(issue_id: str, issue: dict) -> dict:
-    """Issue 하나를 Project Intelligence -> Planning -> Design ->
-    Validation까지 통과시키고, 결과를 issues/<issue_id>/ 아래 Markdown
-    3개 파일로 저장한다."""
     context = collect_relevant_context(issue)
+    # Design intentionally gets the raw `issue`, not `enriched_issue` — only
+    # Planning uses collected context (MVP-0007/0008 pattern).
     enriched_issue = _enrich_issue(issue, context)
 
     requirement = requirements_agent_requirement_analysis(enriched_issue)
