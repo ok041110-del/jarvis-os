@@ -1,20 +1,3 @@
-"""JPM Stock Analysis runner (4번째 반복 실행).
-
-raw_data.md(이 세션이 WebSearch로 미리 수집한 실제 데이터) -> 5개 전문 분석
-(Fundamental/Technical/Industry/News-Event/Sentiment) -> Bull Case/Bear Case ->
-Synthesis -> Final Report. 각 단계는 `agents.py`의 함수를 순서대로 직접
-호출하는 하드코딩된 흐름이다 — Workflow Parser/Scheduler/Dispatcher를 만들지
-않는다(AAPL/NVDA/MSFT runner.py와 동일한 성격).
-
-이번 실행은 AAPL runner.py 대비 한 가지를 추가한다: 각 호출의 입력 길이/
-출력 길이/소요 시간을 `call_log.json`에 기록한다. 이는 새 Contract나
-Capability가 아니라, 이번 Evidence 확보 목적(역할/Agent 분리 필요성 검증)을
-위해 이 project-local 파일 안에서만 관찰 데이터를 남기는 것이다 —
-`development-hq/mvp`는 수정하지 않는다.
-
-이 파일은 Development HQ(`development-hq/mvp`)를 수정하지 않는다.
-"""
-
 import json
 import time
 from pathlib import Path

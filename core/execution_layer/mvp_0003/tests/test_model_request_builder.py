@@ -1,13 +1,4 @@
-"""Execution Layer MVP-0003 Exit Criteria 검증.
-
-Success Criteria(요청 원문):
-- Prompt Specification 정보 100% 보존.
-- Execution Layer 메타데이터만 추가.
-- Deterministic Transformation.
-- AI 호출 없음.
-- 실제 모델명(Claude/GPT/OpenAI/Anthropic 등)이 들어가지 않음(Model
-  Independent).
-"""
+"""Execution Layer MVP-0003 Exit Criteria 검증."""
 
 import sys
 from pathlib import Path

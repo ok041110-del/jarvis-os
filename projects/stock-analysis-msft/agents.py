@@ -1,15 +1,3 @@
-"""Stock Analysis Capability 함수 (MSFT) — `projects/stock-analysis-aapl/agents.py`,
-`projects/stock-analysis-nvda/agents.py`와 동일한 패턴의 project-local
-재사용(3번째)이다. Development HQ Platform(`development-hq/mvp`)을 수정하지
-않고, 그 안의 유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서
-쓴다. 다른 두 프로젝트와 코드를 공유하지 않는다(project-local 원칙).
-
-지시문에 출력 언어를 강제하지 않는다 — AAPL(한국어 출력)과 NVDA(영어 출력)가
-동일한 지시문에서 다른 언어로 출력된 것이 관찰됐고(NVDA EVIDENCE.md), 이번
-실행에서는 그 비일관성이 3번째로도 재현되는지를 그대로 관찰하기 위해
-지시문을 바꾸지 않는다.
-"""
-
 import sys
 from pathlib import Path
 

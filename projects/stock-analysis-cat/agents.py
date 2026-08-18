@@ -1,17 +1,3 @@
-"""Stock Analysis Capability 함수 — Development HQ Platform(`development-hq/mvp`)을
-수정하지 않고, 그 안의 유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서
-쓴다. `projects/stock-analysis-{aapl,nvda,msft,jpm}/agents.py`와 코드를 공유하지
-않는 project-local 복제(5번째 반복 실행, Caterpillar — 산업재/중장비 제조업으로
-기존 4건의 기술주 3건+금융주 1건 편중을 보완).
-
-이번 실행의 목적은 새 Agent/Role을 만드는 것이 아니라, 기존 Stock Team의 5개
-역할·지시문이 기술/금융 외 산업(경기순환 산업재)에서도 변경 없이 일반화되는지
-검증하는 것이다. 지시문은 JPM과 한 글자도 다르지 않다(회사명만
-report_writer_final_report에서 교체). Report Writer instruction에는 PR #79~82에서
-검증·채택된 출력 길이 제약이 신규 표준 실행 패턴의 일부로 반영되어 있다 — 기존
-AAPL/NVDA/MSFT/JPM의 agents.py는 소급 수정하지 않았다.
-"""
-
 import sys
 from pathlib import Path
 

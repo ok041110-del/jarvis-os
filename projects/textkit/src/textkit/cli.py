@@ -1,5 +1,3 @@
-"""Command-line interface for textkit."""
-
 import argparse
 
 from textkit.slugify import slugify

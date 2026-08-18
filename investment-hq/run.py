@@ -1,22 +1,14 @@
-"""Investment HQ 최소 E2E 진입점 — HQ에서 Team을 선택하고 실제 분석을
-실행한다. `TEAMS`는 리터럴 딕셔너리다(Registry가 아니다 — 동적 등록
-API나 조회 인터페이스를 제공하지 않는다. `development-hq/mvp/agents.py`
-류의 Capability Map과 동일한 성격). Team이 늘어나면 이 딕셔너리에 한
-줄을 더할 뿐, 일반화된 조회 로직을 만들지 않는다.
+"""Investment HQ 최소 E2E 진입점. `TEAMS`는 리터럴 딕셔너리다(Registry가 아니다 —
+동적 등록/조회 API를 만들지 않는다). Team 추가 시 이 딕셔너리에 한 줄만 더한다.
+`development-hq/`는 이 파일에서도 수정하지 않는다.
 
 사용법:
     python3 investment-hq/run.py <team> <company_label> <raw_data_path> <issue_dir>
 
     team: stock | etf | dividend_stock
-    company_label: Final Report에 쓰일 회사/펀드 표기(예: "Enterprise
-        Products Partners L.P. (NYSE: EPD)")
+    company_label: Final Report에 쓰일 회사/펀드 표기
     raw_data_path: raw_data.md 경로
-    issue_dir: 결과를 쓸 디렉터리(Checkpointing이 여기 checkpoints/를 만든다)
-
-`development-hq/`는 이 파일에서도 한 줄도 수정하지 않는다. 기존
-project-local Dogfooding(AAPL~CAT, QQQ~UUP, JNJ~EPD)은 이 파일이
-존재하기 전에 완료됐으므로 소급 수정하지 않는다 — 이 진입점은
-신규 실행부터 적용된다.
+    issue_dir: 결과를 쓸 디렉터리
 """
 
 import sys

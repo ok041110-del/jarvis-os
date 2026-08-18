@@ -1,14 +1,3 @@
-"""MSFT Stock Analysis runner.
-
-`projects/stock-analysis-aapl`, `projects/stock-analysis-nvda`와 동일한
-흐름(raw_data.md -> 5개 분석 -> Bull/Bear -> Synthesis -> Final Report,
-하드코딩된 순차 호출). AAPL에서 검증된 `_COMPANY_HEADER` 프리픽스를
-재사용한다. 출력 언어는 강제하지 않는다 — AAPL(한국어)과 NVDA(영어)의
-비일관성이 3번째 실행에서도 재현되는지를 그대로 관찰한다.
-
-이 파일은 Development HQ(`development-hq/mvp`)를 수정하지 않는다.
-"""
-
 from pathlib import Path
 
 from agents import (

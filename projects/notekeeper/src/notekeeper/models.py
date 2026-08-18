@@ -1,5 +1,3 @@
-"""Value object for a single note, with dict round-trip serialization."""
-
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from uuid import uuid4

@@ -1,15 +1,8 @@
 """Execution Layer MVP-0002 Dogfooding.
 
-Development HQ MVP-0013(`_generate_code()`)이 실제로 생성하는
-Implementation Specification부터, Execution Layer MVP-0001
-(`build_execution_request`)과 MVP-0002(`build_prompt_specification`)를
-그대로 통과시켜 실제 Artifact Flow(Implementation Specification →
-Execution Request → Prompt Specification)를 검증한다.
-
-Development HQ, ExecutionRequestBuilder(MVP-0001) 코드는 읽기(호출)만
-한다. 어떤 파일도 수정하지 않는다. MVP-0001과 동일하게 실제 Issue
-(`workflow_0008.REAL_ISSUE`)와 토이 Issue("reverse string")를 모두
-사용한다.
+Development HQ가 생성하는 Implementation Specification부터 MVP-0001/0002
+Builder를 통과시켜 Artifact Flow를 검증한다. 읽기(호출)만 하며 어떤
+파일도 수정하지 않는다.
 """
 
 import sys

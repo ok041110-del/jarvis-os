@@ -1,5 +1,3 @@
-"""Command-line interface for notekeeper."""
-
 from __future__ import annotations
 
 import argparse
@@ -78,16 +76,9 @@ def _cmd_delete(args, store):
 
 
 def build_parser():
-    # Real execution found that giving every subparser its own `--store`
-    # via `parents=[store_parent]` with a literal default ("notes.json")
-    # made the subparser's own default win over an already-parsed
-    # top-level `--store` value whenever `--store` was given *before* the
-    # subcommand (`notekeeper --store X add ...` silently reverted to
-    # "notes.json", ignoring X). Each subparser copy must instead default
-    # to `argparse.SUPPRESS` so that omitting `--store` after the
-    # subcommand leaves the top-level parser's already-parsed value in
-    # place, while still letting `--store` be given after the subcommand
-    # too (`notekeeper add ... --store X`).
+    # Subparsers must default --store to argparse.SUPPRESS, not "notes.json":
+    # a literal default would override an already-parsed top-level --store
+    # whenever it's given before the subcommand.
     store_parent = argparse.ArgumentParser(add_help=False)
     store_parent.add_argument("--store", default="notes.json", help="Path to the note store file")
 

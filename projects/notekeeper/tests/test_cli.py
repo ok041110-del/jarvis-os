@@ -18,9 +18,6 @@ def test_add_prints_id_and_persists(tmp_path, capsys):
 
 
 def test_store_option_works_before_subcommand(tmp_path, capsys):
-    """Regression: real Fix Cycle round 2 introduced (and this fixed) a
-    bug where `--store PATH` given BEFORE the subcommand silently
-    reverted to the default "notes.json" instead of using PATH."""
     store_path = str(tmp_path / "notes.json")
     rc = cli.main(["--store", store_path, "add", "Hello", "World"])
     assert rc == 0
@@ -31,9 +28,6 @@ def test_store_option_works_before_subcommand(tmp_path, capsys):
 
 
 def test_store_option_works_after_subcommand(tmp_path, capsys):
-    """Regression: `--store PATH` given AFTER the subcommand
-    (`add ... --store PATH`) must also work — this was the original
-    real bug found by Review before any fix."""
     store_path = str(tmp_path / "notes.json")
     rc = cli.main(["add", "Hello", "World", "--store", store_path])
     assert rc == 0
@@ -43,8 +37,6 @@ def test_store_option_works_after_subcommand(tmp_path, capsys):
 
 
 def test_show_prints_created_at_without_crashing(tmp_path, capsys):
-    """Regression: real Fix Cycle found `_cmd_show` referenced
-    `note.created` (AttributeError) instead of `note.created_at`."""
     store_path = str(tmp_path / "notes.json")
     cli.main(["add", "Hello", "World", "--store", store_path])
     note_id = capsys.readouterr().out.strip()

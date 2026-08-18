@@ -1,13 +1,8 @@
 """Execution Layer MVP-0001 Dogfooding.
 
-Development HQ MVP-0013(`development-hq/mvp/engine.py` `_generate_code()`)가
-실제로 생성하는 Implementation Specification을 입력으로 사용해
-ExecutionRequestBuilder를 실행하고, 결과를 `output/`에 저장한다.
-
-Development HQ 코드는 읽기(호출)만 한다. 어떤 파일도 수정하지 않는다.
-토이 Issue("reverse string", MVP-0004부터 반복 사용된 것과 동일한
-무관 Issue)와, MVP-0008의 실제 Issue(`workflow_0008.REAL_ISSUE`) 둘 다
-사용한다 — 토이 예제보다 실제 Artifact를 우선한다.
+Development HQ가 실제로 생성하는 Implementation Specification을 입력으로
+ExecutionRequestBuilder를 실행하고 결과를 `output/`에 저장한다.
+Development HQ 코드는 읽기(호출)만 한다.
 """
 
 import sys

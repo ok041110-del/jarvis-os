@@ -1,25 +1,3 @@
-"""Realty Income Dividend Stock Analysis runner — 신규 표준 실행 패턴
-최초 적용(PR #80에서 검증·채택: 병렬화 + 출력 최적화 + Checkpointing +
-180초 Timeout 안전장치).
-
-raw_data.md -> 7개 전문 분석(Fundamental/Dividend Quality/Valuation/
-Technical/Industry-Competition/News-Event/Sentiment, Wave1 병렬)
--> Bull Case/Bear Case(Wave2 병렬) -> Synthesis(Wave3) -> Final
-Report(Wave4, 출력 길이 제약 반영). 각 Wave 순서는 하드코딩되어
-있다 — Workflow Parser/Scheduler는 만들지 않는다(기존 Dogfooding
-runner.py들과 동일한 성격).
-
-단계 완료 즉시 `issues/0001-realty-income-analysis/checkpoints/`에
-결과를 저장하고, 재실행 시 이미 완료된 단계는 Engine을 다시 호출하지
-않고 디스크에서 읽는다(Checkpointing). `development-hq/mvp/engine.py`
-의 `call_engine()`(180초, 미수정)을 그대로 쓴다 — Timeout은 상향하지
-않고 안전장치로만 유지한다.
-
-이 파일은 Development HQ(`development-hq/mvp`)를 수정하지 않는다.
-기존 완료 프로젝트(JNJ/KO/PG/Nestlé/Toyota)의 runner.py는 소급
-수정하지 않았다 — 이 패턴은 신규 실행부터만 적용된다.
-"""
-
 import json
 import sys
 import threading
@@ -130,7 +108,6 @@ def run() -> dict:
         for tag in _SECTION_TAGS
     }
 
-    # Wave 1 — 7개 분석, 상호 독립.
     wave1_jobs = {
         "fundamental_analysis": (fundamental_analyst_fundamental_analysis, f"{sections['[FUNDAMENTAL]']}\n\n{limitation}"),
         "dividend_quality_analysis": (dividend_quality_analyst_dividend_quality_analysis, f"{sections['[DIVIDEND_QUALITY]']}\n\n{limitation}"),
@@ -171,7 +148,6 @@ def run() -> dict:
         f"[SENTIMENT ANALYSIS]\n{sentiment}"
     )
 
-    # Wave 2 — Bull/Bear, 상호 독립.
     wave2_t0 = time.monotonic()
     wave2_jobs = {
         "bull_case": (bull_researcher_bull_case, all_analyses),
@@ -192,13 +168,10 @@ def run() -> dict:
     bull_case = wave2_results["bull_case"]
     bear_case = wave2_results["bear_case"]
 
-    # Wave 3 — Synthesis, 순차(Bull+Bear 둘 다 필요).
     wave3_t0 = time.monotonic()
     synthesis = _run_step(cp, "synthesis", synthesis_judgment, bull_case, bear_case)
     wave3_elapsed = time.monotonic() - wave3_t0
 
-    # Wave 4 — Final Report, 순차(전부 필요). 출력 길이 제약은
-    # agents.py의 instruction에 이미 반영되어 있다.
     wave4_t0 = time.monotonic()
     final_report = _run_step(
         cp, "final_report", report_writer_final_report,

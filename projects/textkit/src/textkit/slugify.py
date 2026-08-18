@@ -2,11 +2,6 @@ import re
 
 
 def slugify(text: str) -> str:
-    """Convert text to an ASCII-only slug.
-
-    Non-ASCII alphanumeric characters (e.g. accented letters, CJK) are
-    treated as separators, not preserved or transliterated. Does not
-    validate input type; a non-str argument will raise naturally
-    (e.g. AttributeError on `.lower()`).
-    """
+    """Non-ASCII alphanumeric characters (accented letters, CJK, ...) are
+    treated as separators, not transliterated."""
     return re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')

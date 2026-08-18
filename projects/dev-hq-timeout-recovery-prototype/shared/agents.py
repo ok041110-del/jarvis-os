@@ -1,14 +1,3 @@
-"""Dividend Stock Analysis Capability 함수 — Nestlé/Toyota에서 그대로
-가져온 project-local 구현. `development-hq/mvp`는 수정하지 않고, 그 안의
-유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서 쓴다.
-
-이 파일은 Dev HQ timeout/recovery 개선 Prototype 실험(PR #75 후속)의
-공유 자산이다 — 역할 지시문은 Nestlé/Toyota와 한 글자도 다르지 않다.
-Timeout 상향(raised_timeout/) / Checkpointing(checkpointing/) 두
-Prototype이 이 파일을 동일하게 import해서 "동일한 장시간 Task"라는
-통제 조건을 유지한다.
-"""
-
 import sys
 from pathlib import Path
 

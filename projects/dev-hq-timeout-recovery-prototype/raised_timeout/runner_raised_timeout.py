@@ -1,16 +1,4 @@
-"""Prototype A — Timeout 상향. `shared/agents.py`(Nestlé/Toyota와 동일한
-7분석→Bull/Bear→Synthesis→Final Report, 11단계) 파이프라인을 그대로
-쓰되, 각 Engine 호출의 timeout만 180초(Dev HQ 기본값) 대신
-`RAISED_TIMEOUT_SECONDS`로 바꿔 실행한다.
-
-`development-hq/mvp/engine.py`는 import하지 않는다 — `shared/agents.py`가
-import한 진짜 `call_engine`을, 이 스크립트가 실행 시점에 프로세스
-내부에서만 `call_engine_with_timeout`으로 바꿔치기(monkeypatch)한다.
-`engine.py` 파일 자체, `ENGINE_TIMEOUT_SECONDS` 상수는 디스크 위에서
-전혀 수정되지 않는다 — Dev HQ v1.0 Freeze 유지.
-
-사용법: python3 runner_raised_timeout.py <trial_id> <raised_timeout_seconds>
-"""
+"""Usage: python3 runner_raised_timeout.py <trial_id> <raised_timeout_seconds>"""
 
 import functools
 import json
@@ -165,8 +153,7 @@ if __name__ == "__main__":
     trial_id = sys.argv[1] if len(sys.argv) > 1 else "trial"
     raised_timeout = int(sys.argv[2]) if len(sys.argv) > 2 else 400
 
-    # 여기서만 call_engine을 바꿔치기한다 — shared/agents.py 파일 자체는
-    # 수정하지 않는다(프로세스 내부 바인딩 교체일 뿐).
+    # Process-local monkeypatch only — shared/agents.py itself is unmodified.
     agents.call_engine = functools.partial(
         call_engine_with_timeout, timeout_seconds=raised_timeout
     )

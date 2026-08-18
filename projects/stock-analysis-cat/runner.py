@@ -1,21 +1,3 @@
-"""Caterpillar(CAT) Stock Analysis runner — Stock Team 5번째 반복 실행,
-신규 표준 실행 패턴 최초 적용(Dividend Stock Team에서 PR #80 검증·PR #81/82
-프로덕션 적용, Stock Team에는 이번이 처음).
-
-raw_data.md -> 5개 전문 분석(Fundamental/Technical/Industry-Competition/
-News-Event/Sentiment, Wave1 병렬) -> Bull Case/Bear Case(Wave2 병렬) ->
-Synthesis(Wave3) -> Final Report(Wave4, 출력 길이 제약 반영). Wave 순서는
-하드코딩되어 있다 — Workflow Parser/Scheduler는 만들지 않는다.
-
-단계 완료 즉시 `issues/0001-cat-analysis/checkpoints/`에 저장하고,
-재실행 시 완료된 단계는 Engine을 재호출하지 않는다. `development-hq/mvp/
-engine.py`의 `call_engine()`(180초, 미수정)을 그대로 쓴다 — Timeout은
-상향하지 않고 안전장치로만 유지한다.
-
-기존 AAPL/NVDA/MSFT/JPM의 runner.py는 소급 수정하지 않았다 — 이 패턴은
-신규 실행부터만 적용된다. 이 파일은 Development HQ를 수정하지 않는다.
-"""
-
 import json
 import sys
 import threading
@@ -122,7 +104,6 @@ def run() -> dict:
         for tag in _SECTION_TAGS
     }
 
-    # Wave 1 — 5개 분석, 상호 독립.
     wave1_jobs = {
         "fundamental_analysis": (fundamental_analyst_fundamental_analysis, f"{sections['[FUNDAMENTAL]']}\n\n{limitation}"),
         "technical_analysis": (technical_analyst_technical_analysis, f"{sections['[TECHNICAL]']}\n\n{limitation}"),
@@ -157,7 +138,6 @@ def run() -> dict:
         f"[SENTIMENT ANALYSIS]\n{sentiment}"
     )
 
-    # Wave 2 — Bull/Bear, 상호 독립.
     wave2_t0 = time.monotonic()
     wave2_jobs = {
         "bull_case": (bull_researcher_bull_case, all_analyses),
@@ -178,12 +158,10 @@ def run() -> dict:
     bull_case = wave2_results["bull_case"]
     bear_case = wave2_results["bear_case"]
 
-    # Wave 3 — Synthesis, 순차(Bull+Bear 둘 다 필요).
     wave3_t0 = time.monotonic()
     synthesis = _run_step(cp, "synthesis", synthesis_judgment, bull_case, bear_case)
     wave3_elapsed = time.monotonic() - wave3_t0
 
-    # Wave 4 — Final Report, 순차(전부 필요).
     wave4_t0 = time.monotonic()
     final_report = _run_step(
         cp, "final_report", report_writer_final_report,

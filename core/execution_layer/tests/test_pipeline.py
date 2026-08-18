@@ -1,14 +1,4 @@
-"""Execution Layer Pipeline 검증.
-
-Success Criteria:
-- `run_execution_layer_pipeline()`의 결과가 6개 Builder를 개별
-  호출했을 때와 정확히 동일하다(Equivalence — 새 Transformation을
-  도입하지 않았음을 증명).
-- Implementation Specification 100% 보존(체인 끝까지).
-- Deterministic Transformation.
-- 각 Builder 자신의 검증(예: `state` 5개 허용값)이 그대로 적용된다.
-- AI 호출 없음. Runtime 없음.
-"""
+"""Execution Layer Pipeline 검증."""
 
 import sys
 from pathlib import Path
@@ -75,8 +65,7 @@ SAMPLE_KWARGS = dict(
 
 
 def _manual_chain(implementation_specification: str, **kwargs) -> str:
-    """6개 Builder를 개별적으로 직접 호출한 결과 — Pipeline과 대조할
-    기준값(Ground Truth)이다."""
+    """6개 Builder를 개별 호출한 결과 — Pipeline과 대조할 기준값."""
     execution_request = build_execution_request(implementation_specification)
     prompt_specification = build_prompt_specification(execution_request)
     request_id = _derive_id(prompt_specification)
@@ -112,13 +101,6 @@ def test_pipeline_output_matches_manual_builder_chain_exactly():
 
 
 def test_execution_request_preserved_verbatim_through_full_chain():
-    # Implementation Specification 원문은 Execution Request(MVP-0001)
-    # 단계까지만 verbatim이다 — Prompt Specification(MVP-0002)부터는
-    # 5개 절로 재배치되므로(RENDERING_MAP), 그 결과를 기준으로
-    # 검증한다. Execution Request 자체는 체인 끝까지 재작성되지
-    # 않는다는 사실은 각 Builder의 "Wrap, not rewrite" 계약으로
-    # 이미 보장된다 — 여기서는 Pipeline이 그 계약을 깨지 않았는지만
-    # 확인한다.
     execution_request = build_execution_request(SAMPLE_IMPLEMENTATION_SPECIFICATION)
     execution_result = run_execution_layer_pipeline(
         SAMPLE_IMPLEMENTATION_SPECIFICATION, **SAMPLE_KWARGS
@@ -150,8 +132,6 @@ def test_transformation_is_deterministic():
 
 
 def test_invalid_state_is_rejected_by_underlying_builder():
-    # Pipeline은 자체 검증을 추가하지 않는다 — ExecutionStateBuilder의
-    # 검증이 그대로 전파되는지 확인한다.
     kwargs = dict(SAMPLE_KWARGS)
     kwargs["state"] = "UNKNOWN_STATE"
 

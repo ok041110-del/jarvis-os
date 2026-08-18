@@ -1,12 +1,4 @@
-"""Stock Team — `projects/stock-analysis-{aapl,nvda,msft,jpm,cat}`에서
-5회 반복 검증된 5개 역할(Fundamental/Technical/Industry-Competition/
-News-Event/Sentiment) 지시문을 그대로 옮긴 것이다. 지시문은 한 글자도
-바꾸지 않았다 — 유일한 차이는 회사명/티커가 하드코딩이 아니라 인자로
-들어온다는 것뿐이다(Investment HQ가 여러 종목에 재사용해야 하므로).
-
-`docs/research/STOCK-TEAM-DEFINITION-0001.md`, `docs/research/
-INVESTMENT-HQ-TEAM-VALIDATION-CLOSURE-0001.md` 참조.
-"""
+"""Stock Team — 지시문 정의는 `docs/research/STOCK-TEAM-DEFINITION-0001.md` 참조."""
 
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -144,8 +136,7 @@ def _extract_section(raw_text: str, tag: str) -> str:
 
 
 def run(company_label: str, raw_data_path: Path, issue_dir: Path) -> dict:
-    """Wave1(5개 분석, 병렬) -> Wave2(Bull/Bear, 병렬) -> Wave3(Synthesis)
-    -> Wave4(Final Report). Wave 순서는 하드코딩(Workflow Parser 아님)."""
+    """Wave 순서는 하드코딩(Workflow Parser 아님) — minimalism 원칙."""
     pipeline_t0 = time.monotonic()
     cp = Checkpointer(issue_dir)
 

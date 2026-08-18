@@ -1,22 +1,11 @@
 """Execution Layer MVP-0004 Dogfooding.
 
-Development HQ MVP-0013(`_generate_code()`)이 실제로 생성하는
-Implementation Specification부터, Execution Layer MVP-0001~0004를 그대로
-통과시켜 전체 Artifact Chain(Implementation Specification → Execution
-Request → Prompt Specification → Model Request → Execution Handle)을
-검증한다.
+Development HQ가 생성하는 Implementation Specification부터 MVP-0001~0004
+Builder를 통과시켜 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤
+파일도 수정하지 않는다.
 
-Development HQ, MVP-0001, MVP-0002, MVP-0003 코드는 읽기(호출)만 한다.
-어떤 파일도 수정하지 않는다. 이전 MVP와 동일하게 실제 Issue
-(`workflow_0008.REAL_ISSUE`)와 토이 Issue("reverse string")를 모두
-사용한다.
-
-`handle_id`/`submitted_at`은 ExecutionHandleBuilder가 스스로 생성하지
-않는 값이므로(Session/Runtime 책임 영역, `execution_handle_builder.py`
-참조), 이 스크립트가 호출자로서 값을 주입한다. `handle_id`는 Model
-Request 내용의 SHA-256 해시로 결정론적으로 유도한다(무작위 발급 아님).
-`submitted_at`은 MVP-0003의 `created_at`과 동일하게 고정 placeholder
-문자열을 사용한다.
+`handle_id`/`submitted_at`은 Builder가 생성하지 않으므로(Session/Runtime
+책임 영역) 이 스크립트가 호출자로서 주입한다.
 """
 
 import hashlib

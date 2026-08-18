@@ -1,5 +1,3 @@
-"""Stateless filtering over a NoteStore."""
-
 from notekeeper.store import NoteStore
 
 

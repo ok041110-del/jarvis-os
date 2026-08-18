@@ -1,15 +1,3 @@
-"""ETF Analysis Capability 함수 — Development HQ Platform(`development-hq/mvp`)을
-수정하지 않고, 그 안의 유일한 Engine 호출 지점인 `call_engine()`만 그대로 import해서
-쓴다. `projects/etf-analysis-qqq`와 코드를 공유하지 않는 별도의 project-local
-구현이다(두 번째 ETF Dogfooding — QQQ 구조가 성격이 다른 ETF에서도 반복되는지
-검증하는 것이 목적이며, ETF Team/Agent를 이 파일에서 선행 설계하지 않는다).
-
-QQQ와 동일한 7개 분석(Composition/Holdings/Cost/Performance/Exposure/
-Distribution/Macro) + Bull/Bear + Synthesis + Final Report 구조를 재사용
-한다 — 이는 "ETF 고유 역할이 반복되는지" 검증 자체가 이번 실행의 목적이기
-때문이며, 코드를 import해서 공유하지는 않는다(project-local 원칙 유지).
-"""
-
 import sys
 from pathlib import Path
 

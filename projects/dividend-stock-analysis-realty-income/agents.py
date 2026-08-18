@@ -1,15 +1,3 @@
-"""Dividend Stock Analysis Capability 함수 — Realty Income. Nestlé/
-Toyota와 동일한 project-local 구현이며 역할 지시문은 한 글자도
-바뀌지 않았다(회사명/티커만 report_writer_final_report에서 교체).
-`development-hq/mvp`는 수정하지 않고, 그 안의 유일한 Engine 호출
-지점인 `call_engine()`만 그대로 import해서 쓴다.
-
-Report Writer의 instruction에는 PR #79/#80에서 검증·채택된 출력
-길이 제약(800~1200단어, 섹션/데이터 불일치 플래그는 유지)이 신규
-표준 실행 패턴의 일부로 처음부터 반영되어 있다 — 기존 완료 프로젝트
-(JNJ/KO/PG/Nestlé/Toyota)의 agents.py는 소급 수정하지 않았다.
-"""
-
 import sys
 from pathlib import Path
 

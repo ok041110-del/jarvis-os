@@ -1,24 +1,11 @@
 """Execution Layer MVP-0003 Dogfooding.
 
-Development HQ MVP-0013(`_generate_code()`)이 실제로 생성하는
-Implementation Specification부터, Execution Layer MVP-0001
-(`build_execution_request`), MVP-0002(`build_prompt_specification`),
-MVP-0003(`build_model_request`)을 그대로 통과시켜 전체 Artifact Chain
-(Implementation Specification → Execution Request → Prompt
-Specification → Model Request)을 검증한다.
+Development HQ가 생성하는 Implementation Specification부터 MVP-0001~0003
+Builder를 통과시켜 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤
+파일도 수정하지 않는다.
 
-Development HQ, MVP-0001, MVP-0002 코드는 읽기(호출)만 한다. 어떤
-파일도 수정하지 않는다. 이전 MVP와 동일하게 실제 Issue
-(`workflow_0008.REAL_ISSUE`)와 토이 Issue("reverse string")를 모두
-사용한다.
-
-`request_id`/`created_at`은 ModelRequestBuilder가 스스로 생성하지 않는
-값이므로(Session/Runtime 책임 영역, `model_request_builder.py` 참조),
-이 스크립트가 호출자로서 값을 주입한다. `request_id`는 Prompt
-Specification 내용의 SHA-256 해시로 결정론적으로 유도한다(무작위 발급
-아님 — 동일한 Prompt Specification은 항상 동일한 request_id를 만든다).
-`created_at`은 이 MVP가 실제 시계를 읽지 않는다는 사실을 그대로 반영해
-고정 placeholder 문자열을 사용한다.
+`request_id`/`created_at`은 Builder가 생성하지 않으므로(Session/Runtime
+책임 영역) 이 스크립트가 호출자로서 주입한다.
 """
 
 import hashlib
