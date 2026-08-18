@@ -1,5 +1,7 @@
 # Starter Kit v1.0 Final — Validation Report
 
+> **Historical Snapshot** — 이 문서는 Starter Kit v1.0 Final 시점의 검증 기록이다. 저장소는 이후 MVP Dogfooding/Kernel Architecture/Investment HQ로 범위가 확장되었으며, 현재 상태는 이 문서가 아니라 `README.md`/`development-hq/HANDOVER.md`를 따른다. 아래 내용 자체는 당시 검증 기록으로 수정하지 않는다.
+
 ## 1. 문서 누락 여부
 
 지시된 구조(README + docs 4종 디렉토리 + development-hq 9종 문서) 전체 존재 확인.

@@ -31,12 +31,8 @@ def test_returns_review_then_test_cases_without_manual_intervention():
 
 
 def test_review_content_reaches_test_execution_as_context(monkeypatch):
-    """Task 1(code_review)의 실제 출력이 Task 2(test_execution) 호출의
-    입력 payload에 verbatim으로 포함되는지를 검증한다 — Engine이 반환하는
-    문구가 아니라 `workflow.py`의 context 전달 메커니즘(`review` 지역
-    변수 → `payload`) 자체를 검증한다. rule-based 응답의 정확한 문구에
-    결합된 exact-substring assertion(ENGINE-CONNECT-0001에서 실제 Engine과
-    불일치가 관찰됨)을 쓰지 않는다."""
+    """`workflow.py`의 context 전달(`review` → `payload`) 메커니즘만 검증한다 —
+    Engine 출력 문구에 대한 exact-substring assertion은 쓰지 않는다."""
     engine_prompts = []
     original_call_engine = agents.call_engine
 

@@ -4,11 +4,8 @@ IMPLEMENTATION_RULES.md: "Engine Gateway(Port/Adapter 추상화) 구현 금지 �
 단일 함수로 Engine을 호출하는 것으로 충분하다." 이 파일은 그 단일 함수만 가진다.
 여러 Engine 중 선택하는 로직(Engine Routing)은 두지 않는다.
 
-이 파일은 실제로 호출되는 유일한 함수(`call_engine`)만 가진다 — 실제 Engine
-배선 경위는 `docs/research/ENGINE-CONNECT-0001-call-engine-real-wiring.md`,
-그 이전에 쓰던 rule-based 응답 로직(약 790줄) 삭제 경위는
-`docs/01_mvp/MVP-0043-observation.md`를 참조한다(P2-4: 두 문서와
-중복되던 서술만 압축, 사실 관계는 바뀌지 않음).
+이 파일은 실제로 호출되는 유일한 함수(`call_engine`)만 가진다 — 별도의
+Engine Routing은 없다.
 
 Kernel Extraction Candidate: Task 종류에 따라 다른 Engine을 골라야 하는
 필요가 생기면 그것이 Engine Gateway(Port/Adapter) 추출 신호다. RFC 없이
@@ -55,14 +52,8 @@ def call_engine(prompt: str) -> str:
     같은 단일 함수의 호출 인자일 뿐이다. `STATELESS_CALL_NOTICE`도 같은
     계약을 유지하기 위한 것이다 — 새 출력 형식을 요구하지 않는다.
 
-    MVP-0028: `cwd`를 지정하지 않으면 호출한 Python 프로세스의 작업
-    디렉터리(이 저장소 안)를 그대로 물려받아, `claude -p`가 이 저장소의
-    `CLAUDE.md`/Skill을 읽고 그 지시를 따르는 대화형 세션처럼 오염되어
-    동작하는 것을 실제 실행으로 확인했다(전체 재현 기록:
-    `docs/01_mvp/MVP-0028-observation.md`). `cwd`를 저장소 밖 중립
-    디렉터리(`tempfile.gettempdir()`)로 고정해 해소했다 — 새 Gateway/
-    Adapter가 아니라 기존 단일 함수 호출의 인자 하나일 뿐이다(P2-4:
-    위 관찰 문서와 중복되던 서술만 압축)."""
+    `cwd`를 저장소 밖 중립 디렉터리로 고정한다 — 저장소 안이면 이 저장소의
+    `CLAUDE.md`/Skill을 읽는 대화형 세션처럼 오염될 수 있다."""
     result = subprocess.run(
         [
             ENGINE_CLI, "-p", prompt,
