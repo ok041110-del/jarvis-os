@@ -24,7 +24,7 @@ description: Turns a bounded task (from task-intake) with its loaded context (fr
 - 하나의 bounded task를 계획한다.
 - 구현과 검증을 함께 계획한다.
 - 불필요한 파일을 포함하지 않는다.
-- Architecture 변경은 Governance proposal로 전환한다 (`docs/02_rfc/` → `docs/03_adc/` → `docs/04_adr/`).
+- Architecture 변경은 Governance proposal로 전환한다 (`docs/decisions/rfc/` → `docs/decisions/adc/` → `docs/decisions/adr/`).
 
 ## Pre-Flight
 

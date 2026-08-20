@@ -1,7 +1,7 @@
 # .claude/docs/
 
 - 이 디렉터리는 실행환경 구성요소의 검증 evidence를 보관한다.
-- Architecture/RFC/ADC/ADR/Baseline의 source of truth가 아니다 — 그 문서들은 `docs/`, `development-hq/`에 있다.
+- Architecture/RFC/ADC/ADR/Baseline의 source of truth가 아니다 — 그 문서들은 `docs/`, `hqs/development/`에 있다.
 - 새 구성요소를 설치·검증할 때만 문서를 추가한다.
 
 ## 문서

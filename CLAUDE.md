@@ -14,11 +14,11 @@ Architecture / Baseline은 직접 수정하지 않는다. Architecture 변경이
 
 RFC → ADC → ADR
 
-순서로 제안한다. (`docs/02_rfc/` → `docs/03_adc/` → `docs/04_adr/`)
+순서로 제안한다. (`docs/decisions/rfc/` → `docs/decisions/adc/` → `docs/decisions/adr/`)
 
 ### Scope Boundary
 
-Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 사항은 `development-hq/IMPLEMENTATION_RULES.md`를 따른다.
+Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 사항은 `hqs/development/IMPLEMENTATION_RULES.md`를 따른다.
 
 ### Branch Strategy
 
@@ -51,15 +51,15 @@ Development HQ는 Kernel/Architecture 경계를 우회하지 않는다. 금지 �
 작업에 필요한 문서만 선택적으로 읽는다.
 
 - 프로젝트 개요 → `README.md`
-- 현재 작업 상태 → `development-hq/HANDOVER.md`
-- Architecture → `docs/01_architecture/BASELINE.md`
-- Development HQ 규칙 → `development-hq/IMPLEMENTATION_RULES.md`
-- Development HQ 구조 → `development-hq/BASELINE.md`
-- MVP → `development-hq/MVP.md`
-- Governance → `docs/02_rfc/`, `docs/03_adc/`, `docs/04_adr/`, `docs/governance/`
+- 현재 작업 상태 → `hqs/development/HANDOVER.md`
+- Architecture → `docs/architecture/baseline/BASELINE.md`
+- Development HQ 규칙 → `hqs/development/IMPLEMENTATION_RULES.md`
+- Development HQ 구조 → `hqs/development/BASELINE.md`
+- MVP → `hqs/development/MVP.md`
+- Governance → `docs/decisions/rfc/`, `docs/decisions/adc/`, `docs/decisions/adr/`, `docs/governance/`
 - Kernel Architecture 연구 → `docs/architecture/core/`
 - Execution Layer → `docs/core/execution-layer/`
-- Investment HQ → `investment-hq/`
+- Investment HQ → `hqs/investment/`
 - 세션 기억 → Claude-Mem
 
 전체 문서를 작업마다 일괄 로드하지 않는다.

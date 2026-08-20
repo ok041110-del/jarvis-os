@@ -68,7 +68,7 @@ description: Closes out a completed claude/* work branch and starts the next one
 - Force push, force delete류 우회.
 - Runtime, Scheduler, cron/Event Trigger 구현 — 이 Skill은 실행
   메커니즘을 새로 만들지 않는다. 사람이 호출해야 실행된다.
-- `docs/01_architecture/BASELINE.md`, `development-hq/BASELINE.md`
+- `docs/architecture/baseline/BASELINE.md`, `hqs/development/BASELINE.md`
   등 Architecture/Contract/Governance 문서 수정.
 
 ## Pre-Flight
