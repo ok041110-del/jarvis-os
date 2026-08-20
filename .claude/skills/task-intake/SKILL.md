@@ -33,7 +33,7 @@ description: Structures a user request into a bounded task before any implementa
 - 파일을 수정하지 않는다.
 - 요구사항을 임의로 추가하지 않는다.
 - 구현 방법을 미리 결정하지 않는다.
-- Architecture 변경이면 구현을 멈추고 RFC → ADC → ADR로 전환한다 (`docs/02_rfc/` → `docs/03_adc/` → `docs/04_adr/`).
+- Architecture 변경이면 구현을 멈추고 RFC → ADC → ADR로 전환한다 (`docs/decisions/rfc/` → `docs/decisions/adc/` → `docs/decisions/adr/`).
 
 ## Pre-Flight
 
