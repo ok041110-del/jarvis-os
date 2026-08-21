@@ -10,6 +10,25 @@ import json
 import threading
 from pathlib import Path
 
+# 실제 관찰된 콘텐츠 레벨 실패 시그니처만 다룬다(추측 기반 시그니처 추가
+# 금지) — `hqs/investment/dogfooding/{efa-2026-08,pg-hq-verify}/EVIDENCE.md`
+# 에 토씨 하나 다르지 않게 재현된 문자열의 접두어.
+# `projects/investment-hq-checkpoint-detection-prototype/`에서 Feasibility
+# 검증됨(True Positive 1/1, 기존 checkpoint 30개 대비 False Positive 0/30).
+_KNOWN_CONTENT_FAILURE_PREFIXES = ("API Error:",)
+
+
+class ContentFailureError(RuntimeError):
+    """`run_step()`의 결과가 알려진 콘텐츠 실패 시그니처일 때 저장 대신
+    발생시키는 예외. 재시도/알림/동시성은 다루지 않는다 — 이 단계는
+    저장되지 않으므로 다음 실행에서 `has()`가 False를 반환해 그대로
+    재시도(Resume) 대상이 된다."""
+
+
+def _is_known_content_failure(output: str) -> bool:
+    stripped = output.strip()
+    return any(stripped.startswith(prefix) for prefix in _KNOWN_CONTENT_FAILURE_PREFIXES)
+
 
 class Checkpointer:
     def __init__(self, issue_dir: Path):
@@ -53,7 +72,9 @@ class Checkpointer:
 
 
 def run_step(cp: Checkpointer, step: str, fn, *args) -> str:
-    """체크포인트가 있으면 Engine을 재호출하지 않고 디스크에서 읽는다."""
+    """체크포인트가 있으면 Engine을 재호출하지 않고 디스크에서 읽는다.
+    결과가 알려진 콘텐츠 실패 시그니처(`_is_known_content_failure`)면
+    저장하지 않고 `ContentFailureError`를 발생시킨다."""
     import time
 
     if cp.has(step):
@@ -62,5 +83,9 @@ def run_step(cp: Checkpointer, step: str, fn, *args) -> str:
     t0 = time.monotonic()
     output = fn(*args)
     elapsed = time.monotonic() - t0
+    if _is_known_content_failure(output):
+        raise ContentFailureError(
+            f"step '{step}' returned a known content failure signature: {output[:200]!r}"
+        )
     cp.save(step, output, input_len, elapsed)
     return output

@@ -1,0 +1,65 @@
+{
+  "calls": [
+    {
+      "role": "industry_analysis",
+      "input_chars": 730,
+      "output_chars": 3969,
+      "elapsed_sec": 24.8
+    },
+    {
+      "role": "technical_analysis",
+      "input_chars": 662,
+      "output_chars": 1492,
+      "elapsed_sec": 30.9
+    },
+    {
+      "role": "sentiment_analysis",
+      "input_chars": 621,
+      "output_chars": 1667,
+      "elapsed_sec": 33.0
+    },
+    {
+      "role": "news_event_analysis",
+      "input_chars": 755,
+      "output_chars": 1977,
+      "elapsed_sec": 33.5
+    },
+    {
+      "role": "fundamental_analysis",
+      "input_chars": 767,
+      "output_chars": 1962,
+      "elapsed_sec": 34.6
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 11182,
+      "output_chars": 8063,
+      "elapsed_sec": 40.3
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 11182,
+      "output_chars": 8319,
+      "elapsed_sec": 41.9
+    },
+    {
+      "role": "synthesis",
+      "input_chars": 16382,
+      "output_chars": 7527,
+      "elapsed_sec": 35.9
+    },
+    {
+      "role": "final_report",
+      "input_chars": 34992,
+      "output_chars": 6971,
+      "elapsed_sec": 35.0
+    }
+  ],
+  "wave_summary": {
+    "wave1_elapsed_sec": 34.6,
+    "wave2_elapsed_sec": 41.9,
+    "wave3_elapsed_sec": 35.9,
+    "wave4_elapsed_sec": 35.0,
+    "pipeline_total_elapsed_sec": 147.4
+  }
+}

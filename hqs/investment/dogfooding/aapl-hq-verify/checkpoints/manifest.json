@@ -1,0 +1,69 @@
+{
+  "completed_steps": [
+    "sentiment_analysis",
+    "technical_analysis",
+    "industry_analysis",
+    "fundamental_analysis",
+    "news_event_analysis",
+    "bear_case",
+    "bull_case",
+    "synthesis",
+    "final_report"
+  ],
+  "call_log": [
+    {
+      "role": "sentiment_analysis",
+      "input_chars": 621,
+      "output_chars": 1349,
+      "elapsed_sec": 26.1
+    },
+    {
+      "role": "technical_analysis",
+      "input_chars": 662,
+      "output_chars": 1358,
+      "elapsed_sec": 27.8
+    },
+    {
+      "role": "industry_analysis",
+      "input_chars": 730,
+      "output_chars": 4474,
+      "elapsed_sec": 29.4
+    },
+    {
+      "role": "fundamental_analysis",
+      "input_chars": 767,
+      "output_chars": 1820,
+      "elapsed_sec": 35.8
+    },
+    {
+      "role": "news_event_analysis",
+      "input_chars": 755,
+      "output_chars": 1879,
+      "elapsed_sec": 42.3
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 10995,
+      "output_chars": 4895,
+      "elapsed_sec": 26.6
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 10995,
+      "output_chars": 5937,
+      "elapsed_sec": 31.5
+    },
+    {
+      "role": "synthesis",
+      "input_chars": 10832,
+      "output_chars": 5602,
+      "elapsed_sec": 42.2
+    },
+    {
+      "role": "final_report",
+      "input_chars": 27330,
+      "output_chars": 7557,
+      "elapsed_sec": 33.2
+    }
+  ]
+}
