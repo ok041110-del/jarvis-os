@@ -8,11 +8,11 @@
 
 ## Current Position
 
-**Phase 2 진행 중** — Investment HQ Dogfooding. Phase 0(Structure v1.0 Freeze)과 Phase 1(Development HQ v1.0 Freeze)은 완료되어 main에 반영되었다. Phase 3(Investment HQ v1.0 Freeze) 이후는 전부 미착수 상태이며, Kernel(Phase 5~8)은 필요성이 아직 증명되지 않았으므로 어떤 설계도 시작하지 않는다.
+**Phase 2 완료** — Investment HQ Dogfooding. Phase 0(Structure v1.0 Freeze)과 Phase 1(Development HQ v1.0 Freeze)에 이어 완료되어 main 반영 대기 중이다. Phase 3(Investment HQ v1.0 Freeze) 이후는 전부 미착수 상태이며, Kernel(Phase 5~8)은 필요성이 아직 증명되지 않았으므로 어떤 설계도 시작하지 않는다.
 
 ## Next Action
 
-`hqs/investment/dogfooding/{aapl-hq-verify,pg-hq-verify}/`의 미정리 산출물(현재 untracked, EVIDENCE.md 미작성)을 정리해 Phase 2의 "AAPL/PG 및 기존 Investment Evidence 정리"를 완결하는 것 — 이것이 Phase 3 착수의 선행 조건이다.
+Phase 2가 완료 조건(3개 Team 전부 `hqs/investment/run.py` 경로 EVIDENCE.md 검증)을 충족했다 — `aapl-hq-verify`(Stock Team), `pg-hq-verify`(Dividend Stock Team) EVIDENCE.md 작성 완료(`efa-2026-08`(ETF Team)와 함께 3건). Phase 3(Investment HQ v1.0 Freeze) 착수는 이 세션의 범위가 아니며, 사용자 승인 이후 별도로 시작한다.
 
 ---
 
@@ -44,16 +44,16 @@
 
 ## Phase 2 — Investment HQ Dogfooding
 
-**상태**: 🔵 진행 중
+**상태**: ✅ 완료
 
 - **목표**: Investment HQ(Stock/ETF/Dividend Stock Team)가 Development HQ Reference Architecture를 재사용해 실제로 동작함을 반복 실행으로 증명한다.
 - **핵심 작업**:
   - 기존 Evidence 정리: Stock Team(5종목), ETF Team(6종목), Dividend Stock Team(7종목) — `docs/research/INVESTMENT-HQ-TEAM-VALIDATION-CLOSURE-0001.md`에 이미 Closure 기록됨.
-  - `hqs/investment/run.py` 경로를 통한 HQ-level 실행 검증 — 현재 `efa-2026-08`(ETF Team, EVIDENCE.md 작성 완료)만 완결. **`aapl-hq-verify`(Stock Team), `pg-hq-verify`(Dividend Stock Team)는 실행 산출물만 존재하고 EVIDENCE.md 미작성 — 미완결 상태.**
-- **완료 조건**: 3개 Team(Stock/ETF/Dividend Stock) 전부가 `hqs/investment/run.py` 경로에서 최소 1건 이상 EVIDENCE.md와 함께 검증 완료.
-- **검증 방법**: 각 실행의 EVIDENCE.md(품질 대조, 핵심 사실 보존율, call_log 계측), `pytest --ignore=archive` 회귀 없음.
-- **다음 Phase로 넘어가는 조건**: `aapl-hq-verify`, `pg-hq-verify` EVIDENCE.md 작성 완료 + 3개 Team 전부 HQ-level 실행 증명.
-- **Architecture/Governance 주의사항**: 이 Phase에서 발견되는 문제는 "Investment HQ 문제"와 "Dev HQ 문제"로 분리 기록한다(기존 세션 관행). Dev HQ 문제는 반복 Evidence(누적 재현) 없이 수정하지 않는다 — `call_engine()` 콘텐츠 레벨 실패 미검출 문제가 이미 3회 재현되어 Dev HQ 개선 후보로 격상된 선례가 있다(아직 Prototype 미실행).
+  - `hqs/investment/run.py` 경로를 통한 HQ-level 실행 검증 — `efa-2026-08`(ETF Team), `aapl-hq-verify`(Stock Team), `pg-hq-verify`(Dividend Stock Team) 3건 전부 EVIDENCE.md 작성 완료.
+- **완료 조건**: 3개 Team(Stock/ETF/Dividend Stock) 전부가 `hqs/investment/run.py` 경로에서 최소 1건 이상 EVIDENCE.md와 함께 검증 완료 — **충족**.
+- **검증 방법**: 각 실행의 EVIDENCE.md(품질 대조, 핵심 사실 보존율, call_log 계측), `pytest --ignore=archive` 회귀 없음(182 passed, 실행 전/후 동일).
+- **다음 Phase로 넘어가는 조건**: `aapl-hq-verify`, `pg-hq-verify` EVIDENCE.md 작성 완료 + 3개 Team 전부 HQ-level 실행 증명 — **충족, Phase 3 착수 가능 상태**(착수 자체는 별도 세션/사용자 승인 대상).
+- **Architecture/Governance 주의사항**: 이 Phase에서 발견되는 문제는 "Investment HQ 문제"와 "Dev HQ 문제"로 분리 기록한다(기존 세션 관행). Dev HQ 문제는 반복 Evidence(누적 재현) 없이 수정하지 않는다 — `call_engine()` 콘텐츠 레벨 실패 미검출 문제가 `pg-hq-verify` 실행에서 **4회째 재현**되어 Dev HQ 개선 후보 격상 판정이 재확인됐다(아직 Prototype 미실행, 이번 Phase에서도 구현하지 않음). `hqs/investment/checkpoint.py`가 콘텐츠 레벨 실패를 자동 스킵하지 못해 수동 manifest 편집으로 재개한 사실도 별도 Invest HQ 문제로 기록됨(`pg-hq-verify/EVIDENCE.md` 참조).
 
 ---
 
