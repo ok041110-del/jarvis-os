@@ -1,6 +1,6 @@
 # Jarvis OS Roadmap
 
-**Source of Truth**: `Jarvis OS Structure v1.0 — Frozen`(사용자 첨부 PDF, `RFC-0006`→`ADC-0005`→`ADC-0006`→`ADR-0006`→`ADR-0007`로 승인·실행됨), `docs/architecture/baseline/BASELINE.md`(v1.6), `docs/architecture/core/DEVELOPMENT-HQ-V1.0-FREEZE-0001.md`, main 브랜치 실제 구조, `docs/decisions/{rfc,adc,adr}/`.
+**Source of Truth**: `Jarvis OS Structure v1.0 — Frozen`(사용자 첨부 PDF, `RFC-0006`→`ADC-0005`→`ADC-0006`→`ADR-0006`→`ADR-0007`로 승인·실행됨), `docs/architecture/baseline/BASELINE.md`(v1.6), `docs/architecture/core/DEVELOPMENT-HQ-V1.0-FREEZE-0001.md`, `docs/architecture/core/INVESTMENT-HQ-V1.0-FREEZE-0001.md`, main 브랜치 실제 구조, `docs/decisions/{rfc,adc,adr}/`.
 
 이 문서는 새 Architecture를 결정하지 않는다. 이미 완료된 것과 이미 승인된 절차(RFC → ADC → ADR)를 그대로 따를 다음 단계를 순서대로 나열할 뿐이다.
 
@@ -8,11 +8,11 @@
 
 ## Current Position
 
-**Phase 2 완료** — Investment HQ Dogfooding. Phase 0(Structure v1.0 Freeze)과 Phase 1(Development HQ v1.0 Freeze)에 이어 완료되어 main 반영 대기 중이다. Phase 3(Investment HQ v1.0 Freeze) 이후는 전부 미착수 상태이며, Kernel(Phase 5~8)은 필요성이 아직 증명되지 않았으므로 어떤 설계도 시작하지 않는다.
+**Phase 3 완료** — Investment HQ v1.0 Freeze. Phase 0(Structure v1.0 Freeze), Phase 1(Development HQ v1.0 Freeze), Phase 2(Investment HQ Dogfooding)에 이어 완료됐다. Phase 4(HQ Cross-Validation) 이후는 전부 미착수 상태이며, Kernel(Phase 5~8)은 필요성이 아직 증명되지 않았으므로 어떤 설계도 시작하지 않는다.
 
 ## Next Action
 
-Phase 2가 완료 조건(3개 Team 전부 `hqs/investment/run.py` 경로 EVIDENCE.md 검증)을 충족했다 — `aapl-hq-verify`(Stock Team), `pg-hq-verify`(Dividend Stock Team) EVIDENCE.md 작성 완료(`efa-2026-08`(ETF Team)와 함께 3건). Phase 3(Investment HQ v1.0 Freeze) 착수는 이 세션의 범위가 아니며, 사용자 승인 이후 별도로 시작한다.
+Phase 3가 완료 조건(Investment HQ Freeze 문서 승인·기록)을 충족했다 — `docs/architecture/core/INVESTMENT-HQ-V1.0-FREEZE-0001.md` 작성 완료. Phase 4(HQ Cross-Validation) 착수는 이 세션의 범위가 아니며, 사용자 승인 이후 별도로 시작한다.
 
 ---
 
@@ -59,14 +59,14 @@ Phase 2가 완료 조건(3개 Team 전부 `hqs/investment/run.py` 경로 EVIDENC
 
 ## Phase 3 — Investment HQ v1.0 Freeze
 
-**상태**: ⬜ 미착수
+**상태**: ✅ 완료
 
 - **목표**: Investment HQ를 Development HQ와 동등한 수준으로 Freeze해, Jarvis OS가 "Reference HQ 1개"가 아니라 "서로 다른 도메인의 HQ 2개"에서 검증된 상태임을 확정한다.
-- **핵심 작업**: Phase 2 Dogfooding 결과 종합 → Governance Review(Development HQ의 `GOVERNANCE-REVIEW-0007` 선례를 참조하되 새로 작성) → Investment HQ Freeze 문서 작성.
-- **완료 조건**: Investment HQ Freeze 문서가 RFC → ADC → ADR 절차 없이(Freeze는 새 Architecture 결정이 아니라 기존 검증 결과의 확정이므로, Development HQ Freeze와 동일한 성격) 승인·기록됨.
-- **검증 방법**: 3개 Team 전체의 Evidence 재확인, `pytest --ignore=archive` 통과, Investment HQ가 `IMPLEMENTATION_RULES.md` 금지 사항(Registry/Scheduler/Runtime 등 미구현)을 계속 준수하는지 재확인.
-- **다음 Phase로 넘어가는 조건**: Investment HQ Freeze 문서 승인.
-- **Architecture/Governance 주의사항**: Freeze는 "지금 있는 것을 확정"하는 것이지 "새로 무엇을 만드는" 것이 아니다. Freeze 과정에서 Investment HQ 구조를 개선하고 싶은 유혹이 생기더라도, 그 개선이 Architecture Boundary에 영향을 주면 RFC → ADC → ADR로 분리한다.
+- **핵심 작업**: Phase 2 Dogfooding 결과 종합 → `checkpoint.py` 콘텐츠 검증 격차 Freeze Blocker 해소(Detection Prototype → 최소 통합 → 테스트) → HQ 경로 6건 실행(3개 Team × 2건, False Positive 0건) → `INVESTMENT-HQ-V1.0-FREEZE-0001.md` 작성.
+- **완료 조건**: Investment HQ Freeze 문서가 RFC → ADC → ADR 절차 없이 승인·기록됨 — **충족**(`docs/architecture/core/INVESTMENT-HQ-V1.0-FREEZE-0001.md`).
+- **검증 방법**: 3개 Team 전체의 Evidence 재확인, `pytest --ignore=archive` 통과(187 passed), Investment HQ가 `IMPLEMENTATION_RULES.md` 금지 사항(Registry/Scheduler/Runtime 등 미구현)을 계속 준수하는지 재확인 — **전부 확인됨**.
+- **다음 Phase로 넘어가는 조건**: Investment HQ Freeze 문서 승인 — **충족**.
+- **Architecture/Governance 주의사항**: Freeze는 "지금 있는 것을 확정"하는 것이지 "새로 무엇을 만드는" 것이 아니다. `call_engine()`의 API Error 미검출(COMMON, Dev HQ 소관)은 Freeze와 별개로 계속 Open — 이번 Freeze가 그 결함을 수정하거나 재개 조건을 만들지 않는다(`INVESTMENT-HQ-V1.0-FREEZE-0001.md` §3 Open Issues 참조).
 
 ---
 
