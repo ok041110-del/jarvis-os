@@ -1,0 +1,76 @@
+{
+  "completed_steps": [
+    "cost_tracking_analysis",
+    "distribution_analysis",
+    "macro_analysis",
+    "composition_analysis",
+    "performance_risk_analysis",
+    "holdings_exposure_analysis",
+    "bull_case",
+    "bear_case",
+    "synthesis",
+    "final_report"
+  ],
+  "call_log": [
+    {
+      "role": "cost_tracking_analysis",
+      "input_chars": 886,
+      "output_chars": 3350,
+      "elapsed_sec": 17.7
+    },
+    {
+      "role": "distribution_analysis",
+      "input_chars": 910,
+      "output_chars": 2091,
+      "elapsed_sec": 18.3
+    },
+    {
+      "role": "macro_analysis",
+      "input_chars": 937,
+      "output_chars": 3189,
+      "elapsed_sec": 23.7
+    },
+    {
+      "role": "composition_analysis",
+      "input_chars": 945,
+      "output_chars": 1558,
+      "elapsed_sec": 27.8
+    },
+    {
+      "role": "performance_risk_analysis",
+      "input_chars": 1069,
+      "output_chars": 4911,
+      "elapsed_sec": 32.2
+    },
+    {
+      "role": "holdings_exposure_analysis",
+      "input_chars": 1114,
+      "output_chars": 1949,
+      "elapsed_sec": 39.3
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 17150,
+      "output_chars": 4668,
+      "elapsed_sec": 24.7
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 17150,
+      "output_chars": 7554,
+      "elapsed_sec": 38.0
+    },
+    {
+      "role": "synthesis",
+      "input_chars": 12222,
+      "output_chars": 5046,
+      "elapsed_sec": 25.0
+    },
+    {
+      "role": "final_report",
+      "input_chars": 34319,
+      "output_chars": 6897,
+      "elapsed_sec": 30.9
+    }
+  ]
+}
