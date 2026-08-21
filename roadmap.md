@@ -8,11 +8,11 @@
 
 ## Current Position
 
-**Phase 3 완료** — Investment HQ v1.0 Freeze. Phase 0(Structure v1.0 Freeze), Phase 1(Development HQ v1.0 Freeze), Phase 2(Investment HQ Dogfooding)에 이어 완료됐다. Phase 4(HQ Cross-Validation) 이후는 전부 미착수 상태이며, Kernel(Phase 5~8)은 필요성이 아직 증명되지 않았으므로 어떤 설계도 시작하지 않는다.
+**Phase 5 완료** — Kernel Candidate. Phase 0(Structure v1.0 Freeze), Phase 1(Development HQ v1.0 Freeze), Phase 2(Investment HQ Dogfooding), Phase 3(Investment HQ v1.0 Freeze), Phase 4(HQ Cross-Validation)에 이어 완료됐다. Kernel Candidate는 Parallel Execution(원시 기법) 1건만 확정됐다 — Checkpointing은 Investment-specific으로 유지, `call_engine()`은 Common이나 기존 Governance(`PHASE9-CLOSURE-0001`)가 이미 Kernel 추출을 Defer한 상태다. Phase 6(Kernel Prototype & Validation) 이후는 전부 미착수 상태이며, 어떤 Kernel 코드도 아직 작성하지 않는다.
 
 ## Next Action
 
-Phase 3가 완료 조건(Investment HQ Freeze 문서 승인·기록)을 충족했다 — `docs/architecture/core/INVESTMENT-HQ-V1.0-FREEZE-0001.md` 작성 완료. Phase 4(HQ Cross-Validation) 착수는 이 세션의 범위가 아니며, 사용자 승인 이후 별도로 시작한다.
+Phase 5가 완료 조건(Kernel Candidate 목록과 5기준 판단 근거 문서화)을 충족했다 — `docs/research/PHASE4-HQ-CROSS-VALIDATION-0001.md`, `docs/research/PHASE5-KERNEL-CANDIDATE-0001.md` 작성 완료. Phase 6(Kernel Prototype & Validation) 착수는 이 세션의 범위가 아니며, 사용자 승인 이후 별도로 시작한다.
 
 ---
 
@@ -72,27 +72,27 @@ Phase 3가 완료 조건(Investment HQ Freeze 문서 승인·기록)을 충족�
 
 ## Phase 4 — HQ Cross-Validation
 
-**상태**: ⬜ 미착수 (Phase 3 완료 후)
+**상태**: ✅ 완료
 
 - **목표**: Development HQ와 Investment HQ 두 Freeze된 HQ를 나란히 비교해, 어떤 부분이 우연히 같은 것이 아니라 구조적으로 공통인지 실측한다.
 - **핵심 작업**: 두 HQ의 실행 패턴(Wave 구조, Checkpointing, Engine 호출 방식, Agent-Capability 매핑, 병렬화 전략)을 항목별로 대조해 **Common / HQ-Specific / Uncertain** 3분류표를 작성한다.
-- **완료 조건**: 3분류표가 실제 코드·Evidence 인용과 함께 문서화됨(추측이 아니라 두 HQ의 실제 코드를 직접 비교한 결과).
-- **검증 방법**: 분류표의 "Common" 항목이 실제로 두 HQ에서 동일한 문제를 동일한 방식으로 해결했는지(우연한 유사성이 아닌지) 코드 diff 수준으로 재확인.
-- **다음 Phase로 넘어가는 조건**: "Common"으로 분류된 항목이 최소 1개 이상 존재하고, 그 항목이 Kernel 후보의 최소 조건(§Phase 5)을 만족할 가능성이 있다고 판단됨.
-- **Architecture/Governance 주의사항**: 이 Phase는 비교와 분류만 한다 — Kernel을 설계하지 않는다. "Common"이 하나도 없다면 Kernel Candidate 도출 없이 이 Phase에서 멈추고, 그 결과 자체를 기록한다(강제로 공통점을 만들어내지 않는다).
+- **완료 조건**: 3분류표가 실제 코드·Evidence 인용과 함께 문서화됨(추측이 아니라 두 HQ의 실제 코드를 직접 비교한 결과) — **충족**(`docs/research/PHASE4-HQ-CROSS-VALIDATION-0001.md`).
+- **검증 방법**: 분류표의 "Common" 항목이 실제로 두 HQ에서 동일한 문제를 동일한 방식으로 해결했는지(우연한 유사성이 아닌지) 코드 diff 수준으로 재확인 — 완료(Engine 호출 방식은 live import로 동일 객체 공유, Parallel Execution은 Dev HQ 자체 연구(PR #60/#61)와 Investment 계보(PR #77/#80)가 독립적으로 동일 기법에 도달했음을 diff로 확인).
+- **다음 Phase로 넘어가는 조건**: "Common"으로 분류된 항목이 최소 1개 이상 존재하고, 그 항목이 Kernel 후보의 최소 조건(§Phase 5)을 만족할 가능성이 있다고 판단됨 — **충족**(Engine 호출 방식, Parallel Execution 2건이 Common).
+- **Architecture/Governance 주의사항**: 이 Phase는 비교와 분류만 한다 — Kernel을 설계하지 않는다. Checkpointing은 Dev HQ 플랫폼에 승격된 적이 없음을 전수 확인해 Investment-specific으로 유지했다(강제로 공통점을 만들지 않았다).
 
 ---
 
 ## Phase 5 — Kernel Candidate
 
-**상태**: ⬜ 미착수 (Phase 4 완료 후, 조건부)
+**상태**: ✅ 완료
 
 - **목표**: Phase 4의 "Common" 항목 중 실제로 Kernel로 추출할 가치가 있는 후보만 정의한다. **구현하지 않는다.**
 - **핵심 작업**: 각 Common 항목을 다음 5개 기준으로 판단한다 — 공통성(두 HQ 모두에서 실제로 나타나는가), 도메인 독립성(Stock/ETF/Dividend Stock이나 코드 리뷰 같은 특정 도메인 지식에 의존하지 않는가), 반복성(여러 HQ에서 반복 관찰되는가, 1회성이 아닌가), 안정성(요구사항이 자주 바뀌지 않는가), 재사용성(그대로 재사용 가능한가, HQ마다 재작성이 필요하지 않은가).
-- **완료 조건**: Kernel Candidate 목록(0개일 수도 있음)과 각 후보의 5기준 판단 근거가 문서화됨.
-- **검증 방법**: 각 후보가 실제로 도메인 로직을 포함하지 않는지 코드 검토(Kernel에 도메인 로직이 들어가면 이미 Candidate 자격 상실).
-- **다음 Phase로 넘어가는 조건**: Kernel Candidate가 1개 이상 존재.
-- **Architecture/Governance 주의사항**: **이 Phase에서 코드를 작성하지 않는다.** Structure v1.0의 `core/registry/`, `core/communication/{events,context,memory,observability}` 등은 Target Boundary일 뿐이며, Candidate가 이 카테고리 중 어디에 해당하는지 판단하는 것도 이 Phase가 아니라 Phase 7(Kernel Governance)의 RFC에서 다룬다.
+- **완료 조건**: Kernel Candidate 목록(0개일 수도 있음)과 각 후보의 5기준 판단 근거가 문서화됨 — **충족**(`docs/research/PHASE5-KERNEL-CANDIDATE-0001.md`). **Candidate 1건 확정: Parallel Execution(원시 기법, Wave 구조·Checkpointing 제외)**. Checkpointing은 공통성 기준부터 미충족해 Investment-specific 유지. `call_engine()`은 Common이나 `PHASE9-CLOSURE-0001`이 이미 Kernel 추출을 Defer한 상태라 신규 Candidate로 다루지 않았다.
+- **검증 방법**: 각 후보가 실제로 도메인 로직을 포함하지 않는지 코드 검토(Kernel에 도메인 로직이 들어가면 이미 Candidate 자격 상실) — Parallel Execution 원시 기법에서 Wave 구조(Bull/Bear/Synthesis 등 도메인 명명)를 명시적으로 제외해 이 기준을 충족.
+- **다음 Phase로 넘어가는 조건**: Kernel Candidate가 1개 이상 존재 — **충족**.
+- **Architecture/Governance 주의사항**: **이 Phase에서 코드를 작성하지 않았다.** Candidate가 `core/` 어느 하위 영역에 해당하는지는 Phase 7(Kernel Governance)의 RFC로 남겼다. Phase 6 Prototype 범위는 문서에 제안만 하고 착수하지 않았다.
 
 ---
 
