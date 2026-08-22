@@ -1,0 +1,24 @@
+{
+  "label": "parallel_4way",
+  "mode": "parallel",
+  "task_count": 4,
+  "elapsed_sec": 3.1,
+  "per_task_elapsed_sec": {
+    "bread_rising": 2.8,
+    "autumn_leaves": 3.0,
+    "tides": 3.1,
+    "rainbow": 3.1
+  },
+  "completion_order": [
+    "bread_rising",
+    "autumn_leaves",
+    "tides",
+    "rainbow"
+  ],
+  "results": {
+    "bread_rising": "API Error: Unable to connect to API: Self-signed certificate detected. Check your proxy or corporate SSL certificates\n",
+    "autumn_leaves": "API Error: Unable to connect to API: Self-signed certificate detected. Check your proxy or corporate SSL certificates\n",
+    "tides": "API Error: Unable to connect to API: Self-signed certificate detected. Check your proxy or corporate SSL certificates\n",
+    "rainbow": "API Error: Unable to connect to API: Self-signed certificate detected. Check your proxy or corporate SSL certificates\n"
+  }
+}

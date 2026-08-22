@@ -1,0 +1,21 @@
+{
+  "label": "parallel_3way",
+  "mode": "parallel",
+  "task_count": 3,
+  "elapsed_sec": 6.3,
+  "per_task_elapsed_sec": {
+    "bread_rising": 6.0,
+    "tides": 6.2,
+    "autumn_leaves": 6.3
+  },
+  "completion_order": [
+    "bread_rising",
+    "tides",
+    "autumn_leaves"
+  ],
+  "results": {
+    "bread_rising": "BREAD. Yeast eats the sugars in the dough and produces carbon dioxide gas as a byproduct; that gas gets trapped in the stretchy gluten network, forming bubbles that expand and make the dough puff up.\n",
+    "tides": "TIDES. Ocean tides happen because the Moon's (and to a lesser extent the Sun's) gravity pulls harder on the side of Earth facing it than on the far side, stretching the oceans into two bulges; as Earth rotates through these bulges, coastlines experience rising and falling water levels.\n",
+    "autumn_leaves": "LEAVES. Chlorophyll, the green pigment that dominates leaves during the growing season, breaks down as days shorten and temperatures drop, letting the yellow and orange pigments already present (carotenoids) show through while some trees also produce new red pigments (anthocyanins).\n"
+  }
+}

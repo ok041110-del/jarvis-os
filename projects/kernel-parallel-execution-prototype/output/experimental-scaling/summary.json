@@ -1,0 +1,55 @@
+{
+  "zero_dependency_violations": [],
+  "sequential_all6_elapsed_sec": 30.2,
+  "parallel_2way_elapsed_sec": 5.8,
+  "parallel_3way_elapsed_sec": 6.3,
+  "parallel_4way_elapsed_sec": 3.1,
+  "parallel_6way_elapsed_sec": 9.3,
+  "speedup_6way_vs_sequential": 3.25,
+  "long_task_scenario_elapsed_sec": 16.7,
+  "long_task_completion_order": [
+    "ice_floats",
+    "tides",
+    "long_water_cycle"
+  ],
+  "exception_propagation": {
+    "rainbow": {
+      "status": "ok",
+      "value_len": 277
+    },
+    "thunder_delay": {
+      "status": "ok",
+      "value_len": 233
+    },
+    "forced_failure": {
+      "status": "exception",
+      "detail": "FileNotFoundError: [Errno 2] No such file or directory: 'claude-binary-that-does-not-exist'"
+    }
+  },
+  "deterministic_collection": {
+    "checked": 23,
+    "mismatches": [
+      {
+        "task": "bread_rising",
+        "expected_prefix": "BREAD.",
+        "got_head": "API Error: Unable to connect to API: Sel"
+      },
+      {
+        "task": "autumn_leaves",
+        "expected_prefix": "LEAVES.",
+        "got_head": "API Error: Unable to connect to API: Sel"
+      },
+      {
+        "task": "tides",
+        "expected_prefix": "TIDES.",
+        "got_head": "API Error: Unable to connect to API: Sel"
+      },
+      {
+        "task": "rainbow",
+        "expected_prefix": "RAINBOW.",
+        "got_head": "API Error: Unable to connect to API: Sel"
+      }
+    ],
+    "deterministic": false
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "label": "parallel_2way",
+  "mode": "parallel",
+  "task_count": 2,
+  "elapsed_sec": 5.8,
+  "per_task_elapsed_sec": {
+    "tides": 5.7,
+    "autumn_leaves": 5.8
+  },
+  "completion_order": [
+    "tides",
+    "autumn_leaves"
+  ],
+  "results": {
+    "tides": "TIDES. Ocean tides happen because the Moon's (and to a lesser extent the Sun's) gravity pulls more strongly on the side of Earth closer to it, stretching the ocean into a bulge on that side and, due to inertia, a corresponding bulge on the opposite side, while Earth's rotation carries coastlines through those bulges roughly twice a day.\n",
+    "autumn_leaves": "LEAVES. Chlorophyll, the green pigment that dominates leaves in summer, breaks down as days shorten and temperatures cool, revealing yellow and orange pigments (carotenoids) that were there all along; reds and purples often form separately from sugars trapped in the leaf as it shuts down.\n"
+  }
+}

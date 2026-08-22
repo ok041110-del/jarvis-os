@@ -1,0 +1,22 @@
+{
+  "label": "sequential_all6",
+  "mode": "sequential",
+  "task_count": 6,
+  "elapsed_sec": 30.2,
+  "per_task_elapsed_sec": {
+    "tides": 4.9,
+    "autumn_leaves": 5.6,
+    "bread_rising": 5.1,
+    "rainbow": 5.2,
+    "ice_floats": 4.7,
+    "thunder_delay": 4.7
+  },
+  "results": {
+    "tides": "TIDES. Ocean tides happen because the Moon's (and to a lesser extent the Sun's) gravity pulls more strongly on the side of Earth closer to it, stretching the oceans into a bulge on that side and, due to inertia, another bulge on the opposite side — as Earth rotates through these bulges, coastal areas experience rising and falling tides.\n",
+    "autumn_leaves": "LEAVES. Chlorophyll, the green pigment that dominates during the growing season, breaks down as daylight shortens and temperatures cool, unmasking the yellow and orange pigments (carotenoids) that were present in the leaf all along, while some trees also produce new red pigments (anthocyanins) from trapped sugars.\n",
+    "bread_rising": "BREAD. Yeast eats sugars in the dough and produces carbon dioxide gas as a byproduct; that gas gets trapped in the stretchy gluten network, forming bubbles that inflate the dough and make it rise.\n",
+    "rainbow": "RAINBOW. Rainbows form when sunlight enters raindrops still lingering in the air, bends as it passes into the water, reflects off the inside back of the drop, and bends again on its way out, with different wavelengths (colors) splitting apart at slightly different angles—so you see the spread-out spectrum arcing across the sky.\n",
+    "ice_floats": "ICE. Ice floats because water expands slightly when it freezes, so ice molecules arrange into a hexagonal crystal lattice that's less densely packed than liquid water—giving ice a lower density than liquid water, which makes it buoyant.\n",
+    "thunder_delay": "THUNDER. Light travels far faster than sound, so the flash from a lightning bolt reaches your eyes almost instantly while the sound waves it creates take noticeably longer to travel the same distance to your ears.\n"
+  }
+}

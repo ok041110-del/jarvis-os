@@ -1,0 +1,30 @@
+{
+  "label": "parallel_6way",
+  "mode": "parallel",
+  "task_count": 6,
+  "elapsed_sec": 9.3,
+  "per_task_elapsed_sec": {
+    "autumn_leaves": 7.2,
+    "tides": 8.1,
+    "thunder_delay": 8.7,
+    "bread_rising": 8.9,
+    "ice_floats": 9.1,
+    "rainbow": 9.3
+  },
+  "completion_order": [
+    "autumn_leaves",
+    "tides",
+    "thunder_delay",
+    "bread_rising",
+    "ice_floats",
+    "rainbow"
+  ],
+  "results": {
+    "autumn_leaves": "LEAVES. In autumn, trees stop producing chlorophyll (the green pigment used for photosynthesis) as daylight shortens, letting other pigments already present in the leaf—yellows and oranges—show through, while some trees also produce new red pigments in response to bright days and cool nights.\n",
+    "tides": "TIDES. Ocean tides happen because the Moon's (and to a lesser extent the Sun's) gravity pulls more strongly on the side of Earth closest to it, stretching the oceans into two bulges—one facing the Moon and one on the opposite side—and as Earth rotates through these bulges, coastal areas experience rising and falling sea levels.\n",
+    "thunder_delay": "THUNDER. Both are produced at the same moment by the lightning discharge, but light travels almost instantly while sound travels much slower (about 343 meters per second), so the sound of thunder reaches you noticeably later than the flash of light.\n",
+    "bread_rising": "BREAD. Yeast eats sugars in the dough and produces carbon dioxide gas as a byproduct; the stretchy gluten network traps that gas in tiny bubbles, causing the dough to expand and rise.\n",
+    "ice_floats": "ICE. Ice floats because water molecules form a hexagonal crystal lattice as they freeze, which holds them farther apart than they are in liquid form, making ice about 9% less dense than liquid water.\n",
+    "rainbow": "RAINBOW. Rainbows form when sunlight enters raindrops still hanging in the air, bends as it passes into the water, reflects off the inside back of the drop, and bends again on the way out — this splits the light into its component colors (like a prism), and each droplet sends a different color to your eye depending on the angle, producing the arc.\n"
+  }
+}

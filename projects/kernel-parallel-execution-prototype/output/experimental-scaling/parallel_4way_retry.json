@@ -1,0 +1,24 @@
+{
+  "label": "parallel_4way",
+  "mode": "parallel",
+  "task_count": 4,
+  "elapsed_sec": 7.1,
+  "per_task_elapsed_sec": {
+    "bread_rising": 6.4,
+    "tides": 6.5,
+    "autumn_leaves": 6.7,
+    "rainbow": 7.1
+  },
+  "completion_order": [
+    "bread_rising",
+    "tides",
+    "autumn_leaves",
+    "rainbow"
+  ],
+  "results": {
+    "bread_rising": "BREAD. Yeast eats sugars in the dough and produces carbon dioxide gas as a byproduct; that gas gets trapped in the stretchy gluten network, forming bubbles that expand and cause the dough to rise.\n",
+    "tides": "TIDES. Ocean tides happen because the Moon's (and to a lesser extent the Sun's) gravity pulls more strongly on the side of Earth facing it than on the far side, stretching the ocean into two bulges, and as Earth rotates beneath these bulges, coastal areas move through them, producing the rise and fall of the tide.\n",
+    "autumn_leaves": "LEAVES. Chlorophyll, the green pigment plants use for photosynthesis, breaks down as daylight shortens and temperatures cool, unmasking the yellow and orange pigments (carotenoids) that were there all along, while some trees also produce new red pigments (anthocyanins) in the process.\n",
+    "rainbow": "RAINBOW. Rainbows appear after rain because sunlight strikes lingering water droplets in the air and gets refracted (bent) as it enters each droplet, reflected off the droplet's inner surface, then refracted again as it exits, which splits the white light into its component colors and sends them back to your eye at slightly different angles.\n"
+  }
+}
