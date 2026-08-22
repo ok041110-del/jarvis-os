@@ -82,6 +82,9 @@ CASES = {
     "cat": REPO_ROOT / "projects/stock-analysis-cat/issues/0001-cat-analysis",
     "pg": REPO_ROOT / "hqs/investment/dogfooding/pg-hq-verify",
     "qqq": REPO_ROOT / "projects/etf-analysis-qqq/issues/0001-qqq-analysis",
+    # Discrimination Dogfooding 추가 사례(가장 편향된 Bull/Bear 후보) — 동일 template, 무수정.
+    "nvda": REPO_ROOT / "projects/stock-analysis-nvda/issues/0001-nvda-analysis",
+    "jnj": REPO_ROOT / "projects/dividend-stock-analysis-jnj/issues/0001-jnj-analysis",
 }
 
 
