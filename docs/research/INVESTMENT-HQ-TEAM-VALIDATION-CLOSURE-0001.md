@@ -8,6 +8,10 @@ Evidence를 다시 실행하거나 수정하지 않고**, 지금까지 누적된
 Investment HQ Architecture 인스턴스화를 시작하기 전, "지금 재사용해도
 되는 검증된 구조가 무엇인가"를 한 곳에 정리하기 위해 작성한다.
 
+**핵심 결론**: Stock(5회)/ETF(6회)/Dividend Stock(7회) — 3개 Team
+모두 재검증 없이 Closure 확정. 3개 Team은 동일한 4-Wave 구조를
+공유한다.
+
 이 문서가 하지 않는 것:
 - 기존 실행(AAPL/NVDA/MSFT/JPM/CAT, QQQ/SCHD/AGG/GLD/VNQ/UUP,
   JNJ/KO/PG/Nestlé/Toyota/Realty Income/EPD)의 재실행이나 결과 수정

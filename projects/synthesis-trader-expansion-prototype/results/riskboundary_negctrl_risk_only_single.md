@@ -1,0 +1,9 @@
+## Risk Assessment — CAT Position
+
+**Concentration risk:** At 2% of portfolio value, CAT sits well under the stated 5% single-position cap (2% vs. a 5% ceiling — 3 percentage points, or 60% of the allowed limit, unused). Single-name concentration risk from this position alone is low relative to the portfolio's own stated tolerance.
+
+**Correlation/overlap risk:** No other industrial/machinery holdings and no material overlapping ETF exposure to CAT (above 0.1%) are reported. This means the position's risk is idiosyncratic to CAT rather than compounded through hidden exposure elsewhere in the portfolio — there's no stacking effect inflating true exposure beyond the visible 2%.
+
+**Underlying position-specific uncertainty:** The trader decision itself flags unresolved forward-looking questions — most notably whether the ~$2.2–2.4B tariff headwind is already reflected in raised 2026 guidance. This is a source of valuation/earnings uncertainty specific to CAT (data conflicts on guidance interpretation, peer comparisons, and technical readings). This uncertainty is real but is a company-specific/fundamental risk, not a portfolio-structural one — its impact on the overall portfolio is bounded by the position's 2% weight.
+
+**Assessment of tolerability:** Given the small absolute weight (2%), the significant unused headroom under the explicit 5% cap, and the absence of correlated exposure elsewhere, the portfolio-level risk contribution from this single holding is limited even though stock-specific uncertainty about CAT's forward guidance is unresolved. The risk that exists is concentrated entirely within the bounded 2% sleeve rather than amplified across the portfolio. On that basis, the current risk level appears tolerable at the portfolio level — the open questions around CAT's fundamentals represent name-level uncertainty, not a structural portfolio risk, given the position's limited size and lack of overlapping exposure.

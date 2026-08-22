@@ -1,0 +1,33 @@
+## REPORT
+
+**Where the two cases share facts but diverge only in interpretation:**
+
+Both cases work from the same underlying data points and largely agree on what happened; the disagreement is almost entirely about what it means.
+
+- *Revenue/EPS beat*: Both agree June-quarter revenue was $109.4B (+16% YoY, above consensus) and EPS grew 29% YoY including a non-recurring $0.11 tariff refund. The bull treats this as a real, broad-based beat with the one-time item as a minor caveat; the bear treats the one-time item as evidence the "beat" is partly an accounting artifact, and notes neither report discloses the ex-tariff EPS figure — this is a shared data gap, not a factual conflict.
+- *Segment mix (iPhone/Mac strength vs. Services miss)*: Both agree iPhone and Mac beat estimates while Services missed ($30.74B vs. $31.22B). The bull frames this as "hardware carried the quarter, Services is a minor blemish"; the bear frames the identical numbers as "growth mix shifted toward the lower-margin segment, away from the higher-margin one" — same facts, opposite read on what the mix shift implies for margins. Neither report has actual gross/segment margin data, so this margin-mix claim is interpretive on both sides.
+- *Guidance deceleration*: Both agree September-quarter guidance is 9–11% vs. 16% just delivered, and both cite the same two causes (FX ~2.5pp, supply constraints). The bull calls supply constraints a "good problem" (demand exceeding capacity); the bear calls it a company-specific operational risk of unknown duration affecting multiple product lines simultaneously. This is the same fact set read through opposite lenses on severity/duration.
+- *U.S. vs. global market share*: No factual conflict at all — both cite 58.2% U.S. share vs. Samsung's 28.4%, and ~20–21% global share roughly tied with Samsung. The bull calls this "dominant in the most valuable market plus competitive globally"; the bear calls it "concentration risk — the only real strength is geographically narrow." Same numbers, different framing of what "narrow but dominant" means.
+- *Siri/AI relaunch*: Both agree on the same product facts (WWDC unveiling, iOS 27 beta, muted press reception, EU/China excluded from initial rollout). The bull sees a durable capability gap now closed, with adoption to build over time; the bear sees an underwhelming launch that's locked out of two major markets with no resolution timeline, landing in the same window as the Services miss. Both explicitly avoid asserting causality between Siri reception and the after-hours price move — this is a fair shared caveat, not a dispute.
+- *Analyst targets*: No numeric conflict — both cite the same ~$322.7–$322.8 average target (~+4.6% upside) and the same $215–$400 range. The bull calls the average "favorably positioned and improving" (plus a +6.44% estimate revision) while flagging the dispersion as a caveat; the bear leads with the dispersion itself, arguing a "Buy" consensus with a $215 outlier (-31% downside) reflects direction without conviction. Both agree the +6.44% revenue estimate revision is a genuine positive data point.
+- *Technicals*: Both agree the picture is internally inconsistent — MA figures differ by ~$16 across sources, RSI spans 37.7–53.5, and one source explicitly says "bullish outlook, with bearish momentum." Neither case actually disputes this; the bull discloses it as a caveat rather than building the core case on it, while the bear leads with it. This is closer to agreement than genuine conflict.
+
+**Where the cases rest on different (not just differently-weighted) facts:**
+
+- *China competitive position*: The bear notes Apple is "conspicuously absent" from the list of named major China competitors (Huawei, Lenovo/Motorola, Xiaomi, vivo, OPPO), treating this absence as suggestive of a weaker position. The bull doesn't address China-specific competitive standing directly. This isn't a factual contradiction, but it is an asymmetry in what each case chose to draw from the same source material — the bear draws an inference from absence that the bull simply doesn't engage with.
+- *Premium-segment quantification*: Both agree Apple's premium-segment ($600+, 29% of global units) strength is cited only qualitatively, with no Apple-specific share-within-premium figure given. The bull presents this as a strength; the bear flags the same absence of quantification as a reason it "cannot be relied on." This is agreement on the data gap, disagreement on how much weight an unquantified claim should carry.
+
+**Open questions that would most change the conclusion:**
+
+1. What is EPS growth excluding the $0.11 tariff refund? This determines whether the "beat" narrative is materially inflated or largely intact.
+2. How long will the supply constraints last, and are they demand-outstripping-supply (bullish) or execution failure (bearish)? Duration and cause aren't disclosed in either case.
+3. What are actual gross/Services margins, and is the hardware-heavy mix actually margin-dilutive? No margin data exists in either report — this is the single largest fact gap underlying the "margin mix" dispute.
+4. What is Apple's actual unit/revenue share in China, and in the premium segment specifically? Both are currently inferred or unquantified, not measured.
+5. Is Siri adoption translating into engagement or upgrade behavior once EU/China are included, and on what timeline will those markets get access? This determines whether the AI relaunch is a near-term catalyst or a multi-quarter-deferred one.
+6. Why does the analyst target distribution have a $215 low end, and is that view current or stale? Neither case can address this due to missing dates/identities in the data.
+
+## DECISION
+
+- **Direction: HOLD**
+- **Rationale:** The two cases agree on nearly all underlying facts and diverge mainly in interpretation of ambiguous or incomplete data (unquantified margin mix, undated analyst outliers, internally contradictory technicals, unclear supply-constraint duration). With core inputs like actual margin figures, ex-one-time EPS, and China-specific share data absent from both reports, there isn't enough resolved information to support a directional conviction either way on the fundamentals — and the technical/sentiment layer is explicitly described as mixed by both sides, not tilted.
+- **Reassess when:** Resolution of what gross/Services margin actually did this quarter and whether the hardware-heavy growth mix is genuinely margin-dilutive — this is the fact gap most cited by both cases and most likely to shift the balance toward BUY (if margins held or expanded) or SELL (if they compressed materially).

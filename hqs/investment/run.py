@@ -1,6 +1,5 @@
-"""Investment HQ 최소 E2E 진입점. `TEAMS`는 리터럴 딕셔너리다(Registry가 아니다 —
-동적 등록/조회 API를 만들지 않는다). Team 추가 시 이 딕셔너리에 한 줄만 더한다.
-`hqs/development/`는 이 파일에서도 수정하지 않는다.
+"""Investment HQ 최소 E2E 진입점. `TEAMS`는 리터럴 딕셔너리다(Registry
+아님, Team 추가 시 한 줄만 추가). `hqs/development/`는 수정하지 않는다.
 
 사용법:
     python3 hqs/investment/run.py <team> <company_label> <raw_data_path> <issue_dir>

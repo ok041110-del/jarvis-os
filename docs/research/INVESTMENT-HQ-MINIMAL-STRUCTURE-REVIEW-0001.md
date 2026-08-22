@@ -10,6 +10,11 @@ Governance Review와 동일한 성격이며, `development-hq/`와 같은 무게�
 STRUCTURE.md 등)를 만들지 않는다 — 그 수준의 작업은 §5에서 판단하듯
 RFC 대상이며, 이번 작업 범위가 아니다.
 
+**핵심 결론**: §6의 권고 구조(Investment HQ → Investment Division →
+Stock/ETF/Dividend Stock 3 Team)는 기존 Architecture와 충돌하지 않으며
+채택됐다. RFC 대상은 아니다 — 전체 Investment HQ Architecture 설계는
+Blocking/지연 비용 조건 미충족으로 의도적으로 열지 않았다.
+
 이 문서가 하지 않는 것:
 - Investment HQ를 Registry에 등록하거나 Lifecycle State를 부여 —
   Registry/Lifecycle 관리는 Jarvis OS(Kernel)의 책임이며

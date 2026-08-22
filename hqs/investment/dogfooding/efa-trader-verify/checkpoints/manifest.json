@@ -1,0 +1,76 @@
+{
+  "completed_steps": [
+    "distribution_analysis",
+    "macro_analysis",
+    "cost_tracking_analysis",
+    "holdings_exposure_analysis",
+    "performance_risk_analysis",
+    "composition_analysis",
+    "bull_case",
+    "bear_case",
+    "trader_decision",
+    "final_report"
+  ],
+  "call_log": [
+    {
+      "role": "distribution_analysis",
+      "input_chars": 934,
+      "output_chars": 2017,
+      "elapsed_sec": 16.0
+    },
+    {
+      "role": "macro_analysis",
+      "input_chars": 961,
+      "output_chars": 3485,
+      "elapsed_sec": 20.0
+    },
+    {
+      "role": "cost_tracking_analysis",
+      "input_chars": 910,
+      "output_chars": 2787,
+      "elapsed_sec": 20.0
+    },
+    {
+      "role": "holdings_exposure_analysis",
+      "input_chars": 1138,
+      "output_chars": 3593,
+      "elapsed_sec": 22.1
+    },
+    {
+      "role": "performance_risk_analysis",
+      "input_chars": 1093,
+      "output_chars": 5293,
+      "elapsed_sec": 26.4
+    },
+    {
+      "role": "composition_analysis",
+      "input_chars": 969,
+      "output_chars": 1749,
+      "elapsed_sec": 30.2
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 19026,
+      "output_chars": 5159,
+      "elapsed_sec": 26.9
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 19026,
+      "output_chars": 6218,
+      "elapsed_sec": 30.9
+    },
+    {
+      "role": "trader_decision",
+      "input_chars": 11377,
+      "output_chars": 5238,
+      "elapsed_sec": 23.8
+    },
+    {
+      "role": "final_report",
+      "input_chars": 34271,
+      "output_chars": 6765,
+      "elapsed_sec": 31.4
+    }
+  ]
+}

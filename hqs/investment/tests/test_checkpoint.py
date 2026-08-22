@@ -1,10 +1,5 @@
 """`hqs/investment/checkpoint.py`의 콘텐츠 실패 감지 통합 테스트.
-
-`projects/investment-hq-checkpoint-detection-prototype/`에서 검증된
-감지 로직(Feasibility PASS)이 `checkpoint.py`에 최소 통합된 뒤에도
-실패 감지·저장 차단·정상 저장·Resume 네 가지 동작이 실제로 성립하는지
-확인한다. 재시도/알림/동시성은 다루지 않는다(범위 밖).
-"""
+실패 감지·저장 차단·정상 저장·Resume 네 동작을 확인한다(범위 밖: 재시도/알림/동시성)."""
 
 import sys
 from pathlib import Path
@@ -79,9 +74,8 @@ def test_resume_skips_second_engine_call(tmp_path):
 
 
 def test_failed_step_is_retried_on_resume(tmp_path):
-    """실패한 단계는 저장되지 않으므로, 재실행 시 정상적으로 재시도된다
-    (자동 재시도 로직을 추가한 것이 아니라, 기존 Resume 동작이 그대로
-    적용될 뿐임을 확인한다)."""
+    """실패 단계는 저장되지 않아 재실행 시 기존 Resume 동작으로
+    자연 재시도된다(신규 재시도 로직 없음)."""
     cp = Checkpointer(tmp_path)
 
     with pytest.raises(ContentFailureError):
@@ -95,9 +89,8 @@ def test_failed_step_is_retried_on_resume(tmp_path):
 
 
 def test_partial_api_mention_is_not_false_positive(tmp_path):
-    """본문 중간에 'api'를 부분 문자열로 포함하는 정상 콘텐츠(예: 'capital')는
-    오탐하지 않는다 — Prototype EVIDENCE에서 실제 checkpoint 파일로 확인된
-    케이스."""
+    """'capital'처럼 'api'를 부분 포함하는 정상 콘텐츠는 오탐하지
+    않는다 — 실제 checkpoint 파일에서 확인된 케이스."""
     cp = Checkpointer(tmp_path)
 
     def fn(data):
