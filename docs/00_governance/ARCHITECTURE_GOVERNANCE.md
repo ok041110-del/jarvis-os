@@ -42,6 +42,50 @@ Experimental Implementation은 다음 범위를 벗어나지 않는다.
 
 Experimental은 필요 없다고 판단되면 RFC 없이 즉시 제거할 수 있다. 반복적인 가치와 Architecture 승격 필요성이 실제로 확인된 경우에만 Formal Promotion을 검토하며, 이 경우 위 "변경 절차"(RFC → ADC → ADR → Architecture Baseline Update → Implementation)를 그대로 따른다. **Experimental Evidence는 그 존재만으로 Formal Architecture Decision이나 ADC Accept를 발생시키지 않는다** — Promotion 여부는 여전히 아래 "ADC 채택 기준"으로 판단한다.
 
+## Architecture Need
+
+Architecture Need란 현재 Architecture로 해결하기 어려운 실제 문제, 반복되는 요구사항, 또는 새로운 공통 책임의 필요성이 개발·운영 과정에서 실제로 관찰된 상태를 말한다. 단순한 아이디어나 선호는 Architecture Need가 아니다.
+
+이 원칙은 사전에 정의된 특정 Trigger(예: `docs/governance/rt/RT-0001.md`의 "Engine 수 ≥ 2")가 충족되지 않았더라도, 실제 Architecture Need가 관찰되면 재검토를 시작할 권한을 부여한다. 미리 예상한 모든 상황을 새 Trigger로 목록화하는 것이 아니라, 실제 Need가 발생했을 때 그것을 검토할 수 있는 경로를 여는 것이다. 기존 Trigger 체계(RT-0001의 개별 Re-evaluation Trigger, "Engine 수 ≥ 2" 포함)는 이 원칙으로 대체되거나 약화되지 않는다 — Architecture Need는 그 상위의 진입 원칙이며, 개별 Trigger는 Architecture Need의 관찰 가능한 특수 사례로 계속 유효하다.
+
+### 진입 흐름
+
+```
+실제 Need 발생
+  ↓
+현재 Architecture로 해결 가능한가?
+  ├─ YES → 기존 Architecture 사용(Governance 진입 불필요)
+  └─ NO
+       ↓
+     Experimental Implementation(위 절)으로 검증 가능한가?
+       ├─ YES → Experimental 수행
+       │          ├─ 가치 없음 → 폐기(RFC 불필요)
+       │          └─ 가치 있음 → Formal Architecture Review
+       └─ NO → Formal Architecture Review
+                  ↓
+                RFC → ADC → ADR(위 "변경 절차")
+```
+
+### 반드시 구분할 것
+
+- Architecture Need 발생 ≠ Architecture 변경 승인
+- Experimental 성공 ≠ Architecture 변경 승인
+- Prototype 존재 ≠ Core Component 승격
+
+Architecture Need는 오직 "검토를 시작할 근거"만 제공한다. 검토 결과 Formal Architecture 변경이 실제로 필요한지는 여전히 아래 "ADC 채택 기준"이 판단하며, 이 원칙이 그 기준을 대신하지 않는다.
+
+### 안전장치
+
+- 실제 문제/요구가 있어야 한다 — 추측·선호는 Need가 아니다.
+- 기존 Architecture로 해결 가능한지 먼저 확인한다.
+- 가능하면 Experimental Implementation(위 절)으로 먼저 검증한다.
+- Experimental은 위 절의 조건(격리 영역, HQ production path 무단 연결 금지 등)을 그대로 따른다.
+- Frozen Architecture(Structure v1.0, Architecture Baseline)를 임의로 수정하지 않는다.
+- Core 책임을 Prototype 단계에서 사실상 선언하지 않는다.
+- Formal 변경은 예외 없이 RFC → ADC → ADR을 거친다.
+- Architecture Need의 존재만으로 Formal Promotion이 자동 발생하지 않는다.
+- 필요성이 사라지면 Prototype/Experimental은 자유롭게 폐기할 수 있다.
+
 ## ADC 채택 기준
 
 새로운 Architecture Decision Candidate(ADC)는 다음 중 하나를 반드시 만족해야 채택된다.
