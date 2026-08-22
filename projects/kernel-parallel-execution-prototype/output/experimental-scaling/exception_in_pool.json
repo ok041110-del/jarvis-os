@@ -1,0 +1,14 @@
+{
+  "rainbow": {
+    "status": "ok",
+    "value_len": 277
+  },
+  "thunder_delay": {
+    "status": "ok",
+    "value_len": 233
+  },
+  "forced_failure": {
+    "status": "exception",
+    "detail": "FileNotFoundError: [Errno 2] No such file or directory: 'claude-binary-that-does-not-exist'"
+  }
+}

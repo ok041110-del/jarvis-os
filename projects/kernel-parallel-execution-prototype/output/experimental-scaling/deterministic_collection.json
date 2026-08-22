@@ -1,0 +1,26 @@
+{
+  "checked": 23,
+  "mismatches": [
+    {
+      "task": "bread_rising",
+      "expected_prefix": "BREAD.",
+      "got_head": "API Error: Unable to connect to API: Sel"
+    },
+    {
+      "task": "autumn_leaves",
+      "expected_prefix": "LEAVES.",
+      "got_head": "API Error: Unable to connect to API: Sel"
+    },
+    {
+      "task": "tides",
+      "expected_prefix": "TIDES.",
+      "got_head": "API Error: Unable to connect to API: Sel"
+    },
+    {
+      "task": "rainbow",
+      "expected_prefix": "RAINBOW.",
+      "got_head": "API Error: Unable to connect to API: Sel"
+    }
+  ],
+  "deterministic": false
+}
