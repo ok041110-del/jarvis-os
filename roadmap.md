@@ -8,11 +8,11 @@
 
 ## Current Position
 
-**Phase 5 완료** — Kernel Candidate. Phase 0(Structure v1.0 Freeze), Phase 1(Development HQ v1.0 Freeze), Phase 2(Investment HQ Dogfooding), Phase 3(Investment HQ v1.0 Freeze), Phase 4(HQ Cross-Validation)에 이어 완료됐다. Kernel Candidate는 Parallel Execution(원시 기법) 1건만 확정됐다 — Checkpointing은 Investment-specific으로 유지, `call_engine()`은 Common이나 기존 Governance(`PHASE9-CLOSURE-0001`)가 이미 Kernel 추출을 Defer한 상태다. Phase 6(Kernel Prototype & Validation) 이후는 전부 미착수 상태이며, 어떤 Kernel 코드도 아직 작성하지 않는다.
+**Phase 7 Architecture Design 완료 / HOLD** — Kernel Governance. Phase 0(Structure v1.0 Freeze), Phase 1(Development HQ v1.0 Freeze), Phase 2(Investment HQ Dogfooding), Phase 3(Investment HQ v1.0 Freeze), Phase 4(HQ Cross-Validation), Phase 5(Kernel Candidate), Phase 6(Kernel Prototype & Validation)에 이어 Phase 7의 Architecture Design 판단까지 완료됐다. Kernel Candidate(Parallel Execution 원시 기법, Phase 5 확정)와 기존 `core/execution/pipeline.py`의 Boundary 분석 결과는 **B. ARCHITECTURE DESIGN REQUIRED** — 그 후속으로 연 `RFC-0012`(Dispatch Component Boundary)는 **Proposed**, `ADC-0012`는 기존 재개 Trigger(예: Engine 수 ≥ 2) 미충족을 근거로 **DEFER** 판정됐다. Dispatch Component 최종 확정·Interface 확정·`core/` Migration은 전부 보류(HOLD) 상태이며, 새로운 Architecture Observation이 관찰되기 전까지 Phase 8(Kernel Implementation)은 공식 착수하지 않는다. TradingAgents External Architecture Observation(`docs/research/PHASE7-EXTERNAL-OBSERVATION-TRADINGAGENTS-0001.md`)은 **NO NEW OBSERVATION**으로 판정되어 HOLD를 재개시키는 근거로 쓰이지 않았고, 이어진 Governance Reassessment의 최종 판정도 **KEEP**(기존 Governance Trigger가 여전히 적절함)이다.
 
 ## Next Action
 
-Phase 5가 완료 조건(Kernel Candidate 목록과 5기준 판단 근거 문서화)을 충족했다 — `docs/research/PHASE4-HQ-CROSS-VALIDATION-0001.md`, `docs/research/PHASE5-KERNEL-CANDIDATE-0001.md` 작성 완료. Phase 6(Kernel Prototype & Validation) 착수는 이 세션의 범위가 아니며, 사용자 승인 이후 별도로 시작한다.
+Phase 7이 요구한 조사·비교·판단(Execution 책임 분석, Candidate 책임 분석, Boundary 비교, Interface 방향 제안, Migration 범위 제안, Governance 필요 여부)을 모두 완료했다 — `docs/research/PHASE7-KERNEL-COMPONENT-ARCHITECTURE-0001.md`, `docs/architecture/core/RFC-0012-dispatch-component-boundary.md`, `docs/architecture/core/ADC-0012-dispatch-component-boundary.md`, `docs/research/GOVERNANCE-TRIGGER-OBSERVATION-0001.md` 작성 완료. 다음 단계(Dispatch Component 설계 착수)는 `ADC-0012`가 인용한 기존 재개 Trigger가 실제로 충족되는 관찰 사건이 발생하기 전까지 시작하지 않는다 — 문서 작업만으로는 재개 조건이 충족되지 않는다. Phase 5~7은 1회성 선형 단계가 아니라, 새 Evidence·Architecture 변화가 발생하면 해당 단계로 재진입할 수 있는 반복 가능한 검증 루프로 취급한다.
 
 ---
 
@@ -98,33 +98,33 @@ Phase 5가 완료 조건(Kernel Candidate 목록과 5기준 판단 근거 문서
 
 ## Phase 6 — Kernel Prototype & Validation
 
-**상태**: ⬜ 미착수 (Phase 5에서 Candidate 발생 시)
+**상태**: ✅ 완료
 
 - **목표**: Kernel Candidate가 실제로 두 HQ에서 독립적으로 동작하는지, Architecture Boundary(Kernel이 도메인을 모르고, HQ가 Kernel 내부를 몰라도 되는지)를 실측한다.
-- **핵심 작업**: 격리된 Prototype 디렉터리(기존 세션 관행: `projects/*-prototype/` 패턴)에서 Candidate를 구현 → Development HQ에 적용해보고 Regression 확인 → Investment HQ에 동일하게 적용해보고 Regression 확인.
-- **완료 조건**: 두 HQ 모두에서 기존 기능·Evidence가 깨지지 않고, Prototype이 실제로 중복 코드를 제거하거나 실질적 가치를 만들어냄이 실측됨.
-- **검증 방법**: 각 HQ의 기존 `pytest` 스위트 전체 재실행(회귀 0건), Prototype 적용 전후 비교 Evidence.
-- **다음 Phase로 넘어가는 조건**: Prototype이 두 HQ 모두에서 성공(회귀 없음 + 가치 실증). 실패 시 Phase 5로 돌아가 Candidate를 기각하거나 재정의한다 — Phase 7로 강행하지 않는다.
-- **Architecture/Governance 주의사항**: Prototype은 `development-hq/IMPLEMENTATION_RULES.md`·`hqs/investment/STRUCTURE.md`의 금지 사항(Registry/Scheduler/Runtime 등)을 이 단계에서도 그대로 준수한다 — "Prototype이니까 예외"는 없다. Prototype 코드는 tracked 브랜치에 반영하지 않거나(기존 `ENGINE-CONNECT-0005` 격리 원칙), 반영하더라도 명확히 실험용임을 문서화한다.
+- **핵심 작업**: 격리된 Prototype 디렉터리 `projects/kernel-parallel-execution-prototype/`(`engine_caller.py`+`run_prototype.py`, `hqs/development/mvp/engine.py` 미참조)에서 Parallel Execution 원시 기법을 Dev HQ code_review·Investment Stock/ETF/Dividend Stock 어디에도 속하지 않는 **제3의 중립 도메인**(조수/단풍/발효)으로 독립 재구현해 도메인 독립성을 검증했다.
+- **완료 조건**: 도메인 독립적 재구현이 실제로 동작하고(순차 24.4s → 병렬 10.1s, 2.42배), 예외 전파가 정상 확인되며(존재하지 않는 바이너리 호출 실패가 `.result()`에서 정상 재발생, 같은 Pool의 다른 정상 Task는 영향 없음), `hqs/core` import 0건(정적 검사) — **충족**(`projects/kernel-parallel-execution-prototype/EVIDENCE.md`).
+- **검증 방법**: `pytest --ignore=archive` 187 passed(회귀 없음). Prototype은 `test_` 접두어가 없어 수집 대상이 아니므로 기존 스위트에 영향 없음.
+- **다음 Phase로 넘어가는 조건**: Prototype이 성공(회귀 없음 + Domain-independent Kernel Candidate로 확정) — **충족, PASS**.
+- **Architecture/Governance 주의사항**: Prototype은 `hqs/development/IMPLEMENTATION_RULES.md`·`hqs/investment/STRUCTURE.md`의 금지 사항(Registry/Scheduler/Runtime 등)을 그대로 준수했다 — "Prototype이니까 예외"는 없었다. `hqs/`, `core/`, Structure/Architecture/Freeze 문서는 무수정, RFC/ADC/ADR 미작성, `core/` Migration 미수행.
 
 ---
 
 ## Phase 7 — Kernel Governance
 
-**상태**: ⬜ 미착수 (Phase 6 성공 시)
+**상태**: 🟡 Architecture Design 완료 / Component 및 후속 Governance **HOLD**
 
 - **목표**: Phase 6에서 필요성이 실증된 Kernel Candidate만 정식 Architecture Decision으로 확정한다.
-- **핵심 작업**: RFC 작성(Kernel Candidate의 책임·경계 제안) → ADC(대안 비교, 예: `core/registry/`와 `core/communication/` 중 어느 축에 속하는지) → ADR(확정).
-- **완료 조건**: ADR 승인, `docs/architecture/baseline/BASELINE.md` 갱신(버전 증가).
-- **검증 방법**: `docs/decisions/adc/README.md`의 채택 기준("지금 결정하지 않으면 상위 Architecture를 진행할 수 없다" 또는 "결정이 늦어질수록 되돌리는 비용이 매우 커진다")을 실제로 충족하는지 재확인.
-- **다음 Phase로 넘어가는 조건**: ADR Accepted.
-- **Architecture/Governance 주의사항**: 이 Phase가 이번 Roadmap에서 유일하게 "새 Architecture 결정"을 만드는 지점이다 — 그 외 모든 Phase는 기존 결정의 실행이거나 검증이다. ADR은 Kernel의 최소 책임만 확정하고, "혹시 필요할지 모르는" 기능을 미리 넣지 않는다(YAGNI를 Governance 절차 안에서 지킨다).
+- **핵심 작업**: Parallel Execution 원시 기법과 기존 `core/execution/pipeline.py`의 Boundary 분석(`docs/research/PHASE7-KERNEL-COMPONENT-ARCHITECTURE-0001.md`) → RFC 작성(`docs/architecture/core/RFC-0012-dispatch-component-boundary.md`, Dispatch Component의 Architecture Boundary) → ADC(`docs/architecture/core/ADC-0012-dispatch-component-boundary.md`, Governance 진행 가능 여부).
+- **완료 조건**: ADR 승인, `docs/architecture/baseline/BASELINE.md` 갱신(버전 증가) — **미충족**. 대신 Architecture Design 판단(**B. ARCHITECTURE DESIGN REQUIRED**)까지는 완료됐고, 그 후속 RFC-0012는 **Proposed**, ADC-0012는 기존 재개 Trigger 미충족으로 **DEFER** 상태다 — ADC Accept·ADR 착수는 보류(HOLD).
+- **검증 방법**: `docs/decisions/adc/README.md`의 채택 기준을 `docs/research/GOVERNANCE-TRIGGER-OBSERVATION-0001.md`가 재확인 — 기존 6개 재개 근거 중 미충족 상태 유지(Engine 수 ≥ 2 등). TradingAgents External Architecture Observation(`docs/research/PHASE7-EXTERNAL-OBSERVATION-TRADINGAGENTS-0001.md`)도 **NO NEW OBSERVATION**으로 이 HOLD를 재확인했다.
+- **다음 Phase로 넘어가는 조건**: ADR Accepted — 아직 충족되지 않음. `ADC-0012`가 인용한 재개 Trigger가 실제 관찰 사건으로 충족되기 전까지 Phase 8은 공식 착수하지 않는다.
+- **Architecture/Governance 주의사항**: 이 Phase가 이번 Roadmap에서 유일하게 "새 Architecture 결정"을 만드는 지점이라는 원칙은 유지된다 — 다만 그 결정이 "지금 결정한다"가 아니라 "지금은 결정하지 않는다(DEFER)"로 나온 것도 유효한 결과다. ADR은 Kernel의 최소 책임만 확정하고, "혹시 필요할지 모르는" 기능을 미리 넣지 않는다(YAGNI를 Governance 절차 안에서 지킨다) — RFC-0012·ADC-0012 둘 다 Dispatch Component의 위치·Interface·구현을 확정하지 않은 것이 이 원칙의 적용이다.
 
 ---
 
 ## Phase 8 — Kernel Implementation
 
-**상태**: ⬜ 미착수 (Phase 7 ADR 승인 시)
+**상태**: ⬜ 미착수 (Phase 7 ADR 승인 시 — 현재 Phase 7 HOLD로 인해 공식 착수 제한)
 
 - **목표**: ADR에서 확정된 범위만 실제로 구현한다.
 - **핵심 작업**: ADR이 지정한 최소 Kernel 코드 작성(예: `core/registry/` 또는 `core/communication/` 하위 특정 모듈 1개).
