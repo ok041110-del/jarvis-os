@@ -1,11 +1,5 @@
 """`hqs/investment/trader.py`의 REPORT/DECISION 분리·파싱 Unit Test.
-
-`docs/research/INVESTMENT-HQ-SYNTHESIS-TRADER-EXPANSION-PROTOTYPE-0001.md`,
-`INVESTMENT-HQ-TRADER-DECISION-DISCRIMINATION-DOGFOODING-0001.md`에서
-실제 Engine 호출로 검증된 출력 형태(`## REPORT`/`## DECISION` 헤더,
-`Direction:`/`Rationale:`/`Reassess when:` 필드)를 그대로 입력값으로
-사용한다. 이 테스트는 파싱 로직만 검증한다 — Engine을 호출하지 않는다.
-"""
+Engine을 호출하지 않고 실제 산출물 형태의 고정 입력만 사용한다."""
 
 import sys
 from pathlib import Path
@@ -16,8 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from trader import TraderOutputError, parse_decision, split_report_decision  # noqa: E402
 
-# 실제 Engine 호출 산출물(aapl_trader_expanded.md)에서 그대로 가져온
-# 실제 형태 — 인위적으로 만든 예시가 아니다.
+# 실제 Engine 산출물(aapl_trader_expanded.md)에서 그대로 가져온 형태.
 REAL_TRADER_OUTPUT = """## REPORT
 
 **Where the two cases actually disagree on facts: nowhere significant**

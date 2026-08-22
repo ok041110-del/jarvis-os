@@ -94,12 +94,8 @@ def bear_researcher_bear_case(analyses: str) -> str:
 
 
 def trader_decision(bull_case: str, bear_case: str) -> str:
-    """Synthesis(REPORT) + Trader(DECISION) 단일 호출.
-
-    `docs/research/INVESTMENT-HQ-SYNTHESIS-TRADER-EXPANSION-PROTOTYPE-0001.md`
-    §3에서 확정된 최소 변경 원칙 — 기존 Synthesis 지시문은 한 글자도
-    바꾸지 않고, "not a trade order" 문장만 Decision 책임으로
-    대체한다."""
+    """Synthesis(REPORT) + Trader(DECISION) 단일 호출 — 기존 Synthesis
+    지시문은 무수정, "not a trade order" 문장만 Decision 책임으로 대체."""
     instruction = (
         "You are synthesizing a Bull Case and a Bear Case for the same stock "
         "into a balanced judgment. Identify where they actually conflict on "

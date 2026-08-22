@@ -1,17 +1,5 @@
-"""Stock Team Integration Test — Bull/Bear -> Trader(REPORT/DECISION) ->
-Final Report 데이터 흐름을 실제 `run()` 호출로 검증한다. Engine은
-Mock으로 대체한다(비용/시간 문제로 Unit 단계에서는 실제 Engine을 쓰지
-않는다 — 실제 Engine 검증은 Dogfooding 단계(§15)에서 별도로 한다).
-
-검증 대상:
-- Wave1~4가 정상적으로 이어지는가(Synthesis/Trader 단계가 하나로
-  합쳐졌어도 나머지 Wave 구조는 그대로인가).
-- DECISION이 Final Report 생성 프롬프트에 섞여 들어가지 않는가
-  (사용자 지시 §7 "REPORT 영역에는 Trader의 방향 판단이 섞이지
-  않도록" — 코드 레벨로 확인).
-- `synthesis.md`/`trader_decision.md`가 분리 저장되는가.
-- Resume 시 Trader 단계가 재호출되지 않는가.
-"""
+"""Stock Team Integration Test — Bull/Bear -> Trader -> Final Report
+데이터 흐름을 `run()` 실제 호출로 검증한다. Engine은 Mock으로 대체."""
 
 import sys
 from pathlib import Path
@@ -66,7 +54,6 @@ def _fake_call_engine(prompt: str) -> str:
         return "Bull case body."
     if marker == "BEAR_CASE":
         return "Bear case body."
-    # 5개 Analyst 호출 전부 동일한 최소 응답으로 충분(분석 품질은 이 테스트의 대상이 아님)
     return f"{marker} body."
 
 
@@ -79,23 +66,19 @@ def test_run_wires_trader_between_synthesis_and_final_report(tmp_path, monkeypat
 
     result = stock_team.run("TESTCO", raw_data_path, issue_dir)
 
-    # 1) synthesis.md는 REPORT만, trader_decision.md는 DECISION만 담는다(분리 확인)
     synthesis_saved = (issue_dir / "synthesis.md").read_text(encoding="utf-8")
     decision_saved = (issue_dir / "trader_decision.md").read_text(encoding="utf-8")
     assert "Bull and bear agree" in synthesis_saved
     assert "Direction:" not in synthesis_saved
     assert "Direction:" in decision_saved
 
-    # 2) checkpoint는 "trader_decision" 하나로 통합(별도 "synthesis" 체크포인트 없음)
     assert (issue_dir / "checkpoints" / "trader_decision.md").exists()
     assert not (issue_dir / "checkpoints" / "synthesis.md").exists()
 
-    # 3) wave_summary에 파싱된 Decision이 담긴다
     decision_parsed = result["wave_summary"]["trader_decision"]
     assert decision_parsed["action"] == "HOLD"
     assert decision_parsed["warnings"] == []
 
-    # 4) Final Report는 정상 생성되고 DECISION 텍스트를 담지 않는다
     final_report = (issue_dir / "final_report.md").read_text(encoding="utf-8")
     assert "Direction:" not in final_report
 
@@ -118,6 +101,6 @@ def test_resume_does_not_recall_trader(tmp_path, monkeypatch):
     stock_team.run("TESTCO", raw_data_path, issue_dir)
     assert calls["trader"] == 1
 
-    # 두 번째 실행(Resume) — Trader 단계가 이미 checkpoint에 있으므로 재호출되면 안 된다
+    # Resume — checkpoint 존재로 재호출되면 안 됨
     stock_team.run("TESTCO", raw_data_path, issue_dir)
     assert calls["trader"] == 1
