@@ -1,0 +1,17 @@
+{
+  "zero_dependency_violations": [],
+  "sequential_elapsed_sec": 24.4,
+  "parallel_elapsed_sec": 10.1,
+  "speedup": 2.42,
+  "task_count": 3,
+  "results_collected": {
+    "tides": 515,
+    "autumn_leaves": 584,
+    "bread_rising": 455
+  },
+  "exception_propagation": {
+    "tides": "no_exception",
+    "autumn_leaves": "no_exception",
+    "forced_failure": "FileNotFoundError: [Errno 2] No such file or directory: 'claude-binary-that-does-not-exist'"
+  }
+}
