@@ -8,6 +8,10 @@ investment/` 빈 결과로 확인). `Exposure schema`/`DirectExposure`/
 `IndirectExposure`/`LookThroughExposure` 등 어떤 이름도 Contract로
 확정하지 않는다.
 
+**핵심 결론**: 판정 A. LOOK-THROUGH PORTFOLIO NEED VALIDATED(조건부) —
+개별 종목을 보유한 ETF(예: QQQ)에서만 발동하고, 비주식 ETF(예: GLD)에는
+발동하지 않는다. "Overlap 필수" 원가설은 부분 수정됐다.
+
 **방법론**: 격리된 `projects/synthesis-trader-expansion-prototype/
 lookthrough_prototype.py`(신규 파일)로 **실제 Engine 호출 4회**를
 수행했다. 새로운 시장/종목/구성종목 데이터는 만들지 않았다 — ETF

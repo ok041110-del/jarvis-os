@@ -9,6 +9,11 @@
 준수). 실제 Engine 호출을 이번에 **2회 추가**(NVDA, JNJ) 실행했다
 — `git diff --stat hqs/investment/`는 여전히 빈 결과로 확인됐다.
 
+**핵심 결론**: 판정 D. UNTESTABLE — 저장소 내 실제 Synthesis 출력
+17건 전수 조사 결과 뚜렷하게 한쪽으로 치우친 사례가 없었다. 가장
+편향된 두 후보(NVDA bull 최강, JNJ bear 최강)조차 실제 Engine 호출
+결과 HOLD로 나왔다 — 누적 6/6 HOLD, BUY/SELL 0건.
+
 ---
 
 ## 1. 사용한 실제 사례

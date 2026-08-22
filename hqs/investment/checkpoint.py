@@ -1,28 +1,17 @@
-"""단계별 산출물을 즉시 디스크에 저장하고, 재실행 시 완료된 단계를
-Engine 재호출 없이 건너뛰는 파일 기반 캐시. `docs/research/
-DEV-HQ-TIMEOUT-RECOVERY`류 Prototype(PR #76/#80)에서 실측 검증된
-구조를 그대로 옮긴 것이며, Registry/Scheduler가 아니다 — 이 클래스는
-"단계 이름 -> 파일 하나"라는 고정된 매핑 하나만 다루고, 동적 등록
-API나 일반화된 조회 인터페이스를 제공하지 않는다.
-"""
+"""단계별 산출물을 즉시 저장하고 재실행 시 완료된 단계를 건너뛰는
+파일 기반 캐시(PR #76/#80 실측 검증). 고정 매핑만 다루는 Registry/Scheduler 아님."""
 
 import json
 import threading
 from pathlib import Path
 
-# 실제 관찰된 콘텐츠 레벨 실패 시그니처만 다룬다(추측 기반 시그니처 추가
-# 금지) — `hqs/investment/dogfooding/{efa-2026-08,pg-hq-verify}/EVIDENCE.md`
-# 에 토씨 하나 다르지 않게 재현된 문자열의 접두어.
-# `projects/investment-hq-checkpoint-detection-prototype/`에서 Feasibility
-# 검증됨(True Positive 1/1, 기존 checkpoint 30개 대비 False Positive 0/30).
+# 실제 관찰된 시그니처만(추측 추가 금지) — EVIDENCE.md 재현값.
 _KNOWN_CONTENT_FAILURE_PREFIXES = ("API Error:",)
 
 
 class ContentFailureError(RuntimeError):
-    """`run_step()`의 결과가 알려진 콘텐츠 실패 시그니처일 때 저장 대신
-    발생시키는 예외. 재시도/알림/동시성은 다루지 않는다 — 이 단계는
-    저장되지 않으므로 다음 실행에서 `has()`가 False를 반환해 그대로
-    재시도(Resume) 대상이 된다."""
+    """콘텐츠 실패 시그니처일 때 저장 대신 발생 — 저장되지 않으므로
+    다음 실행에서 자동 재시도(Resume) 대상이 된다."""
 
 
 def _is_known_content_failure(output: str) -> bool:
@@ -72,9 +61,8 @@ class Checkpointer:
 
 
 def run_step(cp: Checkpointer, step: str, fn, *args) -> str:
-    """체크포인트가 있으면 Engine을 재호출하지 않고 디스크에서 읽는다.
-    결과가 알려진 콘텐츠 실패 시그니처(`_is_known_content_failure`)면
-    저장하지 않고 `ContentFailureError`를 발생시킨다."""
+    """체크포인트가 있으면 재호출 없이 디스크에서 읽는다. 콘텐츠 실패
+    시그니처면 저장하지 않고 `ContentFailureError`를 발생시킨다."""
     import time
 
     if cp.has(step):

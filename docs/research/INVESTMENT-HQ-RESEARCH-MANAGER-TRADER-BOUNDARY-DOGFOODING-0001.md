@@ -8,6 +8,12 @@ Architecture 설계, Contract 확정, 코드 수정을 하지 않는다. 새 Eng
 호출도 하지 않았다 — 기존 Synthesis/Bull/Bear 산출물을 STEP1/STEP2로
 논리적으로 분리해 재검토했다.
 
+**핵심 결론**: 판정 C — Trader는 사실상 Synthesis의 일부이며 독립
+Component가 아니다(재검토 필요). 4개 사례 모두 CASE A(Synthesis
+텍스트만으로 방향 판단 충분)였다. Agent/실행 단위 분리 근거는 약하지만,
+Report/Decision *출력* 분리는 코드 수준 근거(Disclaimer 충돌)로
+뒷받침된다.
+
 ---
 
 ## 1. 사용한 실제 Dogfooding 사례

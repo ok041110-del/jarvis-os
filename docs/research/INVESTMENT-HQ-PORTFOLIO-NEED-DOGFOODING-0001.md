@@ -8,6 +8,11 @@ Architecture/Contract 설계가 아니다.** RFC/ADC/ADR을 생성하지 않고,
 확정하지 않는다 — 이 문서 전체에서 "Portfolio-level 책임"이라는
 중립적 표현을 쓴다.
 
+**핵심 결론**: 판정 A. PORTFOLIO NEED VALIDATED(조건부) — 집중도 +
+정책 부재 + 자산군 간 상관관계가 함께 성립할 때만 필요하다(Negative
+Control로 확인). QQQ의 실제 공시 보유 종목이 직접 보유 Stock 포지션과
+겹치는 사례가 핵심 근거였다.
+
 **방법론**: 격리된 `projects/synthesis-trader-expansion-prototype/
 portfolio_prototype.py`(신규 파일)로 **실제 Engine 호출 4회**를
 수행했다 — 기존 실제 Trader Decision(`results/*_trader_expanded.md`,

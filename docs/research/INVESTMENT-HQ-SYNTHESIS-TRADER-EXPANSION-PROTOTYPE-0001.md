@@ -8,6 +8,11 @@
 (`git diff --stat hqs/investment/` — 빈 결과). Contract를 확정하지
 않는다.
 
+**핵심 결론**: 판정 B — Synthesis→Trader 확장은 가능하지만 근거가
+더 필요하다. 실제 Engine 호출 4회로 REPORT/DECISION 분리는 검증됐지만
+4건 모두 HOLD로 수렴해 action 필드의 변별력은 입증되지 않았고, E2E
+Workflow 통합은 테스트되지 않았다.
+
 **이번 작업은 실제 Engine 호출을 포함한다** — 이전 세 Dogfooding
 문서(수작업 재검토)와 달리, 이번엔 `hqs/development/mvp/engine.py`의
 `call_engine()`을 통해 **실제로 4회 Engine을 호출**했다(AAPL/CAT/

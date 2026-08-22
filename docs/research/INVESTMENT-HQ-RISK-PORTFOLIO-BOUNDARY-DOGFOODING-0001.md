@@ -7,6 +7,11 @@ Architecture를 설계·확정하지 않는다.** RFC/ADC/ADR을 생성하지 �
 `RiskDecision`/`RiskScore`/`RiskLevel`/`RiskLimit` 등 어떤 이름·필드도
 Contract로 확정하지 않는다.
 
+**핵심 결론**: 판정 B. RISK NEED PARTIALLY VALIDATED — Risk와
+Portfolio는 서로 다른 질문에 답한다(확인됨)는 것은 검증됐지만, 가장
+강한 형태의 근거(Risk가 실제로 Portfolio 결론을 바꾸는 것)는 이
+문서의 n=1 수준에서도 확인되지 않았다(STEP3-C: 변화 없음).
+
 **방법론**: 격리된 `projects/synthesis-trader-expansion-prototype/
 risk_boundary_prototype.py`(신규 파일)로 **실제 Engine 호출 6회**를
 수행했다. 새로운 시장 데이터를 만들지 않았다 — Portfolio State는
