@@ -30,10 +30,12 @@ Gateway "Engine 수 ≥ 2", 현재도 미충족).
 
 **이 RFC는 그 종결을 뒤집지 않는다.** C1~C6 중 어느 것도 다시
 Accept하지 않는다. 대신 `ADC-0010`이 C1(Kernel Engine Port/Adapter)에
-대해 남긴 정확한 문구 — *"책임은 이미 귀속되어 있으나(Frozen), 실체가
-없어 지금 당장 caller 역할을 할 수 없다 — Kernel Component
-Architecture 설계가 선행되어야 한다"* — 가 요구한 바로 그 **선행
-설계 착수의 최소 단위**를 연다. 범위는 C1 전체(Engine 호출 일반)가
+대해 남긴 두 문구를 근거로 삼는다 — 판단: *"실체가 없어 지금 caller
+역할을 할 수 없다"*, 그리고 부족한 Evidence 1번: *"Kernel Component
+Architecture 설계 착수(현재 §10 Out of Scope) — 이 자체가 여러 선행
+조건(Kernel Module Defer 3건, ADC-01·02, Engine 수 ≥2 등)에 걸려
+있다."* 이 RFC는 이 두 문구가 가리키는 **선행 설계 착수의 최소
+단위**를 연다. 범위는 C1 전체(Engine 호출 일반)가
 아니라, `PHASE5-KERNEL-CANDIDATE-0001.md`가 Kernel Candidate로 확정한
 좁은 부분집합 — 동시성 Dispatch(Parallel Execution 원시 기법) —
 로 한정한다.
@@ -216,7 +218,7 @@ Engine Adapter Defer 판정과 충돌하지 않는지는 **후속 ADC가 명시�
 HQ가 이를 소비하는 방향은 두 가지 후보가 있을 수 있다 — (a) HQ가
 Dispatch를 직접 import해 호출, (b) 현행 유지(HQ가 각자
 `ThreadPoolExecutor`를 구성). **이 RFC는 둘 중 하나를 선택하지 않는다.**
-`RFC-0010` §2가 "Development HQ는 caller 후보로 검토된 적이 없는
+`RFC-0010` §3(Pattern)이 "Development HQ는 caller 후보로 검토된 적이 없는
 정도가 아니라, Engine Adapter/Model Routing 관련 책임에서 명시적으로
 제외됐다"고 확인한 사실은, HQ가 Dispatch의 **제공자**가 아니라
 **소비자**일 가능성만 시사할 뿐, 소비 방식을 결정하지 않는다.
@@ -371,3 +373,16 @@ Trigger(Engine 수 ≥ 2, 여전히 미충족)가 채워질 때까지 계속 대
   §0에서 RFC-0010/RFC-0011/`COMPONENT-CANDIDATE-0001`/`CLOSURE-0001`과의
   중첩을 명시적으로 인정하고, 재론이 아니라 그 결론이 남긴 좁은
   후속 지점(C1의 "설계 선행 필요")만 여는 것임을 밝혔다.
+
+## Correction Log
+
+- 최초 작성본은 §0에서 `ADC-0010` C1 판단을 "책임은 이미 귀속되어
+  있으나(Frozen), 실체가 없어 지금 당장 caller 역할을 할 수 없다 —
+  Kernel Component Architecture 설계가 선행되어야 한다"는 **하나의
+  인용문**으로 제시했으나, 이는 `ADC-0010`의 C1 판단 문장과 "부족한
+  Evidence" 1번 항목을 합성한 것으로 원문에 그 형태의 문장이
+  존재하지 않았다. 대조 결과 확인된 오류로, 두 원문 문구를 각각
+  따로 인용하도록 수정했다(§0). §11의 인용 출처도 "RFC-0010 §2"에서
+  실제 위치인 "RFC-0010 §3(Pattern)"으로 정정했다. 두 수정 모두
+  인용 정확성 교정이며, RFC의 결론(Boundary Question 미답변,
+  Not Accepted 트랙 재론 안 함)은 변경되지 않았다.
