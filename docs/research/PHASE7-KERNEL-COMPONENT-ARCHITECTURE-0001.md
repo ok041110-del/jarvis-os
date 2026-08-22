@@ -86,6 +86,19 @@ RFC 초안 작성 — "Parallel Execution 원시 기법의 `core/execution/` 내
 
 ---
 
+## Phase 7 보류(HOLD) 상태
+
+**후속 진행**: 위 "다음 작업"은 실제로 `docs/architecture/core/RFC-0012-dispatch-component-boundary.md`(Kernel 수준 RFC 계열, RFC-0010/RFC-0011 후속)로 작성됐고, 후속 `docs/architecture/core/ADC-0012-dispatch-component-boundary.md`가 그 Governance 진행 가능 여부를 **DEFER**로 판정했다(`CLOSURE-0001`/`GOVERNANCE-REVIEW-0001`의 기존 재개 Trigger 6개 중 5개 미충족 — `docs/research/GOVERNANCE-TRIGGER-OBSERVATION-0001.md` 참조).
+
+**Phase 7 판정 자체는 위 "PASS"(Architecture Design 완료)로 유지한다** — Phase 7이 요구한 조사·비교·판단은 완료됐고 결론(B. ARCHITECTURE DESIGN REQUIRED)도 유지된다. 다만 그 결론에 따라 열린 RFC-0012/ADC-0012 트랙은 아래와 같이 **보류**한다.
+
+- **보류된 것**: Dispatch Component의 최종 확정, Interface 확정, `core/`로의 실제 Migration/구현. RFC-0012는 Proposed 상태로 유지, ADC-0012는 DEFER 판정 그대로 유지한다.
+- **보류되지 않은 것**: Phase 7 자신의 조사 결과(Execution Layer/Dispatch 책임 분석, Boundary 비교, B 판정)와 RFC-0012/ADC-0012가 이미 기록한 Evidence·판단 근거 — 전부 그대로 유효하며 재개 시 처음부터 재조사하지 않는다.
+- **재개 조건**: `docs/research/GOVERNANCE-TRIGGER-OBSERVATION-0001.md` §2의 미충족 근거(#1~5) 중 하나 이상이 실제로 충족될 때, 또는 Dispatch Component 판단에 영향을 주는 새로운 Architecture 사실(예: `core/execution/pipeline.py` 계약 변경, 새 Kernel Module Accept)이 관찰될 때. 어느 쪽이든 **관찰 사건**이어야 하며, 문서 작업만으로는 재개 조건이 충족되지 않는다(`CLOSURE-0001` §5.4와 동일 원칙).
+- **재개 방식**: 재개 시 이 문서(Phase 7)와 RFC-0012/ADC-0012를 그대로 이어받아 다음 판단 지점(ADC-0012 §Decision "필요한 향후 Trigger/Evidence")부터 진행한다. Phase 5(Kernel Candidate)~Phase 7(Component Architecture)은 1회성 선형 단계가 아니라, 새 Evidence·Architecture 변화가 발생하면 필요한 지점(Phase 5/6/7 중 해당하는 단계)으로 되돌아가 재검증할 수 있는 반복 가능한 검증 루프로 취급한다 — 재개가 항상 Phase 7에서 시작해야 하는 것은 아니다.
+
+---
+
 ## Architecture/Governance 영향
 
 **없음.** Structure v1.0 / Architecture Baseline / Development HQ v1.0 Freeze / Investment HQ v1.0 Freeze / `core/` / `hqs/` 어느 것도 수정하지 않았다. Registry/Scheduler/Runtime/Engine Gateway를 만들지 않았다. Migration을 수행하지 않았다. 새 RFC/ADC/ADR을 작성하지 않았다(다음 작업으로만 제안). `PHASE9-CLOSURE-0001`의 기존 판정을 재론하지 않았다.
