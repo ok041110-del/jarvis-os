@@ -11,6 +11,10 @@ ADC.md는 모든 Open Decision의 Single Source of Truth다. Architecture Baseli
 1. 지금 결정하지 않으면 상위 Architecture를 진행할 수 없다.
 2. 결정이 늦어질수록 되돌리는 비용이 매우 커진다.
 
+## Experimental Implementation과의 관계
+
+ADC가 판단하는 대상은 Formal Architecture Decision이다. Experimental Implementation 단계 자체(`docs/00_governance/ARCHITECTURE_GOVERNANCE.md` "Experimental Implementation" 참조)는 ADC Accept를 필요로 하지 않는다. Experimental 결과를 Formal Architecture 또는 Core Component로 승격하려는 경우에만 위 채택 기준을 적용한다.
+
 ## 우선순위 분류
 
 NOW / NEXT / LATER / NEVER — 정의는 `docs/00_governance/ARCHITECTURE_GOVERNANCE.md` 참조.
