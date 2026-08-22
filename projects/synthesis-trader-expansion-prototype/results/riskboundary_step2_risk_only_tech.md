@@ -1,0 +1,16 @@
+## Risk Assessment — AAPL / NVDA / QQQ Composition
+
+**What the data shows:**
+
+- **Nominal concentration:** Three separate 10% positions (AAPL, NVDA, QQQ) = 30% of portfolio value nominally spread across three "line items."
+- **Look-through concentration:** QQQ's stated composition (~7.1–7.3% AAPL, ~8.5–8.9% NVDA) means the direct QQQ position carries additional AAPL and NVDA exposure. Adding that to the direct holdings:
+  - AAPL total look-through exposure ≈ 10% + (10% × ~7.2%) ≈ **10.7%**
+  - NVDA total look-through exposure ≈ 10% + (10% × ~8.7%) ≈ **10.9%**
+  The incremental add from QQQ's overlap is small in isolation (~0.7–0.9 percentage points each).
+- **Diversification-illusion risk:** QQQ's top-5 holdings are ~30–33% of its own assets, and AAPL+NVDA alone already account for ~15.6–16.2 percentage points of that. This means QQQ is not a diversifying sleeve relative to the direct AAPL/NVDA holdings — it is a vehicle heavily concentrated in the same mega-cap tech names (plus, presumably, a small number of other correlated large-cap tech/growth names not disclosed here). The "three positions" framing overstates how many independent bets are actually being taken.
+- **Correlated catalyst/uncertainty risk:** Each Trader Decision independently landed on HOLD because of a distinct but structurally similar condition — a single unresolved fact (AAPL's Services trend, NVDA's China licensing, QQQ's Fed path) that both cases agree is the swing variable. Because QQQ's outcome is partly mechanically linked to AAPL's and NVDA's individual outcomes (via its top-5 weighting) as well as to the same macro/rate sensitivity that affects growth-oriented tech generally, the uncertainty across the three holdings is not statistically independent — it compounds rather than offsets.
+- **Policy/governance gap:** No stated position-limit or look-through exposure cap exists for this portfolio. That means there is no explicit threshold against which the ~10.7–10.9% single-name exposure, or the effective concentration in mega-cap tech across all three holdings combined, can be measured as "in-" or "out-of-bounds." This is itself a describable risk — the absence of a defined tolerance makes any conclusion about acceptability provisional rather than verified.
+
+**Is this risk level acceptable?**
+
+The magnitude of the *incremental* look-through concentration (roughly 0.7–0.9 percentage points added to AAPL and NVDA via QQQ) is modest and, on its own, would not typically be considered a material concentration breach in a diversified portfolio. The more consequential risk is qualitative: the appearance of three-way diversification is weaker than it looks, because QQQ's own concentration duplicates rather than offsets the direct single-name exposures, and the resolving catalysts for all three HOLDs are correlated rather than independent. Whether that combined effect is "tolerable" cannot be fully settled here, because no explicit policy or risk-tolerance threshold was provided against which to test it, and QQQ's other top-holdings (beyond AAPL/NVDA) aren't disclosed to assess sector breadth further. Given only what's stated, the concentration and correlation risk is real and non-trivial in character, though not extreme in magnitude — a judgment of full acceptability would require a stated policy benchmark that doesn't currently exist.
