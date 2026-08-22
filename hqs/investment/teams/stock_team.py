@@ -6,6 +6,7 @@ from pathlib import Path
 
 from checkpoint import Checkpointer, run_step
 from engine_client import call_engine
+from trader import TRADER_DECISION_INSTRUCTION, parse_decision, split_report_decision
 
 _DATA_LIMITATION_NOTICE = (
     "You are given only the data explicitly provided below (collected via web "
@@ -92,16 +93,22 @@ def bear_researcher_bear_case(analyses: str) -> str:
     return _run("BEAR_CASE", instruction, analyses)
 
 
-def synthesis_judgment(bull_case: str, bear_case: str) -> str:
+def trader_decision(bull_case: str, bear_case: str) -> str:
+    """Synthesis(REPORT) + Trader(DECISION) 단일 호출.
+
+    `docs/research/INVESTMENT-HQ-SYNTHESIS-TRADER-EXPANSION-PROTOTYPE-0001.md`
+    §3에서 확정된 최소 변경 원칙 — 기존 Synthesis 지시문은 한 글자도
+    바꾸지 않고, "not a trade order" 문장만 Decision 책임으로
+    대체한다."""
     instruction = (
         "You are synthesizing a Bull Case and a Bear Case for the same stock "
         "into a balanced judgment. Identify where they actually conflict on "
         "facts vs. where they interpret the same facts differently, and state "
-        "which open questions would most change the conclusion. This is not a "
-        "trade order and must not include a buy/sell/hold instruction."
+        "which open questions would most change the conclusion."
+        + TRADER_DECISION_INSTRUCTION
     )
     payload = f"[BULL CASE]\n{bull_case}\n\n[BEAR CASE]\n{bear_case}"
-    return _run("SYNTHESIS", instruction, payload)
+    return _run("TRADER", instruction, payload)
 
 
 def report_writer_final_report(company_label: str, fundamental, technical, industry, news_event, sentiment, bull_case, bear_case, synthesis) -> str:
@@ -194,11 +201,13 @@ def run(company_label: str, raw_data_path: Path, issue_dir: Path) -> dict:
     bear_case = wave2_results["bear_case"]
 
     wave3_t0 = time.monotonic()
-    synthesis = run_step(cp, "synthesis", synthesis_judgment, bull_case, bear_case)
+    trader_raw = run_step(cp, "trader_decision", trader_decision, bull_case, bear_case)
+    report_text, decision_text = split_report_decision(trader_raw)
+    decision_parsed = parse_decision(decision_text)
     wave3_elapsed = time.monotonic() - wave3_t0
 
     wave4_t0 = time.monotonic()
-    final_report = run_step(cp, "final_report", report_writer_final_report, company_label, fundamental, technical, industry, news_event, sentiment, bull_case, bear_case, synthesis)
+    final_report = run_step(cp, "final_report", report_writer_final_report, company_label, fundamental, technical, industry, news_event, sentiment, bull_case, bear_case, report_text)
     wave4_elapsed = time.monotonic() - wave4_t0
 
     pipeline_elapsed = time.monotonic() - pipeline_t0
@@ -211,7 +220,8 @@ def run(company_label: str, raw_data_path: Path, issue_dir: Path) -> dict:
         "sentiment_analysis.md": sentiment,
         "bull_case.md": bull_case,
         "bear_case.md": bear_case,
-        "synthesis.md": synthesis,
+        "synthesis.md": report_text,
+        "trader_decision.md": decision_text,
         "final_report.md": final_report,
     }
     for filename, content in results.items():
@@ -224,6 +234,7 @@ def run(company_label: str, raw_data_path: Path, issue_dir: Path) -> dict:
         "wave3_elapsed_sec": round(wave3_elapsed, 1),
         "wave4_elapsed_sec": round(wave4_elapsed, 1),
         "pipeline_total_elapsed_sec": round(pipeline_elapsed, 1),
+        "trader_decision": decision_parsed,
     }
     (issue_dir / "call_log.json").write_text(
         json.dumps({"calls": cp.manifest["call_log"], "wave_summary": wave_summary}, ensure_ascii=False, indent=2) + "\n",

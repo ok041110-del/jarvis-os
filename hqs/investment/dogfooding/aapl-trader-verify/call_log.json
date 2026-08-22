@@ -1,0 +1,71 @@
+{
+  "calls": [
+    {
+      "role": "fundamental_analysis",
+      "input_chars": 761,
+      "output_chars": 3694,
+      "elapsed_sec": 22.0
+    },
+    {
+      "role": "technical_analysis",
+      "input_chars": 656,
+      "output_chars": 1442,
+      "elapsed_sec": 27.1
+    },
+    {
+      "role": "industry_analysis",
+      "input_chars": 724,
+      "output_chars": 4415,
+      "elapsed_sec": 27.5
+    },
+    {
+      "role": "news_event_analysis",
+      "input_chars": 749,
+      "output_chars": 4093,
+      "elapsed_sec": 28.4
+    },
+    {
+      "role": "sentiment_analysis",
+      "input_chars": 615,
+      "output_chars": 1567,
+      "elapsed_sec": 32.6
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 15326,
+      "output_chars": 4373,
+      "elapsed_sec": 23.9
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 15326,
+      "output_chars": 8608,
+      "elapsed_sec": 63.8
+    },
+    {
+      "role": "trader_decision",
+      "input_chars": 12981,
+      "output_chars": 6645,
+      "elapsed_sec": 32.4
+    },
+    {
+      "role": "final_report",
+      "input_chars": 33889,
+      "output_chars": 7102,
+      "elapsed_sec": 30.8
+    }
+  ],
+  "wave_summary": {
+    "wave1_elapsed_sec": 32.6,
+    "wave2_elapsed_sec": 63.8,
+    "wave3_elapsed_sec": 32.4,
+    "wave4_elapsed_sec": 30.8,
+    "pipeline_total_elapsed_sec": 159.6,
+    "trader_decision": {
+      "action": "HOLD",
+      "rationale": "The two cases agree on nearly all underlying facts and diverge mainly in interpretation of ambiguous or incomplete data (unquantified margin mix, undated analyst outliers, internally contradictory technicals, unclear supply-constraint duration). With core inputs like actual margin figures, ex-one-time EPS, and China-specific share data absent from both reports, there isn't enough resolved information to support a directional conviction either way on the fundamentals — and the technical/sentiment layer is explicitly described as mixed by both sides, not tilted.",
+      "reassessment_trigger": "Resolution of what gross/Services margin actually did this quarter and whether the hardware-heavy growth mix is genuinely margin-dilutive — this is the fact gap most cited by both cases and most likely to shift the balance toward BUY (if margins held or expanded) or SELL (if they compressed materially).",
+      "warnings": []
+    }
+  }
+}

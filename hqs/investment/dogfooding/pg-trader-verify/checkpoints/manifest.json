@@ -1,0 +1,83 @@
+{
+  "completed_steps": [
+    "sentiment_analysis",
+    "fundamental_analysis",
+    "valuation_analysis",
+    "industry_analysis",
+    "technical_analysis",
+    "dividend_quality_analysis",
+    "news_event_analysis",
+    "bull_case",
+    "bear_case",
+    "trader_decision",
+    "final_report"
+  ],
+  "call_log": [
+    {
+      "role": "sentiment_analysis",
+      "input_chars": 1288,
+      "output_chars": 2678,
+      "elapsed_sec": 23.4
+    },
+    {
+      "role": "fundamental_analysis",
+      "input_chars": 1353,
+      "output_chars": 3987,
+      "elapsed_sec": 27.3
+    },
+    {
+      "role": "valuation_analysis",
+      "input_chars": 1581,
+      "output_chars": 3454,
+      "elapsed_sec": 27.5
+    },
+    {
+      "role": "industry_analysis",
+      "input_chars": 1349,
+      "output_chars": 1864,
+      "elapsed_sec": 36.1
+    },
+    {
+      "role": "technical_analysis",
+      "input_chars": 1271,
+      "output_chars": 1327,
+      "elapsed_sec": 40.3
+    },
+    {
+      "role": "dividend_quality_analysis",
+      "input_chars": 1452,
+      "output_chars": 2168,
+      "elapsed_sec": 43.4
+    },
+    {
+      "role": "news_event_analysis",
+      "input_chars": 1398,
+      "output_chars": 1715,
+      "elapsed_sec": 46.5
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 17361,
+      "output_chars": 6448,
+      "elapsed_sec": 32.9
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 17361,
+      "output_chars": 8805,
+      "elapsed_sec": 41.1
+    },
+    {
+      "role": "trader_decision",
+      "input_chars": 15253,
+      "output_chars": 5752,
+      "elapsed_sec": 28.7
+    },
+    {
+      "role": "final_report",
+      "input_chars": 37060,
+      "output_chars": 9487,
+      "elapsed_sec": 40.4
+    }
+  ]
+}

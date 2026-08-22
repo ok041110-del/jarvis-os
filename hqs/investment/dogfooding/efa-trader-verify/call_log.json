@@ -1,0 +1,77 @@
+{
+  "calls": [
+    {
+      "role": "distribution_analysis",
+      "input_chars": 934,
+      "output_chars": 2017,
+      "elapsed_sec": 16.0
+    },
+    {
+      "role": "macro_analysis",
+      "input_chars": 961,
+      "output_chars": 3485,
+      "elapsed_sec": 20.0
+    },
+    {
+      "role": "cost_tracking_analysis",
+      "input_chars": 910,
+      "output_chars": 2787,
+      "elapsed_sec": 20.0
+    },
+    {
+      "role": "holdings_exposure_analysis",
+      "input_chars": 1138,
+      "output_chars": 3593,
+      "elapsed_sec": 22.1
+    },
+    {
+      "role": "performance_risk_analysis",
+      "input_chars": 1093,
+      "output_chars": 5293,
+      "elapsed_sec": 26.4
+    },
+    {
+      "role": "composition_analysis",
+      "input_chars": 969,
+      "output_chars": 1749,
+      "elapsed_sec": 30.2
+    },
+    {
+      "role": "bull_case",
+      "input_chars": 19026,
+      "output_chars": 5159,
+      "elapsed_sec": 26.9
+    },
+    {
+      "role": "bear_case",
+      "input_chars": 19026,
+      "output_chars": 6218,
+      "elapsed_sec": 30.9
+    },
+    {
+      "role": "trader_decision",
+      "input_chars": 11377,
+      "output_chars": 5238,
+      "elapsed_sec": 23.8
+    },
+    {
+      "role": "final_report",
+      "input_chars": 34271,
+      "output_chars": 6765,
+      "elapsed_sec": 31.4
+    }
+  ],
+  "wave_summary": {
+    "wave1_elapsed_sec": 0.0,
+    "wave2_elapsed_sec": 0.0,
+    "wave3_elapsed_sec": 23.8,
+    "wave4_elapsed_sec": 31.4,
+    "pipeline_total_elapsed_sec": 55.2,
+    "trader_decision": {
+      "action": "HOLD",
+      "rationale": "The Bull and Bear cases rest on the same factual record and diverge only in how much weight to assign to known risks (61% historical drawdown, ~40% combined Japan/UK country concentration, unhedged and unquantified FX exposure) versus known positives (Morningstar Silver rating, low single-name concentration, 20.06% one-year return, low disclosed fee). Several data points that would be decisive for a directional call — EFA-specific tracking error, sector weights, currency-hedging exposure sizing, and regional macro conditions — are absent from the record entirely, and neither case can responsibly resolve the conclusion without them. No portfolio context, existing position, or sizing information was provided, so this reflects a single-security stance only, not an allocation recommendation.",
+      "reassessment_trigger": "Whether EFA-specific tracking error data becomes available (confirming or refuting whether the 0.32% fee and sampling methodology are justified relative to lower-cost, reportedly tighter-tracking alternatives like VEA) is the single open question most likely to shift this from HOLD, since it is the crux of the Bear's strongest fee-based argument and currently has zero supporting data in either direction.",
+      "warnings": []
+    }
+  }
+}

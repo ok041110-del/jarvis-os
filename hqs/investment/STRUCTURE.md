@@ -39,7 +39,13 @@ ETF/Dividend Stock Team 각 Definition 문서가 이미 동일하게 판단함).
 | Dividend Stock | 7 | `docs/research/DIVIDEND-STOCK-TEAM-DEFINITION-0001.md`, 7회 Dogfooding |
 
 세 Team 모두 동일한 4-Wave 실행 패턴(N개 분석 병렬 → Bull/Bear 병렬 →
-Synthesis → Final Report)을 공유한다 — Closure 문서 참조.
+Trader Decision → Final Report)을 공유한다 — Closure 문서 참조.
+Wave3는 기존 Synthesis 지시문에 방향 판단(Trader) 책임을 최소
+추가해 REPORT(사람이 읽는 종합)와 DECISION(action/rationale/
+reassessment_trigger)을 한 번의 호출로 산출한다 — 별도 Agent가
+아니다(`docs/research/INVESTMENT-HQ-TRADER-WORKFLOW-STABILIZATION-0001.md`).
+Trader 이후 계층(Portfolio/Risk)은 여전히 Defer 상태다
+(`docs/research/INVESTMENT-HQ-RISK-ARCHITECTURE-FREEZE-REVIEW-0001.md`).
 
 ## Execution — 신규 표준 실행 패턴 재사용
 
