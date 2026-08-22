@@ -4,6 +4,8 @@
 
 이 문서는 Jarvis OS(Kernel) 수준 Open Decision(ADC-01~12)만 다룬다. Development HQ 수준 ADC는 `docs/governance/adc/`, Kernel Architecture RFC 후속 ADC는 `docs/architecture/core/`, Execution Layer 수준 ADC는 `docs/core/execution-layer/`에 각각 별도로 등록되어 있다(`DOC-TRIAGE-0001` D-7).
 
+**Experimental Implementation과의 관계**(`docs/00_governance/ARCHITECTURE_GOVERNANCE.md` "Experimental Implementation" 참조): Experimental 단계에서 얻은 Evidence는 Observation으로 기록될 수 있으나, 그 존재만으로 이 문서의 Open Decision이나 다른 트랙(위 문단 참조)의 Deferred Decision이 자동으로 재개되지 않는다. 각 Decision의 기존 재개 Trigger는 그대로 유지되며, Formal Architecture 승격을 시도하는 경우에만 RFC → ADC → ADR 절차를 따른다. Experimental은 이 문서가 정의하는 Governance를 우회하기 위한 예외가 아니다.
+
 ---
 
 ## ADC-01. Model 축과 Component 축의 대응 관계
