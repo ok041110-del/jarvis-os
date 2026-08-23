@@ -7,22 +7,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 
-# 카테고리별 (검색 대상 디렉토리, glob 패턴, 제외 디렉토리명)
+# RFC/ADC/ADR은 Kernel/Execution Layer 트리에도 존재한다(T07 Evidence).
+_KERNEL_CORE = ROOT / "docs" / "architecture" / "core"
+_EXECUTION_LAYER = ROOT / "docs" / "core" / "execution-layer"
+
+# 카테고리별 (검색 대상 디렉토리 1개 또는 여러 개, glob 패턴, 제외 디렉토리명)
 CATEGORY_PATHS = {
     "source_code": (ROOT / "hqs" / "development" / "mvp", "*.py", {"tests", "__pycache__"}),
     "existing_workflow": (ROOT / "hqs" / "development" / "mvp", "workflow*.py", {"__pycache__"}),
     "mvp_documents": (ROOT / "docs" / "01_mvp", "*.md", set()),
     "obs_documents": (ROOT / "docs" / "governance" / "observations", "OBS-*.md", set()),
-    "rfc_documents": (ROOT / "docs" / "02_rfc", "RFC-*.md", set()),
-    "adc_documents": (ROOT / "docs" / "governance" / "adc", "ADC-*.md", set()),
-    "adr_documents": (ROOT / "docs" / "04_adr", "ADR-*.md", set()),
+    "rfc_documents": ((ROOT / "docs" / "decisions" / "rfc", _KERNEL_CORE, _EXECUTION_LAYER), "RFC-*.md", set()),
+    "adc_documents": ((ROOT / "docs" / "governance" / "adc", _KERNEL_CORE, _EXECUTION_LAYER), "ADC-*.md", set()),
+    "adr_documents": ((ROOT / "docs" / "decisions" / "adr", _KERNEL_CORE, _EXECUTION_LAYER), "ADR-*.md", set()),
     "rt_documents": (ROOT / "docs" / "governance" / "rt", "RT-*.md", set()),
 }
 
 
-# 도메인과 무관하게 항상 의미가 없는 영문 관사/전치사/접속사/대명사/
-# 조동사만 담는다 — 도메인 단어(workflow/engine/exception 등)는
-# 매칭 신호로 쓰이므로 제외하지 않는다.
+# 도메인 무관 관사/전치사/조동사만 제외 — 도메인 단어는 매칭 신호로 유지.
 _STOPWORDS = frozenset(
     (
         "a", "an", "the",
@@ -39,16 +41,14 @@ _STOPWORDS = frozenset(
 
 
 def _keywords(text: str) -> set:
-    # `\w+` 하나로 묶으면 "Dispatcher를"처럼 한글 조사가 붙어 원어와
-    # 매칭되지 않으므로 라틴/한글 토큰을 별도로 추출한다.
+    # 한글 조사 결합("Dispatcher를") 방지를 위해 라틴/한글 토큰을 분리 추출.
     latin = re.findall(r"[A-Za-z0-9_]+", text)
     hangul = re.findall(r"[가-힣]+", text)
     return {w.lower() for w in latin + hangul if len(w) >= 2 and w.lower() not in _STOPWORDS}
 
 
 def _score(keywords: set, path: Path) -> int:
-    # 부분 문자열 매칭("so" in "also", "on" in "constitution")은 무관한
-    # 파일의 점수를 부풀리므로 단어 경계(`\b`) 매칭을 쓴다.
+    # 부분 문자열 오탐("so" in "also") 방지를 위해 단어 경계 매칭 사용.
     try:
         content = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
@@ -57,18 +57,23 @@ def _score(keywords: set, path: Path) -> int:
     return sum(1 for kw in keywords if re.search(rf"\b{re.escape(kw)}\b", haystack))
 
 
-def _relevant_files(keywords: set, directory: Path, pattern: str, exclude_dirs: set, limit: int = 3) -> list:
-    if not directory.exists():
-        return []
+def _relevant_files(keywords: set, directories, pattern: str, exclude_dirs: set, limit: int = 3) -> list:
+    """`directories`는 `Path` 1개 또는 tuple — 여러 트리에 흩어진 동일 문서
+    종류(RFC/ADC/ADR)를 합쳐 검색하기 위함(T07)."""
+    if isinstance(directories, Path):
+        directories = (directories,)
     candidates = []
-    for path in sorted(directory.rglob(pattern)):
-        if not path.is_file():
+    for directory in directories:
+        if not directory.exists():
             continue
-        if exclude_dirs & set(path.parts):
-            continue
-        score = _score(keywords, path)
-        if score > 0:
-            candidates.append((score, path))
+        for path in sorted(directory.rglob(pattern)):
+            if not path.is_file():
+                continue
+            if exclude_dirs & set(path.parts):
+                continue
+            score = _score(keywords, path)
+            if score > 0:
+                candidates.append((score, path))
     candidates.sort(key=lambda pair: pair[0], reverse=True)
     return [str(p.relative_to(ROOT)) for _, p in candidates[:limit]]
 
@@ -120,8 +125,7 @@ def collect_relevant_context(issue: dict) -> dict:
     return context
 
 
-# "재평가 조건"(RT 문서)과 자유 텍스트 속 "미결정" 서술을 구분하는 마커.
-# 새 카테고리 디렉토리 없이 기존 수집 결과를 재분류만 한다.
+# "재평가 조건"(RT)과 자유 텍스트 속 "미해결" 서술을 구분하는 마커.
 _OPEN_WORD_RE = re.compile(r"\bopen\b", re.IGNORECASE)
 _OPEN_KOREAN_MARKERS = ("미해결", "검토가 필요")
 

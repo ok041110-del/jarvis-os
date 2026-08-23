@@ -23,15 +23,20 @@ ADR은 ADC 중 NOW로 분류되어 실제로 결정된 사항을 기록하는 �
 `ADR-0002-execution-layer-module-baseline.md` — `docs/01_architecture/BASELINE.md`를
 v1.4 → v1.6으로 갱신).
 
-작성된 ADR 5건. 전부 Accepted다.
+작성된 ADR 8건(ADR-0006/0007은 이전 세션에서 추가됐으나 이 표에
+반영되지 않았던 것을 이번에 함께 갱신함 — D-9류 색인 부채). 전부
+Accepted다.
 
 | ID | 제목 | 종결시킨 ADC |
 |---|---|---|
-| ADR-0001 | Development HQ Baseline에 Stage 기반 구조 반영 | `docs/governance/adc/ADC-0003.md` 판단 1 |
+| ADR-0001 | Development HQ Baseline에 Stage 기반 구조 반영(§2/§6은 `ADR-0008`이 Supersede — 문서 자체는 수정하지 않음) | `docs/governance/adc/ADC-0003.md` 판단 1 |
 | ADR-0002 | Core → Kernel 용어 통합 및 Kernel 정의의 Baseline 반영 | `docs/architecture/core/ADC-0002-kernel-definition.md` 판단 1·3·4 |
 | ADR-0003 | Kernel Context Model의 Baseline 반영 | `docs/architecture/core/ADC-0003-kernel-context-model.md` 판단 1·2·3·5·6a |
 | ADR-0004 | Kernel Public Contract의 Baseline 반영 | `docs/architecture/core/ADC-0004-kernel-public-contract.md` 판단 1~8 |
 | ADR-0005 | Kernel Logical Reference Architecture의 Baseline 반영과 §10 범위 한정 | `docs/architecture/core/ADC-0005-kernel-logical-reference-architecture.md` 판단 1~8 |
+| ADR-0006 | `hqs/`, `core/execution/` 재배치 및 `docs/` Taxonomy 정리 Migration Decision 확정 | `docs/decisions/adc/ADC-0005-structure-v1-migration-decisions.md` |
+| ADR-0007 | Architecture Baseline 문서의 Structure v1.0 위치 확정 | `docs/decisions/adc/ADC-0006-baseline-relocation-decision.md` |
+| ADR-0008 | Stage 폴더의 문서+실행 코드 공존 허용(ADR-0001 §2/§6 Supersede) — Architecture Owner 직접 지시, ADC 경유 없음 | 없음(직접 지시) |
 
 ADR-0002 ~ ADR-0005가 `docs/01_architecture/BASELINE.md`를 v1.0 → v1.4로 갱신했다.
 

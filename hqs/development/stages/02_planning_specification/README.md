@@ -1,27 +1,37 @@
-# Stage: Planning & Specification
+# Stage 02: Planning & Specification
 
-## 목적
+## 요약
 
-사람의 Intent를 실행 가능한 명세로 변환한다.
+Stage 01(Context Analysis)이 만든 Context와 원본 Issue를 입력으로 받아,
+Stage 03(Architecture & Design)이 바로 쓸 수 있는 **Specification**을
+생성한다. Problem Definition / Requirement Analysis / Task Decomposition /
+Constraints / Risk / Acceptance Criteria / Implementation Scope 7개
+관점을 하나의 Specification 텍스트에 구조화한다.
 
-## Responsibility
+진입점: [`stage_02.py`](./stage_02.py)의 `run_stage_02()`. 신규
+Agent/Capability 없이 기존 `agents.requirements_agent_requirement_
+analysis()`(MVP-0004)를 재사용한다 — Problem Definition/Constraints/
+Risk/Implementation Scope는 Stage 01 Context에서 결정적으로 뽑고, 그
+골격을 Issue에 덧붙여 같은 Engine 호출 1회로 Task Decomposition/
+Acceptance Criteria까지 포함한 Specification을 만든다(근거:
+`CAPABILITIES.md`).
 
-- Requirement 분석
-- User Story
-- Functional Spec
-- Non Functional Spec
-- Task 분해
+## 문서 구성
 
-## Reference
+- [`RESPONSIBILITY.md`](./RESPONSIBILITY.md) — 이 Stage가 책임지는 것과
+  책임지지 않는 것
+- [`CAPABILITIES.md`](./CAPABILITIES.md) — 2개 Capability의
+  Input → Analysis → Output → Validation
+- [`SPECIFICATION.md`](./SPECIFICATION.md) — `run_stage_02()`이 반환하는
+  Specification 스키마와 7개 관점이 어디서 채워지는지
+- [`VALIDATION.md`](./VALIDATION.md) — 검증 방법(mock 기반 + real Engine
+  E2E 1건)과 현재 커버리지
 
-- AWS AI Native SDLC
-- Kiro
-- Claude Code
+## 근거 문서
 
-## 상태
-
-이 Stage는 문서 정의만 존재한다. Capability 배정과 실행 코드는 아직
-없다(`docs/governance/adc/ADC-0003.md` 판단 2: Capability Catalog 확장은
-Defer). 기존 Capability 중 `requirement_analysis`
-(`hqs/development/STRUCTURE.md`)가 이 Stage의 일부 Responsibility와
-이미 대응된다.
+- `hqs/development/stages/01_context_analysis/`(Stage 01 — 이 Stage의
+  Input Schema 출처)
+- `docs/decisions/adr/ADR-0008-stage-folder-code-and-docs.md`(Stage 폴더
+  구조, 신규 Capability 판단 기준 §4)
+- `hqs/development/IMPLEMENTATION_RULES.md`(신규 Capability/Agent 추가
+  금지 원칙 — 이 Stage가 신규 Capability를 만들지 않은 이유)

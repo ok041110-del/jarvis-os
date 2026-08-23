@@ -1,8 +1,4 @@
-"""MVP-0001 실행 진입점.
-
-사용법: python hqs/development/mvp/cli.py <파일 경로>
-        (또는 stdin으로 코드를 넣어 실행)
-"""
+"""MVP-0001 실행 진입점. 사용법: python hqs/development/mvp/cli.py <파일 경로>(또는 stdin)."""
 
 import sys
 from pathlib import Path
