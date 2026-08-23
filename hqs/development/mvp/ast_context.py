@@ -22,6 +22,13 @@ def _mvp_source_files() -> list:
     return [path for path in sorted(_MVP_DIR.glob("*.py")) if path.is_file()]
 
 
+def module_source_path(module: str) -> Path:
+    """`module`(확장자 없는 이름)에 대응하는 `hqs/development/mvp/*.py`
+    경로를 반환한다 — Target File Exposure 배선(ADC-0005 §7)이 대상
+    파일 전체를 읽어야 할 때 경로 조합 로직을 이 모듈 하나로 모은다."""
+    return _MVP_DIR / f"{module}.py"
+
+
 def _signature(node) -> str:
     """body/decorator 없는 시그니처 한 줄만 얻기 위해 빈 body로 치환 후 unparse."""
     stub = type(node)(
