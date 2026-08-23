@@ -52,7 +52,7 @@ Context Research(T06~T16) 종료 후 추가됨).
 | RFC-0005 | `docs/decisions/rfc/` | Development HQ ↔ Execution Layer Boundary | **Open** | 없음(미작성) | — |
 | RFC-0006 | `docs/decisions/rfc/` | Structure v1.0 — hqs/, core/execution/ 재배치 및 docs Taxonomy 정리 | Resolved(헤더는 `Proposed`로 미갱신 — D-9) | `docs/decisions/adc/ADC-0005-structure-v1-migration-decisions.md` | `ADR-0006-structure-v1-migration.md` |
 | RFC-0007 | `docs/decisions/rfc/` | AST 기반 Context 자동 추출의 Production Build Capability 통합 | Resolved(Decision: A. INTEGRATION JUSTIFIED, 조건부 범위로 한정 — 선행조건 2건 모두 Evidence로 해소, `DEV-HQ-V2.0-RFC-0007-REVALIDATION-0001.md` 참고) | `docs/governance/adc/ADC-0005.md`(4개 판단 전부 Accept, 전부 No ADR Required) | 없음(불필요) |
-| RFC-0008 | `docs/decisions/rfc/` | Agent 함수 물리적 배치(단일 파일 ↔ 패키지)와 AST Context Module Resolution 경계 | **Open**(Agent Package Refactoring 작업 중 발견, 후속 ADC 미작성) | 없음(미작성) | — |
+| RFC-0008 | `docs/decisions/rfc/` | AST Context Module Discovery — Dotted Package Path 지원 확장 여부 | **Open**(Agent Package Refactoring 작업 중 발견, 후속 ADC 미작성) | 없음(미작성) | — |
 | RFC-0001 | `docs/architecture/core/` | Jarvis OS Kernel Baseline | Resolved | `ADC-0001-core-baseline.md` | 없음(불필요) |
 | RFC-0002 | `docs/architecture/core/` | Kernel Definition — Responsibility, Not Component | Resolved | `ADC-0002-kernel-definition.md` | `ADR-0002`(RFC 헤더 원문 인용 — 저장소에 동일 번호 ADR-0002가 두 곳 존재해 대상 특정 불가, `Undetermined` — 아래 §Open Issues) |
 | RFC-0003 | `docs/architecture/core/` | Kernel Context Model — Context, Builder, Assembly, Prompt Projection | Resolved | `ADC-0003-kernel-context-model.md` | `docs/decisions/adr/ADR-0003-kernel-context-model-baseline.md` |
