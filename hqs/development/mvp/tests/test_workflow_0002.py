@@ -2,8 +2,9 @@
 
 이 테스트는 현재 behavior를 고정(lock)하기 위한 것이며, Production
 code(`workflow_0002.py`)는 이 테스트 작성 과정에서 전혀 수정하지
-않았다. 외부 Engine 호출(`agents.call_engine`)은 결정적 테스트를 위해
-전부 mock/stub한다 — `test_mvp_0001.py`(real-Engine 통합 테스트)와는
+않았다. 외부 Engine 호출은 결정적 테스트를 위해 `workflow_0002`의
+`backend_agent_code_review`/`qa_agent_test_execution` 지점에서 전부
+mock/stub한다 — `test_mvp_0001.py`(real-Engine 통합 테스트)와는
 다른 목적의 테스트다.
 """
 

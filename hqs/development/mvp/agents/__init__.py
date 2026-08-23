@@ -1,6 +1,5 @@
-"""Agent 패키지 — Requirements/Design/Backend/QA Agent(Agent Definition
-0001)를 파일별로 분리하고, 기존 `from .agents import ...` 외부 Contract를
-re-export로 그대로 유지한다(Agent Package Refactoring, ADC-0006)."""
+"""Agent 패키지 — Requirements/Design/Backend/QA Agent(Agent Definition 0001)를 파일별로 분리하고,
+기존 `from .agents import ...` 외부 Contract를 re-export로 유지한다(ADC-0006)."""
 
 from .backend import (
     NO_ISSUES_MARKER,
