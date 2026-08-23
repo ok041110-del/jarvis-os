@@ -1,17 +1,13 @@
 """hqs/development/cli.py — CLI -> `workflow.py`(01→05 Integrated
 Workflow) 진입점.
 
-사용자 입력(Issue JSON, `--expose-target` 옵션)을 받아 `run_workflow()`
-를 호출하고 결과를 출력하는 것 외에는 아무 것도 하지 않는다. Context
-Analysis/Planning/Design/Implementation/Validation은 전부 `workflow.py`
--> Stage 01~05에 위임한다 — Workflow의 결과(특히 Stage 05 `verdict`)를
-재해석하지 않고 그대로 출력한다.
+사용자 입력(Issue JSON, `--expose-target`)을 받아 `run_workflow()`를
+호출하고 결과를 그대로 출력하는 것 외에는 아무 것도 하지 않는다 —
+Workflow 결과(특히 Stage 05 `verdict`)를 재해석하지 않는다.
 
-`hqs/development/mvp/cli.py`(MVP-0001, code 문자열을 입력받아 code_
-review/test_execution을 출력하는 별도 CLI)와는 다른 진입점이다 — 그
-파일의 입력/출력 Contract를 유지하기 위해 수정하지 않았다. 이 파일의
-Input Contract(Issue JSON)는 `run_workflow()`가 이미 받는 `issue: dict`
-그대로이며, 새 Interface/Contract를 추가하지 않았다.
+`hqs/development/mvp/cli.py`(MVP-0001, code 문자열 입력의 별도 CLI)와는
+다른 진입점이며 그 파일을 수정하지 않았다. Input Contract는
+`run_workflow()`가 이미 받는 `issue: dict` 그대로다.
 """
 
 import argparse

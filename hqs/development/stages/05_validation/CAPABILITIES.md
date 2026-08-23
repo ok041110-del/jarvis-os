@@ -54,6 +54,6 @@
 | 항목 | 내용 |
 |---|---|
 | Input | Capability 1~4의 결과 |
-| Validation | `stage_05._determine_verdict()` — 결정적 규칙(Engine 미호출, `IMPLEMENTATION_RULES.md` "Policy 구현 금지" 준수): (a) Stage 04 Engine 실패 또는 pytest 실행 후 실패 또는 AST Scope 위반 확정 → `FAIL`. (b) 위 조건에 해당하지 않지만 구조 검사/Scope Membership/AST Scope/pytest 중 하나라도 실행되지 않았거나 확정되지 않음 → `PARTIAL`. (c) 전부 실행되어 전부 통과 → `PASS` |
+| Validation | `stage_05._determine_verdict()` — 결정적 규칙(Engine 미호출, Policy 구현 금지 준수): Engine 실패/pytest 실패/AST Scope 위반 확정 → `FAIL`. 일부 검증 미실행/미확정 → `PARTIAL`. 전부 실행·통과 → `PASS` |
 | Output | `"PASS" \| "FAIL" \| "PARTIAL"` |
 | Evidence | 판정 자체가 Capability 1~4 Evidence의 함수이므로 별도 Evidence 없음 — `test_stage_05.py`에서 PASS/FAIL/PARTIAL 각 경로를 명시적으로 단위 테스트 |

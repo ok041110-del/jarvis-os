@@ -2,15 +2,13 @@
 
 ## 검증 원칙
 
-Capability 1(Skeleton 추출)은 순수 함수이므로 mock 없이 결정적으로
-단위 테스트한다. Capability 2(Requirement & Specification 생성)는
-기존 `requirements_agent_requirement_analysis()`를 그대로 재사용하므로,
-그 함수 자체의 Engine 호출 동작은 이미 기존 테스트(`test_workflow_
-project_intelligence.py` 등)가 간접 검증한 바 있다 — 여기서는 (a)
-Stage 02가 그 함수에 올바른 입력(골격이 반영된 Issue)을 넘기는지, (b)
-Engine 실패 시 기존 오류 포맷을 유지하는지만 mock으로 추가 검증하고,
-(c) 실제 Engine 호출 1건으로 Stage 01 Context가 Specification에 실제로
-반영되는지 확인한다.
+Capability 1(Skeleton 추출)은 순수 함수라 mock 없이 결정적으로 단위
+테스트한다. Capability 2는 기존 `requirements_agent_requirement_
+analysis()`를 재사용하므로 그 자체 동작은 기존 테스트가 이미 검증했다
+— 여기서는 (a) 골격이 반영된 Issue가 실제로 전달되는지, (b) Engine
+실패 시 기존 오류 포맷을 유지하는지 mock으로 추가 확인하고, (c) 실제
+Engine 호출 1건으로 Stage 01 Context가 Specification에 반영되는지
+확인한다.
 
 ## 테스트 위치
 
@@ -29,10 +27,9 @@ Stage 폴더 하위가 아닌 기존 공통 `tests/` 위치를 쓴다(ADR-0008 �
 
 ## real Engine E2E
 
-Stage 02는 Stage 01과 달리 Engine을 1회 호출하므로(Capability 2), 이
-Stage의 핵심 요구사항 — "Stage 01의 Context가 Stage 02의 Requirement/
-Specification 생성에 실제로 활용되는 것을 검증한다" — 는 mock만으로는
-증명되지 않는다. 실제 `call_engine()`으로 1건을 실행해:
+Stage 02는 Engine을 1회 호출하므로(Capability 2), 핵심 요구사항 —
+"Stage 01 Context가 실제로 Specification 생성에 활용되는가" — 는
+mock만으로 증명되지 않는다. 실제 `call_engine()`으로 1건을 실행해:
 
 1. Stage 01 Context에 특정 신호(예: 알려진 `known_constraints`/
    `relevant_code` 경로)가 존재하는 실제 Issue로 `run_stage_02()`를

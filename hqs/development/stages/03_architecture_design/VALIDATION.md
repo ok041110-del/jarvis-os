@@ -2,16 +2,13 @@
 
 ## 검증 원칙
 
-Capability 1(Skeleton 추출)은 순수 함수이므로 mock 없이 결정적으로
-단위 테스트한다. Capability 2(Architecture/Design 생성)는 기존
-`design_agent_design()`을 그대로 재사용하므로, 그 함수 자체의 Engine
-호출 동작은 이미 기존 테스트(`test_workflow_project_intelligence.py`
-등)가 간접 검증한 바 있다 — 여기서는 (a) Stage 03이 그 함수에 올바른
-입력(골격+Specification이 반영된 `requirement`)을 넘기는지, (b) Engine
-실패 시 기존 오류 포맷을 유지하는지만 mock으로 추가 검증하고, (c)
-실제 Engine 호출 1건으로 Stage 01/02 Context가 Design에 실제로
-반영되는지, Design이 Stage 04 Input(`identify_target`)으로 쓰일 수
-있는 형태인지 확인한다.
+Capability 1은 순수 함수라 mock 없이 결정적으로 단위 테스트한다.
+Capability 2는 기존 `design_agent_design()`을 재사용하므로 그 자체
+동작은 기존 테스트가 이미 검증했다 — 여기서는 (a) 골격+Specification이
+반영된 `requirement`가 실제로 전달되는지, (b) Engine 실패 시 기존
+오류 포맷 유지 여부를 mock으로 확인하고, (c) 실제 Engine 호출 1건으로
+Stage 01/02 Context가 Design에 반영되는지, Design이 Stage 04
+Input(`identify_target`)으로 쓰일 수 있는 형태인지 확인한다.
 
 ## 테스트 위치
 
@@ -31,9 +28,8 @@ Stage 폴더 하위가 아닌 기존 공통 `tests/` 위치를 쓴다(ADR-0008 �
 
 ## real Engine E2E
 
-Stage 03은 Stage 02와 마찬가지로 Engine을 1회 호출하므로(Capability 2),
-이 Stage의 핵심 요구사항 — "Stage 01 Context와 Stage 02 Specification이
-Stage 03 Design 생성에 실제로 활용되는 것을 검증한다" — 는 mock만으로는
+Stage 03도 Engine을 1회 호출하므로(Capability 2), 핵심 요구사항 —
+"Stage 01/02가 Design 생성에 실제로 활용되는가" — 는 mock만으로
 증명되지 않는다. 실제 `call_engine()`으로 1건을 실행해:
 
 1. Stage 01 → Stage 02 → Stage 03을 순서대로 실제 실행한다(Blind

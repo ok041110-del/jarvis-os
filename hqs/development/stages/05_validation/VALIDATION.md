@@ -21,22 +21,19 @@ Capability의 산출물이며, 별도의 "evidence" 래퍼 키를 추가하지 �
 
 ## Stage 03 Design을 이 Stage가 직접 소비하지 않는 이유
 
-`stage_03_output`은 함수 시그니처에 포함되지만(향후 workflow.py가 5개
-Stage를 동일한 패턴으로 연결할 수 있도록 인자 자리를 맞춤), 이번
-Capability 6개는 실제로 Stage 03 `design` 텍스트를 읽지 않는다 — AST
-Scope 검증은 실제 코드(Stage 04 `implementation`)와 실제 파일(변경
-전)만 비교하면 충분하고, "Design 범위를 벗어나지 않는가"는 이 AST
-비교로 대리 검증한다(Design 프로즈 자체를 Engine으로 재해석하지 않는
-이유는 `RESPONSIBILITY.md`의 Policy 구현 금지 근거와 동일).
+`stage_03_output`은 함수 시그니처에는 있지만(향후 `workflow.py`가 5개
+Stage를 동일 패턴으로 연결하기 위함), 6개 Capability는 Stage 03
+`design` 텍스트를 읽지 않는다 — AST Scope 검증은 실제 코드(Stage 04
+`implementation`)와 변경 전 파일만 비교하면 충분하며, Design 프로즈를
+Engine으로 재해석하지 않는 이유는 Policy 구현 금지 근거와 같다.
 
 ## 검증 원칙
 
-Capability 1~4, 6은 순수 함수/subprocess이므로 mock 없이 결정적으로
-단위 테스트한다. Capability 5는 기존 `backend_agent_code_review()`를
-그대로 재사용하므로, 그 함수 자체의 Engine 호출 동작은 이미 기존
-테스트(`test_mvp_0001.py` 등)가 검증한 바 있다 — 여기서는 Stage 05가
-그 함수에 `implementation`을 실제로 넘기는지, Engine 실패 시 기존
-오류 포맷을 유지하는지만 mock으로 추가 검증한다.
+Capability 1~4, 6은 순수 함수/subprocess라 mock 없이 결정적으로 단위
+테스트한다. Capability 5는 기존 `backend_agent_code_review()`를
+재사용하므로 그 자체 동작은 기존 테스트가 이미 검증했다 — 여기서는
+`implementation`이 실제로 전달되는지, Engine 실패 시 기존 오류 포맷을
+유지하는지만 mock으로 확인한다.
 
 ## 테스트 위치
 

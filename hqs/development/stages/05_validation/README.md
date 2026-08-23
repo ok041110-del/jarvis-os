@@ -7,13 +7,12 @@ Stage 02 Specification/Stage 03 Design에 부합하는지 검증하고 구조화
 Evidence와 명확한 판정(PASS/FAIL/PARTIAL)을 생성한다. **문제를 수정하지
 않는다** — 발견된 문제는 Evidence와 Open Issue로만 반환한다.
 
-실행 진입점은 [`stage_05.py`](./stage_05.py)의 `run_stage_05()`이다.
-새 Agent/Capability를 추가하지 않는다. `IMPLEMENTATION_RULES.md`의
-"Policy 구현 금지"(판정 로직을 Engine에 위임하지 않는다) 원칙에 따라,
-PASS/FAIL/PARTIAL 판정은 전부 **결정적 규칙**(Engine 미호출)으로
-계산한다 — Engine은 `agents.backend_agent_code_review()`(기존
-Capability, MVP-0001) 재사용으로 Evidence 텍스트를 보강하는 데만
-쓰고, 그 결과를 판정에 직접 반영하지 않는다.
+진입점: [`stage_05.py`](./stage_05.py)의 `run_stage_05()`. 신규
+Agent/Capability 없음. `IMPLEMENTATION_RULES.md`의 "Policy 구현 금지"
+원칙에 따라 PASS/FAIL/PARTIAL 판정은 전부 **결정적 규칙**(Engine
+미호출)으로 계산한다 — Engine은 `agents.backend_agent_code_review()`
+(기존 Capability, MVP-0001) 재사용으로 보조 Evidence만 만들고, 판정에
+직접 반영하지 않는다.
 
 ## 문서 구성
 

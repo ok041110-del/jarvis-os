@@ -2,16 +2,15 @@
 
 ## 검증 원칙
 
-3개 Capability 전부 기존에 이미 검증된 함수를 재사용한다
-(`identify_target`/`build_dependency_closure`/`backend_agent_code_
-generation`은 `test_workflow_ast_context.py`와 ADC-0005 §8 real Engine
-E2E가 이미 검증). 여기서는 (a) Stage 04가 이 함수들에 올바른 입력
-(Stage 03 `design`)을 넘기는지, (b) 조립 로직(Capability 2)이 target
-유무/exposure 켬끔 4가지 조합에서 결정적으로 맞는지, (c) Engine 실패
-시 기존 오류 포맷을 유지하는지만 mock으로 추가 검증하고, (d) 실제
-Engine 호출 + 실제 파일 적용으로 Stage 04의 핵심 요구사항 — "생성된
-Code가 실제 Production Code를 대상으로 하고, Scope를 벗어나지 않으며,
-Stage 05가 검증 가능한 형태인가" — 를 확인한다.
+3개 Capability 모두 기존에 검증된 함수를 재사용한다(`identify_target`/
+`build_dependency_closure`/`backend_agent_code_generation`은
+`test_workflow_ast_context.py`와 ADC-0005 §8 real Engine E2E가 이미
+검증). 여기서는 (a) Stage 03 `design`이 올바르게 전달되는지, (b)
+조립 로직이 target 유무/exposure 켬끔 4가지 조합에서 결정적으로
+맞는지, (c) Engine 실패 시 기존 오류 포맷 유지 여부를 mock으로 확인
+하고, (d) 실제 Engine 호출 + 파일 적용으로 "생성된 Code가 실제
+Production Code를 대상으로 Scope를 벗어나지 않고 Stage 05가 검증
+가능한 형태인가"를 확인한다.
 
 ## 테스트 위치
 

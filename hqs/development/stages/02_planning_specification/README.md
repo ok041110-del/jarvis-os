@@ -8,14 +8,12 @@ Stage 03(Architecture & Design)이 바로 쓸 수 있는 **Specification**을
 Constraints / Risk / Acceptance Criteria / Implementation Scope 7개
 관점을 하나의 Specification 텍스트에 구조화한다.
 
-실행 진입점은 [`stage_02.py`](./stage_02.py)의 `run_stage_02()`이다.
-새 Agent/Capability를 추가하지 않고, 기존
-`agents.requirements_agent_requirement_analysis()`(MVP-0004부터 존재하는
-Requirement Analysis Capability)를 그대로 재사용한다 — 7개 관점 중
-Problem Definition/Constraints/Risk/Implementation Scope 후보는
-Stage 01 Context에서 결정적으로(Engine 호출 없이) 뽑고, 그 골격을
-Issue에 덧붙여 같은 Engine 호출 한 번으로 Task Decomposition/Acceptance
-Criteria까지 포함한 Specification을 만든다(자세한 근거는
+진입점: [`stage_02.py`](./stage_02.py)의 `run_stage_02()`. 신규
+Agent/Capability 없이 기존 `agents.requirements_agent_requirement_
+analysis()`(MVP-0004)를 재사용한다 — Problem Definition/Constraints/
+Risk/Implementation Scope는 Stage 01 Context에서 결정적으로 뽑고, 그
+골격을 Issue에 덧붙여 같은 Engine 호출 1회로 Task Decomposition/
+Acceptance Criteria까지 포함한 Specification을 만든다(근거:
 `CAPABILITIES.md`).
 
 ## 문서 구성

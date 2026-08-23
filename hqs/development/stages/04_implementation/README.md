@@ -8,16 +8,15 @@ Target Identification / Implementation Planning / Code Generation /
 Target File Exposure Policy / Scope Control / Existing Code
 Preservation 6개 관점을 다룬다.
 
-실행 진입점은 [`stage_04.py`](./stage_04.py)의 `run_stage_04()`이다.
-새 Agent/Capability를 추가하지 않는다 — ADC-0005 §8에서 이미 배선하고
-real Engine E2E로 검증한(`DEV-HQ-V2.0-ADC-0005-WORKFLOW-INTEGRATION-
-E2E-0001.md`, Scope 준수 3/3 누적) `workflow_ast_context.py`의
-`identify_target()`/`build_dependency_closure()`/`module_source_path()`/
-`_EXPOSURE_POLICY_INSTRUCTION`과, `agents.backend_agent_code_generation()`
-을 그대로 재사용한다. Stage 04는 이 기존 조각들을 **Stage 03 Design**
-에 연결하는 새 진입점일 뿐이다 — `workflow_ast_context.run_pipeline_
-with_ast_context()`처럼 Planning/Design을 다시 만들지 않는다(Stage
-02/03이 이미 만들었으므로).
+진입점: [`stage_04.py`](./stage_04.py)의 `run_stage_04()`. 신규
+Agent/Capability 없음 — ADC-0005 §8에서 이미 배선·real Engine E2E로
+검증한(`DEV-HQ-V2.0-ADC-0005-WORKFLOW-INTEGRATION-E2E-0001.md`, Scope
+준수 3/3) `workflow_ast_context.py`의 `identify_target()`/
+`build_dependency_closure()`/`module_source_path()`/`_EXPOSURE_POLICY_
+INSTRUCTION`과 `agents.backend_agent_code_generation()`을 그대로
+재사용한다. 이 기존 조각들을 **Stage 03 Design**에 연결하는 새
+진입점일 뿐 — `run_pipeline_with_ast_context()`처럼 Planning/Design을
+다시 만들지 않는다(Stage 02/03이 이미 만듦).
 
 ## 문서 구성
 

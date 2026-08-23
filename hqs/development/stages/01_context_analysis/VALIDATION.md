@@ -2,10 +2,9 @@
 
 ## 검증 원칙
 
-Stage 01은 기존 `mvp/` 함수를 재사용만 하므로, 1차 검증은 그 함수들의
-기존 테스트(36건, `mvp/tests/`)가 이미 담당한다. 이 문서는 그 위에
-추가된 두 가지만 다룬다: (1) `run_stage_01()`이 CONTEXT.md 스키마를
-정확히 만족하는지, (2) Stage 01 신설로 인한 회귀가 없는지.
+기존 `mvp/` 함수 재사용만 하므로 1차 검증은 그 기존 테스트(36건,
+`mvp/tests/`)가 담당한다. 이 문서는 추가분만 다룬다: (1) `run_stage_01()`
+이 CONTEXT.md 스키마를 만족하는지, (2) 신설로 인한 회귀가 없는지.
 
 ## 테스트 위치
 
@@ -26,11 +25,10 @@ Stage 하위가 아닌 기존 공통 구조 유지).
 
 ## Engine 호출 여부
 
-Stage 01의 5개 Capability는 전부 Engine을 호출하지 않는다
-(`RESPONSIBILITY.md`) — 따라서 모든 검증은 real Engine 없이 결정적으로
-수행 가능하다. 이는 Stage 03(Design) 이후에야 필요한 real Engine E2E
-검증(`DEV-HQ-V2.0-ADC-0005-WORKFLOW-INTEGRATION-E2E-0001.md`)과의
-차이점이다 — Stage 01 자체는 그런 E2E를 요구하지 않는다.
+5개 Capability 전부 Engine을 호출하지 않으므로(`RESPONSIBILITY.md`)
+모든 검증이 real Engine 없이 결정적으로 가능하다 — Stage 03 이후에만
+필요한 real Engine E2E(`DEV-HQ-V2.0-ADC-0005-WORKFLOW-INTEGRATION-
+E2E-0001.md`)는 Stage 01에는 해당하지 않는다.
 
 ## 현재 결과
 

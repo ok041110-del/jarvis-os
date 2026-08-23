@@ -21,27 +21,23 @@
   Stage는 Stage 03의 Output을 그대로 Input으로 받을 뿐, 다시
   생성하지 않는다)
 - 생성된 Code를 실제 저장소 파일에 적용하는 것 — `run_stage_04()`은
-  Code 문자열만 반환한다. 파일에 쓰기/커밋은 호출자(현재는 Stage 04의
-  real Engine E2E 검증 절차, 향후 Stage 05 이후 실제 배포 경로)의
-  책임이다. 이는 T06~T19/ADC-0005 §8 E2E와 동일한 원칙 — "생성된
-  코드를 임시로 적용해 검증한 뒤 원상복구"는 검증 절차이지 이
-  Capability의 Production 경로가 아니다
+  Code 문자열만 반환한다. 파일 쓰기/커밋은 호출자(현재는 검증 절차,
+  향후 Stage 05 이후 배포 경로)의 책임이다(T06~T19/ADC-0005 §8과 동일
+  원칙 — "임시 적용 후 원상복구"는 검증 절차이지 Production 경로가
+  아니다)
 - 코드 리뷰/테스트 실행(→ Stage 05)
-- Target File Exposure 여부의 자동 판별 — RFC-0007 Open Issues가 이미
-  "Design 출력에서 노출 여부를 자동 판별하는 것은 검증된 적이 없다"고
-  기록했다. `expose_target`은 여전히 호출자가 명시적으로 지정한다
-  (ADC-0005 §7과 동일한 결정, 이 Stage가 새로 판단하지 않는다)
-- 신규 Capability/Agent 추가 — 3개 Capability(`CAPABILITIES.md`) 전부
-  `workflow_ast_context.py`/`agents.py`의 기존 함수를 그대로 재사용한다.
-  `IMPLEMENTATION_RULES.md`의 "구현 중 새 Capability/Agent 추가 금지"
-  원칙과 ADR-0008 §4를 모두 만족하는 범위로 판단했다
-- `workflow_ast_context.py`/`agents.py` 자체의 수정 — 이미 ADC-0005
-  §8에서 real Engine E2E로 검증된(Scope 준수 3/3) 코드이므로, Stage
-  04는 이를 호출만 하고 건드리지 않는다
+- Target File Exposure 여부 자동 판별 — RFC-0007 Open Issues가 이미
+  "검증된 적 없다"고 기록했다. `expose_target`은 호출자가 명시적으로
+  지정한다(ADC-0005 §7과 동일한 결정)
+- 신규 Capability/Agent 추가 — 3개 Capability 전부 `workflow_ast_
+  context.py`/`agents.py`의 기존 함수를 재사용한다(`IMPLEMENTATION_
+  RULES.md`, ADR-0008 §4 충족)
+- `workflow_ast_context.py`/`agents.py` 자체 수정 — 이미 ADC-0005
+  §8에서 real Engine E2E로 검증된(Scope 준수 3/3) 코드이므로 호출만
+  하고 건드리지 않는다
 
 ## Kernel/Architecture 경계
 
-Stage 04는 Development HQ MVP Implementation 범위이며, Jarvis OS Kernel
-Architecture나 Development HQ Baseline을 변경하지 않는다. 새 Interface/
-Contract를 추가하지 않았고, `agents.py`/`engine.py`/`workflow_ast_
-context.py`는 수정하지 않았다.
+Development HQ MVP Implementation 범위 — Kernel Architecture/Baseline
+변경 없음, 새 Interface/Contract 미추가, `agents.py`/`engine.py`/
+`workflow_ast_context.py` 무수정.

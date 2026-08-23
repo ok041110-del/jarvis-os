@@ -17,18 +17,15 @@
 - Architecture/Design 산출(→ Stage 03) — Specification은 "무엇을 만들지"
   까지만 다루고 "어떻게 구현할지"는 다루지 않는다
 - 코드 생성/수정(→ Stage 04), 코드 리뷰/테스트 실행(→ Stage 05)
-- 신규 Capability/Agent 추가 — `requirements_agent_requirement_analysis()`
-  1개 Capability 재사용만으로 7개 관점을 모두 다룬다(`CAPABILITIES.md`
-  Capability 2 참고). `IMPLEMENTATION_RULES.md`의 "구현 중 새 Capability/
-  Agent 추가 금지" 원칙과 ADR-0008 §4(신규 Capability는 실제 필요성이
-  확인된 경우에만)를 모두 만족하는 범위로 판단했다 — 골격 추출은 새
-  Engine 호출이 아니라 순수 함수이므로 이 판단에 포함되지 않는다
+- 신규 Capability/Agent 추가 — 기존 `requirements_agent_requirement_
+  analysis()` 1개 재사용만으로 7개 관점을 모두 다룬다(`CAPABILITIES.md`
+  Capability 2). `IMPLEMENTATION_RULES.md`("새 Capability/Agent 추가
+  금지")와 ADR-0008 §4(신규는 실제 필요성 확인 시에만)를 모두 만족한다
+  — 골격 추출은 Engine 미호출 순수 함수라 이 판단 대상이 아니다
 - Multi-Engine 호출 — Specification 생성은 정확히 1회의 `call_engine()`
-  호출로 끝난다(`requirements_agent_requirement_analysis` 내부, 기존
-  구현 그대로)
+  호출로 끝난다(기존 `requirements_agent_requirement_analysis` 그대로)
 
 ## Kernel/Architecture 경계
 
-Stage 02는 Development HQ MVP Implementation 범위이며, Jarvis OS Kernel
-Architecture나 Development HQ Baseline을 변경하지 않는다. 새 Interface/
-Contract를 추가하지 않았고, `agents.py`/`engine.py`는 수정하지 않았다.
+Development HQ MVP Implementation 범위 — Kernel Architecture/Baseline
+변경 없음, 새 Interface/Contract 미추가, `agents.py`/`engine.py` 무수정.

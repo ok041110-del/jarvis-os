@@ -14,18 +14,13 @@
 | `target` | `tuple[str, str] \| None` | 호출자가 전달한 시작점을 그대로 echo | 호출자가 `target`을 넘겼을 때만 |
 | `dependency_closure` | `str \| None` | AST Dependency Closure | `target`이 주어졌을 때만, 없으면 `None` |
 
-`directory_structure`는 `collect_relevant_context()`가 반환하는 키지만,
-`build_context_bundle()`은 이 키를 그대로 버리고 8개 필드로만
-재배치한다. 그래서 `run_stage_01()`은 `collect_relevant_context()`를
-`directory_structure`를 얻기 위해 한 번 더 호출한다(파일 시스템 조회만
-중복되고 Engine 호출은 없음) — 기존 `build_context_bundle()` 시그니처는
-바꾸지 않는다.
+`build_context_bundle()`이 `directory_structure` 키를 버리므로,
+`run_stage_01()`은 이를 얻기 위해 `collect_relevant_context()`를 한 번
+더 호출한다(파일 시스템 조회만 중복, Engine 호출 없음, 기존 시그니처
+불변).
 
-## 왜 `target`을 Stage 01이 자동으로 채우지 않는가
+## 왜 `target`을 자동으로 채우지 않는가
 
-AST Dependency Closure의 시작점 식별(`identify_target`,
-`workflow_ast_context.py`)은 Design 산출물을 입력으로 요구한다 —
-Design은 Stage 03(Architecture & Design)의 산출물이므로, Stage 01
-시점에는 아직 존재하지 않는다. 그래서 `dependency_closure`는
-Stage 01 혼자서는 항상 계산할 수 없는 optional 필드다 —
-`RESPONSIBILITY.md`가 이를 명시적으로 책임 밖으로 규정한 이유다.
+시작점 식별(`identify_target`)은 Design(Stage 03 산출물)을 입력으로
+요구해 Stage 01 시점엔 존재하지 않는다 — `dependency_closure`가 항상
+optional인 이유(`RESPONSIBILITY.md`).

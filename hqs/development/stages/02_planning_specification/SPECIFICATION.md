@@ -21,17 +21,14 @@ Stage 01처럼 새 Contract를 만들지 않고, 기존 Capability의 반환 형
 | Task Decomposition | `specification` 내(지시문으로 요청, Engine 산출 — 결정적 골격 없음) |
 | Acceptance Criteria | `specification` 내(지시문으로 요청, Engine 산출 — 결정적 골격 없음) |
 
-Task Decomposition과 Acceptance Criteria는 Stage 01 Context만으로는
-결정적으로 도출할 수 없다(각 Task/기준은 Requirement 해석에 의존) —
-그래서 이 둘은 골격(`skeleton`)에 없고, Engine 호출의 지시문으로만
-요청한다. 이는 "새 Capability를 만들지 않는다"는 제약 아래 가능한
-범위이며, Stage 03 이후 Design 산출물로 더 정교화될 수 있다(Open
-Issue로 `VALIDATION.md`에 기록).
+Task Decomposition/Acceptance Criteria는 Requirement 해석에 의존해
+Stage 01 Context만으로 결정적 도출이 불가능하다 — 골격에 넣지 않고
+Engine 지시문으로만 요청한다("새 Capability 금지" 제약 내 가능한 범위,
+Stage 03 이후 더 정교화 가능, Open Issue: `VALIDATION.md`).
 
-## 왜 Stage 01의 Output 전체가 아니라 `context_bundle`만 쓰는가
+## 왜 `context_bundle`만 쓰는가
 
-`run_stage_01()`의 다른 키(`directory_structure`, `candidate_index`,
-`target`, `dependency_closure`)는 AST/파일 구조 정보로, Specification
-(무엇을 만들지)보다 Stage 03 Design(어떻게 구현할지)에 더 적합하다
-— Stage 02는 `context_bundle`(Requirement Analysis가 이미 소비하도록
-설계된 8개 필드)만 골격 추출에 사용한다.
+`run_stage_01()`의 나머지 키(`directory_structure`, `candidate_index`,
+`target`, `dependency_closure`)는 AST/파일 구조 정보로 "어떻게
+구현할지"(Stage 03 Design)에 더 적합하다 — Specification("무엇을
+만들지")에는 `context_bundle`(Requirement Analysis용 8개 필드)만 쓴다.

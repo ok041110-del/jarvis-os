@@ -1,19 +1,12 @@
-"""01→05 Integrated Workflow — Stage 01(Context Analysis)~05(Validation)를
-순서대로 호출·연결한다.
+"""01→05 Integrated Workflow — Stage 01~05(`stages/0N_*/stage_0N.py`)를
+순서대로 호출·연결한다(ADR-0008 §4). Handover와 실행 순서/중단 관리만
+담당하고, 각 Stage의 내부 로직은 복제하지 않는다.
 
-ADR-0008 §4가 예고한 "Stage 01~05가 각각 완성된 후 통합 Workflow로
-작성한다"의 실행이다. 각 Stage(`stages/0N_*/stage_0N.py`)의 내부 로직을
-복제하지 않는다 — 이 파일은 Handover(각 Stage의 Output을 다음 Stage의
-명시된 Input으로 넘기는 것)와 실행 순서/중단 관리만 담당한다.
-Context Analysis/Planning/Design/Implementation/Validation 자체는
-전부 기존 Stage에 위임한다.
+Stage 폴더는 패키지가 아니므로(`__init__.py` 없음) `test_stage_0N.py`와
+동일하게 `importlib`로 동적 로드한다.
 
-Stage 폴더는 Python 패키지가 아니므로(각 `stage_0N.py`는 폴더 안의
-단일 모듈, `__init__.py` 없음), `test_stage_0N.py`들이 이미 쓰는
-방식과 동일하게 `importlib`로 동적 로드한다.
-
-`hqs/development/mvp/workflow.py`(MVP-0001, Task1→Task2 2단계 파이프라인)
-와는 다른 파일이다 — 그 파일을 수정하거나 대체하지 않는다.
+`hqs/development/mvp/workflow.py`(MVP-0001, Task1→Task2 파이프라인)와는
+다른 파일이며 그 파일을 수정하지 않는다.
 """
 
 import importlib.util
@@ -40,18 +33,17 @@ stage_05 = _load_stage("05_validation", "stage_05")
 
 
 def run_workflow(issue: dict, expose_target: bool = False) -> dict:
-    """Stage 01→05를 정확한 순서로 실행하고, 각 Stage의 Output을 다음
-    Stage의 명시된 Input으로 그대로 전달한다(Stage Contract 재해석 없음):
+    """Stage 01→05를 순서대로 실행하며 각 Output을 다음 Stage의 명시된
+    Input으로 그대로 전달한다(재해석 없음):
 
     - Stage 01 Output -> Stage 02 Input
     - Stage 01 Output + Stage 02 Output -> Stage 03 Input
     - Stage 03 Output -> Stage 04 Input
     - Stage 02 Output + Stage 03 Output + Stage 04 Output -> Stage 05 Input
 
-    중간 Stage가 예외를 던지면 그 자리에서 즉시 중단한다 — 이후 Stage는
-    호출하지 않고, 실패 지점(`failed_at`)과 오류 메시지를 반환한다.
-    Stage 05의 `verdict`(PASS/FAIL/PARTIAL)는 그대로 반환할 뿐, 이
-    Workflow가 재해석하지 않는다."""
+    중간 Stage가 예외를 던지면 즉시 중단하고 `failed_at`/`error`를
+    채워 반환한다(이후 Stage 미호출). Stage 05 `verdict`는 그대로
+    반환한다."""
     result = {
         "stage_01": None,
         "stage_02": None,

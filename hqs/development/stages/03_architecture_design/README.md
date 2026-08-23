@@ -10,16 +10,15 @@ Interface·Contract Identification / Data Flow / Dependency·Boundary
 Definition / Implementation Strategy / Design Constraints / Design Risks
 9개 관점을 하나의 Design 텍스트로 구조화한다.
 
-실행 진입점은 [`stage_03.py`](./stage_03.py)의 `run_stage_03()`이다.
-새 Agent/Capability를 추가하지 않고, 기존 `agents.design_agent_design()`
-(MVP-0004부터 존재하는 Design Capability)을 그대로 재사용한다 —
-Component Candidates(Stage 01 `candidate_index`)와 Implementation Scope/
-Constraints/Risks(Stage 02 `skeleton`)를 결정적으로(Engine 호출 없이)
-재배치해 골격을 만들고, 그 골격을 Stage 02 Specification에 덧붙여 같은
-Engine 호출 한 번으로 나머지 관점(Architecture Definition/Component
-Identification/Responsibility Allocation/Interface·Contract
-Identification/Data Flow/Implementation Strategy)까지 포함한 Design을
-만든다(자세한 근거는 `CAPABILITIES.md`).
+진입점: [`stage_03.py`](./stage_03.py)의 `run_stage_03()`. 신규
+Agent/Capability 없이 기존 `agents.design_agent_design()`(MVP-0004)을
+재사용한다 — Component Candidates(Stage 01 `candidate_index`)와
+Scope/Constraints/Risks(Stage 02 `skeleton`)를 결정적으로 재배치해
+골격을 만들고, Stage 02 Specification에 덧붙여 같은 Engine 호출 1회로
+나머지 관점(Architecture Definition/Component Identification/
+Responsibility Allocation/Interface·Contract Identification/Data Flow/
+Implementation Strategy)까지 포함한 Design을 만든다(근거:
+`CAPABILITIES.md`).
 
 ## 문서 구성
 

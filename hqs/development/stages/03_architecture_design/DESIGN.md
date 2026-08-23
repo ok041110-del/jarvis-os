@@ -23,27 +23,24 @@ Capability의 반환 형태를 그대로 재노출한다.
 | Data Flow | `design` 내(지시문으로 요청, Engine 산출) |
 | Implementation Strategy | `design` 내(지시문으로 요청, Engine 산출 — Task Decomposition(Stage 02)을 "어떻게 구현할지" 관점으로 재해석) |
 
-Architecture Definition/Responsibility Allocation/Interface·Contract
-Identification/Data Flow/Implementation Strategy는 Stage 01/02 Context
-만으로는 결정적으로 도출할 수 없다(Requirement/Specification 해석에
-의존) — 그래서 이 다섯은 골격(`skeleton`)에 없고, Engine 호출의
-지시문으로만 요청한다. 이는 Stage 02의 Task Decomposition/Acceptance
-Criteria와 동일한 패턴이다.
+나머지 다섯(Architecture Definition/Responsibility Allocation/
+Interface·Contract Identification/Data Flow/Implementation Strategy)은
+Requirement/Specification 해석에 의존해 Stage 01/02 Context만으로
+결정적 도출이 불가능하다 — Engine 지시문으로만 요청한다(Stage 02의
+Task Decomposition/Acceptance Criteria와 동일한 패턴).
 
 ## Stage 04가 이 Design을 어떻게 소비하는가
 
-`design`(`str`)은 이미 존재하는 `workflow_ast_context.identify_target
-(design: str)`의 Input 타입과 그대로 일치한다 — Stage 04가
-`run_stage_03()`의 `design` 값을 그 함수에 직접 전달하면 AST 시작점을
-식별할 수 있다(Stage 03은 이 호출을 스스로 하지 않는다,
-`RESPONSIBILITY.md` 참고). 이는 새 Contract를 만든 것이 아니라, 기존
-함수 시그니처(`design: str`)에 이 Stage의 Output 타입을 맞춘 것이다.
+`design`(`str`)은 기존 `workflow_ast_context.identify_target(design:
+str)`의 Input 타입과 그대로 일치한다 — Stage 04가 이 값을 직접 전달해
+AST 시작점을 식별할 수 있다(호출 자체는 Stage 04 책임,
+`RESPONSIBILITY.md`). 새 Contract가 아니라 기존 시그니처에 Output
+타입을 맞춘 것이다.
 
-## 왜 Stage 01/02의 Output 전체가 아니라 일부만 쓰는가
+## 왜 일부만 쓰는가
 
 Stage 01의 `directory_structure`/`context_bundle`은 이미 Stage 02
-Specification에 반영됐으므로 Stage 03에서 다시 쓰지 않는다(중복 방지
-— `candidate_index`만 새로 필요한 이유는 Stage 02가 이를 쓰지 않았기
-때문). Stage 02의 `specification`은 그대로 전달하고, `skeleton`의
-결정적 필드(`scope_candidates`/`constraints`/`risks`)만 재사용해
+Specification에 반영돼 재사용하지 않는다(`candidate_index`만 Stage 02가
+쓰지 않아 새로 필요). Stage 02 `specification`은 그대로 전달하고,
+`skeleton`의 결정적 필드(`scope_candidates`/`constraints`/`risks`)만
 Design 골격에 편입한다.

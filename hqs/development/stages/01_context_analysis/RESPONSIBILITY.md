@@ -15,20 +15,14 @@
   Stage 03 Architecture & Design)
 - 코드 생성/수정(→ Stage 04 Implementation)
 - 코드 리뷰/테스트 실행(→ Stage 05 Validation)
-- "AST 폐쇄의 시작점(target module/function)을 Design으로부터
-  자동 식별"하는 것 — 이는 Design 산출물을 입력으로 요구하므로
-  Stage 03 이후에만 가능하다. Stage 01은 시작점이 **주어졌을 때**
-  AST Dependency Closure를 계산하는 능력만 제공한다
-  (`workflow_ast_context.identify_target`이 이미 이 식별을 수행하며,
-  Stage 01은 그 식별 로직 자체를 담당하지 않는다).
-- Engine 호출 — Stage 01의 5개 Capability는 전부 순수 정적 분석/파일
-  탐색이며 Engine을 호출하지 않는다(`RESPONSIBILITY.md`가 이 Stage의
-  결정적 Input→Output 특성을 보장하는 근거).
+- AST 폐쇄 시작점(target module/function) 자동 식별 — Design 산출물이
+  필요해 Stage 03 이후에만 가능(`workflow_ast_context.identify_target`
+  이미 구현). Stage 01은 시작점이 **주어졌을 때**만 폐쇄를 계산한다.
+- Engine 호출 — 5개 Capability 전부 순수 정적 분석/파일 탐색이며
+  Engine을 호출하지 않는다(결정적 Input→Output의 근거).
 
 ## Kernel/Architecture 경계
 
-Stage 01은 Development HQ MVP Implementation 범위이며, Jarvis OS
-Kernel Architecture나 Development HQ Baseline을 변경하지 않는다
-(ADC-0005 §Architecture Impact: NONE이 이 Stage에도 그대로 적용됨 —
-Stage 01의 5개 Capability는 ADC-0005가 이미 Accept한 것과 기존
-MVP-0005 범위의 재배치일 뿐이다).
+Development HQ MVP Implementation 범위 — Kernel Architecture/Baseline
+변경 없음(ADC-0005 Architecture Impact: NONE 그대로 적용, 5개 Capability
+모두 ADC-0005 Accept 범위 + 기존 MVP-0005 재배치).
