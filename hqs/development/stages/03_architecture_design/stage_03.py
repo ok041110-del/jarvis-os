@@ -1,12 +1,5 @@
-"""Stage 03: Architecture / Design 실행 진입점 (Architecture Owner
-승인, ADR-0008 §4).
-
-Stage 01의 Output(`run_stage_01()` 반환 dict)과 Stage 02의 Output
-(`run_stage_02()` 반환 dict)을 그대로 Input으로 받는다 — Stage 01/02를
-다시 호출하지 않는다. 새 Agent/Capability를 추가하지 않고 기존
-`agents.design_agent_design()`을 재사용한다(`CAPABILITIES.md`
-Capability 2).
-"""
+"""Stage 03: Architecture / Design 실행 진입점(ADR-0008 §4) — Stage 01/02
+Output을 Input으로 받고, 기존 Design Capability를 재사용한다(CAPABILITIES.md)."""
 
 import sys
 from pathlib import Path
@@ -28,9 +21,8 @@ _DESIGN_INSTRUCTION = (
 
 
 def _structure_from_specification(stage_01_context: dict, stage_02_output: dict) -> dict:
-    """Stage 01/02 Output에서 결정적으로(Engine 호출 없이) Design 골격을
-    뽑는다 — 새 AST 분석/Requirement 재해석을 하지 않고 두 Stage 결과만
-    재배치한다."""
+    """Stage 01/02 Output에서 결정적으로(Engine 미호출) Design 골격을
+    재배치한다(새 분석/재해석 없음)."""
     skeleton_02 = stage_02_output["skeleton"]
     return {
         "component_candidates": stage_01_context["candidate_index"],
@@ -56,10 +48,7 @@ def _enrich_requirement_with_skeleton(specification: str, skeleton_text: str) ->
 
 def run_stage_03(issue: dict, stage_01_context: dict, stage_02_output: dict) -> dict:
     """Skeleton 추출 -> Design Capability 재사용 -> Architecture/Design.
-
-    Engine 호출 실패 시에도 `design`은 채워진다(기존
-    `_engine_failure_message()` 포맷) — `skeleton`은 Engine과 무관하게
-    항상 채워진다(DESIGN.md 참고)."""
+    Engine 실패 시에도 `design`은 오류 포맷으로 채워진다(DESIGN.md)."""
     skeleton = _structure_from_specification(stage_01_context, stage_02_output)
     skeleton_text = _skeleton_to_text(skeleton)
     enriched_requirement = _enrich_requirement_with_skeleton(

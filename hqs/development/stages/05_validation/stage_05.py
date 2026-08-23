@@ -1,16 +1,5 @@
-"""Stage 05: Validation 실행 진입점 (Architecture Owner 승인,
-ADR-0008 §4).
-
-Stage 04의 Output(`run_stage_04()` 반환 dict)을 그대로 Input으로
-받는다 — Stage 01~04를 다시 호출하지 않는다. 새 Agent/Capability를
-추가하지 않는다. PASS/FAIL/PARTIAL 판정은 전부 결정적 규칙으로
-계산한다(`IMPLEMENTATION_RULES.md` "Policy 구현 금지") — Engine은
-`agents.backend_agent_code_review()`(기존 Capability) 재사용으로 보조
-Evidence를 만드는 데만 쓰고, 판정에 직접 반영하지 않는다.
-
-발견된 문제를 수정하지 않는다 — 검증 중 임시로 적용한 변경(Test
-Execution)은 `try`/`finally`로 반드시 원상복구한다.
-"""
+"""Stage 05: Validation 실행 진입점(ADR-0008 §4) — Stage 04 Output을 검증만
+하고 수정하지 않는다. PASS/FAIL/PARTIAL은 전부 결정적 규칙으로 계산한다(Policy 구현 금지, IMPLEMENTATION_RULES.md)."""
 
 import ast
 import subprocess
@@ -115,10 +104,8 @@ def _determine_verdict(structural_check, specification_check, design_scope_check
 
 
 def run_stage_05(issue: dict, stage_02_output: dict, stage_03_output: dict, stage_04_output: dict) -> dict:
-    """Structural/Specification/Design Scope 검사 -> Test Execution ->
-    Code Review Evidence -> Validation Result. `stage_03_output`은
-    시그니처 일관성을 위해 받지만 이 Stage의 6개 Capability는 사용하지
-    않는다(`VALIDATION.md` 참고)."""
+    """Structural/Specification/Design Scope 검사 -> Test Execution -> Code
+    Review Evidence -> Validation Result. `stage_03_output`은 시그니처 통일용, 미사용(VALIDATION.md)."""
     target = stage_04_output.get("target")
     expose_target = stage_04_output.get("expose_target", False)
     implementation = stage_04_output.get("implementation", "")

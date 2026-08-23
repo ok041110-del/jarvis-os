@@ -1,13 +1,5 @@
-"""01→05 Integrated Workflow — Stage 01~05(`stages/0N_*/stage_0N.py`)를
-순서대로 호출·연결한다(ADR-0008 §4). Handover와 실행 순서/중단 관리만
-담당하고, 각 Stage의 내부 로직은 복제하지 않는다.
-
-Stage 폴더는 패키지가 아니므로(`__init__.py` 없음) `test_stage_0N.py`와
-동일하게 `importlib`로 동적 로드한다.
-
-`hqs/development/mvp/workflow.py`(MVP-0001, Task1→Task2 파이프라인)와는
-다른 파일이며 그 파일을 수정하지 않는다.
-"""
+"""01→05 Integrated Workflow — Stage 01~05를 순서대로 호출·연결한다(ADR-0008
+§4). `mvp/workflow.py`(MVP-0001)와는 다른 파일이며 그 파일을 수정하지 않는다."""
 
 import importlib.util
 import sys
@@ -16,6 +8,7 @@ from pathlib import Path
 _STAGES_DIR = Path(__file__).resolve().parent / "stages"
 
 
+# Stage 폴더는 패키지가 아니므로(`__init__.py` 없음) importlib로 동적 로드.
 def _load_stage(folder: str, module_name: str):
     path = _STAGES_DIR / folder / f"{module_name}.py"
     spec = importlib.util.spec_from_file_location(module_name, path)
@@ -33,17 +26,8 @@ stage_05 = _load_stage("05_validation", "stage_05")
 
 
 def run_workflow(issue: dict, expose_target: bool = False) -> dict:
-    """Stage 01→05를 순서대로 실행하며 각 Output을 다음 Stage의 명시된
-    Input으로 그대로 전달한다(재해석 없음):
-
-    - Stage 01 Output -> Stage 02 Input
-    - Stage 01 Output + Stage 02 Output -> Stage 03 Input
-    - Stage 03 Output -> Stage 04 Input
-    - Stage 02 Output + Stage 03 Output + Stage 04 Output -> Stage 05 Input
-
-    중간 Stage가 예외를 던지면 즉시 중단하고 `failed_at`/`error`를
-    채워 반환한다(이후 Stage 미호출). Stage 05 `verdict`는 그대로
-    반환한다."""
+    """Stage 01→05를 순서대로 실행하며 Output을 다음 Stage Input으로 그대로
+    전달한다(재해석 없음). 중간 Stage 예외 시 `failed_at`/`error`만 채워 즉시 반환."""
     result = {
         "stage_01": None,
         "stage_02": None,

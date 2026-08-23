@@ -1,11 +1,5 @@
-"""Stage 02: Planning & Specification 실행 진입점 (Architecture Owner
-승인, ADR-0008 §4).
-
-Stage 01의 Output Schema(`run_stage_01()` 반환 dict)를 그대로 Input으로
-받는다 — Stage 01을 다시 호출하지 않는다. 새 Agent/Capability를
-추가하지 않고 기존 `agents.requirements_agent_requirement_analysis()`를
-재사용한다(`CAPABILITIES.md` Capability 2).
-"""
+"""Stage 02: Planning & Specification 실행 진입점(ADR-0008 §4) — Stage 01
+Output을 Input으로 받고, 기존 Requirement Analysis Capability를 재사용한다(CAPABILITIES.md)."""
 
 import sys
 from pathlib import Path
@@ -25,9 +19,8 @@ _SPECIFICATION_INSTRUCTION = (
 
 
 def _structure_from_context(issue: dict, stage_01_context: dict) -> dict:
-    """Stage 01 Context에서 결정적으로(Engine 호출 없이) Specification
-    골격을 뽑는다 — 새 파일 탐색/AST 분석을 하지 않고 Stage 01 결과만
-    재배치한다."""
+    """Stage 01 Context에서 결정적으로(Engine 미호출) Specification 골격을
+    재배치한다(새 탐색/분석 없음)."""
     context_bundle = stage_01_context["context_bundle"]
     return {
         "problem_definition": f"{issue['title']}: {issue['description']}",
@@ -58,10 +51,7 @@ def _enrich_issue_with_skeleton(issue: dict, skeleton_text: str) -> dict:
 
 def run_stage_02(issue: dict, stage_01_context: dict) -> dict:
     """Skeleton 추출 -> Requirement Analysis Capability 재사용 -> Specification.
-
-    Engine 호출 실패 시에도 `specification`은 채워진다(기존
-    `_engine_failure_message()` 포맷) — `skeleton`은 Engine과 무관하게
-    항상 채워진다(SPECIFICATION.md 참고)."""
+    Engine 실패 시에도 `specification`은 오류 포맷으로 채워진다(SPECIFICATION.md)."""
     skeleton = _structure_from_context(issue, stage_01_context)
     skeleton_text = _skeleton_to_text(skeleton)
     enriched_issue = _enrich_issue_with_skeleton(issue, skeleton_text)

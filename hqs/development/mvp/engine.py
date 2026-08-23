@@ -1,10 +1,4 @@
-"""단일 Engine 호출 함수.
-
-IMPLEMENTATION_RULES.md: "Engine Gateway(Port/Adapter 추상화) 구현 금지 —
-단일 함수로 Engine을 호출하는 것으로 충분하다." 여러 Engine 중 선택하는
-로직(Engine Routing)은 두지 않는다 — 그런 필요가 생기면 Gateway 추출
-신호이므로 RFC 없이 여기서 분기를 늘리지 않는다.
-"""
+"""단일 Engine 호출 함수 — Gateway 추상화·Engine Routing 없음(IMPLEMENTATION_RULES.md)."""
 
 import subprocess
 import tempfile
@@ -27,13 +21,8 @@ STATELESS_CALL_NOTICE = (
 
 
 def call_engine(prompt: str) -> str:
-    """단일 Engine 호출 지점(ENGINE-CONNECT-0001) — Routing/Gateway 없음.
-    `--disallowedTools`는 "텍스트를 받아 텍스트를 반환한다"는 이 함수의
-    계약을 실제 Engine 위에서 유지하기 위한 호출 인자다(도구가 있으면
-    Engine이 파일 쓰기 권한을 요청하는 등 계약을 벗어난다).
-
-    `cwd`를 저장소 밖으로 고정한다 — 저장소 안이면 이 저장소의
-    `CLAUDE.md`/Skill을 읽는 대화형 세션처럼 오염될 수 있다."""
+    """단일 Engine 호출 지점(ENGINE-CONNECT-0001). `disallowedTools`로 텍스트
+    전용 계약을 강제하고, `cwd`를 저장소 밖으로 고정해 CLAUDE.md 오염을 막는다."""
     result = subprocess.run(
         [
             ENGINE_CLI, "-p", prompt,

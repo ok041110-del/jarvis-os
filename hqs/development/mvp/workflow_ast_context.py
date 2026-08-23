@@ -1,18 +1,5 @@
-"""ADC-0005 §8 — AST Context를 Build Capability에 최소 배선한다.
-
-기존 Workflow(`workflow_0008.py` 등)는 수정하지 않는다 — Frozen
-순차 호출 구조를 그대로 두고, 새 진입점 하나를 추가하는 방식이다
-(`workflow_project_intelligence.py`가 `run_issue_to_planning` 곁에
-`run_issue_to_design`을 추가한 선례와 동일). `backend_agent_code_
-generation(design: str) -> str` 시그니처는 변경하지 않는다 — Context는
-입력 문자열에 concatenate하는 기존 패턴(RFC-0007 §2, §7)만 확장한다.
-
-초기 적용 범위는 "기존 함수 1개 확장" Task로 제한한다(ADC-0005 §7 —
-Target File Exposure 정책의 Evidence가 1개 Task뿐이라는 Risk를 반영).
-"Design 출력에서 노출 여부/수정 의도를 자동 판별"하는 것은 검증된
-적이 없으므로(RFC-0007 Open Issues), `expose_target`은 호출자가
-명시적으로 지정한다 — T17~T19 Research와 동일한 방법론이다.
-"""
+"""ADC-0005 §8 — AST Context를 Build Capability에 최소 배선(기존 Workflow
+무수정, 새 진입점 추가). `expose_target`은 자동 판별하지 않고 호출자가 명시적으로 지정한다(RFC-0007 Open Issues)."""
 
 import re
 from pathlib import PurePosixPath
@@ -50,9 +37,8 @@ _EXPOSURE_POLICY_INSTRUCTION = (
 
 
 def identify_target(design: str):
-    """AST 함수 후보 인덱스 + Design으로 시작점(module, function)을
-    식별한다(T17~T19에서 3/3 재현). 새 Capability로 등록하지 않는다 —
-    T17~T19와 동일하게 `call_engine`을 직접 호출한다."""
+    """AST 함수 후보 인덱스 + Design으로 시작점(module, function)을 식별
+    (T17~T19 3/3 재현, `call_engine` 직접 호출)."""
     index = build_function_candidate_index()
     prompt = f"{_IDENTIFY_INSTRUCTION}\n\n---DESIGN---\n{design}\n\n---CANDIDATE INDEX---\n{index}"
     response = call_engine(prompt)
@@ -66,18 +52,14 @@ def identify_target(design: str):
     if file_name == "UNKNOWN" or function_name == "UNKNOWN":
         return None
 
-    # 후보 인덱스는 FILE을 저장소 상대 경로(예: hqs/development/mvp/x.py)로
-    # 표기한다 — Engine이 그 경로를 그대로 돌려줄 수 있으므로 basename만 쓴다.
+    # FILE이 저장소 상대 경로로 올 수 있어 basename만 쓴다.
     module_name = PurePosixPath(file_name).stem
     return module_name, function_name
 
 
 def run_pipeline_with_ast_context(issue: dict, expose_target: bool = False) -> dict:
-    """Planning -> Design -> (AST 시작점 식별 -> AST 폐쇄 [-> Target File
-    노출 + Exposure 정책]) -> Build.
-
-    Engine 호출 실패 시에도 `workflow_0008.run_pipeline`과 같은 형태로
-    실패를 흡수한다(기존 예외 처리 경로 재사용, RFC-0007 §5)."""
+    """Planning -> Design -> (AST 시작점 식별 -> 폐쇄 [-> Exposure]) -> Build.
+    Engine 실패 시 `workflow_0008.run_pipeline`과 동일한 형태로 흡수(RFC-0007 §5)."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 

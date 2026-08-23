@@ -1,15 +1,5 @@
-"""Stage 04: Implementation 실행 진입점 (Architecture Owner 승인,
-ADR-0008 §4).
-
-Stage 03의 Output(`run_stage_03()` 반환 dict)을 그대로 Input으로
-받는다 — Stage 01~03을 다시 호출하지 않는다. 새 Agent/Capability를
-추가하지 않고, ADC-0005 §8에서 이미 검증된 `workflow_ast_context.py`의
-`identify_target`/`build_dependency_closure`/`module_source_path`/
-`_EXPOSURE_POLICY_INSTRUCTION`과 `agents.backend_agent_code_generation`
-을 재사용한다(`CAPABILITIES.md`). `workflow_ast_context.run_pipeline_
-with_ast_context()`의 조립 순서를 그대로 재현하되, Planning/Design을
-다시 만들지 않고 Stage 03의 `design`을 바로 사용한다는 점만 다르다.
-"""
+"""Stage 04: Implementation 실행 진입점(ADR-0008 §4) — Stage 03 `design`을
+Input으로 받아 ADC-0005 §8 검증 Capability를 재사용한다(CAPABILITIES.md)."""
 
 import sys
 from pathlib import Path
@@ -23,9 +13,8 @@ from mvp.workflow_ast_context import _EXPOSURE_POLICY_INSTRUCTION, identify_targ
 
 
 def _assemble_build_input(design: str, target, expose_target: bool) -> str:
-    """target 유무 + exposure 켬/끔 4가지 조합을 결정적으로 조립한다
-    (Engine 호출 없음) — `run_pipeline_with_ast_context()`와 동일한
-    조립 순서(ADC-0005 §7/§8)를 재현한다."""
+    """target/exposure 4가지 조합을 결정적으로 조립(Engine 미호출,
+    `run_pipeline_with_ast_context()`와 동일 순서 재현, ADC-0005 §7/§8)."""
     if target is None:
         return design
 
@@ -46,10 +35,7 @@ def _assemble_build_input(design: str, target, expose_target: bool) -> str:
 
 def run_stage_04(issue: dict, stage_03_output: dict, expose_target: bool = False) -> dict:
     """Target Identification -> Closure/Exposure 조립 -> Code Generation.
-
-    `issue`는 현재 조립에 쓰이지 않지만, 다른 Stage 진입점과 동일한
-    시그니처(issue를 첫 인자로)를 유지해 Stage 05/향후 workflow.py
-    작성 시 호출 패턴을 통일한다."""
+    `issue`는 조립에 미사용 — 다른 Stage와 시그니처 통일 목적(workflow.py 호출 패턴)."""
     design = stage_03_output["design"]
 
     try:

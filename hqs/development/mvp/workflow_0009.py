@@ -1,10 +1,5 @@
 """MVP-0009: build_context_bundle()의 결과를 Planning에 전달한다.
-
-새 Runtime/Dispatcher/Capability는 추가하지 않는다. `[Relevant Context]`
-마커를 해석하는 별도 코드는 없다 — Engine이 프롬프트 텍스트를 그대로
-자연어로 읽는다. `run_comparison()`은 flat Context와 Context Bundle의
-Planning 결과를 나란히 반환할 뿐 우열을 판단하지 않는다.
-"""
+`run_comparison()`은 flat Context와 Context Bundle의 Planning 결과를 나란히 반환할 뿐 우열은 판단하지 않는다."""
 
 from .agents import requirements_agent_requirement_analysis
 from .project_intelligence import build_context_bundle

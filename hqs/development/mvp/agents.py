@@ -1,12 +1,5 @@
 """Agent-Capability 매핑과 Agent 함수.
-
-IMPLEMENTATION_RULES.md: "Registry 구현 금지 — Agent-Capability 매핑은
-리터럴 딕셔너리 이상으로 발전시키지 않는다." AGENT_CAPABILITY_MAP은 그 리터럴
-딕셔너리이며, 조회 함수/클래스로 감싸지 않는다.
-
-Stop Trigger 감시 지점: 이 딕셔너리가 동적 등록 API나 클래스로 바뀌려는 순간
-Registry 일반화이므로 즉시 중단하고 RFC로 넘긴다 (HANDOVER.md 참조).
-"""
+AGENT_CAPABILITY_MAP은 리터럴 딕셔너리로 고정 — Registry로 일반화하지 않는다(IMPLEMENTATION_RULES.md, HANDOVER.md Stop Trigger)."""
 
 from .engine import call_engine
 
@@ -52,9 +45,7 @@ def backend_agent_code_review(code: str) -> str:
 
 
 def qa_agent_test_execution(code: str, review: str) -> str:
-    """QA Agent가 test_execution Capability(테스트 케이스 제안)를 수행한다.
-    지시 문장을 추가한 이유는 `backend_agent_code_review` docstring 참고
-    (MVP-0025)."""
+    """QA Agent의 test_execution Capability(테스트 케이스 제안, MVP-0025)."""
     instruction = (
         "Based on the following code and its review, propose a list of "
         "test cases to add — do not review the code again."
@@ -95,13 +86,8 @@ def _strip_code_fence(text: str) -> str:
 
 
 def backend_agent_code_generation(design: str) -> str:
-    """Backend Agent가 code_generation Capability를 수행한다. 지시 문장의
-    목적은 위와 같다 — 이번에는 반대로 코드**만** 요구한다(다음 Task인
-    code_review/test_execution이 코드를 직접 입력으로 받기 때문).
-
-    `_strip_code_fence` 적용 이유는 그 함수 docstring 참고 — 실제
-    Engine이 지시를 어기고 마크다운 fence로 감싸는 것을 직접 확인해
-    벗긴다."""
+    """Backend Agent의 code_generation Capability — 코드만 반환하도록 지시하고
+    `_strip_code_fence`로 마크다운 fence를 벗긴다."""
     instruction = (
         "Based on the following design, write the implementation code. "
         "Return only the code, with no surrounding commentary."

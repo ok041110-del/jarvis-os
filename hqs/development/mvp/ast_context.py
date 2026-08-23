@@ -1,13 +1,5 @@
-"""ADC-0005 §1/§2 — AST Function Candidate Index / Dependency Closure.
-
-Build Capability(`backend_agent_code_generation`)에 실제 프로젝트 소스
-Context를 제공하기 위한 두 개의 순수 정적 분석 함수만 담는다(Engine
-호출 없음). `project_intelligence.py`는 "경로만 반환한다"는 기존
-성질을 유지해야 하므로(RFC-0007 §4 옵션 2), 파일 **내용**을 반환하는
-이 두 함수는 별도 모듈로 분리했다. Runtime/Registry/Capability를
-새로 만들지 않는다 — 두 함수 모두 `hqs/development/mvp/*.py`를 읽어
-문자열을 반환하는 것뿐이다.
-"""
+"""ADC-0005 §1/§2 — AST Function Candidate Index / Dependency Closure, Engine
+미호출 순수 정적 분석 함수 2개(`project_intelligence.py`의 경로-only 성질 유지, RFC-0007 §4)."""
 
 import ast
 from pathlib import Path
@@ -23,9 +15,8 @@ def _mvp_source_files() -> list:
 
 
 def module_source_path(module: str) -> Path:
-    """`module`(확장자 없는 이름)에 대응하는 `hqs/development/mvp/*.py`
-    경로를 반환한다 — Target File Exposure 배선(ADC-0005 §7)이 대상
-    파일 전체를 읽어야 할 때 경로 조합 로직을 이 모듈 하나로 모은다."""
+    """`module` 이름을 `hqs/development/mvp/*.py` 경로로 변환(Target File
+    Exposure 배선용, ADC-0005 §7)."""
     return _MVP_DIR / f"{module}.py"
 
 
@@ -49,10 +40,8 @@ def _first_doc_line(node) -> str:
 
 
 def build_function_candidate_index() -> str:
-    """저장소 함수 후보를 이름+시그니처+docstring 첫 줄만 담은 저비용
-    인덱스로 만든다(본문 없음) — RFC-0007 §2 시작점 자동 식별용,
-    T17~T19에서 3/3 재현된 최소 입력(`DEV-HQ-V2.0-AST-CANDIDATE-INDEX-
-    REPRODUCTION-0001.md`)."""
+    """저장소 함수 후보를 이름+시그니처+docstring 첫 줄로 색인화(본문 없음) —
+    RFC-0007 §2 시작점 식별용, T17~T19 3/3 재현."""
     sections = []
     for path in _mvp_source_files():
         try:
@@ -75,13 +64,8 @@ def build_function_candidate_index() -> str:
 
 
 def build_dependency_closure(module: str, function: str) -> str:
-    """`module`.`function`에서 시작해 직접·간접 의존성만 폐쇄로 포함한다
-    (Full Source 대체) — RFC-0007 §2/§6, T09~T19 Evidence(Full Source와
-    동등한 Build 정확성, 기존 코드 손상 0건).
-
-    알고리즘: `ast.parse` + Load-context 이름 추적 + 상대 import 재귀.
-    모듈 수준 상수(딕셔너리 등)는 추적하지 않는다 — Evidence(T09~T19)가
-    검증한 범위(함수/클래스 폐쇄)를 벗어나지 않기 위함이다."""
+    """`module`.`function`의 직접·간접 의존성만 폐쇄로 포함(Full Source
+    대체, RFC-0007 §2/§6). 모듈 수준 상수는 추적하지 않는다(T09~T19 검증 범위 밖)."""
     order = []
     seen = set()
 
