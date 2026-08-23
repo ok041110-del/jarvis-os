@@ -269,3 +269,9 @@ Evidence를 근거로 Decision을 재평가한 결과는
 JUSTIFIED(조건부 범위로 한정)**로 재평가됐다. 이 섹션은 원문의
 B. CONDITIONAL 판정과 그 근거를 덮어쓰지 않는다 — 재평가의 전체
 근거와 범위는 위 Revalidation 문서를 authoritative source로 한다.
+
+이 재평가는 이후 `docs/governance/adc/ADC-0005.md`로 등록됐다 —
+결정 후보 4건(AST Function Candidate Index, AST Dependency Closure
+기반 Context 생성, Target File Exposure 정책, 기존 구조 유지) 전부
+Accept, 전부 No ADR Required(`hqs/development/BASELINE.md`가 MVP
+Implementation을 Baseline 범위에서 제외하므로).

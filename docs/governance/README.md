@@ -94,7 +94,7 @@ ADR (Accept/Promote인 경우만)
 ## Document Numbering
 
 - `RFC-xxxx` — Boundary Question (`docs/02_rfc/`, 현재 RFC-0001~0005)
-- `ADC-xxxx` — Architecture Decision Candidate (`docs/governance/adc/`, 현재 ADC-0001~0004)
+- `ADC-xxxx` — Architecture Decision Candidate (`docs/governance/adc/`, 현재 ADC-0001~0005)
 - `RT-xxxx` — Re-evaluation Trigger (`docs/governance/rt/`, 현재 RT-0001)
 - `ADR-xxxx` — Architecture Decision Record (`docs/04_adr/`, 현재 ADR-0001~0005)
 - `OBS-xxxx` — Observation, Governance v2 (`docs/governance/observations/`, 현재 OBS-0001~0006)
