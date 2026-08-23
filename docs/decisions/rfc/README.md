@@ -52,7 +52,7 @@ Context Research(T06~T16) 종료 후 추가됨).
 | RFC-0005 | `docs/decisions/rfc/` | Development HQ ↔ Execution Layer Boundary | **Open** | 없음(미작성) | — |
 | RFC-0006 | `docs/decisions/rfc/` | Structure v1.0 — hqs/, core/execution/ 재배치 및 docs Taxonomy 정리 | Resolved(헤더는 `Proposed`로 미갱신 — D-9) | `docs/decisions/adc/ADC-0005-structure-v1-migration-decisions.md` | `ADR-0006-structure-v1-migration.md` |
 | RFC-0007 | `docs/decisions/rfc/` | AST 기반 Context 자동 추출의 Production Build Capability 통합 | Resolved(Decision: A. INTEGRATION JUSTIFIED, 조건부 범위로 한정 — 선행조건 2건 모두 Evidence로 해소, `DEV-HQ-V2.0-RFC-0007-REVALIDATION-0001.md` 참고) | `docs/governance/adc/ADC-0005.md`(4개 판단 전부 Accept, 전부 No ADR Required) | 없음(불필요) |
-| RFC-0008 | `docs/decisions/rfc/` | AST Context Module Discovery — Dotted Package Path 지원 확장 여부 | **Open**(Agent Package Refactoring 작업 중 발견, 후속 ADC 미작성) | 없음(미작성) | — |
+| RFC-0008 | `docs/decisions/rfc/` | AST Context Module Discovery — Dotted Package Path 지원 확장 여부 | Resolved(Decision: B, Conditional Accept) | `docs/governance/adc/ADC-0006.md` | 없음(불필요 — 확장 자체는 MVP Implementation 범위, Conditions 이행은 후속 구현 Task) |
 | RFC-0001 | `docs/architecture/core/` | Jarvis OS Kernel Baseline | Resolved | `ADC-0001-core-baseline.md` | 없음(불필요) |
 | RFC-0002 | `docs/architecture/core/` | Kernel Definition — Responsibility, Not Component | Resolved | `ADC-0002-kernel-definition.md` | `ADR-0002`(RFC 헤더 원문 인용 — 저장소에 동일 번호 ADR-0002가 두 곳 존재해 대상 특정 불가, `Undetermined` — 아래 §Open Issues) |
 | RFC-0003 | `docs/architecture/core/` | Kernel Context Model — Context, Builder, Assembly, Prompt Projection | Resolved | `ADC-0003-kernel-context-model.md` | `docs/decisions/adr/ADR-0003-kernel-context-model-baseline.md` |
@@ -84,16 +84,16 @@ Kernel Extraction Candidate(Task Dispatcher, Engine Gateway, Registry,
 Context 전달 메커니즘)를 근거로 Kernel Boundary 논의가 필요한 시점인지를
 제기한다. 답은 제시하지 않는다. → `RFC-0001-kernel-boundary.md`
 
-**실제 Open RFC는 3건**이다 — Development HQ 수준 RFC-0005(후속 ADC
-미작성), Development HQ 수준 RFC-0008(Agent Package Refactoring 작업
-중 발견, 후속 ADC 미작성), Execution Layer 수준 RFC-0005(후속 ADC
-미작성, 여부 자체가 Undetermined). Development HQ 수준 RFC-0007은
-후속 ADC(`ADC-0005`, 4개 판단 전부 Accept, 전부 No ADR Required)가
+**실제 Open RFC는 2건**이다 — Development HQ 수준 RFC-0005(후속 ADC
+미작성), Execution Layer 수준 RFC-0005(후속 ADC 미작성, 여부 자체가
+Undetermined). Development HQ 수준 RFC-0007은 후속 ADC(`ADC-0005`,
+4개 판단 전부 Accept, 전부 No ADR Required)가 작성되어 Resolved로
+전환됐다. Development HQ 수준 RFC-0008(Agent Package Refactoring
+작업 중 발견)도 후속 ADC(`ADC-0006`, Decision B Conditional Accept)가
 작성되어 Resolved로 전환됐다. Kernel 영역도 Development HQ Phase
 1(종료됨)도 이 RFC들에 의존하지 않는다(`STABILITY-0001` §1.3,
 Development HQ RFC-0005에 한해 확인됨 — Execution Layer RFC-0005의
-동일 여부는 이번 확인 범위 밖. RFC-0008은 이번 작업으로 신규 추가되어
-그 대상 밖).
+동일 여부는 이번 확인 범위 밖).
 
 ## Open Issues (이번 확인으로 발견, 해결하지 않음)
 
