@@ -405,7 +405,7 @@ CI 자체: **D** — 저장소에 `.github/workflows/`가 존재하지 않아, �
 | Stage 06(CI/CD/Release/Monitoring) 전면 미구현 | Contract와 일치(의도됨) | Stage 문서 자체 인정 |
 | Task 분해(Stage 02), Lint/Security/Performance(Stage 05) 미구현 | Contract와 일치(의도됨, IMPLEMENTATION_RULES.md 금지) | ADC-0003 판단 2 Defer |
 | 두 Governance 문서 트리(`docs/decisions/` vs `docs/governance/`+`docs/architecture/core/`)의 번호 중복 | 참조 혼동 위험 | §4 실측 |
-| `RFC-0005-development-hq-execution-boundary.md`(MVP-0005~13 Observation 근거)의 "LLM/ML 호출은 한 번도 추가되지 않았다" 서술과, 현재 `engine.py::call_engine()`이 실제 `claude` CLI subprocess를 호출하는 코드·`GOVERNANCE-REVIEW-0004/0007`의 "real Engine 검증 완료" 서술 사이의 표면적 불일치 | **NEED UNDETERMINED** — 이 Audit 범위에서 두 서술을 화해시킬 근거(정확한 전환 시점의 git 이력)를 확정하지 못함 | RFC-0005 §1 vs. `engine.py` 실측 vs. `REFACTORING-TRACK-CLOSURE-0001.md`(P1-2/P2/P3 언급) |
+| ~~RFC-0005/engine.py 표면적 불일치~~ | **RESOLVED(A. Historical Mismatch)** — `DEV-HQ-V2.0-PRODUCTION-READINESS-AUDIT-0001.md`(본 문서) 작성 후속 조사로 규명 완료. RFC-0005는 MVP-0005~13 시점에는 사실이었고, 그 이후 ENGINE-CONNECT-0001(MVP-0013과 MVP-0014 사이)에서 `call_engine()`이 실제 Engine 호출로 교체되며 구현이 변경됐다. RFC-0005는 Evidence 범위를 스스로 MVP-0005~13으로 명시하고 있어 Stale 문서가 아니며, 수정하지 않는다. | `docs/01_mvp/MVP-0014-observation.md`, `MVP-0038-observation.md`, `MVP-0043-observation.md`, `docs/research/ENGINE-CONNECT-0001-call-engine-real-wiring.md`, `hqs/development/mvp/engine.py` docstring(MVP-0043 삭제 기록) |
 | Recovery/Resume, 재시도, 영속 상태 없음 | Contract와 일치(의도됨) | `IMPLEMENTATION_RULES.md` 명시 금지 |
 | CI 부재로 36개 테스트가 전부 수동 실행에만 의존 | 실제 Gap(의도되지 않음, Stage 06 자체가 미구현이므로 당연한 결과) | `.github/workflows/` 부재 실측 |
 
@@ -432,9 +432,9 @@ CI 자체: **D** — 저장소에 `.github/workflows/`가 존재하지 않아, �
    경로로 정정할지, 혹은 의도적으로 비활성화된 것인지 확인.
 3. `qa_agent_test_execution`이 "실행"이 아니라 "제안"만 한다는 사실을
    Stage 05 Contract 또는 함수 docstring에 명시할지 검토.
-4. RFC-0005의 "LLM/ML 호출 없음" 서술과 현재 `engine.py` 실제 동작 사이의
-   시점 차이를 규명할 별도 조사(간단한 git 이력 조사 수준)가 필요한지
-   판단.
+4. ~~RFC-0005의 "LLM/ML 호출 없음" 서술과 현재 `engine.py` 실제 동작 사이의
+   시점 차이를 규명할 별도 조사~~ — 완료(§15 참조, A. Historical Mismatch,
+   문서 수정 불필요로 판정).
 5. `docs/decisions/`와 `docs/governance/`+`docs/architecture/core/`
    두 Governance 트리의 관계(병존/통합/역할 분리)를 명확히 문서화할지
    검토.
@@ -456,8 +456,9 @@ Evidence 기준으로만 판단한다(추정 배제):
 
 ## 19. Open Issues
 
-1. RFC-0005의 "LLM/ML 호출 없음" 서술과 현재 `engine.py`의 실제 subprocess
-   호출 사이의 표면적 불일치(§15) — NEED UNDETERMINED.
+1. ~~RFC-0005의 "LLM/ML 호출 없음" 서술과 현재 `engine.py`의 실제 subprocess
+   호출 사이의 표면적 불일치(§15)~~ — **해결됨.** A. Historical Mismatch로
+   판정, 문서 수정 불필요(§15 참조).
 2. 두 Governance 문서 트리의 관계 — 통합 여부는 이 Audit이 결정하지 않음.
 3. Stage 06 재개 조건 — Contract에 재개 조건 자체가 정의되어 있지 않다
    (Stage 01/04와 달리 06은 RFC-0003 §11에 후속 MVP 후보조차 없음).
