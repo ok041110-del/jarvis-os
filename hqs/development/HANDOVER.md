@@ -28,6 +28,7 @@ Jarvis OS는 AI Organization Operating System이다. 여러 HQ(업무 영역)를
 | ETF Team (Investment 영역) | Promoted (최소 업무 범위 한정, Agent/Architecture 미확정) — `docs/research/ETF-TEAM-DEFINITION-0001.md` |
 | Dividend Stock Team (Investment 영역) | **Promoted** (독립 명명 + Stock Team 확장으로 문서화, Agent/Architecture 미확정) — `docs/research/DIVIDEND-STOCK-TEAM-DEFINITION-0001.md` (JNJ/KO/PG 3/3 Evidence 기반) |
 | Investment HQ 자체 | 최소 구조(Investment HQ → Investment Division → Stock/ETF/Dividend Stock Team)를 문서 수준에서 확인함 — `docs/research/INVESTMENT-HQ-MINIMAL-STRUCTURE-REVIEW-0001.md`. Registry 미등록·Lifecycle 없음(Kernel 기능 자체가 미구현 — Development HQ와 동일한 비-live 상태). 전체 Architecture 설계(Mission/Boundary/Capability 등록)는 RFC 대상이며 아직 열리지 않음(ADC 채택 기준 미충족) |
+| Development HQ v2.0(RFC-0007 AST Context → ADC-0005 → ADR-0008 → Stage 01~05 → Integrated Workflow → CLI) | 구현 완료, real Engine E2E 전 구간(Stage 01→05 + `workflow.py` + `cli.py`) PASS — `hqs/development/stages/`, `hqs/development/workflow.py`, `hqs/development/cli.py`, Evidence는 `docs/research/DEV-HQ-V2.0-*`. v1.0 Freeze 범위 밖의 별도 추가 트랙(ADC-0005 각 판정의 "No ADR Required" 근거로 진행, Baseline 미변경). Freeze 여부는 별도 Readiness Review 대상 — 이 표는 v1.0 Freeze를 갱신하지 않는다 |
 
 ## Frozen Architecture
 

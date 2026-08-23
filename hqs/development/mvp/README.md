@@ -25,3 +25,14 @@ python3 -m pytest hqs/development/mvp/tests/
 
 Scheduler, Registry, Workflow Parser, Engine Gateway, Policy, Memory Service,
 Event Bus는 `IMPLEMENTATION_RULES.md`에 따라 의도적으로 구현하지 않았다.
+
+## 이 문서의 범위
+
+위 "구조"는 MVP-0001 원 구현 4개 파일만 설명한다. 이후 이 디렉터리에
+추가된 MVP-0002~0052 Dogfooding 산출물(`workflow_0002.py` 등 다수),
+`project_intelligence.py`, `ast_context.py`, `workflow_ast_context.py`는
+각자의 모듈 docstring과 `docs/research/`의 근거 문서를 참고한다.
+Stage 01~05(`hqs/development/stages/`)와 이를 연결하는 Integrated
+Workflow/CLI(`hqs/development/workflow.py`, `hqs/development/cli.py`)는
+이 디렉터리 밖의 별도 v2.0 트랙이며, 각 Stage 폴더의 `README.md`를
+참고한다.
