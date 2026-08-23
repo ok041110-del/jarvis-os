@@ -7,15 +7,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 
-# 카테고리별 (검색 대상 디렉토리, glob 패턴, 제외 디렉토리명)
+# RFC/ADC/ADR은 Development HQ 트리 외에 Kernel(`architecture/core`)·
+# Execution Layer(`core/execution-layer`) 트리에도 존재한다(T07 Evidence:
+# CATEGORY_PATHS 작성 시점에는 두 트리가 아직 없어 누락됐을 뿐, 의도적
+# 제외 근거는 없다) — 세 카테고리만 검색 디렉토리를 여러 개 갖는다.
+_KERNEL_CORE = ROOT / "docs" / "architecture" / "core"
+_EXECUTION_LAYER = ROOT / "docs" / "core" / "execution-layer"
+
+# 카테고리별 (검색 대상 디렉토리 1개 또는 여러 개, glob 패턴, 제외 디렉토리명)
 CATEGORY_PATHS = {
     "source_code": (ROOT / "hqs" / "development" / "mvp", "*.py", {"tests", "__pycache__"}),
     "existing_workflow": (ROOT / "hqs" / "development" / "mvp", "workflow*.py", {"__pycache__"}),
     "mvp_documents": (ROOT / "docs" / "01_mvp", "*.md", set()),
     "obs_documents": (ROOT / "docs" / "governance" / "observations", "OBS-*.md", set()),
-    "rfc_documents": (ROOT / "docs" / "decisions" / "rfc", "RFC-*.md", set()),
-    "adc_documents": (ROOT / "docs" / "governance" / "adc", "ADC-*.md", set()),
-    "adr_documents": (ROOT / "docs" / "decisions" / "adr", "ADR-*.md", set()),
+    "rfc_documents": ((ROOT / "docs" / "decisions" / "rfc", _KERNEL_CORE, _EXECUTION_LAYER), "RFC-*.md", set()),
+    "adc_documents": ((ROOT / "docs" / "governance" / "adc", _KERNEL_CORE, _EXECUTION_LAYER), "ADC-*.md", set()),
+    "adr_documents": ((ROOT / "docs" / "decisions" / "adr", _KERNEL_CORE, _EXECUTION_LAYER), "ADR-*.md", set()),
     "rt_documents": (ROOT / "docs" / "governance" / "rt", "RT-*.md", set()),
 }
 
@@ -57,18 +64,24 @@ def _score(keywords: set, path: Path) -> int:
     return sum(1 for kw in keywords if re.search(rf"\b{re.escape(kw)}\b", haystack))
 
 
-def _relevant_files(keywords: set, directory: Path, pattern: str, exclude_dirs: set, limit: int = 3) -> list:
-    if not directory.exists():
-        return []
+def _relevant_files(keywords: set, directories, pattern: str, exclude_dirs: set, limit: int = 3) -> list:
+    """`directories`는 `Path` 1개 또는 여러 `Path`의 tuple을 받는다 —
+    RFC/ADC/ADR처럼 같은 문서 종류가 여러 트리에 흩어진 카테고리를
+    하나로 합쳐 검색하기 위함(T07)."""
+    if isinstance(directories, Path):
+        directories = (directories,)
     candidates = []
-    for path in sorted(directory.rglob(pattern)):
-        if not path.is_file():
+    for directory in directories:
+        if not directory.exists():
             continue
-        if exclude_dirs & set(path.parts):
-            continue
-        score = _score(keywords, path)
-        if score > 0:
-            candidates.append((score, path))
+        for path in sorted(directory.rglob(pattern)):
+            if not path.is_file():
+                continue
+            if exclude_dirs & set(path.parts):
+                continue
+            score = _score(keywords, path)
+            if score > 0:
+                candidates.append((score, path))
     candidates.sort(key=lambda pair: pair[0], reverse=True)
     return [str(p.relative_to(ROOT)) for _, p in candidates[:limit]]
 
