@@ -257,3 +257,15 @@ Full Source를 대체할 수 있다는 정확성 근거, 내용 손상 위험이
   직접 생성·반환한다 — 두 기술이 같은 함수를 가리키는지, 서로 다른
   세대의 구현을 가리키는지는 이 RFC의 범위 밖이며 확인되지 않았다.
   이 불일치 자체를 별도로 기록해 둔다.
+
+## Revalidation
+
+두 선행조건 모두 이후 별도 Research로 검증됐다(시작점 식별:
+`DEV-HQ-V2.0-DESIGN-AST-STARTPOINT-IDENTIFICATION-0001.md`,
+`DEV-HQ-V2.0-AST-CANDIDATE-INDEX-REPRODUCTION-0001.md`; Exposure
+완화: `DEV-HQ-V2.0-TARGET-FILE-EXPOSURE-MITIGATION-0001.md`). 이
+Evidence를 근거로 Decision을 재평가한 결과는
+`DEV-HQ-V2.0-RFC-0007-REVALIDATION-0001.md` 참고 — **A. INTEGRATION
+JUSTIFIED(조건부 범위로 한정)**로 재평가됐다. 이 섹션은 원문의
+B. CONDITIONAL 판정과 그 근거를 덮어쓰지 않는다 — 재평가의 전체
+근거와 범위는 위 Revalidation 문서를 authoritative source로 한다.

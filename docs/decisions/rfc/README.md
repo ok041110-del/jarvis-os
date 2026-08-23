@@ -51,7 +51,7 @@ Context Research(T06~T16) 종료 후 추가됨).
 | RFC-0004 | `docs/decisions/rfc/` | Task Dispatcher → Runtime 승격 Boundary (Governance v2, Rule A) | Resolved | `docs/governance/adc/ADC-0004.md` | 없음(불필요) |
 | RFC-0005 | `docs/decisions/rfc/` | Development HQ ↔ Execution Layer Boundary | **Open** | 없음(미작성) | — |
 | RFC-0006 | `docs/decisions/rfc/` | Structure v1.0 — hqs/, core/execution/ 재배치 및 docs Taxonomy 정리 | Resolved(헤더는 `Proposed`로 미갱신 — D-9) | `docs/decisions/adc/ADC-0005-structure-v1-migration-decisions.md` | `ADR-0006-structure-v1-migration.md` |
-| RFC-0007 | `docs/decisions/rfc/` | AST 기반 Context 자동 추출의 Production Build Capability 통합 | **Open**(Decision: B. CONDITIONAL — 선행조건 미해결) | 없음(미작성) | — |
+| RFC-0007 | `docs/decisions/rfc/` | AST 기반 Context 자동 추출의 Production Build Capability 통합 | **Open**(Decision: A. INTEGRATION JUSTIFIED, 조건부 범위로 한정 — 선행조건 2건 모두 Evidence로 해소, `DEV-HQ-V2.0-RFC-0007-REVALIDATION-0001.md` 참고) | 없음(미작성) | — |
 | RFC-0001 | `docs/architecture/core/` | Jarvis OS Kernel Baseline | Resolved | `ADC-0001-core-baseline.md` | 없음(불필요) |
 | RFC-0002 | `docs/architecture/core/` | Kernel Definition — Responsibility, Not Component | Resolved | `ADC-0002-kernel-definition.md` | `ADR-0002`(RFC 헤더 원문 인용 — 저장소에 동일 번호 ADR-0002가 두 곳 존재해 대상 특정 불가, `Undetermined` — 아래 §Open Issues) |
 | RFC-0003 | `docs/architecture/core/` | Kernel Context Model — Context, Builder, Assembly, Prompt Projection | Resolved | `ADC-0003-kernel-context-model.md` | `docs/decisions/adr/ADR-0003-kernel-context-model-baseline.md` |
@@ -84,12 +84,13 @@ Context 전달 메커니즘)를 근거로 Kernel Boundary 논의가 필요한 �
 제기한다. 답은 제시하지 않는다. → `RFC-0001-kernel-boundary.md`
 
 **실제 Open RFC는 3건**이다 — Development HQ 수준 RFC-0005(후속 ADC
-미작성), Development HQ 수준 RFC-0007(Decision: B. CONDITIONAL, 후속
-ADC 미작성 — 선행조건 미해결로 승인 보류), Execution Layer 수준
-RFC-0005(후속 ADC 미작성, 여부 자체가 Undetermined). Kernel 영역도
-Development HQ Phase 1(종료됨)도 이 RFC들에 의존하지 않는다
-(`STABILITY-0001` §1.3, Development HQ RFC-0005에 한해 확인됨 —
-RFC-0007과 Execution Layer RFC-0005의 동일 여부는 이번 확인 범위 밖).
+미작성), Development HQ 수준 RFC-0007(Decision: A. INTEGRATION
+JUSTIFIED, 조건부 범위로 한정 — 선행조건 2건 모두 Evidence로 해소,
+후속 ADC는 아직 미작성), Execution Layer 수준 RFC-0005(후속 ADC
+미작성, 여부 자체가 Undetermined). Kernel 영역도 Development HQ
+Phase 1(종료됨)도 이 RFC들에 의존하지 않는다 (`STABILITY-0001` §1.3,
+Development HQ RFC-0005에 한해 확인됨 — RFC-0007과 Execution Layer
+RFC-0005의 동일 여부는 이번 확인 범위 밖).
 
 ## Open Issues (이번 확인으로 발견, 해결하지 않음)
 
