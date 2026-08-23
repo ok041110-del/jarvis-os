@@ -1,7 +1,8 @@
 """MVP-0005/0006: Issue -> Project Intelligence -> Relevant Context -> Planning(-> Design).
 Relevant Context는 기존 함수 시그니처를 바꾸지 않고 Issue `description`에 덧붙여 전달한다."""
 
-from .agents import design_agent_design, requirements_agent_requirement_analysis
+from .agents.design import design_agent_design
+from .agents.requirements import requirements_agent_requirement_analysis
 from .project_intelligence import collect_relevant_context
 from .workflow import _engine_failure_message
 

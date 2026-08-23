@@ -50,6 +50,8 @@ def test_no_target_means_no_dependency_closure():
 
 
 def test_target_given_computes_dependency_closure():
-    result = stage_01.run_stage_01(SAMPLE_ISSUE, target=("agents", "_strip_code_fence"))
-    assert result["target"] == ("agents", "_strip_code_fence")
+    """`_strip_code_fence`는 Agent Package Refactoring으로 `agents/backend.py`
+    (dotted: `agents.backend`)에 있다(ADC-0006 Condition 6)."""
+    result = stage_01.run_stage_01(SAMPLE_ISSUE, target=("agents.backend", "_strip_code_fence"))
+    assert result["target"] == ("agents.backend", "_strip_code_fence")
     assert "def _strip_code_fence(text: str) -> str:" in result["dependency_closure"]

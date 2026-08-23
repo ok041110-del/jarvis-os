@@ -30,14 +30,14 @@
   "검증된 적 없다"고 기록했다. `expose_target`은 호출자가 명시적으로
   지정한다(ADC-0005 §7과 동일한 결정)
 - 신규 Capability/Agent 추가 — 3개 Capability 전부 `workflow_ast_
-  context.py`/`agents.py`의 기존 함수를 재사용한다(`IMPLEMENTATION_
+  context.py`/`agents/`의 기존 함수를 재사용한다(`IMPLEMENTATION_
   RULES.md`, ADR-0008 §4 충족)
-- `workflow_ast_context.py`/`agents.py` 자체 수정 — 이미 ADC-0005
+- `workflow_ast_context.py`/`agents/` 자체 수정 — 이미 ADC-0005
   §8에서 real Engine E2E로 검증된(Scope 준수 3/3) 코드이므로 호출만
   하고 건드리지 않는다
 
 ## Kernel/Architecture 경계
 
 Development HQ MVP Implementation 범위 — Kernel Architecture/Baseline
-변경 없음, 새 Interface/Contract 미추가, `agents.py`/`engine.py`/
+변경 없음, 새 Interface/Contract 미추가, `agents/`/`engine.py`/
 `workflow_ast_context.py` 무수정.

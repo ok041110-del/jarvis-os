@@ -4,7 +4,9 @@
 import re
 from pathlib import PurePosixPath
 
-from .agents import backend_agent_code_generation, design_agent_design, requirements_agent_requirement_analysis
+from .agents.backend import backend_agent_code_generation
+from .agents.design import design_agent_design
+from .agents.requirements import requirements_agent_requirement_analysis
 from .ast_context import build_dependency_closure, build_function_candidate_index, module_source_path
 from .engine import call_engine
 from .project_intelligence import collect_relevant_context

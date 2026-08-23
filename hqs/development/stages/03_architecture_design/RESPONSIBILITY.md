@@ -31,5 +31,5 @@
 ## Kernel/Architecture 경계
 
 Development HQ MVP Implementation 범위 — Kernel Architecture/Baseline
-변경 없음, 새 Interface/Contract 미추가, `agents.py`/`engine.py`/
+변경 없음, 새 Interface/Contract 미추가, `agents/`/`engine.py`/
 `workflow_ast_context.py` 무수정.

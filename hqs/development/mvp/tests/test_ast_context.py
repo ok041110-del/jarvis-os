@@ -27,8 +27,11 @@ def test_candidate_index_lists_class_candidates():
 
 
 def test_closure_single_module_contains_target_only_dependencies():
-    closure = build_dependency_closure("agents", "_strip_code_fence")
-    assert "# module: agents" in closure
+    """`_strip_code_fence`는 Agent Package Refactoring으로 `agents/backend.py`
+    (dotted: `agents.backend`)에 있다(ADC-0006 Condition 6, 실제 파일 이동에
+    직접 필요한 literal 변경)."""
+    closure = build_dependency_closure("agents.backend", "_strip_code_fence")
+    assert "# module: agents.backend" in closure
     assert "def _strip_code_fence(text: str) -> str:" in closure
     # 다른 모듈을 참조하지 않는 함수이므로 폐쇄는 단일 모듈이어야 한다.
     assert "# module: engine" not in closure
@@ -41,16 +44,32 @@ def test_closure_includes_referenced_class_in_same_module():
 
 
 def test_closure_follows_relative_imports_across_modules():
+    """Agent Package Refactoring 이후 `requirements_agent_requirement_analysis`/
+    `design_agent_design`는 각각 `agents.requirements`/`agents.design`에
+    있다 — T18 Evidence 당시의 단일 `agents` 모듈은 이제 2개로 나뉜다
+    (ADC-0006 Condition 6)."""
     closure = build_dependency_closure("workflow_project_intelligence", "run_issue_to_design")
-    # T18 Evidence(Task 2, run_issue_to_design)와 동일하게 5개 모듈로
-    # 확장되어야 한다: 자기 자신 + agents + engine + project_intelligence + workflow.
-    for module in ("workflow_project_intelligence", "agents", "engine", "project_intelligence", "workflow"):
+    for module in (
+        "workflow_project_intelligence",
+        "agents.design",
+        "agents.requirements",
+        "engine",
+        "project_intelligence",
+        "workflow",
+    ):
         assert f"# module: {module}" in closure
 
 
 def test_closure_is_smaller_than_full_source_for_multi_module_case():
     closure = build_dependency_closure("workflow_project_intelligence", "run_issue_to_design")
-    modules = ("agents.py", "engine.py", "project_intelligence.py", "workflow.py", "workflow_project_intelligence.py")
+    modules = (
+        "agents/design.py",
+        "agents/requirements.py",
+        "engine.py",
+        "project_intelligence.py",
+        "workflow.py",
+        "workflow_project_intelligence.py",
+    )
     full_source_total = sum(len((_MVP_DIR / name).read_text(encoding="utf-8")) for name in modules)
     assert len(closure) < full_source_total
 

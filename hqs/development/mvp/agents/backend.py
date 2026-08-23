@@ -1,21 +1,7 @@
-"""Agent-Capability 매핑과 Agent 함수.
-AGENT_CAPABILITY_MAP은 리터럴 딕셔너리로 고정 — Registry로 일반화하지 않는다(IMPLEMENTATION_RULES.md, HANDOVER.md Stop Trigger)."""
+"""Backend Agent — code_review/code_generation Capability(Agent Package
+Refactoring, `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2)."""
 
-from .engine import call_engine
-
-AGENT_CAPABILITY_MAP = {
-    "code_review": "Backend Agent",
-    "test_execution": "QA Agent",
-}
-
-# Hello SDLC 전용 별도 딕셔너리 — AGENT_CAPABILITY_MAP을 2개 항목으로
-# 고정 검증하는 test_mvp_0001.py를 깨지 않기 위해 확장하지 않는다.
-HELLO_SDLC_CAPABILITY_MAP = {
-    "requirement_analysis": "Requirements Agent",
-    "design": "Design Agent",
-    "code_generation": "Backend Agent",
-}
-
+from ..engine import call_engine
 
 NO_ISSUES_MARKER = "NO_ISSUES_FOUND"
 
@@ -42,38 +28,6 @@ def backend_agent_code_review(code: str) -> str:
         f"your response with the exact line: {NO_ISSUES_MARKER}"
     )
     return call_engine(f"CODE_REVIEW:{instruction}\n\n{code}")
-
-
-def qa_agent_test_execution(code: str, review: str) -> str:
-    """QA Agent의 test_execution Capability(테스트 케이스 제안, MVP-0025)."""
-    instruction = (
-        "Based on the following code and its review, propose a list of "
-        "test cases to add — do not review the code again."
-    )
-    payload = f"{code}\n---REVIEW---\n{review}"
-    return call_engine(f"TEST_EXECUTION:{instruction}\n\n{payload}")
-
-
-def requirements_agent_requirement_analysis(issue: dict) -> str:
-    """리터럴 마커만으로는 Engine이 의도를 놓치고 코드를 바로 작성하는 등의
-    사례가 있어 한 문장짜리 지시를 앞에 붙인다."""
-    instruction = (
-        "Analyze the following feature request and describe the "
-        "requirement in prose (goal, scope, risks) — do not write code."
-    )
-    payload = f"{issue['title']}|||{issue['description']}"
-    return call_engine(f"REQUIREMENT_ANALYSIS:{instruction}\n\n{payload}")
-
-
-def design_agent_design(issue: dict, requirement: str) -> str:
-    """Design Agent가 design Capability를 수행한다. 지시 문장의 목적은
-    `requirements_agent_requirement_analysis`와 같다."""
-    instruction = (
-        "Based on the following requirement, describe a design in prose "
-        "(approach, responsibilities, risks) — do not write code yet."
-    )
-    payload = f"{issue['title']}\n---REQUIREMENT---\n{requirement}"
-    return call_engine(f"DESIGN:{instruction}\n\n{payload}")
 
 
 def _strip_code_fence(text: str) -> str:
