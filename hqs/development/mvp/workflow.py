@@ -1,7 +1,8 @@
 """MVP-0001 Workflow: Task 1(code_review) -> Task 2(test_execution), 직접
 함수 호출로 하드코딩(MVP.md/IMPLEMENTATION_RULES.md, Kernel Extraction Candidate는 HANDOVER.md)."""
 
-from .agents import backend_agent_code_review, qa_agent_test_execution
+from .agents.backend import backend_agent_code_review
+from .agents.qa import qa_agent_test_execution
 
 
 def _engine_failure_message(exc: Exception) -> str:

@@ -2,13 +2,10 @@
 Project Intelligence는 Planning 직전에만 사용한다 — Design에는 원본 Issue를 그대로 넘긴다.
 """
 
-from .agents import (
-    backend_agent_code_generation,
-    backend_agent_code_review,
-    design_agent_design,
-    qa_agent_test_execution,
-    requirements_agent_requirement_analysis,
-)
+from .agents.backend import backend_agent_code_generation, backend_agent_code_review
+from .agents.design import design_agent_design
+from .agents.qa import qa_agent_test_execution
+from .agents.requirements import requirements_agent_requirement_analysis
 from .project_intelligence import collect_relevant_context
 from .workflow import _engine_failure_message
 from .workflow_project_intelligence import _enrich_issue

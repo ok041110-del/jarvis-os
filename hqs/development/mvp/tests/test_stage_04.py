@@ -5,7 +5,10 @@
 generation`은 재구현하지 않았으므로 여기서는 (a) Stage 04가 이 함수들에
 올바른 입력(Stage 03 design)을 넘기는지, (b) 조립 로직이 target 유무/
 exposure 켬끔 4가지 조합에서 결정적으로 맞는지, (c) 기존 오류 포맷
-유지 여부만 mock/실제 파일로 검증한다.
+유지 여부만 mock/실제 파일로 검증한다. `("agents.backend", "_strip_code_
+fence")`는 Agent Package Refactoring 이후 실제 파일 경로 반영(ADC-0006
+Condition 6) — `identify_target`은 mock이지만 조립 로직은 실제
+`build_dependency_closure`를 호출한다.
 """
 
 import importlib.util
@@ -40,7 +43,7 @@ def test_assemble_without_target_returns_design_unchanged():
 
 def test_assemble_with_target_no_exposure_includes_closure_only():
     build_input = stage_04._assemble_build_input(
-        "DESIGN TEXT", ("agents", "_strip_code_fence"), expose_target=False
+        "DESIGN TEXT", ("agents.backend", "_strip_code_fence"), expose_target=False
     )
     assert "DESIGN TEXT" in build_input
     assert "---RELEVANT CODE (AST closure)---" in build_input
@@ -81,12 +84,12 @@ def test_run_stage_04_happy_path_no_target(monkeypatch):
 
 
 def test_run_stage_04_happy_path_with_target(monkeypatch):
-    monkeypatch.setattr(stage_04, "identify_target", lambda design: ("agents", "_strip_code_fence"))
+    monkeypatch.setattr(stage_04, "identify_target", lambda design: ("agents.backend", "_strip_code_fence"))
     monkeypatch.setattr(stage_04, "backend_agent_code_generation", lambda build_input: "CODE")
 
     result = stage_04.run_stage_04(SAMPLE_ISSUE, SAMPLE_STAGE_03_OUTPUT, expose_target=True)
 
-    assert result["target"] == ("agents", "_strip_code_fence")
+    assert result["target"] == ("agents.backend", "_strip_code_fence")
     assert result["implementation"] == "CODE"
     assert result["expose_target"] is True
 
@@ -107,7 +110,7 @@ def test_identify_target_receives_stage_03_design(monkeypatch):
 
 
 def test_engine_failure_in_code_generation_returns_error_message(monkeypatch):
-    monkeypatch.setattr(stage_04, "identify_target", lambda design: ("agents", "_strip_code_fence"))
+    monkeypatch.setattr(stage_04, "identify_target", lambda design: ("agents.backend", "_strip_code_fence"))
 
     def raising_generation(build_input):
         raise RuntimeError("boom")

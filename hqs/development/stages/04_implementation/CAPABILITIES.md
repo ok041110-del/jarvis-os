@@ -1,6 +1,6 @@
 # Stage 04: Capabilities
 
-3개 Capability 전부 `workflow_ast_context.py`/`agents.py`의 기존 함수를
+3개 Capability 전부 `workflow_ast_context.py`/`agents/`의 기존 함수를
 그대로 재사용한다 — 신규 Capability나 신규 Engine 호출을 추가하지
 않는다(`RESPONSIBILITY.md` 참고). Stage 04 고유 코드는 이 3개를
 Stage 03 Design에 연결하는 조립 로직뿐이다.
@@ -28,6 +28,6 @@ Stage 03 Design에 연결하는 조립 로직뿐이다.
 | 항목 | 내용 |
 |---|---|
 | Input | Capability 2의 Build 입력 `str` |
-| Analysis | `agents.backend_agent_code_generation(build_input)` — 기존 Backend Agent code_generation Capability를 그대로 호출(코드만 반환하도록 지시, 마크다운 fence 제거 포함) |
+| Analysis | `agents.backend.backend_agent_code_generation(build_input)` — 기존 Backend Agent code_generation Capability를 그대로 호출(코드만 반환하도록 지시, 마크다운 fence 제거 포함) |
 | Output | `str`(생성/수정된 코드 — Exposure 시 파일 전체, 아니면 부분 코드) |
 | Validation | 기존 테스트가 `backend_agent_code_generation` 자체를 이미 검증. Stage 04에서는 (a) Engine 실패 시 기존 오류 포맷 유지, (b) real Engine E2E로 실제 파일에 적용 → pytest 실행 → Scope 준수(대상 함수만 변경) 확인 → 원상복구(`VALIDATION.md` 참고) |

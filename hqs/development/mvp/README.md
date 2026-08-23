@@ -19,7 +19,7 @@ python3 -m pytest hqs/development/mvp/tests/
 ## 구조
 
 - `engine.py` — 단일 Engine 호출 함수 (`call_engine`). Engine Gateway 추상화 없음.
-- `agents.py` — `AGENT_CAPABILITY_MAP` 리터럴 딕셔너리 + Backend/QA Agent 함수.
+- `agents/` — `AGENT_CAPABILITY_MAP` 리터럴 딕셔너리(`__init__.py`) + Requirements/Design/Backend/QA Agent 함수(각 `requirements.py`/`design.py`/`backend.py`/`qa.py`, Agent Package Refactoring).
 - `workflow.py` — Task 1(`code_review`) → Task 2(`test_execution`) 하드코딩 직접 호출.
 - `cli.py` — 실행 진입점.
 

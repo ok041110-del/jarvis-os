@@ -1,7 +1,7 @@
 """MVP-0009: build_context_bundle()의 결과를 Planning에 전달한다.
 `run_comparison()`은 flat Context와 Context Bundle의 Planning 결과를 나란히 반환할 뿐 우열은 판단하지 않는다."""
 
-from .agents import requirements_agent_requirement_analysis
+from .agents.requirements import requirements_agent_requirement_analysis
 from .project_intelligence import build_context_bundle
 from .workflow import _engine_failure_message
 from .workflow_0008 import REAL_ISSUE

@@ -10,7 +10,7 @@ Evidence와 명확한 판정(PASS/FAIL/PARTIAL)을 생성한다. **문제를 수
 진입점: [`stage_05.py`](./stage_05.py)의 `run_stage_05()`. 신규
 Agent/Capability 없음. `IMPLEMENTATION_RULES.md`의 "Policy 구현 금지"
 원칙에 따라 PASS/FAIL/PARTIAL 판정은 전부 **결정적 규칙**(Engine
-미호출)으로 계산한다 — Engine은 `agents.backend_agent_code_review()`
+미호출)으로 계산한다 — Engine은 `agents.backend.backend_agent_code_review()`
 (기존 Capability, MVP-0001) 재사용으로 보조 Evidence만 만들고, 판정에
 직접 반영하지 않는다.
 
@@ -32,7 +32,7 @@ Agent/Capability 없음. `IMPLEMENTATION_RULES.md`의 "Policy 구현 금지"
   자체는 이번 Stage에서 직접 소비하지 않음, `RESPONSIBILITY.md` 참고)
 - `hqs/development/stages/04_implementation/`(Stage 04 — 이 Stage의
   주 Input Schema 출처)
-- `hqs/development/mvp/agents.py`(`backend_agent_code_review` — 재사용
+- `hqs/development/mvp/agents/backend.py`(`backend_agent_code_review` — 재사용
   하는 기존 Capability)
 - `docs/research/DEV-HQ-V2.0-STAGE-04-E2E-0001.md`(백업/적용/pytest/
   diff/원상복구 방법론 — 이 Stage의 Test Execution Capability가 코드로

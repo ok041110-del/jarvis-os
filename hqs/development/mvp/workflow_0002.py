@@ -1,7 +1,8 @@
 """MVP-0002: `NO_ISSUES_MARKER`로 code review 결과를 분기하며,
 이슈가 없으면 test execution을 생략한다."""
 
-from .agents import NO_ISSUES_MARKER, backend_agent_code_review, qa_agent_test_execution
+from .agents.backend import NO_ISSUES_MARKER, backend_agent_code_review
+from .agents.qa import qa_agent_test_execution
 from .workflow import _engine_failure_message
 
 

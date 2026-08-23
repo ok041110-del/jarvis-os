@@ -35,9 +35,12 @@ def test_flat_module_source_path_unchanged_for_non_dotted_name():
 
 
 def test_flat_dependency_closure_still_works_for_real_repo_module():
-    closure = ast_context.build_dependency_closure("agents", "_strip_code_fence")
-    assert "# module: agents" in closure
-    assert "def _strip_code_fence(text: str) -> str:" in closure
+    """`agents.py`가 Agent Package Refactoring으로 패키지가 된 뒤에도,
+    여전히 평면 파일로 남아 있는 `engine.py`를 기준으로 평면 module
+    closure가 그대로 동작함을 확인한다."""
+    closure = ast_context.build_dependency_closure("engine", "call_engine")
+    assert "# module: engine" in closure
+    assert "def call_engine(prompt: str) -> str:" in closure
 
 
 # --- 2. package directory를 module path로 식별 ---

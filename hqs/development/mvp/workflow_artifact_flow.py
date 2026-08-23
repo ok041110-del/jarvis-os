@@ -1,11 +1,9 @@
 """MVP-0007: Artifact Flow 관찰 — Issue -> Planning -> Design -> Implementation.
 Project Intelligence는 Planning에서만 쓰고, Design/Implementation에는 원본 Issue를 그대로 넘긴다(MVP-0006과의 차이)."""
 
-from .agents import (
-    backend_agent_code_generation,
-    design_agent_design,
-    requirements_agent_requirement_analysis,
-)
+from .agents.backend import backend_agent_code_generation
+from .agents.design import design_agent_design
+from .agents.requirements import requirements_agent_requirement_analysis
 from .project_intelligence import collect_relevant_context
 from .workflow import _engine_failure_message
 from .workflow_project_intelligence import _enrich_issue
