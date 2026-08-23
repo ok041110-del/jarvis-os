@@ -25,7 +25,9 @@ MVP-0001·MVP-0002에서 `test_execution`, `code_review` Capability로
 관찰되었다. 아래는 참조 링크일 뿐이며, 이 문서 작성으로 코드가 이동되거나
 수정되지 않았다.
 
-- `hqs/development/mvp/agents.py` — `qa_agent_test_execution()`
+- `hqs/development/mvp/agents.py` — `qa_agent_test_execution()`(이름과
+  달리 테스트를 실행하지 않고, 리뷰를 반영한 테스트 케이스를 산문으로
+  제안한다 — 함수 docstring 참고)
 - `hqs/development/mvp/workflow.py`, `workflow_0002.py`
 - `hqs/development/mvp/tests/test_mvp_0001.py`
 

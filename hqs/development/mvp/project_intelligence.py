@@ -13,9 +13,9 @@ CATEGORY_PATHS = {
     "existing_workflow": (ROOT / "hqs" / "development" / "mvp", "workflow*.py", {"__pycache__"}),
     "mvp_documents": (ROOT / "docs" / "01_mvp", "*.md", set()),
     "obs_documents": (ROOT / "docs" / "governance" / "observations", "OBS-*.md", set()),
-    "rfc_documents": (ROOT / "docs" / "02_rfc", "RFC-*.md", set()),
+    "rfc_documents": (ROOT / "docs" / "decisions" / "rfc", "RFC-*.md", set()),
     "adc_documents": (ROOT / "docs" / "governance" / "adc", "ADC-*.md", set()),
-    "adr_documents": (ROOT / "docs" / "04_adr", "ADR-*.md", set()),
+    "adr_documents": (ROOT / "docs" / "decisions" / "adr", "ADR-*.md", set()),
     "rt_documents": (ROOT / "docs" / "governance" / "rt", "RT-*.md", set()),
 }
 
