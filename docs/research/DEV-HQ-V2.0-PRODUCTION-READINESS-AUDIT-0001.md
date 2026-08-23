@@ -459,7 +459,12 @@ Evidence 기준으로만 판단한다(추정 배제):
 1. ~~RFC-0005의 "LLM/ML 호출 없음" 서술과 현재 `engine.py`의 실제 subprocess
    호출 사이의 표면적 불일치(§15)~~ — **해결됨.** A. Historical Mismatch로
    판정, 문서 수정 불필요(§15 참조).
-2. 두 Governance 문서 트리의 관계 — 통합 여부는 이 Audit이 결정하지 않음.
+2. ~~두 Governance 문서 트리의 관계~~ — **조사 완료.** 실제로는 4개
+   트리(`docs/decisions/`, `docs/governance/`, `docs/architecture/
+   core/`, `docs/core/execution-layer/`)이며, B. Migration Residue로
+   판정(Structure v1 Migration이 이연한 "불명확 140개" 후속 ADC 미착수).
+   통합 여부는 여전히 미결정 — `DEV-HQ-V2.0-GOVERNANCE-TREE-
+   INVESTIGATION-0001.md` 참조.
 3. Stage 06 재개 조건 — Contract에 재개 조건 자체가 정의되어 있지 않다
    (Stage 01/04와 달리 06은 RFC-0003 §11에 후속 MVP 후보조차 없음).
 
