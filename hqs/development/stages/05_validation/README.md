@@ -1,39 +1,42 @@
-# Stage: Validation
+# Stage 05: Validation
 
-## 목적
+## 요약
 
-구현 결과를 검증한다.
+Stage 04(Implementation)의 Output을 입력으로 받아, 실제 변경이
+Stage 02 Specification/Stage 03 Design에 부합하는지 검증하고 구조화된
+Evidence와 명확한 판정(PASS/FAIL/PARTIAL)을 생성한다. **문제를 수정하지
+않는다** — 발견된 문제는 Evidence와 Open Issue로만 반환한다.
 
-## Responsibility
+실행 진입점은 [`stage_05.py`](./stage_05.py)의 `run_stage_05()`이다.
+새 Agent/Capability를 추가하지 않는다. `IMPLEMENTATION_RULES.md`의
+"Policy 구현 금지"(판정 로직을 Engine에 위임하지 않는다) 원칙에 따라,
+PASS/FAIL/PARTIAL 판정은 전부 **결정적 규칙**(Engine 미호출)으로
+계산한다 — Engine은 `agents.backend_agent_code_review()`(기존
+Capability, MVP-0001) 재사용으로 Evidence 텍스트를 보강하는 데만
+쓰고, 그 결과를 판정에 직접 반영하지 않는다.
 
-- Unit Test
-- Integration Test
-- Review
-- Lint
-- Security
-- Performance
+## 문서 구성
 
-## Reference
+- [`RESPONSIBILITY.md`](./RESPONSIBILITY.md) — 이 Stage가 책임지는 것과
+  책임지지 않는 것
+- [`CAPABILITIES.md`](./CAPABILITIES.md) — 6개 Capability의
+  Input → Validation → Output → Evidence
+- [`VALIDATION.md`](./VALIDATION.md) — `run_stage_05()`이 반환하는
+  Validation Output Schema(고정)와 검증 방법(mock 기반 + real Engine/
+  실제 pytest E2E)
 
-- OpenHands
-- Claude Code
+## 근거 문서
 
-## 참고 구현 예시 (기존 코드, 이동하지 않음)
-
-이 Stage의 Unit Test/Review Responsibility는 이미 Development HQ
-MVP-0001·MVP-0002에서 `test_execution`, `code_review` Capability로
-관찰되었다. 아래는 참조 링크일 뿐이며, 이 문서 작성으로 코드가 이동되거나
-수정되지 않았다.
-
-- `hqs/development/mvp/agents.py` — `qa_agent_test_execution()`(이름과
-  달리 테스트를 실행하지 않고, 리뷰를 반영한 테스트 케이스를 산문으로
-  제안한다 — 함수 docstring 참고)
-- `hqs/development/mvp/workflow.py`, `workflow_0002.py`
-- `hqs/development/mvp/tests/test_mvp_0001.py`
-
-## 상태
-
-Capability 배정(Lint/Security/Performance 세분화 여부 등)은 아직
-결정되지 않았다(`docs/governance/adc/ADC-0003.md` 판단 2: Defer). 관련
-MVP 계획은 `docs/decisions/rfc/RFC-0003-development-hq-sdlc-pivot.md` §11의
-MVP-0005 후보를 참조한다.
+- `hqs/development/stages/02_planning_specification/`(Stage 02 —
+  `skeleton.scope_candidates` 재사용)
+- `hqs/development/stages/03_architecture_design/`(Stage 03 — Design
+  자체는 이번 Stage에서 직접 소비하지 않음, `RESPONSIBILITY.md` 참고)
+- `hqs/development/stages/04_implementation/`(Stage 04 — 이 Stage의
+  주 Input Schema 출처)
+- `hqs/development/mvp/agents.py`(`backend_agent_code_review` — 재사용
+  하는 기존 Capability)
+- `docs/research/DEV-HQ-V2.0-STAGE-04-E2E-0001.md`(백업/적용/pytest/
+  diff/원상복구 방법론 — 이 Stage의 Test Execution Capability가 코드로
+  formalize한 절차)
+- `hqs/development/IMPLEMENTATION_RULES.md`("Policy 구현 금지" — 이
+  Stage가 판정을 결정적 규칙으로 유지한 이유)
