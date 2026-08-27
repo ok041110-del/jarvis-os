@@ -268,6 +268,6 @@ RFC: 없음
 ADC: 없음
 ADR: 없음
 PR: 미생성(사용자 승인 대기)
-Commit: (커밋 예정)
+Commit: `f9a95e3`
 Branch: `claude/runtime-boundary-prototype`(계보: `claude/inprocess-async-command-prototype` → `claude/async-command-prototype` → `claude/command-contract-prototype` → `claude/unified-dashboard-prototype`, 전부 아직 main 미merge)
 Next Implementation Candidate: Process 전략을 Runtime 기본/유일 전략으로 좁히는 검증, 또는 Trading HQ 등장 시 3-HQ 재검증 — 우선순위 미확정, 사용자 결정 필요
