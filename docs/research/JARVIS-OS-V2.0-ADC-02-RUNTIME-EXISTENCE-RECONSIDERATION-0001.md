@@ -271,6 +271,6 @@ RFC: 없음(§7에서 신규 RFC 개설을 제안, 이 문서가 개설하지 �
 ADC: 없음(ADC-02는 Open·NOW 그대로, 이 문서가 갱신하지 않음)
 ADR: 없음
 PR: 미생성(사용자 승인 대기)
-Commit: (커밋 예정)
+Commit: `1b6c109`
 Branch: `claude/adc-02-runtime-existence-reconsideration`(계보: `claude/dev-hq-vertical-slice-prototype`에서 분기 — 핵심 근거로 인용하는 Vertical Slice Evidence 문서가 아직 main에 병합되지 않았기 때문)
 Next Implementation Candidate: §7의 "Runtime Existence — Scoped Reconsideration" RFC 개설 여부 — 사용자 결정 필요(승인 시 새 RFC 문서 작성이 다음 작업)
