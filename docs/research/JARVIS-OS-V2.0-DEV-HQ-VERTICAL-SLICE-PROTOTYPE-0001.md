@@ -306,6 +306,6 @@ RFC: 없음(§14에서 후보로만 제시, 이 문서가 열지 않음)
 ADC: 없음
 ADR: 없음
 PR: 미생성(사용자 승인 대기)
-Commit: (커밋 예정)
+Commit: `a0fa2a8`
 Branch: `claude/dev-hq-vertical-slice-prototype`(main에서 분기, `runtime-boundary`는 이미 main에 병합되어 있어 별도 Prototype 브랜치 의존 없음)
 Next Implementation Candidate: ADC-02(Runtime 존폐) 재검토 RFC 필요성 판단, Result 저장 개념의 반복 관찰, 또는 Trading HQ 등장 시 3-HQ 재검증 — 우선순위 미확정, 사용자 결정 필요
