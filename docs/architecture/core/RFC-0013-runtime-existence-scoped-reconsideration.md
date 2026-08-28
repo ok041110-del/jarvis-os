@@ -1,6 +1,9 @@
 # RFC-0013: Runtime Existence — Scoped Reconsideration (ADC-02 후속)
 
-**Status**: Open
+**Status**: Resolved — `ADC-0013-runtime-existence-scoped-reconsideration.md`
+→ `ADR-0003-single-execution-unit-dispatch-isolation-baseline.md`로
+종결됨(Accept, Scoped). RFC 자체는 결정 문서가 아니며, 이 라벨은
+절차 진행 상태만 반영한다.
 **Author**: Claude Code
 **대상**: `docs/decisions/adc/ADC.md` ADC-02("Runtime 개념의 존폐") — Open·NOW.
 `docs/architecture/core/ADC-0008-runtime-existence-boundary.md`가 Not

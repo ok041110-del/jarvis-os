@@ -2,7 +2,7 @@
 
 | 필드 | 내용 |
 |---|---|
-| ID | `docs/architecture/core/ADR-0003` |
+| ID | `docs/architecture/core/ADR-0003` (`docs/decisions/adr/ADR-0003-kernel-context-model-baseline.md`와 다른 문서 — 네임스페이스로 구분) |
 | 제목 | `ADC-0013`의 Scoped Accept 결정(단일 실행 단위 dispatch·격리 책임의 존재)을 Architecture Baseline에 반영하기 위한 구현 결정 |
 | 상태 | **Accepted** |
 | Context | `docs/architecture/core/ADC-0013-runtime-existence-scoped-reconsideration.md` — **Decision: A. Accept (Scoped)**, Next Step: ADR Required |
@@ -219,7 +219,8 @@ Minor 단위로 기록한다.
 
 ## Governance Chain 검증
 
-`RFC-0013`(Proposed, 좁은 Boundary Question 개설) → `ADC-0013`(Accept,
+`RFC-0013`(질문만 개설, 판단은 후속 절차로 위임 — 개설 당시 Open,
+이후 `ADC-0013` → 이 ADR로 Resolved) → `ADC-0013`(Accept,
 Scoped — 그 질문에 답함, 명칭·전략·범위는 명시적으로 제외) → 이
 ADR(Accepted — Baseline에 반영, 새로운 결정 추가 없음). 세 문서가
 각각 인용하는 근거가 상위 문서의 범위를 벗어나지 않는지 확인했다.
