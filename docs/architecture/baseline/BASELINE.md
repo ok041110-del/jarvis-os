@@ -849,20 +849,31 @@ Execution Host는 §6 Concept Model의 "Runtime" 항목을 재명명한 것이
 `docs/decisions/adc/ADC.md`의 ADC-02("Runtime 개념의 존폐")도 Open
 상태 그대로 유지된다.
 
-**이 Accept가 결정하지 않는 것**: 구현 전략(Process/Thread/
-Subprocess), Scheduler/Engine Gateway 등 대체 구조와의 비교,
-`BASELINE.md` §6의 원래 넓은 정의(Workflow 참조, Multi-Task를
-Agent에게 배분)로의 확장 여부는 모두 별도 절차(RFC → ADC → ADR)로
-남는다(`ADC-0013` §Implementation Boundary "제외"). `docs/decisions/adc/ADC.md`
-ADC-02가 다루는 "유지 대 대체" 구도와 이름 충돌 문제
-(`docs/decisions/rfc/RFC-0004-task-dispatcher-runtime-boundary.md`)는
+**구현 전략**: 이 책임을 실현하는 구현 전략은 **Process를 1차,
+Subprocess를 대안으로 Conditional Accept**했다(`docs/architecture/core/ADC-0015-execution-host-implementation-strategy.md`).
+적용 조건은 "동일 Target(프로세스 전역 상태를 공유하는 대상)을
+동시 실행할 가능성이 있는 경로"로 한정되며, 이 조건에서 **Thread는
+명시적으로 배제**한다. 이 조건 밖(서로 다른 Target만 실행하는
+경로)까지 Process를 강제하지 않는다. 이 Accept는 **Conditional**
+이다 — 비용(Worker 기동·직렬화 오버헤드) 또는 운영 중 새로 관찰되는
+Evidence에 따라 재검토 대상이다(`ADC-0015` §Risks·재검토 조건).
+
+**이 Accept가 결정하지 않는 것**: Scheduler/Engine Gateway 등 대체
+구조와의 비교, `BASELINE.md` §6의 원래 넓은 정의(Workflow 참조,
+Multi-Task를 Agent에게 배분)로의 확장 여부, "동일 Target" 자동
+판별 메커니즘, 구현 전략의 비용 실측은 모두 별도 절차(RFC → ADC →
+ADR 또는 후속 검증)로 남는다(`ADC-0015` §Out of Scope).
+`docs/decisions/adc/ADC.md` ADC-02가 다루는 "유지 대 대체" 구도와
+이름 충돌 문제(`docs/decisions/rfc/RFC-0004-task-dispatcher-runtime-boundary.md`)는
 이 Accept로 해소되지 않는다.
 
-**Production 구현과의 관계**: 이 Accept(및 명칭 확정)는 구현을
-승인하지 않는다. `hqs/development/IMPLEMENTATION_RULES.md`의
-"Runtime 구현 금지"는 구현 전략(Process/Thread/Subprocess)이
-확정되지 않은 동안 그대로 유효하다 — 명칭이 Execution Host로
-정해진 것과 무관하다(`ADC-0014` §Out of Scope).
+**Production 구현과의 관계**: 이 Accept(명칭·구현 전략 확정
+포함)는 Execution Host 범위(Process 1차·Subprocess 대안, "동일
+Target 동시 실행" 조건, Thread 배제)에 한해 구현 착수를 허용한다
+(`hqs/development/IMPLEMENTATION_RULES.md`, `ADC-0015` §Q4).
+Scheduler/Multi-Task/Workflow, `BASELINE.md` §6의 넓은 "Runtime"
+구현은 여전히 금지 상태다 — `docs/decisions/adc/ADC.md`의
+ADC-02(Runtime 존폐)가 Open으로 남아 있는 한 그대로 유효하다.
 
 ### 16.4 미결 항목
 
@@ -875,7 +886,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.8 |
+| Version | v1.9 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -883,6 +894,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.9 | §16.3에 구현 전략 문단 신설 — Process를 1차, Subprocess를 대안으로 Conditional Accept, Thread는 "동일 Target 동시 실행" 조건에서 배제. Scheduler/Multi-Task/Workflow, §6 넓은 Runtime 확장은 계속 Open. `IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"를 Execution Host 범위로 Scoped 해제. §6 Concept Model 표는 변경하지 않음. 근거: `docs/architecture/core/ADR-0005-execution-host-implementation-strategy-baseline.md` |
 | v1.8 | §16.3의 단일 실행 단위 Dispatch·격리 책임에 명칭 "Execution Host" 반영(재명명 아님 — §6 "Runtime"과 별개 Concept). 구현 전략·Scheduler·Multi-Task 범위는 계속 Open. §6 Concept Model 표는 변경하지 않음(추가하지 않기로 결정). `GLOSSARY.md`에 신규 절 추가. 근거: `docs/architecture/core/ADR-0004-execution-host-naming-baseline.md` |
 | v1.7 | §16.3 단일 실행 단위 Dispatch·격리 Module(Accept, Scoped) 신설 — 명칭·구현 전략·Multi-Task 범위는 계속 Open. 기존 §16.3(미결 항목)은 §16.4로 재배치. §6 Concept Model은 변경하지 않음. 근거: `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` |
 | v1.6 | §16.2 Execution Layer Module(Accept) 내용 반영 — 책임·근거·미결(ADC-01·02) 명시. 절 구조 변경 없음(신설 절 없음). 근거: `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` |
