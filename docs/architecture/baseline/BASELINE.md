@@ -1,4 +1,4 @@
-# Jarvis OS Architecture Baseline v1.6
+# Jarvis OS Architecture Baseline v1.7
 
 ## 1. Purpose
 
@@ -822,7 +822,39 @@ Layer의 설계가 결정되었다'는 의미로 확장 해석하면 안 된다"
 Open Decision은 각각 `ADC-0008-runtime-existence-boundary.md`(ADC-02,
 Not Accepted)로 한 차례 대조됐으나 여전히 미해소다.
 
-### 16.3 미결 항목
+### 16.3 단일 실행 단위 Dispatch·격리 (Accept, Scoped)
+
+**책임**: 이미 identity/lifecycle이 확정된 단일 Task를 받아 그
+실행을 시작하고, Command 불변성을 해치지 않으면서, 동일 대상에 대한
+동시 실행에서 상태가 오염되지 않도록 격리를 제공하는 책임.
+
+**근거**: `docs/architecture/core/RFC-0013-runtime-existence-scoped-reconsideration.md`
+§4가 연 좁은 Boundary Question("Command·Task로 환원되지 않는 단일
+실행 단위의 dispatch·격리 책임이 필요한가")을,
+`docs/architecture/core/ADC-0013-runtime-existence-scoped-reconsideration.md`가
+5개 Prototype·Vertical Slice Evidence(서로 다른 실행 대상·전략에
+걸친 반복 관찰, 부재 시 실제 정확성 결함 재현 포함)를 근거로
+Accept(Scoped)했다.
+
+**Kernel Module로서 다루는 것**: Command(불변)에도 Task(identity/
+lifecycle)에도 속하지 않는, 단일 실행 단위의 dispatch·격리 그
+자체(`ADC-0013` §Implementation Boundary "포함").
+
+**이 Accept가 결정하지 않는 것**: 이 책임의 명칭(§6 Concept Model의
+"Runtime" 항목과의 관계 포함), 구현 전략(Process/Thread/Subprocess),
+Scheduler/Engine Gateway 등 대체 구조와의 비교, `BASELINE.md` §6의
+원래 넓은 정의(Workflow 참조, Multi-Task를 Agent에게 배분)로의 확장
+여부는 모두 별도 절차(RFC → ADC → ADR)로 남는다(`ADC-0013`
+§Implementation Boundary "제외"). `docs/decisions/adc/ADC.md`
+ADC-02가 다루는 "유지 대 대체" 구도와 이름 충돌 문제
+(`docs/decisions/rfc/RFC-0004-task-dispatcher-runtime-boundary.md`)는
+이 Accept로 해소되지 않는다.
+
+**Production 구현과의 관계**: 이 Accept는 구현을 승인하지 않는다.
+`hqs/development/IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"는
+명칭·구현 전략이 확정되지 않은 동안 그대로 유효하다.
+
+### 16.4 미결 항목
 
 Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 **Defer**됐다(`ADC-0001-core-baseline.md` Module 2·3·5) — 재평가
@@ -833,7 +865,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.6 |
+| Version | v1.7 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -841,6 +873,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.7 | §16.3 단일 실행 단위 Dispatch·격리 Module(Accept, Scoped) 신설 — 명칭·구현 전략·Multi-Task 범위는 계속 Open. 기존 §16.3(미결 항목)은 §16.4로 재배치. §6 Concept Model은 변경하지 않음. 근거: `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` |
 | v1.6 | §16.2 Execution Layer Module(Accept) 내용 반영 — 책임·근거·미결(ADC-01·02) 명시. 절 구조 변경 없음(신설 절 없음). 근거: `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` |
 | v1.5 | Kernel Modules(§16) 추가 — Governance Module(Accept) 반영. Execution Layer Module(Accept)은 별도 ADR 대기, Workflow/Memory/Event Bus(Defer)는 상태만 기록. 기존 §16 Version → §17. 근거: `docs/architecture/core/ADR-0001-governance-module-baseline.md` |
 | v1.4 | Kernel Reference Architecture(§15) 추가 — Responsibility Flow, Data Flow, Responsibility Relationship, Extension Flow, Implementation Neutrality. **§10 첫 항목을 "Kernel Architecture" → "Kernel Component Architecture"로 한정**(Frozen 절의 문언을 변경한 첫 사례). 기존 §15 Version → §16. 근거: ADR-0005 |
