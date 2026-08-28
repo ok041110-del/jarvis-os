@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Jarvis OS — Unified Dashboard (Experimental Prototype)</title>
+<style>
+  body { font-family: -apple-system, sans-serif; margin: 0; background: #fafafa; color: #222; }
+  header { background: #1a1a1a; color: #fff; padding: 16px 24px; }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0 0; font-size: 12px; color: #bbb; }
+  main { display: grid; grid-template-columns: 220px 1fr; gap: 24px; padding: 24px; }
+  nav ul { list-style: none; padding: 0; }
+  nav li { padding: 8px 0; border-bottom: 1px solid #eee; }
+  ul { padding-left: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Jarvis OS — Unified Status</h1>
+  <p>Experimental Prototype — Production Dashboard 아님 (projects/unified-dashboard). Updated: 2026-08-26 11:34 UTC</p>
+</header>
+<main>
+  <nav><h3>HQ Navigation</h3><ul><li>Development HQ <span style="background:#2e7d32;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">NORMAL</span></li><li>Investment HQ <span style="background:#2e7d32;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">NORMAL</span></li></ul></nav>
+  <div>
+    <section style="border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px;">
+      <h2 style="margin:0 0 8px 0;">Development HQ <span style="background:#2e7d32;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">NORMAL</span></h2>
+      <ul><li>Phase: Stable v2.0 Freeze (RFC-0007 -&gt; ADC-0005 -&gt; ADR-0008 -&gt; Stage 01~05 -&gt; Integrated Workflow -&gt; CLI)</li><li>Workflow: Stage 01~05 (01_repository_intelligence ~ 05_devops_release 명명, workflow.py로 연쇄)</li><li>Agent Roles: backend, design, qa, requirements</li><li>Latest Validation: 109 passed</li><li>Current Task: None (idle — 상시 Runtime 없음, 명시적 호출 시에만 실행됨, ADC-02 Open)</li></ul>
+      
+      <p style="font-size:11px;color:#999;">Source: docs/architecture/core/DEVELOPMENT-HQ-V2.0-FREEZE-0001.md, hqs/development/mvp/agents/*.py</p>
+    </section>
+    
+    <section style="border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px;">
+      <h2 style="margin:0 0 8px 0;">Investment HQ <span style="background:#2e7d32;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">NORMAL</span></h2>
+      <ul><li>Stock (AAPL): Analysis/Bull-Bear/Trader 9단계 완료, Trader Decision=HOLD, Final Report=있음</li><li>Dividend Stock (PG): Analysis/Bull-Bear/Trader 11단계 완료, Trader Decision=HOLD, Final Report=있음</li><li>ETF (EFA): Analysis/Bull-Bear/Trader 10단계 완료, Trader Decision=HOLD, Final Report=있음</li></ul>
+      <h3 style="font-size:14px;color:#616161;">Deferred (의도적 미구현)</h3><ul><li>Portfolio — <em>DEFERRED (미구현, 표시하지 않음)</em></li><li>Risk — <em>DEFERRED (미구현, 표시하지 않음)</em></li><li>Execution (Trade Execution) — <em>DEFERRED (미구현, 표시하지 않음)</em></li></ul>
+      <p style="font-size:11px;color:#999;">Source: hqs/investment/dogfooding/aapl-trader-verify/checkpoints/manifest.json, hqs/investment/dogfooding/pg-trader-verify/checkpoints/manifest.json, hqs/investment/dogfooding/efa-trader-verify/checkpoints/manifest.json</p>
+    </section>
+    </div>
+</main>
+</body>
+</html>
