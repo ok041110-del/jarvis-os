@@ -875,7 +875,73 @@ Scheduler/Multi-Task/Workflow, `BASELINE.md` §6의 넓은 "Runtime"
 구현은 여전히 금지 상태다 — `docs/decisions/adc/ADC.md`의
 ADC-02(Runtime 존폐)가 Open으로 남아 있는 한 그대로 유효하다.
 
-### 16.4 미결 항목
+### 16.4 Multi-Task — 독립 Task 동시 실행·결과 수집 (Accept, Scoped, Conditional)
+
+**책임**: 서로 입력 독립·출력 비의존인, 이미 코드/설계에 고정된
+소수의 실행 단위를 동시에 시작하고, 모두 끝났음을 판단해 결과를
+수집·결합하는 책임. 우선순위 판단, 조건부 분기, Workflow 그래프
+해석, Agent 동적 선택은 포함하지 않는다.
+
+**근거**: `docs/architecture/core/RFC-0016-multi-task-minimal-responsibility.md`
+§8이 연 좁은 Boundary Question("서로 독립적인 복수 Task를 동시에
+실행하고 결과를 수집하는 책임을, Execution Host(§16.3)와 별개의
+Kernel Concept으로 Accept하는가")을,
+`docs/architecture/core/ADC-0016-multi-task-minimal-responsibility.md`가
+실제 Production Code 1건(`hqs/development/mvp/workflow_0009.py`의
+`run_comparison`, 이미 `main`에 병합)을 근거로 Accept(Scoped,
+Conditional)했다.
+
+**Kernel Module로서 다루는 것**: 서로 독립적인 소수 실행 단위의
+동시 시작·대기(join)·결과 수집이라는 조율(Coordination) 그 자체
+(`ADC-0016` §Implementation Boundary "포함"). 한 실행 단위의
+실패가 다른 실행 단위의 진행·결과에 영향을 주지 않는다는 실패
+격리도 이 책임에 포함된다.
+
+**Execution Host와의 경계**: Multi-Task는 Execution Host(§16.3)의
+확장이 아니라 별개 Concept이다(`ADC-0016` §Q3). Execution Host는
+이미 dispatch가 결정된 **단일** 실행 단위의 Execution
+Isolation(실행 상태 오염 방지)을 다루고, Multi-Task는 **복수**
+독립 실행 단위의 Coordination(시작·대기·수집)을 다룬다. 두 책임은
+서로 배타적이지 않다 — 향후 동일 Target을 동시에 여러 번 실행해야
+하는 조합이 생기면 Multi-Task가 각 실행을 Execution Host에 위임하는
+구성도 가능하나, 그 구성 자체는 이 Accept가 설계하지 않는다.
+Execution Host의 범위(§16.3)는 이 Accept로 전혀 넓어지지 않는다.
+
+**Data/Artifact Isolation — 최소 안전조건**: 이 책임을 실제로
+적용하는 모든 Task 조합은, 동시 실행되는 각 Task가 서로 다른
+파일/Artifact 이름공간에 쓰거나 아무것도 쓰지 않는다는 것이
+**사전에 확인된 경우에만** 이 Accept의 범위 안에 있다(`ADC-0016`
+§Q4). 이 조건이 확인되지 않는 조합(예: 여러 Task가 같은 파일을
+쓸 수 있는 경우)은 이 Accept가 다루지 않은 것으로 취급한다. 이
+조건의 구체적 해소 방법(파일 잠금, Artifact 이름공간 분리 규칙 등)
+은 설계하지 않는다.
+
+**Task→Agent 할당**: 기존 Agent 재사용을 이 책임의 전제로 삼는다.
+새 Agent·Capability 도입, 동적 Task→Agent 할당 로직은 이 Accept에
+포함하지 않는다(`ADC-0016` §Q5) — `hqs/development/IMPLEMENTATION_RULES.md`의
+"새 Capability/Agent 추가 금지", "Registry 일반화 금지"와 일치한다.
+
+**이 Accept가 결정하지 않는 것**: 이 책임의 명칭(Multi-Task를
+그대로 쓸지), 구현 전략(`ThreadPoolExecutor`/`asyncio`/기타),
+Data/Artifact Isolation 위험의 구체적 해소 방법, Task→Agent 동적
+할당, Scheduler·우선순위·Workflow orchestration, `BASELINE.md` §6의
+원래 넓은 정의(Workflow 참조 전체)로의 확장 여부는 모두 별도
+절차(RFC → ADC → ADR)로 남는다(`ADC-0016` §Implementation Boundary
+"제외"). `docs/decisions/adc/ADC.md` ADC-02(Runtime 존폐)는 이
+Accept로 전혀 갱신되지 않는다 — 이 책임은 그 넓은 질문 중 아주 좁은
+부분 집합 하나일 뿐이다.
+
+**Production 구현과의 관계**: 이 Accept는 Multi-Task 범위(서로
+독립·출력 비의존인 소수 실행 단위의 동시 시작·대기·수집, 기존 Agent
+재사용, Data/Artifact Isolation이 사전 확인된 조합)에 한해 구현
+착수를 허용한다(`hqs/development/IMPLEMENTATION_RULES.md`,
+`ADC-0016` §Next Step 4). 착수 전, 대상 Task 조합에서 Data/Artifact
+Isolation 조건이 실제로 충족되는지 재확인해야 한다. Scheduler/
+우선순위/Workflow orchestration, `BASELINE.md` §6의 넓은 "Runtime"
+구현은 여전히 금지 상태다 — ADC-02가 Open으로 남아 있는 한 그대로
+유효하다.
+
+### 16.5 미결 항목
 
 Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 **Defer**됐다(`ADC-0001-core-baseline.md` Module 2·3·5) — 재평가
@@ -886,7 +952,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.9 |
+| Version | v1.10 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -894,6 +960,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.10 | §16.4에 Multi-Task 최소 책임(독립 Task 동시 실행·결과 수집) 신설 — Accept(Scoped, Conditional on Data/Artifact Isolation). Execution Host(§16.3)와 명확히 분리, 기존 Agent 재사용 전제(동적 할당 제외), Scheduler/우선순위/Workflow orchestration/§6 넓은 Runtime은 계속 Open. 기존 §16.4(미결 항목)는 §16.5로 재배치. §6 Concept Model 표·§16.1~§16.3은 변경하지 않음. `IMPLEMENTATION_RULES.md`에 "Multi-Task 구현 허용 범위" 절 신설. 근거: `docs/architecture/core/ADR-0006-multi-task-minimal-responsibility-baseline.md` |
 | v1.9 | §16.3에 구현 전략 문단 신설 — Process를 1차, Subprocess를 대안으로 Conditional Accept, Thread는 "동일 Target 동시 실행" 조건에서 배제. Scheduler/Multi-Task/Workflow, §6 넓은 Runtime 확장은 계속 Open. `IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"를 Execution Host 범위로 Scoped 해제. §6 Concept Model 표는 변경하지 않음. 근거: `docs/architecture/core/ADR-0005-execution-host-implementation-strategy-baseline.md` |
 | v1.8 | §16.3의 단일 실행 단위 Dispatch·격리 책임에 명칭 "Execution Host" 반영(재명명 아님 — §6 "Runtime"과 별개 Concept). 구현 전략·Scheduler·Multi-Task 범위는 계속 Open. §6 Concept Model 표는 변경하지 않음(추가하지 않기로 결정). `GLOSSARY.md`에 신규 절 추가. 근거: `docs/architecture/core/ADR-0004-execution-host-naming-baseline.md` |
 | v1.7 | §16.3 단일 실행 단위 Dispatch·격리 Module(Accept, Scoped) 신설 — 명칭·구현 전략·Multi-Task 범위는 계속 Open. 기존 §16.3(미결 항목)은 §16.4로 재배치. §6 Concept Model은 변경하지 않음. 근거: `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` |
