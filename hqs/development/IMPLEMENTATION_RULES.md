@@ -10,7 +10,7 @@
 | Scheduler 구현 금지 | MVP는 Task 순서를 스크립트에 하드코딩한다 |
 | Registry 구현 금지 | Agent-Capability 매핑은 리터럴 딕셔너리 이상으로 발전시키지 않는다 |
 | Registry 일반화 금지 | 정적 딕셔너리를 조회 함수, 클래스, 동적 등록 API 등 어떤 형태로도 일반화하지 않는다 |
-| Scheduler/Multi-Task/Workflow 및 §6 넓은 Runtime 구현 금지 | Multi-Task orchestration과 Workflow 참조·배분은 `docs/decisions/adc/ADC.md`의 ADC-02(Runtime 존폐)가 여전히 Open이다. Execution Host(§16.3)의 Scoped 허용 범위는 아래 "Execution Host 구현 허용 범위" 절 참조 |
+| Scheduler/우선순위/Workflow orchestration 및 §6 넓은 Runtime(Workflow 참조 전체, Agent 동적 배분) 구현 금지 | 이들은 `docs/decisions/adc/ADC.md`의 ADC-02(Runtime 존폐)가 여전히 Open이다. Execution Host(§16.3)와 Multi-Task(§16.4)의 Scoped 허용 범위는 각각 아래 절 참조 — 두 절 모두 이 표의 나머지 금지(Scheduler/우선순위/Workflow orchestration/§6 넓은 Runtime)를 해제하지 않는다 |
 | Engine Gateway(Port/Adapter 추상화) 구현 금지 | 단일 함수로 Engine을 호출하는 것으로 충분하다 |
 | Engine Routing 구현 금지 | 여러 Agent 또는 여러 Engine 중 무엇을 선택할지 결정하는 로직을 만들지 않는다. MVP는 Engine을 호출하는 함수 하나만 가진다 |
 | Policy 구현 금지 | MVP는 Policy 판정 호출 자체를 생략한다 (스텁도 만들지 않는다) |
@@ -38,6 +38,33 @@ Execution Host 구현을 허용한다.
 - 이 허용은 **Conditional**이다 — 비용 또는 운영 중 새로 관찰되는
   Evidence에 따라 `ADC-0015`의 재검토 대상이며, 재검토 결과에 따라
   이 절도 함께 갱신되어야 한다.
+- 새 Public Interface/Contract를 정의하지 않는다 — Kernel Public
+  Contract(§14)는 이 허용과 무관하게 무변경이다.
+
+## Multi-Task 구현 허용 범위 (Scoped, Conditional, ADC-0016)
+
+`docs/architecture/core/ADC-0016-multi-task-minimal-responsibility.md`
+가 Accept(Scoped, Conditional)한 범위에 한해, 아래 조건을 모두
+지키는 경우 Multi-Task 구현을 허용한다.
+
+- 적용 대상: 서로 입력 독립·출력 비의존인, 이미 코드/설계에 고정된
+  소수의 실행 단위를 동시에 시작하고 결과를 수집하는 최소 구현만
+  허용한다. 우선순위 판단, 조건부 분기, Workflow 그래프 해석, Agent
+  동적 선택은 포함하지 않는다.
+- Data/Artifact Isolation 사전 확인 필수: 적용 대상 Task 조합에서
+  동시 실행되는 각 Task가 서로 다른 파일/Artifact 이름공간에 쓰거나
+  아무것도 쓰지 않는다는 것이 **구현 착수 전에** 확인되어야 한다
+  (`ADC-0016` §Q4·§Decision 조건 3). 이 조건이 확인되지 않으면 이
+  허용 범위 밖이다 — 확인 방법(정적 분석, 코드 리뷰 체크리스트 등)의
+  구체화는 이 절이 정하지 않는다.
+- Task→Agent 할당: 기존 Agent 재사용만 허용한다. 새 Agent·Capability
+  도입, 동적 Task→Agent 할당 로직은 이 허용에 포함되지 않는다(아래
+  "구현 중 새 Capability/Agent 추가 금지" 절과 함께 적용).
+- 이 허용은 Scheduler, 우선순위, Workflow orchestration,
+  `BASELINE.md` §6의 넓은 "Runtime"(Workflow 참조, Agent 동적 배분)
+  구현을 포함하지 않는다 — 이들은 여전히 금지 상태다(위 표).
+- 이 허용은 Execution Host(§16.3)의 범위를 넓히지 않는다 — 별개
+  책임이다(`ADC-0016` §Q3).
 - 새 Public Interface/Contract를 정의하지 않는다 — Kernel Public
   Contract(§14)는 이 허용과 무관하게 무변경이다.
 
