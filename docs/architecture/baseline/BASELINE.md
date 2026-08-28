@@ -941,7 +941,73 @@ Isolation 조건이 실제로 충족되는지 재확인해야 한다. Scheduler/
 구현은 여전히 금지 상태다 — ADC-02가 Open으로 남아 있는 한 그대로
 유효하다.
 
-### 16.5 미결 항목
+### 16.5 Multi-Task Result Store — 저장 전 검증 게이트 (Accept, Scoped, Narrow)
+
+**책임**: Multi-Task(§16.4)가 공유하는 Result Store가 결과를 저장하기
+전에 그 결과의 유효성을 판정하고, 무효로 판정되면 저장을 막는 게이트
+책임. Resume 시점의 재검증, 실패 감지 이후의 자동 Retry/Alert/
+Recovery 정책은 포함하지 않는다.
+
+**근거**: `docs/architecture/core/RFC-0017-multi-task-checkpointer-integrity-boundary.md`
+§5가 연 좁은 Boundary Question("Multi-Task가 공유하는 Result
+Store(Checkpointer)에 저장 결과의 유효성·무결성을 보장하는 책임을
+Execution Host(§16.3)·Multi-Task(§16.4)와 별개의 Kernel Concept
+또는 그 두 책임에 속한 하위 의무로 Accept하는가")을,
+`docs/architecture/core/ADC-0017-multi-task-result-store-integrity-boundary.md`
+가 `hqs/investment/dogfooding/pg-hq-verify/EVIDENCE.md`의 콘텐츠
+레벨 실패 4회 재현(Investment HQ MVP 경로 2건 포함)을 근거로
+Accept(Scoped, Narrow)했다.
+
+**Investment HQ Checkpointer/`run_step`에 한정된 책임**: 이 Accept의
+실증 사례는 `hqs/investment/checkpoint.py`의 `Checkpointer`/
+`run_step`/`ContentFailureError` 패턴 하나뿐이다 — 이 컴포넌트는
+`hqs/development/mvp/`에 존재한 적이 없다(`ADC-0017` §Q3 인용,
+`docs/research/PHASE4-HQ-CROSS-VALIDATION-0001.md` 확인). 이 Accept는
+"Result Store가 존재하는 곳에서는 이런 게이트 책임이 필요하다"는
+원칙을 Kernel 수준에서 Accept하는 것이며, Development HQ를 포함한
+다른 HQ에 동일한 컴포넌트를 새로 만들 것을 요구하지 않는다
+(`ADC-0017` §Decision 조건 6).
+
+**Multi-Task와의 경계**: 이 책임은 Multi-Task(§16.4) 전용이 아니다
+(`ADC-0017` §Q4) — 근거로 삼은 4회 재현 중 2건은 Multi-Task 도입
+이전(project-local Dogfooding)에 발생했고, Investment HQ 안의 2건도
+모두 `ThreadPoolExecutor`가 관여하지 않는 순차 구간(Wave3, Synthesis)
+에서 발생했다. 따라서 이 책임은 동시 실행 여부와 무관하게 Result
+Store가 존재하는 모든 호출 경로에 적용되는 더 일반적인 책임이며,
+Multi-Task(§16.4)의 Coordination·실패 격리 책임과 Execution
+Host(§16.3)의 Execution Isolation 책임은 이 Accept로 전혀 변경되지
+않는다.
+
+**근본 원인과의 분리**: 이 Accept는 콘텐츠 레벨 실패가 발생하는
+근본 원인을 해결하지 않는다. 근본 원인은 Engine 호출 계층
+(`hqs/development/mvp/engine.py`의 `call_engine()`이 `subprocess.run()`
+의 `returncode`/`stderr`를 확인하지 않고 `stdout`을 무조건 반환하는
+것)에 있다고 `ADC-0017` §Q3이 독립적으로 확인했다 — 이는 이미 별도
+Dev HQ 개선 후보 트랙으로 격상돼 있다(`hqs/investment/dogfooding/
+efa-2026-08/EVIDENCE.md` §DEV_HQ_FEEDBACK). 이 Accept는 그 근본
+원인이 해결되기 전까지, 손상된 결과가 Result Store에 영속화돼
+Resume을 통해 하위 Task로 전파되는 것을 막는 봉쇄(containment)
+책임만 다룬다 — `call_engine()` 자체의 수정은 이 Accept·이 ADR의
+범위가 아니며, 별도 Dev HQ 개선 트랙이 독립적으로 진행한다.
+
+**이 Accept가 결정하지 않는 것**: Resume 시점 재검증 여부
+(`ADC-0017` §Q5 — 저장 전 검증이 우선순위가 높다고 판단해 이번엔
+Not Accepted), 저장 전 검증의 구체적 판정 기준·구현 알고리즘
+(`ADC-0017` §Q7), 실패 감지 이후의 자동 Retry/Alert/Recovery 정책
+(`ADC-0017` §Q6 — Result Store의 책임은 저장 게이트까지로 한정),
+`call_engine()` 자체의 수정(위 문단), 새 Component/Interface 신설
+(`ADC-0017` §Q7)은 모두 별도 절차(RFC → ADC → ADR, 또는 독립된
+Dev HQ 개선 트랙)로 남는다.
+
+**Production 구현과의 관계**: 이 Accept가 실증 근거로 삼은
+`hqs/investment/checkpoint.py`의 `Checkpointer`/`run_step`/
+`ContentFailureError`는 이미 `main`에 존재하는 Production Code다 —
+이 Accept는 그 기존 패턴의 책임을 Kernel 수준에서 인정한 것이며,
+새로운 구현 착수를 이번에 승인하지 않는다. 저장 전 검증 판정 기준을
+확장하는 등의 실제 변경은 별도 판단(가능하면 Engine 호출 계층 개선
+Dev HQ 트랙과 조율)을 거쳐야 한다.
+
+### 16.6 미결 항목
 
 Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 **Defer**됐다(`ADC-0001-core-baseline.md` Module 2·3·5) — 재평가
@@ -952,7 +1018,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.10 |
+| Version | v1.11 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -960,6 +1026,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.11 | §16.5에 Multi-Task Result Store 저장 전 검증 게이트 신설 — Accept(Scoped, Narrow). Investment HQ Checkpointer/`run_step`에 한정된 실증 사례, Multi-Task 전용 아님(4회 재현 중 2건은 Multi-Task 이전, 나머지도 순차 구간에서 발생), 근본 원인(Engine 호출 계층)은 별도 Dev HQ 개선 트랙으로 분리. Resume 재검증·판정 기준·Retry/Alert/Recovery 정책·새 Component는 계속 Open. 기존 §16.5(미결 항목)는 §16.6으로 재배치. §6 Concept Model 표·§16.1~§16.4는 변경하지 않음. `IMPLEMENTATION_RULES.md`는 검토 결과 변경 대상 없어 무변경. 근거: `docs/architecture/core/ADR-0007-multi-task-result-store-integrity-baseline.md` |
 | v1.10 | §16.4에 Multi-Task 최소 책임(독립 Task 동시 실행·결과 수집) 신설 — Accept(Scoped, Conditional on Data/Artifact Isolation). Execution Host(§16.3)와 명확히 분리, 기존 Agent 재사용 전제(동적 할당 제외), Scheduler/우선순위/Workflow orchestration/§6 넓은 Runtime은 계속 Open. 기존 §16.4(미결 항목)는 §16.5로 재배치. §6 Concept Model 표·§16.1~§16.3은 변경하지 않음. `IMPLEMENTATION_RULES.md`에 "Multi-Task 구현 허용 범위" 절 신설. 근거: `docs/architecture/core/ADR-0006-multi-task-minimal-responsibility-baseline.md` |
 | v1.9 | §16.3에 구현 전략 문단 신설 — Process를 1차, Subprocess를 대안으로 Conditional Accept, Thread는 "동일 Target 동시 실행" 조건에서 배제. Scheduler/Multi-Task/Workflow, §6 넓은 Runtime 확장은 계속 Open. `IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"를 Execution Host 범위로 Scoped 해제. §6 Concept Model 표는 변경하지 않음. 근거: `docs/architecture/core/ADR-0005-execution-host-implementation-strategy-baseline.md` |
 | v1.8 | §16.3의 단일 실행 단위 Dispatch·격리 책임에 명칭 "Execution Host" 반영(재명명 아님 — §6 "Runtime"과 별개 Concept). 구현 전략·Scheduler·Multi-Task 범위는 계속 Open. §6 Concept Model 표는 변경하지 않음(추가하지 않기로 결정). `GLOSSARY.md`에 신규 절 추가. 근거: `docs/architecture/core/ADR-0004-execution-host-naming-baseline.md` |
