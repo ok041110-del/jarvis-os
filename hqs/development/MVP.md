@@ -41,7 +41,15 @@ Task 1의 출력(리뷰 코멘트)이 Task 2의 입력 컨텍스트로 전달된
 
 ## Out of Scope
 
-- Scheduler / Runtime
+- Scheduler / Multi-Task / Workflow orchestration, `docs/architecture/baseline/BASELINE.md`
+  §6의 넓은 "Runtime"(Workflow 참조, Multi-Task를 Agent에게 배분) —
+  Execution Host(단일 실행 단위 dispatch·isolation, `BASELINE.md`
+  §16.3)의 Scoped 허용 범위(Process 1차/Subprocess 대안, "동일
+  Target 동시 실행" 조건, Thread 배제)는 `docs/architecture/core/ADC-0015-execution-host-implementation-strategy.md`/
+  `docs/architecture/core/ADR-0005-execution-host-implementation-strategy-baseline.md`
+  가 이미 승인했다 — 이 예외는 `hqs/development/IMPLEMENTATION_RULES.md`
+  "Execution Host 구현 허용 범위" 절과 동일하며, MVP-0001의 Workflow·
+  Exit Criteria(아래)를 변경하지 않는다.
 - Multi-HQ
 - Memory Persistence
 - Background Execution / Distributed Execution
