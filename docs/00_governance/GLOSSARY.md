@@ -113,6 +113,21 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 > 책임으로 정의되고 구현으로 정의되지 않는다(KP-1, `BASELINE.md` §11).
 > **Kernel Component Architecture는 §10 Out of Scope다.**
 
+## Kernel Modules — Execution Host (Reference)
+
+상세 정의는 `docs/architecture/baseline/BASELINE.md` §16.3 참조.
+
+| 용어 | 정의 |
+|---|---|
+| Execution Host | 단일 실행 단위(Task)의 dispatch·격리를 담당하는 책임. Command(불변)·Task(identity/lifecycle) 어느 쪽에도 속하지 않는다. §6 Concept Model의 "Runtime"과는 별개의, 더 좁은 범위의 Concept이다(`docs/architecture/core/ADC-0014-execution-responsibility-naming.md` §Q2) — Runtime 항목을 재명명한 것이 아니다 |
+
+> Execution Host는 §6 Concept Model 표에 등재되지 않는다 — Kernel
+> Module(§16) 수준의 좁은 책임이며, Jarvis OS 수준 넓은 Concept
+> Model에 반드시 속해야 하는 것은 아니다(`docs/architecture/core/ADR-0004-execution-host-naming-baseline.md`
+> §Decision 3). 구현 전략(Process/Thread/Subprocess)은 미확정이며,
+> `hqs/development/IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"는
+> 그대로 유효하다.
+
 ## 핵심 원칙 (Reference)
 
 | 용어 | 정의 |

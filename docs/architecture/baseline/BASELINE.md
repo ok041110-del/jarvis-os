@@ -1,4 +1,4 @@
-# Jarvis OS Architecture Baseline v1.7
+# Jarvis OS Architecture Baseline v1.8
 
 ## 1. Purpose
 
@@ -822,7 +822,7 @@ Layer의 설계가 결정되었다'는 의미로 확장 해석하면 안 된다"
 Open Decision은 각각 `ADC-0008-runtime-existence-boundary.md`(ADC-02,
 Not Accepted)로 한 차례 대조됐으나 여전히 미해소다.
 
-### 16.3 단일 실행 단위 Dispatch·격리 (Accept, Scoped)
+### 16.3 Execution Host — 단일 실행 단위 Dispatch·격리 (Accept, Scoped)
 
 **책임**: 이미 identity/lifecycle이 확정된 단일 Task를 받아 그
 실행을 시작하고, Command 불변성을 해치지 않으면서, 동일 대상에 대한
@@ -840,19 +840,29 @@ Accept(Scoped)했다.
 lifecycle)에도 속하지 않는, 단일 실행 단위의 dispatch·격리 그
 자체(`ADC-0013` §Implementation Boundary "포함").
 
-**이 Accept가 결정하지 않는 것**: 이 책임의 명칭(§6 Concept Model의
-"Runtime" 항목과의 관계 포함), 구현 전략(Process/Thread/Subprocess),
-Scheduler/Engine Gateway 등 대체 구조와의 비교, `BASELINE.md` §6의
-원래 넓은 정의(Workflow 참조, Multi-Task를 Agent에게 배분)로의 확장
-여부는 모두 별도 절차(RFC → ADC → ADR)로 남는다(`ADC-0013`
-§Implementation Boundary "제외"). `docs/decisions/adc/ADC.md`
+**명칭**: 이 책임의 공식 명칭은 **Execution Host**다
+(`docs/architecture/core/ADC-0014-execution-responsibility-naming.md`).
+Execution Host는 §6 Concept Model의 "Runtime" 항목을 재명명한 것이
+아니라 그와 별개의, 더 좁은 범위의 Concept이다(`ADC-0014` §Q2) —
+§6의 "Runtime" 항목(Service 분류, Workflow 참조·Multi-Task 배분을
+포함하는 넓은 정의)은 이 명칭 반영으로 전혀 변경되지 않으며,
+`docs/decisions/adc/ADC.md`의 ADC-02("Runtime 개념의 존폐")도 Open
+상태 그대로 유지된다.
+
+**이 Accept가 결정하지 않는 것**: 구현 전략(Process/Thread/
+Subprocess), Scheduler/Engine Gateway 등 대체 구조와의 비교,
+`BASELINE.md` §6의 원래 넓은 정의(Workflow 참조, Multi-Task를
+Agent에게 배분)로의 확장 여부는 모두 별도 절차(RFC → ADC → ADR)로
+남는다(`ADC-0013` §Implementation Boundary "제외"). `docs/decisions/adc/ADC.md`
 ADC-02가 다루는 "유지 대 대체" 구도와 이름 충돌 문제
 (`docs/decisions/rfc/RFC-0004-task-dispatcher-runtime-boundary.md`)는
 이 Accept로 해소되지 않는다.
 
-**Production 구현과의 관계**: 이 Accept는 구현을 승인하지 않는다.
-`hqs/development/IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"는
-명칭·구현 전략이 확정되지 않은 동안 그대로 유효하다.
+**Production 구현과의 관계**: 이 Accept(및 명칭 확정)는 구현을
+승인하지 않는다. `hqs/development/IMPLEMENTATION_RULES.md`의
+"Runtime 구현 금지"는 구현 전략(Process/Thread/Subprocess)이
+확정되지 않은 동안 그대로 유효하다 — 명칭이 Execution Host로
+정해진 것과 무관하다(`ADC-0014` §Out of Scope).
 
 ### 16.4 미결 항목
 
@@ -865,7 +875,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.7 |
+| Version | v1.8 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -873,6 +883,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.8 | §16.3의 단일 실행 단위 Dispatch·격리 책임에 명칭 "Execution Host" 반영(재명명 아님 — §6 "Runtime"과 별개 Concept). 구현 전략·Scheduler·Multi-Task 범위는 계속 Open. §6 Concept Model 표는 변경하지 않음(추가하지 않기로 결정). `GLOSSARY.md`에 신규 절 추가. 근거: `docs/architecture/core/ADR-0004-execution-host-naming-baseline.md` |
 | v1.7 | §16.3 단일 실행 단위 Dispatch·격리 Module(Accept, Scoped) 신설 — 명칭·구현 전략·Multi-Task 범위는 계속 Open. 기존 §16.3(미결 항목)은 §16.4로 재배치. §6 Concept Model은 변경하지 않음. 근거: `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` |
 | v1.6 | §16.2 Execution Layer Module(Accept) 내용 반영 — 책임·근거·미결(ADC-01·02) 명시. 절 구조 변경 없음(신설 절 없음). 근거: `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` |
 | v1.5 | Kernel Modules(§16) 추가 — Governance Module(Accept) 반영. Execution Layer Module(Accept)은 별도 ADR 대기, Workflow/Memory/Event Bus(Defer)는 상태만 기록. 기존 §16 Version → §17. 근거: `docs/architecture/core/ADR-0001-governance-module-baseline.md` |
