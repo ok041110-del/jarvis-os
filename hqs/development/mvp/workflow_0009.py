@@ -1,6 +1,8 @@
 """MVP-0009: build_context_bundle()의 결과를 Planning에 전달한다.
 `run_comparison()`은 flat Context와 Context Bundle의 Planning 결과를 나란히 반환할 뿐 우열은 판단하지 않는다."""
 
+from concurrent.futures import ThreadPoolExecutor
+
 from .agents.requirements import requirements_agent_requirement_analysis
 from .project_intelligence import build_context_bundle
 from .workflow import _engine_failure_message
@@ -55,9 +57,12 @@ def run_issue_to_planning_with_bundle(issue: dict) -> dict:
 
 def run_comparison(issue: dict) -> dict:
     """flat Context와 Context Bundle의 Planning 결과를 나란히 반환할 뿐,
-    우열은 판단하지 않는다."""
-    flat = run_issue_to_planning(issue)
-    bundled = run_issue_to_planning_with_bundle(issue)
+    우열은 판단하지 않는다. 두 분기는 서로 독립이므로 동시에 실행한다(§16.4 Multi-Task, ADC-0016/ADR-0006)."""
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        flat_future = executor.submit(run_issue_to_planning, issue)
+        bundled_future = executor.submit(run_issue_to_planning_with_bundle, issue)
+        flat = flat_future.result()
+        bundled = bundled_future.result()
 
     return {
         "flat_context_planning": flat["planning"],
