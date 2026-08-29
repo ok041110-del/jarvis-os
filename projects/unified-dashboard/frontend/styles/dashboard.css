@@ -124,3 +124,35 @@ ul {
 .status-line.error {
   color: #c62828;
 }
+
+.execution-evidence {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin: -8px 0 16px 0;
+  background: #fcfcfc;
+}
+
+.execution-evidence h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #616161;
+}
+
+.execution-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.execution-table th,
+.execution-table td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.execution-table th {
+  color: #888;
+  font-weight: 600;
+}

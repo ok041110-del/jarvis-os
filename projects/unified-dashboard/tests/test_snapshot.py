@@ -60,6 +60,37 @@ def test_investment_hq_snapshot_reads_real_dogfooding_evidence():
         assert (snapshot.REPO_ROOT / path).is_file()
 
 
+def test_investment_hq_snapshot_execution_matches_real_call_log():
+    """Execution Evidence Vertical Slice: execution 필드가 실제
+    checkpoints/manifest.json의 call_log를 그대로 옮긴 것인지 검증한다
+    (가상 데이터 생성 금지)."""
+    import json
+
+    snap = snapshot.build_investment_hq_snapshot()
+    assert snap.execution, "실제 dogfooding manifest.json에 call_log가 있으므로 execution도 비어있으면 안 됨"
+
+    expected_total = 0
+    for run_name in snapshot._TEAM_RUNS.values():
+        manifest_path = snapshot.REPO_ROOT / "hqs/investment/dogfooding" / run_name / "checkpoints/manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        expected_total += len(manifest.get("call_log", []))
+    assert len(snap.execution) == expected_total
+
+    for entry in snap.execution:
+        assert set(entry.keys()) == {"team", "role", "input_chars", "output_chars", "elapsed_sec"}
+        assert isinstance(entry["role"], str) and entry["role"]
+        assert isinstance(entry["input_chars"], int)
+        assert isinstance(entry["output_chars"], int)
+        assert isinstance(entry["elapsed_sec"], (int, float))
+
+
+def test_dev_hq_snapshot_execution_is_empty_without_fabrication():
+    """Development HQ는 per-실행 call_log 파일이 존재하지 않으므로
+    execution을 빈 리스트로 유지해야 한다(§3 조사 결과와 일치)."""
+    snap = snapshot.build_dev_hq_snapshot()
+    assert snap.execution == []
+
+
 def test_render_dashboard_produces_html_without_touching_engine_or_agent():
     snapshots = snapshot.build_global_snapshot()
     html = render_dashboard(snapshots)

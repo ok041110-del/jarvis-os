@@ -46,3 +46,13 @@ def test_output_path_is_inside_frontend_public_data():
     assert export_snapshot_json.OUTPUT_PATH.parent == (
         PROTOTYPE_DIR / "frontend" / "public" / "data"
     )
+
+
+def test_execution_field_reaches_json_document():
+    """Execution Evidence Vertical Slice: Investment HQ의 execution이
+    JSON 직렬화 과정에서 유실되지 않고 그대로 전달되는지 검증한다."""
+    document = export_snapshot_json.build_snapshot_document()
+    snaps = {s["identity"]: s for s in document["snapshots"]}
+    assert "execution" in snaps["Investment HQ"]
+    assert len(snaps["Investment HQ"]["execution"]) > 0
+    assert snaps["Development HQ"]["execution"] == []

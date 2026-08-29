@@ -26,13 +26,20 @@ PresentationState = str  # "NORMAL" | "WORKING" | "BLOCKED" | "DEFERRED" | "UNKN
 class HQSnapshot:
     """Experimental Prototype Contract — DashboardSnapshot의 최소
     View Model. 공식 HQDashboardSnapshot(docs/research/JARVIS-OS-V2.0-
-    UNIFIED-DASHBOARD-ARCHITECTURE-0001.md §6)을 Freeze하지 않는다."""
+    UNIFIED-DASHBOARD-ARCHITECTURE-0001.md §6)을 Freeze하지 않는다.
+
+    `execution`은 Investment HQ Execution Evidence Vertical Slice로
+    추가된 Experimental 필드다 — 기존 `checkpoints/manifest.json`의
+    `call_log`를 그대로 옮긴 것뿐이며, 이 필드가 있다고 해서
+    `HQSnapshot`이 Public Contract로 승격되는 것은 아니다. 값이 없는
+    HQ(Development HQ 등)는 빈 리스트를 유지한다(가상 데이터 생성 금지)."""
 
     identity: str
     status: PresentationState
     detail: list[str] = field(default_factory=list)
     deferred: list[str] = field(default_factory=list)
     source_files: list[str] = field(default_factory=list)
+    execution: list[dict] = field(default_factory=list)
 
 
 def _read_text(path: Path) -> str | None:
@@ -84,10 +91,11 @@ _TEAM_RUNS = {
 def _read_team_run(run_dir: Path) -> dict:
     manifest_path = run_dir / "checkpoints" / "manifest.json"
     if not manifest_path.is_file():
-        return {"completed_steps": [], "action": None, "final_report": False}
+        return {"completed_steps": [], "action": None, "final_report": False, "call_log": []}
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     completed = manifest.get("completed_steps", [])
+    call_log = manifest.get("call_log", [])
 
     action = None
     decision_text = _read_text(run_dir / "trader_decision.md")
@@ -100,6 +108,7 @@ def _read_team_run(run_dir: Path) -> dict:
         "completed_steps": completed,
         "action": action,
         "final_report": (run_dir / "final_report.md").is_file(),
+        "call_log": call_log,
     }
 
 
@@ -111,6 +120,7 @@ def build_investment_hq_snapshot() -> HQSnapshot:
     dogfooding_dir = REPO_ROOT / "hqs/investment/dogfooding"
     detail = []
     source_files = []
+    execution: list[dict] = []
 
     any_found = False
     for team_label, run_name in _TEAM_RUNS.items():
@@ -125,6 +135,16 @@ def build_investment_hq_snapshot() -> HQSnapshot:
         report = "있음" if run["final_report"] else "없음"
         detail.append(f"{team_label}: Analysis/Bull-Bear/Trader {steps}단계 완료, Trader Decision={action}, Final Report={report}")
         source_files.append(str((run_dir / "checkpoints/manifest.json").relative_to(REPO_ROOT)))
+        for call in run["call_log"]:
+            execution.append(
+                {
+                    "team": team_label,
+                    "role": call.get("role", "UNKNOWN"),
+                    "input_chars": call.get("input_chars", 0),
+                    "output_chars": call.get("output_chars", 0),
+                    "elapsed_sec": call.get("elapsed_sec", 0),
+                }
+            )
 
     status: PresentationState = "NORMAL" if any_found else "UNKNOWN"
 
@@ -134,6 +154,7 @@ def build_investment_hq_snapshot() -> HQSnapshot:
         detail=detail,
         deferred=["Portfolio", "Risk", "Execution (Trade Execution)"],
         source_files=source_files,
+        execution=execution,
     )
 
 
