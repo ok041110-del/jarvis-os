@@ -115,7 +115,7 @@ def test_investment_hq_history_entries_have_no_fabricated_fields():
     snap = snapshot.build_investment_hq_snapshot()
     assert snap.history, "실제 9개 run이 있으므로 history가 비어있으면 안 됨"
 
-    allowed_keys = {"team", "run", "family", "completed_steps", "trader_decision", "final_report", "commit_order"}
+    allowed_keys = {"team", "run", "family", "completed_steps", "trader_decision", "final_report"}
     for entry in snap.history:
         assert set(entry.keys()) == allowed_keys
         assert "timestamp" not in entry and "status" not in entry
@@ -138,15 +138,25 @@ def test_investment_hq_history_family_derived_literally_from_dirname():
     assert families["efa-2026-08"] != "hq-verify"  # 억지 통일 금지
 
 
-def test_investment_hq_history_commit_order_is_git_backed_not_fabricated():
-    """commit_order는 실제 git log(read-only)로 구한 순위이며, 실제
-    커밋 순서(hq-verify -> run2 -> trader-verify, 이전 조사에서 확인된
-    순서)와 일치해야 한다."""
+def test_snapshot_module_does_not_use_subprocess():
+    """Snapshot Boundary Review 결론: History 때문에 git 등 외부
+    프로세스를 조회하지 않는다 — snapshot.py는 subprocess를 import하지
+    않는다(AST 기반, 정규식 오탐 없이 실제 import 구문만 검사)."""
+    modules = _imported_top_level_modules(PROTOTYPE_DIR / "snapshot.py")
+    assert "subprocess" not in modules
+
+
+def test_investment_hq_history_order_is_directory_scan_only():
+    """정렬은 디렉터리명 오름차순(문자열 비교)뿐이다 — 우연히 실제
+    계열 진행 순서(hq-verify -> run2 -> trader-verify)와 일치하지만,
+    이는 git commit 조회가 아니라 `_discover_team_run_dirs`의 `sorted()`
+    결과라는 것을 검증한다."""
     snap = snapshot.build_investment_hq_snapshot()
-    by_run = {entry["run"]: entry["commit_order"] for entry in snap.history}
-    assert by_run["aapl-hq-verify"] < by_run["aapl-hq-verify-run2"] < by_run["aapl-trader-verify"]
-    assert by_run["pg-hq-verify"] < by_run["pg-hq-verify-run2"] < by_run["pg-trader-verify"]
-    assert by_run["efa-2026-08"] < by_run["efa-2026-08-run2"] < by_run["efa-trader-verify"]
+    runs_by_team: dict[str, list[str]] = {}
+    for entry in snap.history:
+        runs_by_team.setdefault(entry["team"], []).append(entry["run"])
+    for team, runs in runs_by_team.items():
+        assert runs == sorted(runs), f"{team}의 history 순서가 디렉터리명 오름차순이 아님"
 
 
 def test_dev_hq_snapshot_history_is_empty_without_fabrication():

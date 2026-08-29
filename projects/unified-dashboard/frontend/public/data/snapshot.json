@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29 10:01 UTC",
+  "generated_at": "2026-08-29 10:19 UTC",
   "snapshots": [
     {
       "identity": "Development HQ",
@@ -256,8 +256,7 @@
           "family": "hq-verify",
           "completed_steps": 9,
           "trader_decision": null,
-          "final_report": true,
-          "commit_order": 1
+          "final_report": true
         },
         {
           "team": "Stock (AAPL)",
@@ -265,8 +264,7 @@
           "family": "hq-verify-run2",
           "completed_steps": 9,
           "trader_decision": null,
-          "final_report": true,
-          "commit_order": 2
+          "final_report": true
         },
         {
           "team": "Stock (AAPL)",
@@ -274,8 +272,7 @@
           "family": "trader-verify",
           "completed_steps": 9,
           "trader_decision": "HOLD",
-          "final_report": true,
-          "commit_order": 3
+          "final_report": true
         },
         {
           "team": "Dividend Stock (PG)",
@@ -283,8 +280,7 @@
           "family": "hq-verify",
           "completed_steps": 11,
           "trader_decision": null,
-          "final_report": true,
-          "commit_order": 1
+          "final_report": true
         },
         {
           "team": "Dividend Stock (PG)",
@@ -292,8 +288,7 @@
           "family": "hq-verify-run2",
           "completed_steps": 11,
           "trader_decision": null,
-          "final_report": true,
-          "commit_order": 2
+          "final_report": true
         },
         {
           "team": "Dividend Stock (PG)",
@@ -301,8 +296,7 @@
           "family": "trader-verify",
           "completed_steps": 11,
           "trader_decision": "HOLD",
-          "final_report": true,
-          "commit_order": 3
+          "final_report": true
         },
         {
           "team": "ETF (EFA)",
@@ -310,8 +304,7 @@
           "family": "2026-08",
           "completed_steps": 10,
           "trader_decision": null,
-          "final_report": true,
-          "commit_order": 1
+          "final_report": true
         },
         {
           "team": "ETF (EFA)",
@@ -319,8 +312,7 @@
           "family": "2026-08-run2",
           "completed_steps": 10,
           "trader_decision": null,
-          "final_report": true,
-          "commit_order": 2
+          "final_report": true
         },
         {
           "team": "ETF (EFA)",
@@ -328,8 +320,7 @@
           "family": "trader-verify",
           "completed_steps": 10,
           "trader_decision": "HOLD",
-          "final_report": true,
-          "commit_order": 3
+          "final_report": true
         }
       ]
     }
