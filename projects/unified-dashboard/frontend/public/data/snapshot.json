@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29 10:19 UTC",
+  "generated_at": "2026-08-29 23:21 UTC",
   "snapshots": [
     {
       "identity": "Development HQ",
@@ -255,72 +255,198 @@
           "run": "aapl-hq-verify",
           "family": "hq-verify",
           "completed_steps": 9,
+          "tasks": [
+            "sentiment_analysis",
+            "technical_analysis",
+            "industry_analysis",
+            "fundamental_analysis",
+            "news_event_analysis",
+            "bear_case",
+            "bull_case",
+            "synthesis",
+            "final_report"
+          ],
           "trader_decision": null,
-          "final_report": true
+          "final_report": true,
+          "progress_total": null,
+          "progress_pct": null
         },
         {
           "team": "Stock (AAPL)",
           "run": "aapl-hq-verify-run2",
           "family": "hq-verify-run2",
           "completed_steps": 9,
+          "tasks": [
+            "industry_analysis",
+            "technical_analysis",
+            "sentiment_analysis",
+            "news_event_analysis",
+            "fundamental_analysis",
+            "bear_case",
+            "bull_case",
+            "synthesis",
+            "final_report"
+          ],
           "trader_decision": null,
-          "final_report": true
+          "final_report": true,
+          "progress_total": null,
+          "progress_pct": null
         },
         {
           "team": "Stock (AAPL)",
           "run": "aapl-trader-verify",
           "family": "trader-verify",
           "completed_steps": 9,
+          "tasks": [
+            "fundamental_analysis",
+            "technical_analysis",
+            "industry_analysis",
+            "news_event_analysis",
+            "sentiment_analysis",
+            "bull_case",
+            "bear_case",
+            "trader_decision",
+            "final_report"
+          ],
           "trader_decision": "HOLD",
-          "final_report": true
+          "final_report": true,
+          "progress_total": 9,
+          "progress_pct": 100.0
         },
         {
           "team": "Dividend Stock (PG)",
           "run": "pg-hq-verify",
           "family": "hq-verify",
           "completed_steps": 11,
+          "tasks": [
+            "technical_analysis",
+            "fundamental_analysis",
+            "news_event_analysis",
+            "sentiment_analysis",
+            "valuation_analysis",
+            "industry_analysis",
+            "dividend_quality_analysis",
+            "bull_case",
+            "bear_case",
+            "synthesis",
+            "final_report"
+          ],
           "trader_decision": null,
-          "final_report": true
+          "final_report": true,
+          "progress_total": null,
+          "progress_pct": null
         },
         {
           "team": "Dividend Stock (PG)",
           "run": "pg-hq-verify-run2",
           "family": "hq-verify-run2",
           "completed_steps": 11,
+          "tasks": [
+            "technical_analysis",
+            "fundamental_analysis",
+            "sentiment_analysis",
+            "industry_analysis",
+            "dividend_quality_analysis",
+            "valuation_analysis",
+            "news_event_analysis",
+            "bull_case",
+            "bear_case",
+            "synthesis",
+            "final_report"
+          ],
           "trader_decision": null,
-          "final_report": true
+          "final_report": true,
+          "progress_total": null,
+          "progress_pct": null
         },
         {
           "team": "Dividend Stock (PG)",
           "run": "pg-trader-verify",
           "family": "trader-verify",
           "completed_steps": 11,
+          "tasks": [
+            "sentiment_analysis",
+            "fundamental_analysis",
+            "valuation_analysis",
+            "industry_analysis",
+            "technical_analysis",
+            "dividend_quality_analysis",
+            "news_event_analysis",
+            "bull_case",
+            "bear_case",
+            "trader_decision",
+            "final_report"
+          ],
           "trader_decision": "HOLD",
-          "final_report": true
+          "final_report": true,
+          "progress_total": 11,
+          "progress_pct": 100.0
         },
         {
           "team": "ETF (EFA)",
           "run": "efa-2026-08",
           "family": "2026-08",
           "completed_steps": 10,
+          "tasks": [
+            "macro_analysis",
+            "distribution_analysis",
+            "cost_tracking_analysis",
+            "performance_risk_analysis",
+            "composition_analysis",
+            "holdings_exposure_analysis",
+            "bull_case",
+            "bear_case",
+            "synthesis",
+            "final_report"
+          ],
           "trader_decision": null,
-          "final_report": true
+          "final_report": true,
+          "progress_total": null,
+          "progress_pct": null
         },
         {
           "team": "ETF (EFA)",
           "run": "efa-2026-08-run2",
           "family": "2026-08-run2",
           "completed_steps": 10,
+          "tasks": [
+            "cost_tracking_analysis",
+            "distribution_analysis",
+            "macro_analysis",
+            "composition_analysis",
+            "performance_risk_analysis",
+            "holdings_exposure_analysis",
+            "bull_case",
+            "bear_case",
+            "synthesis",
+            "final_report"
+          ],
           "trader_decision": null,
-          "final_report": true
+          "final_report": true,
+          "progress_total": null,
+          "progress_pct": null
         },
         {
           "team": "ETF (EFA)",
           "run": "efa-trader-verify",
           "family": "trader-verify",
           "completed_steps": 10,
+          "tasks": [
+            "distribution_analysis",
+            "macro_analysis",
+            "cost_tracking_analysis",
+            "holdings_exposure_analysis",
+            "performance_risk_analysis",
+            "composition_analysis",
+            "bull_case",
+            "bear_case",
+            "trader_decision",
+            "final_report"
+          ],
           "trader_decision": "HOLD",
-          "final_report": true
+          "final_report": true,
+          "progress_total": 10,
+          "progress_pct": 100.0
         }
       ]
     }

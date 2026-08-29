@@ -39,14 +39,29 @@ export interface ExecutionCallLogEntry {
  * 프로세스 조회 없음). `trader_decision`이 null인 run은 애초에
  * `trader_decision.md` 자체가 없는 계열(hq-verify 등)이다. Public
  * Contract가 아니다.
+ *
+ * `tasks`는 Investment HQ Tasks/Progress Vertical Slice로 추가된
+ * 필드다 — `manifest.json`의 `completed_steps`를 그대로 옮긴 것이며,
+ * 배열 순서는 **완료 도착 순서**다(병렬 실행되는 Wave1 분석 단계들의
+ * 저장 순서일 뿐, `teams/*.py`가 정의한 Wave 실행 순서가 아니다).
+ * Frontend는 이 순서를 재구성하거나 Wave 단위로 재배열하지 않는다.
+ *
+ * `progress_total`/`progress_pct`는 같은 Vertical Slice로 추가됐다 —
+ * `trader_decision` 단계가 실제로 관측된 run(현재 `trader-verify`
+ * 계열)에만 값이 채워진다. `synthesis` 패턴의 레거시 run(`hq-verify`
+ * 등)은 Task 구성 자체가 달라 분모를 알 수 없으므로 둘 다 `null`이다
+ * — "진행률 0%"가 아니라 "계산할 수 없음"을 뜻한다.
  */
 export interface HistoryRunEntry {
   team: string;
   run: string;
   family: string;
   completed_steps: number;
+  tasks: string[];
   trader_decision: string | null;
   final_report: boolean;
+  progress_total: number | null;
+  progress_pct: number | null;
 }
 
 export interface HQSnapshot {

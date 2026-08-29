@@ -43,7 +43,25 @@ class HQSnapshot:
     (subprocess)는 도입하지 않는다: History는 최종 Dashboard 필수
     기능이 아니라 Prototype 관찰용이고, subprocess는 "Evidence
     파일을 읽기만 한다"는 이 모듈의 Boundary를 불필요하게 넓히는
-    비용이 이득보다 크다고 판단했다."""
+    비용이 이득보다 크다고 판단했다.
+
+    `history[].tasks`는 Investment HQ Tasks/Progress Vertical Slice로
+    추가된 Experimental 필드다 — 기존에 이미 읽던 `manifest.json`의
+    `completed_steps`를 개수뿐 아니라 이름 리스트 그대로 옮긴 것이다.
+    이 배열의 순서는 **완료 도착 순서**다(Wave1의 분석 단계들은
+    `ThreadPoolExecutor`로 병렬 실행되므로 `checkpoint.py`가 저장을
+    마친 순서일 뿐, `hqs/investment/teams/*.py`가 정의한 Wave 실행
+    순서(Wave1→Wave2→Wave3→Wave4)와 다르다) — 가상의 시퀀스를
+    부여하지 않는다.
+
+    `history[].progress_total`/`progress_pct`는 같은 Vertical Slice로
+    추가됐다 — `_TEAM_TOTAL_STEPS`(각 팀의 `teams/*.py`에 실제 존재하는
+    Wave1 분석 역할 수 + 고정 4단계를 문자 그대로 옮긴 리터럴)를
+    분모로 삼는다. 이 분모는 `trader_decision` 단계가 실제로 관측된
+    run(현재 `trader-verify` 계열 패턴)에만 적용한다 — `synthesis`
+    단계를 쓰던 레거시 run(`hq-verify` 등)은 Task 구성 자체가 달라
+    같은 분모를 강제로 적용하면 틀린 값이 되므로, 두 필드 모두
+    `None`으로 남겨 "정확히 계산할 수 없음"을 그대로 드러낸다."""
 
     identity: str
     status: PresentationState
@@ -108,6 +126,31 @@ _TEAM_RUNS = {
     "Dividend Stock (PG)": "pg-trader-verify",
     "ETF (EFA)": "efa-trader-verify",
 }
+
+# 팀별 전체 Task 수 — `hqs/investment/teams/*.py`의 `run()`에 실제
+# 존재하는 Wave1 분석 역할 수(dict 리터럴 키 개수) + 고정 4단계
+# (bull_case, bear_case, trader_decision, final_report)를 그대로 옮긴
+# 값이다(팀 코드를 import하지 않으므로 리터럴로 재선언, 회귀 테스트로
+# drift 감지). `trader_decision` 단계가 실제 관측되는 현재
+# `trader-verify` 계열 run에만 적용한다.
+_TEAM_TOTAL_STEPS = {
+    "Stock (AAPL)": 9,  # fundamental/technical/industry/news_event/sentiment(5) + bull_case + bear_case + trader_decision + final_report
+    "Dividend Stock (PG)": 11,  # fundamental/dividend_quality/valuation/technical/industry/news_event/sentiment(7) + 4
+    "ETF (EFA)": 10,  # composition/holdings_exposure/cost_tracking/performance_risk/distribution/macro(6) + 4
+}
+
+
+def _progress_for_run(team_label: str, tasks: list[str]) -> tuple[int | None, float | None]:
+    """`trader_decision` 단계가 실제로 관측된 run에만 진행률을
+    계산한다 — `synthesis` 패턴(레거시 `hq-verify` 등)은 Task 구성
+    자체가 달라 같은 분모를 강제하지 않는다(존재하지 않는 기준
+    임의 부여 금지)."""
+    if "trader_decision" not in tasks:
+        return None, None
+    total = _TEAM_TOTAL_STEPS.get(team_label)
+    if total is None:
+        return None, None
+    return total, round(len(tasks) / total * 100, 1)
 
 
 def _discover_team_run_dirs(dogfooding_dir: Path, prefix: str) -> list[Path]:
@@ -209,14 +252,19 @@ def _build_investment_history(dogfooding_dir: Path) -> list[dict]:
     for team_label, prefix in _TEAM_PREFIXES.items():
         for run_dir in _discover_team_run_dirs(dogfooding_dir, prefix):
             run = _read_team_run(run_dir)
+            tasks = run["completed_steps"]
+            progress_total, progress_pct = _progress_for_run(team_label, tasks)
             entries.append(
                 {
                     "team": team_label,
                     "run": run_dir.name,
                     "family": _run_family(run_dir.name, prefix),
-                    "completed_steps": len(run["completed_steps"]),
+                    "completed_steps": len(tasks),
+                    "tasks": tasks,
                     "trader_decision": run["action"],
                     "final_report": run["final_report"],
+                    "progress_total": progress_total,
+                    "progress_pct": progress_pct,
                 }
             )
     return entries
