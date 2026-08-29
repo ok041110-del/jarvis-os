@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29 09:19 UTC",
+  "generated_at": "2026-08-29 10:19 UTC",
   "snapshots": [
     {
       "identity": "Development HQ",
@@ -16,7 +16,8 @@
         "docs/architecture/core/DEVELOPMENT-HQ-V2.0-FREEZE-0001.md",
         "hqs/development/mvp/agents/*.py"
       ],
-      "execution": []
+      "execution": [],
+      "history": []
     },
     {
       "identity": "Investment HQ",
@@ -246,6 +247,80 @@
           "input_chars": 34271,
           "output_chars": 6765,
           "elapsed_sec": 31.4
+        }
+      ],
+      "history": [
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "family": "hq-verify",
+          "completed_steps": 9,
+          "trader_decision": null,
+          "final_report": true
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "family": "hq-verify-run2",
+          "completed_steps": 9,
+          "trader_decision": null,
+          "final_report": true
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
+          "family": "trader-verify",
+          "completed_steps": 9,
+          "trader_decision": "HOLD",
+          "final_report": true
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "family": "hq-verify",
+          "completed_steps": 11,
+          "trader_decision": null,
+          "final_report": true
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "family": "hq-verify-run2",
+          "completed_steps": 11,
+          "trader_decision": null,
+          "final_report": true
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
+          "family": "trader-verify",
+          "completed_steps": 11,
+          "trader_decision": "HOLD",
+          "final_report": true
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "family": "2026-08",
+          "completed_steps": 10,
+          "trader_decision": null,
+          "final_report": true
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "family": "2026-08-run2",
+          "completed_steps": 10,
+          "trader_decision": null,
+          "final_report": true
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
+          "family": "trader-verify",
+          "completed_steps": 10,
+          "trader_decision": "HOLD",
+          "final_report": true
         }
       ]
     }

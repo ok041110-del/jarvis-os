@@ -156,3 +156,35 @@ ul {
   color: #888;
   font-weight: 600;
 }
+
+.history-evidence {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin: -8px 0 16px 0;
+  background: #fcfcfc;
+}
+
+.history-evidence h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #616161;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.history-table th,
+.history-table td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.history-table th {
+  color: #888;
+  font-weight: 600;
+}
