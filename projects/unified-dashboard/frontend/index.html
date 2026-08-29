@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jarvis OS — Unified Dashboard (React Frontend Prototype)</title>
+<link rel="stylesheet" href="./styles/dashboard.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 번들러 없음: React/ReactDOM을 vendored UMD Build로 직접 로드해
+     전역(window.React, window.ReactDOM)을 만든다. 이후 tsc가 컴파일한
+     ES Module을 module 스크립트로 로드한다. -->
+<script src="./vendor/react.development.js"></script>
+<script src="./vendor/react-dom.development.js"></script>
+<script type="module" src="./dist/main.js"></script>
+</body>
+</html>
