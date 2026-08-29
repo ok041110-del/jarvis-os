@@ -30,6 +30,25 @@ export interface ExecutionCallLogEntry {
   elapsed_sec: number;
 }
 
+/**
+ * Investment HQ History Vertical Slice로 추가된 Experimental 필드 —
+ * `hqs/investment/dogfooding/`의 실제 run 디렉터리 하나를 그대로
+ * 요약한다. Python 쪽 `HQSnapshot.history` dict 항목과 동일한 키만
+ * 갖는다. `commit_order`는 git commit 반영 순서(read-only 조회)일
+ * 뿐 실행 시각이 아니다 — null이면 순서를 구하지 못한 것이다.
+ * `trader_decision`이 null인 run은 애초에 `trader_decision.md`
+ * 자체가 없는 계열(hq-verify 등)이다. Public Contract가 아니다.
+ */
+export interface HistoryRunEntry {
+  team: string;
+  run: string;
+  family: string;
+  completed_steps: number;
+  trader_decision: string | null;
+  final_report: boolean;
+  commit_order: number | null;
+}
+
 export interface HQSnapshot {
   identity: string;
   status: PresentationState;
@@ -37,4 +56,5 @@ export interface HQSnapshot {
   deferred: string[];
   source_files: string[];
   execution: ExecutionCallLogEntry[];
+  history: HistoryRunEntry[];
 }

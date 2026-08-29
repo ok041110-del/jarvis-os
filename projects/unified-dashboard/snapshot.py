@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -32,7 +33,13 @@ class HQSnapshot:
     추가된 Experimental 필드다 — 기존 `checkpoints/manifest.json`의
     `call_log`를 그대로 옮긴 것뿐이며, 이 필드가 있다고 해서
     `HQSnapshot`이 Public Contract로 승격되는 것은 아니다. 값이 없는
-    HQ(Development HQ 등)는 빈 리스트를 유지한다(가상 데이터 생성 금지)."""
+    HQ(Development HQ 등)는 빈 리스트를 유지한다(가상 데이터 생성 금지).
+
+    `history`는 Investment HQ History Vertical Slice로 추가된
+    Experimental 필드다 — `hqs/investment/dogfooding/` 아래 실제
+    존재하는 run 디렉터리(팀 prefix로 스캔)를 run 단위로 요약한다.
+    파일에 없는 절대 실행 시각·SUCCESS/FAILED 상태는 만들지 않는다
+    (정렬이 필요할 때만 git commit 순서를 별도 필드로 노출)."""
 
     identity: str
     status: PresentationState
@@ -40,6 +47,7 @@ class HQSnapshot:
     deferred: list[str] = field(default_factory=list)
     source_files: list[str] = field(default_factory=list)
     execution: list[dict] = field(default_factory=list)
+    history: list[dict] = field(default_factory=list)
 
 
 def _read_text(path: Path) -> str | None:
@@ -81,11 +89,54 @@ def build_dev_hq_snapshot() -> HQSnapshot:
 
 
 _DIRECTION_RE = re.compile(r"Direction:\**\s*([A-Za-z]{3,10})", re.IGNORECASE)
+
+# 팀 식별에 실제로 쓸 수 있는 유일한 근거: dogfooding 디렉터리명이 전부
+# "{ticker prefix}-..." 형태다(History Architecture Investigation §2에서
+# 9개 디렉터리 전수 확인, 예외 없음). Representative run(detail/execution/
+# status 계산용, 기존 동작 유지)은 team별 trader-verify 1개로 고정한다.
+_TEAM_PREFIXES = {
+    "Stock (AAPL)": "aapl",
+    "Dividend Stock (PG)": "pg",
+    "ETF (EFA)": "efa",
+}
 _TEAM_RUNS = {
     "Stock (AAPL)": "aapl-trader-verify",
     "Dividend Stock (PG)": "pg-trader-verify",
     "ETF (EFA)": "efa-trader-verify",
 }
+
+
+def _discover_team_run_dirs(dogfooding_dir: Path, prefix: str) -> list[Path]:
+    """ticker prefix(`{prefix}-...`)로 시작하는 실제 존재하는 run
+    디렉터리를 전부 찾는다 — 하드코딩된 이름 하나만 보지 않는다."""
+    if not dogfooding_dir.is_dir():
+        return []
+    return sorted(p for p in dogfooding_dir.iterdir() if p.is_dir() and p.name.startswith(f"{prefix}-"))
+
+
+def _run_family(run_dir_name: str, prefix: str) -> str:
+    """디렉터리명에서 prefix를 뗀 나머지를 그대로 계열명으로 쓴다 —
+    팀마다 실제 문자열이 다를 수 있으므로(예: efa는 hq-verify가 아니라
+    2026-08) 억지로 통일하지 않는다(존재하지 않는 의미 추론 금지)."""
+    return run_dir_name[len(prefix) + 1 :]
+
+
+def _earliest_commit_date(path: Path) -> str | None:
+    """path를 저장소에 처음 추가한 커밋의 날짜(ISO 8601)를 읽는다 —
+    read-only `git log` 조회일 뿐이다(파일 수정/Engine/Agent 호출
+    아님). git이 없거나 조회 실패 시 None(추측 금지, 조용히 생략)."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "log", "--diff-filter=A", "--format=%aI", "--", str(path)],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    lines = [line for line in result.stdout.splitlines() if line.strip()]
+    return lines[-1] if lines else None
 
 
 def _read_team_run(run_dir: Path) -> dict:
@@ -148,6 +199,8 @@ def build_investment_hq_snapshot() -> HQSnapshot:
 
     status: PresentationState = "NORMAL" if any_found else "UNKNOWN"
 
+    history = _build_investment_history(dogfooding_dir)
+
     return HQSnapshot(
         identity="Investment HQ",
         status=status,
@@ -155,7 +208,41 @@ def build_investment_hq_snapshot() -> HQSnapshot:
         deferred=["Portfolio", "Risk", "Execution (Trade Execution)"],
         source_files=source_files,
         execution=execution,
+        history=history,
     )
+
+
+def _build_investment_history(dogfooding_dir: Path) -> list[dict]:
+    """팀별 prefix로 dogfooding 디렉터리를 스캔해 실제 존재하는 run을
+    전부 History로 열거한다(하드코딩된 단일 run만 보던 기존 detail/
+    execution과 달리, 9개 run 전부 대상). run family는 디렉터리명
+    그대로, 정렬은 git commit 순서(read-only 조회, 실행 시각 아님)."""
+    entries: list[dict] = []
+    for team_label, prefix in _TEAM_PREFIXES.items():
+        run_dirs = _discover_team_run_dirs(dogfooding_dir, prefix)
+        dated: list[tuple[Path, str | None]] = [
+            (run_dir, _earliest_commit_date(run_dir / "checkpoints/manifest.json")) for run_dir in run_dirs
+        ]
+        # commit 날짜가 있는 run을 오름차순(가장 먼저 반영된 순)으로,
+        # 조회 실패로 날짜를 못 구한 run은 뒤에(디렉터리 스캔 순서 유지).
+        dated.sort(key=lambda pair: (pair[1] is None, pair[1]))
+
+        rank = 0
+        for run_dir, commit_date in dated:
+            run = _read_team_run(run_dir)
+            rank += 1
+            entries.append(
+                {
+                    "team": team_label,
+                    "run": run_dir.name,
+                    "family": _run_family(run_dir.name, prefix),
+                    "completed_steps": len(run["completed_steps"]),
+                    "trader_decision": run["action"],
+                    "final_report": run["final_report"],
+                    "commit_order": rank if commit_date is not None else None,
+                }
+            )
+    return entries
 
 
 def build_global_snapshot() -> list[HQSnapshot]:

@@ -56,3 +56,13 @@ def test_execution_field_reaches_json_document():
     assert "execution" in snaps["Investment HQ"]
     assert len(snaps["Investment HQ"]["execution"]) > 0
     assert snaps["Development HQ"]["execution"] == []
+
+
+def test_history_field_reaches_json_document():
+    """History Vertical Slice: Investment HQ의 history(9개 run 요약)가
+    JSON 직렬화 과정에서 유실되지 않고 그대로 전달되는지 검증한다."""
+    document = export_snapshot_json.build_snapshot_document()
+    snaps = {s["identity"]: s for s in document["snapshots"]}
+    assert "history" in snaps["Investment HQ"]
+    assert len(snaps["Investment HQ"]["history"]) == 9
+    assert snaps["Development HQ"]["history"] == []
