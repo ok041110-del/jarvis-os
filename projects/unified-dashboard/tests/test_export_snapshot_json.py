@@ -66,3 +66,19 @@ def test_history_field_reaches_json_document():
     assert "history" in snaps["Investment HQ"]
     assert len(snaps["Investment HQ"]["history"]) == 9
     assert snaps["Development HQ"]["history"] == []
+
+
+def test_history_tasks_and_progress_fields_reach_json_document():
+    """Tasks/Progress Vertical Slice: history 각 entry의 tasks/
+    progress_total/progress_pct가 JSON 직렬화 과정에서 유실되지 않고
+    그대로 전달되는지 검증한다."""
+    document = export_snapshot_json.build_snapshot_document()
+    snaps = {s["identity"]: s for s in document["snapshots"]}
+    saw_progress = False
+    for entry in snaps["Investment HQ"]["history"]:
+        assert "tasks" in entry and isinstance(entry["tasks"], list)
+        assert "progress_total" in entry
+        assert "progress_pct" in entry
+        if entry["progress_total"] is not None:
+            saw_progress = True
+    assert saw_progress, "trader-verify 계열 run은 progress_total이 채워져 있어야 함"

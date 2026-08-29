@@ -115,7 +115,17 @@ def test_investment_hq_history_entries_have_no_fabricated_fields():
     snap = snapshot.build_investment_hq_snapshot()
     assert snap.history, "실제 9개 run이 있으므로 history가 비어있으면 안 됨"
 
-    allowed_keys = {"team", "run", "family", "completed_steps", "trader_decision", "final_report"}
+    allowed_keys = {
+        "team",
+        "run",
+        "family",
+        "completed_steps",
+        "tasks",
+        "trader_decision",
+        "final_report",
+        "progress_total",
+        "progress_pct",
+    }
     for entry in snap.history:
         assert set(entry.keys()) == allowed_keys
         assert "timestamp" not in entry and "status" not in entry
@@ -124,6 +134,9 @@ def test_investment_hq_history_entries_have_no_fabricated_fields():
             assert entry["trader_decision"] is None
         assert isinstance(entry["completed_steps"], int)
         assert isinstance(entry["final_report"], bool)
+        assert isinstance(entry["tasks"], list)
+        assert all(isinstance(t, str) for t in entry["tasks"])
+        assert len(entry["tasks"]) == entry["completed_steps"]
 
 
 def test_investment_hq_history_family_derived_literally_from_dirname():
@@ -164,6 +177,96 @@ def test_dev_hq_snapshot_history_is_empty_without_fabrication():
     빈 리스트로 유지해야 한다(§8 조사 결론과 일치, 임의 구현 금지)."""
     snap = snapshot.build_dev_hq_snapshot()
     assert snap.history == []
+
+
+def test_investment_hq_history_tasks_match_raw_manifest_completed_steps_order():
+    """Tasks/Progress Vertical Slice: `tasks`가 실제 manifest.json의
+    `completed_steps`를 순서까지 그대로 옮긴 것인지 검증한다(완료
+    도착 순서 보존, Wave 순서로 재정렬하지 않음)."""
+    import json
+
+    snap = snapshot.build_investment_hq_snapshot()
+    dogfooding_dir = snapshot.REPO_ROOT / "hqs/investment/dogfooding"
+
+    checked = 0
+    for entry in snap.history:
+        manifest_path = dogfooding_dir / entry["run"] / "checkpoints" / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert entry["tasks"] == manifest.get("completed_steps", [])
+        checked += 1
+    assert checked == len(snap.history)
+
+
+def test_investment_hq_progress_known_only_for_trader_decision_pattern():
+    """`trader_decision` 단계가 실제 관측된 run(현재 trader-verify
+    계열)에서만 progress_total/progress_pct가 채워지고, `synthesis`
+    패턴 레거시 run(hq-verify 등)은 두 값 모두 None으로 남아
+    "0%"와 "계산 불가"를 혼동하지 않는지 검증한다."""
+    snap = snapshot.build_investment_hq_snapshot()
+    assert snap.history, "실제 9개 run이 있으므로 history가 비어있으면 안 됨"
+
+    saw_current_pattern = False
+    saw_legacy_pattern = False
+    for entry in snap.history:
+        if "trader_decision" in entry["tasks"]:
+            saw_current_pattern = True
+            expected_total = snapshot._TEAM_TOTAL_STEPS[entry["team"]]
+            assert entry["progress_total"] == expected_total
+            assert entry["progress_pct"] == round(entry["completed_steps"] / expected_total * 100, 1)
+        else:
+            saw_legacy_pattern = True
+            assert entry["progress_total"] is None
+            assert entry["progress_pct"] is None
+
+    assert saw_current_pattern, "trader-verify 계열 run이 최소 1개는 있어야 함"
+    assert saw_legacy_pattern, "hq-verify/synthesis 레거시 run이 최소 1개는 있어야 함"
+
+
+def _team_step_names_from_source(team_file: Path) -> set[str]:
+    """`hqs/investment/teams/*.py`의 `run()`에 실제 존재하는 Task
+    이름을 import 없이 AST로만 추출한다: Wave1/Wave2는 `wave1_jobs`/
+    `wave2_jobs` dict 리터럴의 키, Wave3/Wave4는 `run_step(cp, "이름",
+    ...)` 직접 호출의 문자열 리터럴이다. `_TEAM_TOTAL_STEPS`가
+    실제 팀 코드와 어긋나면(drift) 이 테스트가 실패해야 한다."""
+    tree = ast.parse(team_file.read_text(encoding="utf-8"))
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
+            target_names = {t.id for t in node.targets if isinstance(t, ast.Name)}
+            if target_names & {"wave1_jobs", "wave2_jobs"}:
+                for key in node.value.keys:
+                    if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                        names.add(key.value)
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "run_step"
+            and len(node.args) >= 2
+            and isinstance(node.args[1], ast.Constant)
+            and isinstance(node.args[1].value, str)
+        ):
+            names.add(node.args[1].value)
+    return names
+
+
+def test_team_total_steps_literal_matches_actual_team_source():
+    """anti-drift 회귀 테스트: `snapshot._TEAM_TOTAL_STEPS`(Boundary
+    때문에 팀 코드를 import하지 못해 재선언한 리터럴)가 실제
+    `hqs/investment/teams/*.py`의 Task 구성과 여전히 일치하는지
+    정적 분석으로 확인한다 — 팀 코드에 분석 역할이 추가/삭제되면
+    이 테스트가 즉시 실패해야 한다(조용한 stale 방지)."""
+    team_files = {
+        "Stock (AAPL)": "stock_team.py",
+        "Dividend Stock (PG)": "dividend_stock_team.py",
+        "ETF (EFA)": "etf_team.py",
+    }
+    for team_label, filename in team_files.items():
+        team_file = snapshot.REPO_ROOT / "hqs/investment/teams" / filename
+        actual_names = _team_step_names_from_source(team_file)
+        assert len(actual_names) == snapshot._TEAM_TOTAL_STEPS[team_label], (
+            f"{team_label}: 코드상 Task 수 {len(actual_names)}개({sorted(actual_names)}) != "
+            f"snapshot._TEAM_TOTAL_STEPS {snapshot._TEAM_TOTAL_STEPS[team_label]}"
+        )
 
 
 def test_render_dashboard_produces_html_without_touching_engine_or_agent():

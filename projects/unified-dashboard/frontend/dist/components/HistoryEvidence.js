@@ -6,6 +6,11 @@
  * (Snapshot Boundary Review 결론 — 파일에 없는 값은 만들지 않음).
  * history가 빈 배열인 HQ(Development HQ 등)는 아무것도 렌더링하지
  * 않는다.
+ *
+ * Tasks/Progress Vertical Slice: `tasks`는 Python이 준 배열 순서
+ * 그대로(완료 도착 순서) 나열한다 — Wave 순서로 재구성하지 않는다.
+ * `progress_pct`가 `null`인 run은 "0%"가 아니라 "N/A"로 표시해
+ * "계산할 수 없음"과 "진행 없음"을 혼동하지 않게 한다.
  */
 export function HistoryEvidence({ history }) {
     if (history.length === 0) {
@@ -20,6 +25,8 @@ export function HistoryEvidence({ history }) {
                     React.createElement("th", null, "Run"),
                     React.createElement("th", null, "Family"),
                     React.createElement("th", null, "Completed Steps"),
+                    React.createElement("th", null, "Tasks (\uC644\uB8CC \uB3C4\uCC29 \uC21C\uC11C)"),
+                    React.createElement("th", null, "Progress"),
                     React.createElement("th", null, "Trader Decision"),
                     React.createElement("th", null, "Final Report"))),
             React.createElement("tbody", null, history.map((entry, i) => (React.createElement("tr", { key: i },
@@ -27,6 +34,10 @@ export function HistoryEvidence({ history }) {
                 React.createElement("td", null, entry.run),
                 React.createElement("td", null, entry.family),
                 React.createElement("td", null, entry.completed_steps),
+                React.createElement("td", null, entry.tasks.join(", ")),
+                React.createElement("td", null, entry.progress_pct === null || entry.progress_total === null
+                    ? "N/A"
+                    : `${entry.completed_steps}/${entry.progress_total} (${entry.progress_pct}%)`),
                 React.createElement("td", null, entry.trader_decision ?? "N/A"),
                 React.createElement("td", null, entry.final_report ? "있음" : "없음"))))))));
 }
