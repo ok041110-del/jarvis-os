@@ -1,11 +1,12 @@
 import type { HQSnapshot } from "./types.js";
-import { HqCard } from "./components/HqCard.js";
-import { statusColor } from "./statusColor.js";
+import { Sidebar } from "./components/Sidebar.js";
+import { Header } from "./components/Header.js";
+import { Overview } from "./components/Overview.js";
+import { overallStatus } from "./overallStatus.js";
 
 /**
- * Global Shell — Navigation + HQ Snapshot 목록을 조합할 뿐, HQ
- * 내부 의미를 해석하지 않는다(Python `render.py`의 `render_dashboard`
- * 원칙과 동일).
+ * Global Shell — Header/Sidebar/Overview를 조합할 뿐, HQ 내부 의미를
+ * 해석하지 않는다(Python `render.py`의 `render_dashboard` 원칙과 동일).
  *
  * Observe-only: `public/data/snapshot.json`을 fetch로 읽기만 한다.
  * subprocess/child_process/fs로 Repository에 접근하거나 Python을
@@ -51,53 +52,38 @@ export function App() {
     };
   }, []);
 
-  return (
-    <>
-      <header>
-        <h1>Jarvis OS — Unified Dashboard (React Frontend Prototype)</h1>
-        <p>
-          Experimental Prototype — Production Dashboard 아님
-          (projects/unified-dashboard/frontend). Observe-only, read-only
-          fetch of snapshot.json.
-          {state.kind === "ready" && state.generatedAt
-            ? ` Snapshot generated: ${state.generatedAt}`
-            : ""}
+  if (state.kind === "loading") {
+    return (
+      <div className="shell">
+        <p className="status-line">Loading snapshot.json…</p>
+      </div>
+    );
+  }
+
+  if (state.kind === "error") {
+    return (
+      <div className="shell">
+        <p className="status-line error">
+          snapshot.json을 불러오지 못했습니다: {state.message}. (
+          <code>export_snapshot_json.py</code>를 먼저 실행했는지 확인)
         </p>
-      </header>
-      <main>
-        {state.kind === "loading" && <p className="status-line">Loading snapshot.json…</p>}
-        {state.kind === "error" && (
-          <p className="status-line error">
-            snapshot.json을 불러오지 못했습니다: {state.message}. (
-            <code>export_snapshot_json.py</code>를 먼저 실행했는지 확인)
-          </p>
-        )}
-        {state.kind === "ready" && (
-          <>
-            <nav>
-              <h3>HQ Navigation</h3>
-              <ul>
-                {state.snapshots.map((s) => (
-                  <li key={s.identity}>
-                    {s.identity}{" "}
-                    <span
-                      className="badge-inline"
-                      style={{ backgroundColor: statusColor(s.status) }}
-                    >
-                      {s.status}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <div className="hq-cards">
-              {state.snapshots.map((s) => (
-                <HqCard key={s.identity} snapshot={s} />
-              ))}
-            </div>
-          </>
-        )}
-      </main>
-    </>
+      </div>
+    );
+  }
+
+  return (
+    <div className="shell">
+      <Header
+        location="Overview"
+        overall={overallStatus(state.snapshots)}
+        generatedAt={state.generatedAt}
+      />
+      <div className="shell-body">
+        <Sidebar snapshots={state.snapshots} />
+        <main className="shell-main">
+          <Overview snapshots={state.snapshots} />
+        </main>
+      </div>
+    </div>
   );
 }

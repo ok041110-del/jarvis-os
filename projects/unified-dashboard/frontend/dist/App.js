@@ -1,9 +1,10 @@
-import { HqCard } from "./components/HqCard.js";
-import { statusColor } from "./statusColor.js";
+import { Sidebar } from "./components/Sidebar.js";
+import { Header } from "./components/Header.js";
+import { Overview } from "./components/Overview.js";
+import { overallStatus } from "./overallStatus.js";
 /**
- * Global Shell — Navigation + HQ Snapshot 목록을 조합할 뿐, HQ
- * 내부 의미를 해석하지 않는다(Python `render.py`의 `render_dashboard`
- * 원칙과 동일).
+ * Global Shell — Header/Sidebar/Overview를 조합할 뿐, HQ 내부 의미를
+ * 해석하지 않는다(Python `render.py`의 `render_dashboard` 원칙과 동일).
  *
  * Observe-only: `public/data/snapshot.json`을 fetch로 읽기만 한다.
  * subprocess/child_process/fs로 Repository에 접근하거나 Python을
@@ -40,28 +41,23 @@ export function App() {
             cancelled = true;
         };
     }, []);
-    return (React.createElement(React.Fragment, null,
-        React.createElement("header", null,
-            React.createElement("h1", null, "Jarvis OS \u2014 Unified Dashboard (React Frontend Prototype)"),
-            React.createElement("p", null,
-                "Experimental Prototype \u2014 Production Dashboard \uC544\uB2D8 (projects/unified-dashboard/frontend). Observe-only, read-only fetch of snapshot.json.",
-                state.kind === "ready" && state.generatedAt
-                    ? ` Snapshot generated: ${state.generatedAt}`
-                    : "")),
-        React.createElement("main", null,
-            state.kind === "loading" && React.createElement("p", { className: "status-line" }, "Loading snapshot.json\u2026"),
-            state.kind === "error" && (React.createElement("p", { className: "status-line error" },
+    if (state.kind === "loading") {
+        return (React.createElement("div", { className: "shell" },
+            React.createElement("p", { className: "status-line" }, "Loading snapshot.json\u2026")));
+    }
+    if (state.kind === "error") {
+        return (React.createElement("div", { className: "shell" },
+            React.createElement("p", { className: "status-line error" },
                 "snapshot.json\uC744 \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4: ",
                 state.message,
                 ". (",
                 React.createElement("code", null, "export_snapshot_json.py"),
-                "\uB97C \uBA3C\uC800 \uC2E4\uD589\uD588\uB294\uC9C0 \uD655\uC778)")),
-            state.kind === "ready" && (React.createElement(React.Fragment, null,
-                React.createElement("nav", null,
-                    React.createElement("h3", null, "HQ Navigation"),
-                    React.createElement("ul", null, state.snapshots.map((s) => (React.createElement("li", { key: s.identity },
-                        s.identity,
-                        " ",
-                        React.createElement("span", { className: "badge-inline", style: { backgroundColor: statusColor(s.status) } }, s.status)))))),
-                React.createElement("div", { className: "hq-cards" }, state.snapshots.map((s) => (React.createElement(HqCard, { key: s.identity, snapshot: s })))))))));
+                "\uB97C \uBA3C\uC800 \uC2E4\uD589\uD588\uB294\uC9C0 \uD655\uC778)")));
+    }
+    return (React.createElement("div", { className: "shell" },
+        React.createElement(Header, { location: "Overview", overall: overallStatus(state.snapshots), generatedAt: state.generatedAt }),
+        React.createElement("div", { className: "shell-body" },
+            React.createElement(Sidebar, { snapshots: state.snapshots }),
+            React.createElement("main", { className: "shell-main" },
+                React.createElement(Overview, { snapshots: state.snapshots })))));
 }
