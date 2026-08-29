@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-08-29 07:09 UTC",
+  "snapshots": [
+    {
+      "identity": "Development HQ",
+      "status": "NORMAL",
+      "detail": [
+        "Phase: Stable v2.0 Freeze (RFC-0007 -> ADC-0005 -> ADR-0008 -> Stage 01~05 -> Integrated Workflow -> CLI)",
+        "Workflow: Stage 01~05 (01_repository_intelligence ~ 05_devops_release 명명, workflow.py로 연쇄)",
+        "Agent Roles: backend, design, qa, requirements",
+        "Latest Validation: 109 passed",
+        "Current Task: None (idle — 상시 Runtime 없음, 명시적 호출 시에만 실행됨, ADC-02 Open)"
+      ],
+      "deferred": [],
+      "source_files": [
+        "docs/architecture/core/DEVELOPMENT-HQ-V2.0-FREEZE-0001.md",
+        "hqs/development/mvp/agents/*.py"
+      ]
+    },
+    {
+      "identity": "Investment HQ",
+      "status": "NORMAL",
+      "detail": [
+        "Stock (AAPL): Analysis/Bull-Bear/Trader 9단계 완료, Trader Decision=HOLD, Final Report=있음",
+        "Dividend Stock (PG): Analysis/Bull-Bear/Trader 11단계 완료, Trader Decision=HOLD, Final Report=있음",
+        "ETF (EFA): Analysis/Bull-Bear/Trader 10단계 완료, Trader Decision=HOLD, Final Report=있음"
+      ],
+      "deferred": [
+        "Portfolio",
+        "Risk",
+        "Execution (Trade Execution)"
+      ],
+      "source_files": [
+        "hqs/investment/dogfooding/aapl-trader-verify/checkpoints/manifest.json",
+        "hqs/investment/dogfooding/pg-trader-verify/checkpoints/manifest.json",
+        "hqs/investment/dogfooding/efa-trader-verify/checkpoints/manifest.json"
+      ]
+    }
+  ]
+}
