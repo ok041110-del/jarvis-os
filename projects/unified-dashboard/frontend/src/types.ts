@@ -22,8 +22,15 @@ export type PresentationState =
  * 그대로 미러링한다. Python 쪽 `HQSnapshot.execution` dict 항목과
  * 동일한 키만 갖는다. Public Contract가 아니다.
  */
+/**
+ * `run`은 Execution Evidence — 전체 History Run 확장 Vertical Slice로
+ * 추가됐다 — 팀별 대표 run 1개만 보이던 것을 실제 존재하는 9개 run
+ * 전체로 넓히면서 각 항목이 어느 run에서 왔는지 구분하기 위해
+ * 추가했다. `HistoryRunEntry.run`과 같은 디렉터리명이다.
+ */
 export interface ExecutionCallLogEntry {
   team: string;
+  run: string;
   role: string;
   input_chars: number;
   output_chars: number;
