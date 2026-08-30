@@ -61,7 +61,19 @@ class HQSnapshot:
     run(현재 `trader-verify` 계열 패턴)에만 적용한다 — `synthesis`
     단계를 쓰던 레거시 run(`hq-verify` 등)은 Task 구성 자체가 달라
     같은 분모를 강제로 적용하면 틀린 값이 되므로, 두 필드 모두
-    `None`으로 남겨 "정확히 계산할 수 없음"을 그대로 드러낸다."""
+    `None`으로 남겨 "정확히 계산할 수 없음"을 그대로 드러낸다.
+
+    `history[].trader_decision_detail`은 Investment HQ Trader Decision
+    Rationale/Reassess Vertical Slice로 추가된 Experimental 필드다 —
+    기존 `trader_decision`(Direction 한 단어) 추출에 이미 쓰던 같은
+    `trader_decision.md` 텍스트에서 Rationale/Reassess when을 추가로
+    읽은 것뿐이며, 새 파일이나 새 경로를 열지 않는다. 기존
+    `trader_decision` 필드의 의미(Direction 단어, 하위 호환)는
+    변경하지 않는다. `trader_decision.md`가 없는 run(레거시
+    `hq-verify` 등)은 `None`이다 — 빈 문자열이나 임의값을 채우지
+    않는다. 파일은 있으나 Rationale/Reassess 섹션 중 일부를 정규식이
+    찾지 못한 경우에도 해당 키만 `None`이다(다른 값을 대신 지어내지
+    않는다)."""
 
     identity: str
     status: PresentationState
@@ -111,6 +123,12 @@ def build_dev_hq_snapshot() -> HQSnapshot:
 
 
 _DIRECTION_RE = re.compile(r"Direction:\**\s*([A-Za-z]{3,10})", re.IGNORECASE)
+# Rationale/Reassess when — 3개 실제 Team `trader_decision.md`가 공유하는
+# `- **Label...:** 본문` bullet 구조에서, 다음 bullet(`\n-`) 또는 파일
+# 끝까지를 본문으로 잡는다(Label 뒤 `**` 위치가 팀마다 달라도— aapl/pg는
+# `Direction: HOLD**`, efa는 `Direction:** HOLD` — `\**`가 둘 다 흡수한다).
+_RATIONALE_RE = re.compile(r"Rationale:\**\s*(.+?)(?=\n-\s|\Z)", re.IGNORECASE | re.DOTALL)
+_REASSESS_RE = re.compile(r"Reassess when:\**\s*(.+?)(?=\n-\s|\Z)", re.IGNORECASE | re.DOTALL)
 
 # 팀 식별에 실제로 쓸 수 있는 유일한 근거: dogfooding 디렉터리명이 전부
 # "{ticker prefix}-..." 형태다(History Architecture Investigation §2에서
@@ -171,22 +189,38 @@ def _run_family(run_dir_name: str, prefix: str) -> str:
 def _read_team_run(run_dir: Path) -> dict:
     manifest_path = run_dir / "checkpoints" / "manifest.json"
     if not manifest_path.is_file():
-        return {"completed_steps": [], "action": None, "final_report": False, "call_log": []}
+        return {
+            "completed_steps": [],
+            "action": None,
+            "decision_detail": None,
+            "final_report": False,
+            "call_log": [],
+        }
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     completed = manifest.get("completed_steps", [])
     call_log = manifest.get("call_log", [])
 
     action = None
+    decision_detail = None
     decision_text = _read_text(run_dir / "trader_decision.md")
     if decision_text:
         match = _DIRECTION_RE.search(decision_text)
         if match:
             action = match.group(1).upper()
 
+        rationale_match = _RATIONALE_RE.search(decision_text)
+        reassess_match = _REASSESS_RE.search(decision_text)
+        decision_detail = {
+            "action": action,
+            "rationale": rationale_match.group(1).strip() if rationale_match else None,
+            "reassess_when": reassess_match.group(1).strip() if reassess_match else None,
+        }
+
     return {
         "completed_steps": completed,
         "action": action,
+        "decision_detail": decision_detail,
         "final_report": (run_dir / "final_report.md").is_file(),
         "call_log": call_log,
     }
@@ -262,6 +296,7 @@ def _build_investment_history(dogfooding_dir: Path) -> list[dict]:
                     "completed_steps": len(tasks),
                     "tasks": tasks,
                     "trader_decision": run["action"],
+                    "trader_decision_detail": run["decision_detail"],
                     "final_report": run["final_report"],
                     "progress_total": progress_total,
                     "progress_pct": progress_pct,

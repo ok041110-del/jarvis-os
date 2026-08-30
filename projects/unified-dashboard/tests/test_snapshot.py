@@ -122,6 +122,7 @@ def test_investment_hq_history_entries_have_no_fabricated_fields():
         "completed_steps",
         "tasks",
         "trader_decision",
+        "trader_decision_detail",
         "final_report",
         "progress_total",
         "progress_pct",
@@ -132,6 +133,7 @@ def test_investment_hq_history_entries_have_no_fabricated_fields():
         if "hq-verify" in entry["run"] or entry["run"].startswith("efa-2026-08"):
             # trader-verify가 아닌 run에는 trader_decision.md 자체가 없다.
             assert entry["trader_decision"] is None
+            assert entry["trader_decision_detail"] is None
         assert isinstance(entry["completed_steps"], int)
         assert isinstance(entry["final_report"], bool)
         assert isinstance(entry["tasks"], list)
@@ -267,6 +269,53 @@ def test_team_total_steps_literal_matches_actual_team_source():
             f"{team_label}: 코드상 Task 수 {len(actual_names)}개({sorted(actual_names)}) != "
             f"snapshot._TEAM_TOTAL_STEPS {snapshot._TEAM_TOTAL_STEPS[team_label]}"
         )
+
+
+def test_investment_hq_trader_decision_detail_matches_real_files_for_all_teams():
+    """Trader Decision Rationale/Reassess Vertical Slice: 3개 실제 Team
+    (`aapl`/`pg`/`efa`)의 `trader_decision.md` 원문에서 Direction/
+    Rationale/Reassess when이 실제로 추출되는지 검증한다(fixture 가공
+    없이 저장소의 실제 파일을 직접 재검증). aapl/pg는
+    `Direction: HOLD**`, efa는 `Direction:** HOLD`로 Bold 위치가 달라도
+    `action`은 기존과 동일하게 추출돼야 한다(하위 호환)."""
+    snap = snapshot.build_investment_hq_snapshot()
+    by_run = {entry["run"]: entry for entry in snap.history}
+
+    for run_name in ("aapl-trader-verify", "pg-trader-verify", "efa-trader-verify"):
+        entry = by_run[run_name]
+        raw_text = (
+            snapshot.REPO_ROOT / "hqs/investment/dogfooding" / run_name / "trader_decision.md"
+        ).read_text(encoding="utf-8")
+
+        detail = entry["trader_decision_detail"]
+        assert detail is not None, f"{run_name}: trader_decision.md가 실제 존재하므로 None이면 안 됨"
+        assert set(detail.keys()) == {"action", "rationale", "reassess_when"}
+
+        # action은 기존 trader_decision 필드와 동일해야 한다(하위 호환 유지).
+        assert detail["action"] == entry["trader_decision"]
+        assert detail["action"] in {"HOLD", "BUY", "SELL"}
+
+        # Rationale/Reassess는 실제 원문에서 가져온 부분 문자열이어야 한다
+        # (요약·재작성 없이 그대로 노출, 가상 텍스트 생성 금지).
+        assert detail["rationale"]
+        assert detail["rationale"] in raw_text
+        assert detail["reassess_when"]
+        assert detail["reassess_when"] in raw_text
+
+
+def test_investment_hq_trader_decision_detail_none_for_legacy_runs_without_fabrication():
+    """trader_decision.md 자체가 없는 legacy `hq-verify`/`efa-2026-08`
+    run은 `trader_decision_detail`이 `None`이어야 한다 — 빈 문자열이나
+    `{}` 같은 가짜 placeholder를 만들지 않는다."""
+    snap = snapshot.build_investment_hq_snapshot()
+    legacy_runs = [
+        entry
+        for entry in snap.history
+        if "hq-verify" in entry["run"] or entry["run"].startswith("efa-2026-08")
+    ]
+    assert legacy_runs, "실제 legacy run이 최소 1개는 있어야 함"
+    for entry in legacy_runs:
+        assert entry["trader_decision_detail"] is None
 
 
 def test_render_dashboard_produces_html_without_touching_engine_or_agent():
