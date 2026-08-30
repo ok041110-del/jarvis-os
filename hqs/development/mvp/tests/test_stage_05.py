@@ -12,6 +12,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+import pytest
+
 _STAGE_05_PATH = Path(__file__).resolve().parents[2] / "stages" / "05_validation" / "stage_05.py"
 _spec = importlib.util.spec_from_file_location("stage_05", _STAGE_05_PATH)
 stage_05 = importlib.util.module_from_spec(_spec)
@@ -260,3 +262,111 @@ def test_blocking_check_failure_is_reflected_in_check_results(monkeypatch):
     assert structural["status"] == "FAIL"
     assert structural["blocking"] is True
     assert result["verdict"] == "FAIL"
+
+
+# --- required_checks가 실제 실행/Verdict에 인과적 영향을 주는지(회귀) ----------
+
+
+def _stub_deterministic_checks(monkeypatch, code_review="REVIEW"):
+    monkeypatch.setattr(stage_05, "_check_structural", lambda stage_04_output: {"valid": True, "engine_failed": False})
+    monkeypatch.setattr(
+        stage_05, "_check_specification_scope", lambda target, stage_02_output: {"target_in_scope": True}
+    )
+    monkeypatch.setattr(
+        stage_05,
+        "_check_design_scope",
+        lambda target, expose_target, implementation: {"scope_ok": True, "changed_names": []},
+    )
+    monkeypatch.setattr(stage_05, "backend_agent_code_review", lambda code: code_review)
+
+
+def test_excluding_test_execution_from_required_checks_skips_its_actual_execution(monkeypatch):
+    """required_checks에서 `test_execution`을 빼면, 그 검사 함수가 실제로
+    호출되지 않는다(단순 결과 무시가 아니라 실행 자체가 skip됨)."""
+    _stub_deterministic_checks(monkeypatch)
+    calls = []
+
+    def fake_pytest(target, expose_target, implementation):
+        calls.append((target, expose_target, implementation))
+        return {"executed": True, "returncode": 1, "output": "1 failed"}
+
+    monkeypatch.setattr(stage_05, "_run_pytest_with_applied_implementation", fake_pytest)
+
+    stage_04_output = {"target": ("m", "f"), "implementation": "SOME CODE", "expose_target": True}
+    stage_02_output = {"skeleton": {"scope_candidates": []}}
+
+    stage_05.run_stage_05(
+        stage_02_output, stage_04_output, required_checks=("structural", "specification_scope", "design_scope")
+    )
+
+    assert calls == []  # pytest 실행 함수가 아예 호출되지 않았다
+
+
+def test_required_checks_value_changes_verdict_for_same_underlying_state(monkeypatch):
+    """동일한 Stage 04 Output(test_execution이 FAIL할 상태)에서, required_checks에
+    `test_execution`을 포함하느냐 빼느냐에 따라 Verdict가 실제로 달라진다."""
+    _stub_deterministic_checks(monkeypatch)
+    monkeypatch.setattr(
+        stage_05,
+        "_run_pytest_with_applied_implementation",
+        lambda target, expose_target, implementation: {"executed": True, "returncode": 1, "output": "1 failed"},
+    )
+
+    stage_04_output = {"target": ("m", "f"), "implementation": "SOME CODE", "expose_target": True}
+    stage_02_output = {"skeleton": {"scope_candidates": []}}
+
+    result_full = stage_05.run_stage_05(stage_02_output, stage_04_output)
+    assert result_full["verdict"] == "FAIL"
+    test_check_full = next(c for c in result_full["check_results"] if c["name"] == "test_execution")
+    assert test_check_full["status"] == "FAIL"
+
+    result_without_test_execution = stage_05.run_stage_05(
+        stage_02_output, stage_04_output, required_checks=("structural", "specification_scope", "design_scope")
+    )
+    assert result_without_test_execution["verdict"] == "PASS"
+    test_check_skipped = next(
+        c for c in result_without_test_execution["check_results"] if c["name"] == "test_execution"
+    )
+    assert test_check_skipped["status"] == "SKIPPED"
+    assert test_check_skipped["blocking"] is False
+
+
+def test_required_checks_result_always_lists_all_known_checks_with_skip_marker(monkeypatch):
+    _stub_deterministic_checks(monkeypatch)
+    monkeypatch.setattr(
+        stage_05,
+        "_run_pytest_with_applied_implementation",
+        lambda target, expose_target, implementation: {"executed": True, "returncode": 0, "output": ""},
+    )
+
+    stage_04_output = {"target": None, "implementation": "CODE", "expose_target": False}
+    result = stage_05.run_stage_05(
+        {"skeleton": {"scope_candidates": []}}, stage_04_output, required_checks=("structural",)
+    )
+
+    statuses = {check["name"]: check["status"] for check in result["check_results"]}
+    assert statuses["structural"] != "SKIPPED"
+    assert statuses["specification_scope"] == "SKIPPED"
+    assert statuses["design_scope"] == "SKIPPED"
+    assert statuses["test_execution"] == "SKIPPED"
+    assert result["required_checks"] == ("structural",)
+
+
+def test_run_stage_05_rejects_empty_required_checks_instead_of_silently_passing():
+    stage_04_output = {"target": None, "implementation": "CODE", "expose_target": False}
+
+    with pytest.raises(Exception) as exc_info:
+        stage_05.run_stage_05({"skeleton": {"scope_candidates": []}}, stage_04_output, required_checks=())
+
+    assert "required_checks" in str(exc_info.value)
+
+
+def test_run_stage_05_rejects_unknown_required_check_name():
+    stage_04_output = {"target": None, "implementation": "CODE", "expose_target": False}
+
+    with pytest.raises(Exception) as exc_info:
+        stage_05.run_stage_05(
+            {"skeleton": {"scope_candidates": []}}, stage_04_output, required_checks=("not_a_real_check",)
+        )
+
+    assert "not_a_real_check" in str(exc_info.value)

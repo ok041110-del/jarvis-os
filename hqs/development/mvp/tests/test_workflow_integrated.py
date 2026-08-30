@@ -31,7 +31,11 @@ STAGE_01_OUTPUT = {
 STAGE_02_OUTPUT = {"skeleton": {}, "specification": "SPEC"}
 STAGE_03_OUTPUT = {"skeleton": {}, "design": "DESIGN"}
 STAGE_04_OUTPUT = {"target": None, "implementation": "CODE", "expose_target": False}
-STAGE_05_OUTPUT = {"required_checks": (), "check_results": [], "verdict": "PASS"}
+STAGE_05_OUTPUT = {
+    "required_checks": ("structural",),
+    "check_results": [{"name": "structural", "status": "PASS", "blocking": True, "detail": {}}],
+    "verdict": "PASS",
+}
 
 
 def _stub_happy_path(monkeypatch):
@@ -105,14 +109,19 @@ def test_verdict_is_returned_unchanged_not_reinterpreted(monkeypatch):
     monkeypatch.setattr(
         workflow.stage_05,
         "run_stage_05",
-        lambda s2, s4: {"required_checks": (), "check_results": [], "verdict": "PARTIAL", "extra": "untouched"},
+        lambda s2, s4: {
+            "required_checks": ("structural",),
+            "check_results": [{"name": "structural", "status": "PASS", "blocking": True, "detail": {}}],
+            "verdict": "PARTIAL",
+            "extra": "untouched",
+        },
     )
 
     result = workflow.run_workflow(SAMPLE_ISSUE)
 
     assert result["stage_05"] == {
-        "required_checks": (),
-        "check_results": [],
+        "required_checks": ("structural",),
+        "check_results": [{"name": "structural", "status": "PASS", "blocking": True, "detail": {}}],
         "verdict": "PARTIAL",
         "extra": "untouched",
     }

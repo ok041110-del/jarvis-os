@@ -2,8 +2,10 @@
 
 ## Output 스키마
 
-`run_stage_05(stage_02_output, stage_04_output)`이 반환하는 `dict`
-(`VerificationResult`, `../contracts.py`)의 키 8개. `issue`와
+`run_stage_05(stage_02_output, stage_04_output, required_checks=None)`
+이 반환하는 `dict`(`VerificationResult`, `../contracts.py`)의 키 8개.
+`required_checks`를 생략하면 4개 검사 전부(`REQUIRED_CHECKS`)가
+적용된다. `issue`와
 `stage_03_output`은 이 Stage가 실제로 쓰지 않아 Input에서 제거했다 —
 6개 Capability는 Stage 03 `design` 텍스트를 읽지 않는다(AST Scope
 검증은 실제 코드(Stage 04 `implementation`)와 변경 전 파일만 비교하면
@@ -18,13 +20,43 @@
 | `design_scope_check` | `dict`(`scope_ok: bool \| None`, `changed_names: list[str]`) | Design/Scope Validation |
 | `test_execution` | `dict`(`executed: bool`, `returncode: int \| None`, `output: str`) | Test Execution/Regression Detection |
 | `code_review` | `str` | Code Review Evidence(Engine 재사용, 보조 Evidence) |
-| `required_checks` | `tuple[str, ...]` | VerificationRequirement — 이 Stage가 실행하는 결정적 검증 항목 이름 4개 고정 선언 |
-| `check_results` | `list[dict]`(`name`, `status: "PASS"\|"FAIL"\|"INCONCLUSIVE"`, `blocking: bool`, `detail: dict`) | 위 4개 검사 결과를 항목 단위로 구조화(값은 기존 4개 키의 재노출, 새 판정 로직 없음) |
-| `verdict` | `"PASS" \| "FAIL" \| "PARTIAL"` | Validation Result — `_determine_verdict()`가 그대로 계산(`check_results`는 그 결과를 항목 단위로 드러낼 뿐 판정 규칙을 바꾸지 않음) |
+| `required_checks` | `tuple[str, ...]` | VerificationRequirement — 이번 실행에서 실제로 실행·판정에 반영된 검사 이름(호출자가 4개의 부분집합으로 좁힐 수 있음) |
+| `check_results` | `list[dict]`(`name`, `status: "PASS"\|"FAIL"\|"INCONCLUSIVE"\|"SKIPPED"`, `blocking: bool`, `detail: dict`) | `contracts.KNOWN_CHECK_NAMES` 4개 전부를 항상 나열하되, `required_checks`에 없는 항목은 실행 자체를 생략하고 `SKIPPED`로 표시 |
+| `verdict` | `"PASS" \| "FAIL" \| "PARTIAL"` | Validation Result — `_determine_verdict()`가 `required_checks`에 포함된 항목만으로 계산(제외된 항목은 실행되지도, Verdict에 반영되지도 않음) |
 
 이 dict 전체가 Evidence다 — 각 하위 키가 Evidence Collection
 Capability의 산출물이며, 별도의 "evidence" 래퍼 키를 추가하지 않았다
 (Stage 01~04와 동일하게 새 Contract를 만들지 않는 원칙).
+
+## `required_checks`의 인과 관계(Contract-driven)
+
+`required_checks`는 더 이상 장식적 필드가 아니다 — 값을 바꾸면 실제로:
+
+1. **실행되는 검사 집합이 바뀐다** — `required_checks`에 없는 이름은
+   해당 검사 함수(`_check_structural`/`_check_specification_scope`/
+   `_check_design_scope`/`_run_pytest_with_applied_implementation`)
+   자체가 호출되지 않는다(단순히 결과를 버리는 것이 아니라 실행을
+   생략한다 — `test_execution`처럼 부작용 있는 검사에서 특히 의미가
+   있다).
+2. **`check_results`에 정직하게 기록된다** — 실행되지 않은 항목은
+   `"SKIPPED"`로 표시되고, 실행된 항목만 `PASS`/`FAIL`/`INCONCLUSIVE`를
+   받는다.
+3. **Verdict에 실제로 반영된다** — `_determine_verdict()`와
+   `_build_check_results()`가 같은 `_CHECK_EVALUATORS` 표를 공유해
+   판정 규칙이 두 곳에서 따로 계산되어 우연히 일치하는 구조를
+   없앴다. `required_checks`에서 제외된 검사는 FAIL/미완결 여부와
+   무관하게 Verdict에 영향을 주지 않는다.
+4. **`required_checks`가 비어 있거나 알 수 없는 이름을 포함하면 즉시
+   실패한다** — `contracts.validate_verification_requirement()`가
+   `run_stage_05()` 진입 시점에 검사하며, "선언은 했지만 무시됐다"는
+   상태로 조용히 PASS가 나오는 경로를 막는다. `contracts.
+   validate_verification_result()`는 한 걸음 더 나아가 "required로
+   선언된 항목이 실제로는 SKIPPED로 남아 있는" 상태까지 Contract
+   위반으로 차단한다.
+
+Blocking/non-blocking semantics(구 동작)는 무변경이다 — `structural`/
+`design_scope`/`test_execution`은 FAIL 시 Verdict를 FAIL로 만들고,
+`specification_scope`는 항상 non-blocking(미충족 시 PARTIAL만 유발)이다.
 
 ## 검증 원칙
 

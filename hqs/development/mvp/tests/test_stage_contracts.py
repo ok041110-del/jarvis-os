@@ -28,7 +28,11 @@ VALID_CONTEXT_ANALYSIS_RESULT = {
 VALID_SPECIFICATION_RESULT = {"skeleton": {}, "specification": "SPEC"}
 VALID_DESIGN_RESULT = {"skeleton": {}, "design": "DESIGN"}
 VALID_IMPLEMENTATION_RESULT = {"target": None, "implementation": "CODE", "expose_target": False}
-VALID_VERIFICATION_RESULT = {"required_checks": (), "check_results": [], "verdict": "PASS"}
+VALID_VERIFICATION_RESULT = {
+    "required_checks": ("structural",),
+    "check_results": [{"name": "structural", "status": "PASS", "blocking": True, "detail": {}}],
+    "verdict": "PASS",
+}
 
 
 @pytest.mark.parametrize(
@@ -72,3 +76,37 @@ def test_require_keys_reports_all_missing_keys_at_once():
     message = str(exc_info.value)
     assert "SampleContract" in message
     assert "b" in message and "c" in message
+
+
+# --- VerificationRequirement(required_checks) 자체의 Contract 위반 방어 ------
+
+
+def test_validate_verification_requirement_rejects_empty():
+    with pytest.raises(contracts.ContractViolation):
+        contracts.validate_verification_requirement(())
+
+
+def test_validate_verification_requirement_rejects_unknown_name():
+    with pytest.raises(contracts.ContractViolation) as exc_info:
+        contracts.validate_verification_requirement(("structural", "not_a_real_check"))
+    assert "not_a_real_check" in str(exc_info.value)
+
+
+def test_validate_verification_requirement_accepts_known_subset():
+    contracts.validate_verification_requirement(("structural", "test_execution"))  # 예외 없이 통과
+
+
+def test_validate_verification_result_rejects_required_check_left_skipped():
+    """required_checks에 있지만 check_results에서 SKIPPED로 남은 경우 —
+    "선언만 되고 실행되지 않는" 상태를 Contract 층에서도 차단한다."""
+    data = {
+        "required_checks": ("structural", "test_execution"),
+        "check_results": [
+            {"name": "structural", "status": "PASS", "blocking": True, "detail": {}},
+            {"name": "test_execution", "status": "SKIPPED", "blocking": False, "detail": {}},
+        ],
+        "verdict": "PASS",
+    }
+    with pytest.raises(contracts.ContractViolation) as exc_info:
+        contracts.validate_verification_result(data)
+    assert "test_execution" in str(exc_info.value)
