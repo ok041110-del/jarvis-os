@@ -34,6 +34,13 @@ class HQSnapshot:
     `HQSnapshot`이 Public Contract로 승격되는 것은 아니다. 값이 없는
     HQ(Development HQ 등)는 빈 리스트를 유지한다(가상 데이터 생성 금지).
 
+    `execution[].run`은 Execution Evidence — 전체 History Run 확장
+    Vertical Slice로 추가됐다 — 팀별 대표 run(trader-verify 계열) 1개의
+    call_log만 보이던 것을, `history`와 동일하게 `hqs/investment/
+    dogfooding/`에 실제 존재하는 9개 run(legacy hq-verify 계열 포함)
+    전체로 넓힌 것이다. 값은 `history[].run`과 같은 디렉터리명이므로
+    두 표가 가리키는 run 이름이 서로 어긋나지 않는다.
+
     `history`는 Investment HQ History Vertical Slice로 추가된
     Experimental 필드다 — `hqs/investment/dogfooding/` 아래 실제
     존재하는 run 디렉터리(팀 prefix로 스캔)를 run 단위로 요약한다.
@@ -229,12 +236,16 @@ def _read_team_run(run_dir: Path) -> dict:
 def build_investment_hq_snapshot() -> HQSnapshot:
     """hqs/investment/dogfooding/*-trader-verify의 기존 checkpoint
     manifest.json·trader_decision.md만 읽는다. trader.py를 import
-    하지 않는다(Boundary 검증 대상, Q3)."""
+    하지 않는다(Boundary 검증 대상, Q3).
+
+    `detail`/`status`/`source_files`는 기존과 동일하게 팀별 대표
+    run(`_TEAM_RUNS`, trader-verify 계열) 하나만 대표해 요약한다 —
+    이 대표 run 선택 로직은 Execution Evidence 확장과 무관하므로
+    그대로 둔다."""
 
     dogfooding_dir = REPO_ROOT / "hqs/investment/dogfooding"
     detail = []
     source_files = []
-    execution: list[dict] = []
 
     any_found = False
     for team_label, run_name in _TEAM_RUNS.items():
@@ -249,20 +260,11 @@ def build_investment_hq_snapshot() -> HQSnapshot:
         report = "있음" if run["final_report"] else "없음"
         detail.append(f"{team_label}: Analysis/Bull-Bear/Trader {steps}단계 완료, Trader Decision={action}, Final Report={report}")
         source_files.append(str((run_dir / "checkpoints/manifest.json").relative_to(REPO_ROOT)))
-        for call in run["call_log"]:
-            execution.append(
-                {
-                    "team": team_label,
-                    "role": call.get("role", "UNKNOWN"),
-                    "input_chars": call.get("input_chars", 0),
-                    "output_chars": call.get("output_chars", 0),
-                    "elapsed_sec": call.get("elapsed_sec", 0),
-                }
-            )
 
     status: PresentationState = "NORMAL" if any_found else "UNKNOWN"
 
     history = _build_investment_history(dogfooding_dir)
+    execution = _build_investment_execution(dogfooding_dir)
 
     return HQSnapshot(
         identity="Investment HQ",
@@ -273,6 +275,32 @@ def build_investment_hq_snapshot() -> HQSnapshot:
         execution=execution,
         history=history,
     )
+
+
+def _build_investment_execution(dogfooding_dir: Path) -> list[dict]:
+    """Execution Evidence Vertical Slice 확장 — 팀별 대표 run 1개의
+    call_log만 보여주던 기존 방식 대신, `_build_investment_history`와
+    동일하게 `_discover_team_run_dirs`로 실제 존재하는 9개 run 전체를
+    순회해 각 run의 call_log를 전부 노출한다(legacy hq-verify 계열도
+    실제 manifest.json에 call_log가 있으므로 제외하지 않는다). 각
+    항목의 `run`은 History의 `run` 필드와 동일한 디렉터리명이다 —
+    두 표가 같은 run을 가리킬 때 이름이 어긋나지 않는다."""
+    execution: list[dict] = []
+    for team_label, prefix in _TEAM_PREFIXES.items():
+        for run_dir in _discover_team_run_dirs(dogfooding_dir, prefix):
+            run = _read_team_run(run_dir)
+            for call in run["call_log"]:
+                execution.append(
+                    {
+                        "team": team_label,
+                        "run": run_dir.name,
+                        "role": call.get("role", "UNKNOWN"),
+                        "input_chars": call.get("input_chars", 0),
+                        "output_chars": call.get("output_chars", 0),
+                        "elapsed_sec": call.get("elapsed_sec", 0),
+                    }
+                )
+    return execution
 
 
 def _build_investment_history(dogfooding_dir: Path) -> list[dict]:

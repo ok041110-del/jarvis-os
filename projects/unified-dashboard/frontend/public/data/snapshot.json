@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-30 00:15 UTC",
+  "generated_at": "2026-08-30 02:31 UTC",
   "snapshots": [
     {
       "identity": "Development HQ",
@@ -40,6 +40,151 @@
       "execution": [
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "sentiment_analysis",
+          "input_chars": 621,
+          "output_chars": 1349,
+          "elapsed_sec": 26.1
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "technical_analysis",
+          "input_chars": 662,
+          "output_chars": 1358,
+          "elapsed_sec": 27.8
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "industry_analysis",
+          "input_chars": 730,
+          "output_chars": 4474,
+          "elapsed_sec": 29.4
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "fundamental_analysis",
+          "input_chars": 767,
+          "output_chars": 1820,
+          "elapsed_sec": 35.8
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "news_event_analysis",
+          "input_chars": 755,
+          "output_chars": 1879,
+          "elapsed_sec": 42.3
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "bear_case",
+          "input_chars": 10995,
+          "output_chars": 4895,
+          "elapsed_sec": 26.6
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "bull_case",
+          "input_chars": 10995,
+          "output_chars": 5937,
+          "elapsed_sec": 31.5
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "synthesis",
+          "input_chars": 10832,
+          "output_chars": 5602,
+          "elapsed_sec": 42.2
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify",
+          "role": "final_report",
+          "input_chars": 27330,
+          "output_chars": 7557,
+          "elapsed_sec": 33.2
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "industry_analysis",
+          "input_chars": 730,
+          "output_chars": 3969,
+          "elapsed_sec": 24.8
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "technical_analysis",
+          "input_chars": 662,
+          "output_chars": 1492,
+          "elapsed_sec": 30.9
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "sentiment_analysis",
+          "input_chars": 621,
+          "output_chars": 1667,
+          "elapsed_sec": 33.0
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "news_event_analysis",
+          "input_chars": 755,
+          "output_chars": 1977,
+          "elapsed_sec": 33.5
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "fundamental_analysis",
+          "input_chars": 767,
+          "output_chars": 1962,
+          "elapsed_sec": 34.6
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "bear_case",
+          "input_chars": 11182,
+          "output_chars": 8063,
+          "elapsed_sec": 40.3
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "bull_case",
+          "input_chars": 11182,
+          "output_chars": 8319,
+          "elapsed_sec": 41.9
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "synthesis",
+          "input_chars": 16382,
+          "output_chars": 7527,
+          "elapsed_sec": 35.9
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-hq-verify-run2",
+          "role": "final_report",
+          "input_chars": 34992,
+          "output_chars": 6971,
+          "elapsed_sec": 35.0
+        },
+        {
+          "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "fundamental_analysis",
           "input_chars": 761,
           "output_chars": 3694,
@@ -47,6 +192,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "technical_analysis",
           "input_chars": 656,
           "output_chars": 1442,
@@ -54,6 +200,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "industry_analysis",
           "input_chars": 724,
           "output_chars": 4415,
@@ -61,6 +208,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "news_event_analysis",
           "input_chars": 749,
           "output_chars": 4093,
@@ -68,6 +216,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "sentiment_analysis",
           "input_chars": 615,
           "output_chars": 1567,
@@ -75,6 +224,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "bull_case",
           "input_chars": 15326,
           "output_chars": 4373,
@@ -82,6 +232,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "bear_case",
           "input_chars": 15326,
           "output_chars": 8608,
@@ -89,6 +240,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "trader_decision",
           "input_chars": 12981,
           "output_chars": 6645,
@@ -96,6 +248,7 @@
         },
         {
           "team": "Stock (AAPL)",
+          "run": "aapl-trader-verify",
           "role": "final_report",
           "input_chars": 33889,
           "output_chars": 7102,
@@ -103,6 +256,183 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "technical_analysis",
+          "input_chars": 1275,
+          "output_chars": 3354,
+          "elapsed_sec": 24.4
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "fundamental_analysis",
+          "input_chars": 1357,
+          "output_chars": 3904,
+          "elapsed_sec": 27.0
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "news_event_analysis",
+          "input_chars": 1402,
+          "output_chars": 1940,
+          "elapsed_sec": 37.1
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "sentiment_analysis",
+          "input_chars": 1292,
+          "output_chars": 1749,
+          "elapsed_sec": 37.9
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "valuation_analysis",
+          "input_chars": 1585,
+          "output_chars": 1932,
+          "elapsed_sec": 38.6
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "industry_analysis",
+          "input_chars": 1353,
+          "output_chars": 2310,
+          "elapsed_sec": 39.0
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "dividend_quality_analysis",
+          "input_chars": 1456,
+          "output_chars": 1832,
+          "elapsed_sec": 39.5
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "bull_case",
+          "input_chars": 17189,
+          "output_chars": 5420,
+          "elapsed_sec": 28.7
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "bear_case",
+          "input_chars": 17189,
+          "output_chars": 7941,
+          "elapsed_sec": 39.9
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "synthesis",
+          "input_chars": 13361,
+          "output_chars": 8179,
+          "elapsed_sec": 39.3
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify",
+          "role": "final_report",
+          "input_chars": 38581,
+          "output_chars": 8410,
+          "elapsed_sec": 37.9
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "technical_analysis",
+          "input_chars": 1275,
+          "output_chars": 1536,
+          "elapsed_sec": 31.4
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "fundamental_analysis",
+          "input_chars": 1357,
+          "output_chars": 1833,
+          "elapsed_sec": 34.0
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "sentiment_analysis",
+          "input_chars": 1292,
+          "output_chars": 1773,
+          "elapsed_sec": 37.8
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "industry_analysis",
+          "input_chars": 1353,
+          "output_chars": 2009,
+          "elapsed_sec": 39.6
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "dividend_quality_analysis",
+          "input_chars": 1456,
+          "output_chars": 1898,
+          "elapsed_sec": 41.1
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "valuation_analysis",
+          "input_chars": 1585,
+          "output_chars": 2331,
+          "elapsed_sec": 42.0
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "news_event_analysis",
+          "input_chars": 1402,
+          "output_chars": 2691,
+          "elapsed_sec": 54.8
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "bull_case",
+          "input_chars": 14239,
+          "output_chars": 5062,
+          "elapsed_sec": 27.8
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "bear_case",
+          "input_chars": 14239,
+          "output_chars": 5520,
+          "elapsed_sec": 77.8
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "synthesis",
+          "input_chars": 10582,
+          "output_chars": 6553,
+          "elapsed_sec": 50.1
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-hq-verify-run2",
+          "role": "final_report",
+          "input_chars": 31226,
+          "output_chars": 9133,
+          "elapsed_sec": 41.0
+        },
+        {
+          "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "sentiment_analysis",
           "input_chars": 1288,
           "output_chars": 2678,
@@ -110,6 +440,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "fundamental_analysis",
           "input_chars": 1353,
           "output_chars": 3987,
@@ -117,6 +448,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "valuation_analysis",
           "input_chars": 1581,
           "output_chars": 3454,
@@ -124,6 +456,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "industry_analysis",
           "input_chars": 1349,
           "output_chars": 1864,
@@ -131,6 +464,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "technical_analysis",
           "input_chars": 1271,
           "output_chars": 1327,
@@ -138,6 +472,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "dividend_quality_analysis",
           "input_chars": 1452,
           "output_chars": 2168,
@@ -145,6 +480,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "news_event_analysis",
           "input_chars": 1398,
           "output_chars": 1715,
@@ -152,6 +488,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "bull_case",
           "input_chars": 17361,
           "output_chars": 6448,
@@ -159,6 +496,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "bear_case",
           "input_chars": 17361,
           "output_chars": 8805,
@@ -166,6 +504,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "trader_decision",
           "input_chars": 15253,
           "output_chars": 5752,
@@ -173,6 +512,7 @@
         },
         {
           "team": "Dividend Stock (PG)",
+          "run": "pg-trader-verify",
           "role": "final_report",
           "input_chars": 37060,
           "output_chars": 9487,
@@ -180,6 +520,167 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "macro_analysis",
+          "input_chars": 961,
+          "output_chars": 3383,
+          "elapsed_sec": 25.2
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "distribution_analysis",
+          "input_chars": 934,
+          "output_chars": 3462,
+          "elapsed_sec": 26.6
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "cost_tracking_analysis",
+          "input_chars": 910,
+          "output_chars": 4941,
+          "elapsed_sec": 28.0
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "performance_risk_analysis",
+          "input_chars": 1093,
+          "output_chars": 4733,
+          "elapsed_sec": 31.1
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "composition_analysis",
+          "input_chars": 969,
+          "output_chars": 1861,
+          "elapsed_sec": 40.8
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "holdings_exposure_analysis",
+          "input_chars": 1138,
+          "output_chars": 2001,
+          "elapsed_sec": 40.9
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "bull_case",
+          "input_chars": 20483,
+          "output_chars": 6877,
+          "elapsed_sec": 36.9
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "bear_case",
+          "input_chars": 20483,
+          "output_chars": 9236,
+          "elapsed_sec": 44.0
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "synthesis",
+          "input_chars": 16113,
+          "output_chars": 5880,
+          "elapsed_sec": 34.0
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08",
+          "role": "final_report",
+          "input_chars": 42401,
+          "output_chars": 7111,
+          "elapsed_sec": 34.6
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "cost_tracking_analysis",
+          "input_chars": 886,
+          "output_chars": 3350,
+          "elapsed_sec": 17.7
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "distribution_analysis",
+          "input_chars": 910,
+          "output_chars": 2091,
+          "elapsed_sec": 18.3
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "macro_analysis",
+          "input_chars": 937,
+          "output_chars": 3189,
+          "elapsed_sec": 23.7
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "composition_analysis",
+          "input_chars": 945,
+          "output_chars": 1558,
+          "elapsed_sec": 27.8
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "performance_risk_analysis",
+          "input_chars": 1069,
+          "output_chars": 4911,
+          "elapsed_sec": 32.2
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "holdings_exposure_analysis",
+          "input_chars": 1114,
+          "output_chars": 1949,
+          "elapsed_sec": 39.3
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "bull_case",
+          "input_chars": 17150,
+          "output_chars": 4668,
+          "elapsed_sec": 24.7
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "bear_case",
+          "input_chars": 17150,
+          "output_chars": 7554,
+          "elapsed_sec": 38.0
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "synthesis",
+          "input_chars": 12222,
+          "output_chars": 5046,
+          "elapsed_sec": 25.0
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-2026-08-run2",
+          "role": "final_report",
+          "input_chars": 34319,
+          "output_chars": 6897,
+          "elapsed_sec": 30.9
+        },
+        {
+          "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "distribution_analysis",
           "input_chars": 934,
           "output_chars": 2017,
@@ -187,6 +688,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "macro_analysis",
           "input_chars": 961,
           "output_chars": 3485,
@@ -194,6 +696,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "cost_tracking_analysis",
           "input_chars": 910,
           "output_chars": 2787,
@@ -201,6 +704,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "holdings_exposure_analysis",
           "input_chars": 1138,
           "output_chars": 3593,
@@ -208,6 +712,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "performance_risk_analysis",
           "input_chars": 1093,
           "output_chars": 5293,
@@ -215,6 +720,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "composition_analysis",
           "input_chars": 969,
           "output_chars": 1749,
@@ -222,6 +728,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "bull_case",
           "input_chars": 19026,
           "output_chars": 5159,
@@ -229,6 +736,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "bear_case",
           "input_chars": 19026,
           "output_chars": 6218,
@@ -236,6 +744,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "trader_decision",
           "input_chars": 11377,
           "output_chars": 5238,
@@ -243,6 +752,7 @@
         },
         {
           "team": "ETF (EFA)",
+          "run": "efa-trader-verify",
           "role": "final_report",
           "input_chars": 34271,
           "output_chars": 6765,

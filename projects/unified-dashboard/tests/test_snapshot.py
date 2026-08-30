@@ -61,23 +61,38 @@ def test_investment_hq_snapshot_reads_real_dogfooding_evidence():
 
 
 def test_investment_hq_snapshot_execution_matches_real_call_log():
-    """Execution Evidence Vertical Slice: execution 필드가 실제
-    checkpoints/manifest.json의 call_log를 그대로 옮긴 것인지 검증한다
-    (가상 데이터 생성 금지)."""
+    """Execution Evidence — 전체 History Run 확장 Vertical Slice:
+    execution 필드가 대표 run 1개가 아니라 실제 존재하는 9개 run
+    전체의 checkpoints/manifest.json call_log를 그대로 옮긴 것인지
+    검증한다(가상 데이터 생성 금지, run 누락 금지)."""
     import json
 
     snap = snapshot.build_investment_hq_snapshot()
     assert snap.execution, "실제 dogfooding manifest.json에 call_log가 있으므로 execution도 비어있으면 안 됨"
 
+    dogfooding_dir = snapshot.REPO_ROOT / "hqs/investment/dogfooding"
     expected_total = 0
-    for run_name in snapshot._TEAM_RUNS.values():
-        manifest_path = snapshot.REPO_ROOT / "hqs/investment/dogfooding" / run_name / "checkpoints/manifest.json"
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        expected_total += len(manifest.get("call_log", []))
+    expected_run_names = set()
+    for prefix in snapshot._TEAM_PREFIXES.values():
+        for run_dir in dogfooding_dir.iterdir():
+            if not (run_dir.is_dir() and run_dir.name.startswith(f"{prefix}-")):
+                continue
+            expected_run_names.add(run_dir.name)
+            manifest_path = run_dir / "checkpoints/manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            expected_total += len(manifest.get("call_log", []))
     assert len(snap.execution) == expected_total
 
+    actual_run_names = {entry["run"] for entry in snap.execution}
+    assert actual_run_names == expected_run_names, "execution의 run이 실제 존재하는 run 디렉터리와 정확히 일치해야 함"
+
+    # Execution과 History의 run 명칭이 동일한 디렉터리명 기준이어야 함(어긋나면 안 됨).
+    history_run_names = {entry["run"] for entry in snap.history}
+    assert actual_run_names == history_run_names
+
     for entry in snap.execution:
-        assert set(entry.keys()) == {"team", "role", "input_chars", "output_chars", "elapsed_sec"}
+        assert set(entry.keys()) == {"team", "run", "role", "input_chars", "output_chars", "elapsed_sec"}
+        assert isinstance(entry["run"], str) and entry["run"]
         assert isinstance(entry["role"], str) and entry["role"]
         assert isinstance(entry["input_chars"], int)
         assert isinstance(entry["output_chars"], int)
