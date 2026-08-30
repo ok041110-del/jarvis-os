@@ -11,6 +11,11 @@
  * 그대로(완료 도착 순서) 나열한다 — Wave 순서로 재구성하지 않는다.
  * `progress_pct`가 `null`인 run은 "0%"가 아니라 "N/A"로 표시해
  * "계산할 수 없음"과 "진행 없음"을 혼동하지 않게 한다.
+ *
+ * Trader Decision Rationale/Reassess Vertical Slice: Rationale/Reassess
+ * 원문은 길어 표 셀에 그대로 넣으면 가독성이 떨어지므로, Action
+ * 단어는 그대로 셀에 두고 원문 전체는 `<details>`로 접어 필요할 때만
+ * 펼쳐 본다(새 Router/Modal 없이 표준 HTML만 사용).
  */
 export function HistoryEvidence({ history }) {
     if (history.length === 0) {
@@ -38,6 +43,14 @@ export function HistoryEvidence({ history }) {
                 React.createElement("td", null, entry.progress_pct === null || entry.progress_total === null
                     ? "N/A"
                     : `${entry.completed_steps}/${entry.progress_total} (${entry.progress_pct}%)`),
-                React.createElement("td", null, entry.trader_decision ?? "N/A"),
+                React.createElement("td", null,
+                    entry.trader_decision ?? "N/A",
+                    entry.trader_decision_detail?.rationale && (React.createElement("details", null,
+                        React.createElement("summary", null, "Rationale / Reassess"),
+                        React.createElement("p", null, entry.trader_decision_detail.rationale),
+                        entry.trader_decision_detail.reassess_when && (React.createElement("p", null,
+                            React.createElement("strong", null, "Reassess when:"),
+                            " ",
+                            entry.trader_decision_detail.reassess_when))))),
                 React.createElement("td", null, entry.final_report ? "있음" : "없음"))))))));
 }

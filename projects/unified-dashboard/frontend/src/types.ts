@@ -51,7 +51,20 @@ export interface ExecutionCallLogEntry {
  * 계열)에만 값이 채워진다. `synthesis` 패턴의 레거시 run(`hq-verify`
  * 등)은 Task 구성 자체가 달라 분모를 알 수 없으므로 둘 다 `null`이다
  * — "진행률 0%"가 아니라 "계산할 수 없음"을 뜻한다.
+ *
+ * `trader_decision_detail`은 Trader Decision Rationale/Reassess
+ * Vertical Slice로 추가됐다 — 기존 `trader_decision`(Direction 한
+ * 단어)이 읽던 같은 `trader_decision.md`에서 Rationale/Reassess when을
+ * 추가로 노출한다. `trader_decision.md`가 없는 run은 `null`이다(빈
+ * 문자열·placeholder 아님). `trader_decision` 필드 자체의 의미는
+ * 바뀌지 않는다(하위 호환).
  */
+export interface TraderDecisionDetail {
+  action: string | null;
+  rationale: string | null;
+  reassess_when: string | null;
+}
+
 export interface HistoryRunEntry {
   team: string;
   run: string;
@@ -59,6 +72,7 @@ export interface HistoryRunEntry {
   completed_steps: number;
   tasks: string[];
   trader_decision: string | null;
+  trader_decision_detail: TraderDecisionDetail | null;
   final_report: boolean;
   progress_total: number | null;
   progress_pct: number | null;
