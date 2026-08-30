@@ -2,8 +2,13 @@
 
 ## Output 스키마
 
-`run_stage_05(issue, stage_02_output, stage_03_output, stage_04_output)`
-이 반환하는 `dict`의 키 6개. 이전 Stage처럼 새 Contract를 만들지 않고,
+`run_stage_05(stage_02_output, stage_04_output)`이 반환하는 `dict`
+(`VerificationResult`, `../contracts.py`)의 키 8개. `issue`와
+`stage_03_output`은 이 Stage가 실제로 쓰지 않아 Input에서 제거했다 —
+6개 Capability는 Stage 03 `design` 텍스트를 읽지 않는다(AST Scope
+검증은 실제 코드(Stage 04 `implementation`)와 변경 전 파일만 비교하면
+충분하며, Design 프로즈를 Engine으로 재해석하지 않는 이유는 Policy
+구현 금지 근거와 같다). 이전 Stage처럼 새 Contract를 만들지 않고,
 각 Capability의 결과를 그대로 재노출한다.
 
 | 키 | 타입 | 생성 Capability |
@@ -13,19 +18,13 @@
 | `design_scope_check` | `dict`(`scope_ok: bool \| None`, `changed_names: list[str]`) | Design/Scope Validation |
 | `test_execution` | `dict`(`executed: bool`, `returncode: int \| None`, `output: str`) | Test Execution/Regression Detection |
 | `code_review` | `str` | Code Review Evidence(Engine 재사용, 보조 Evidence) |
-| `verdict` | `"PASS" \| "FAIL" \| "PARTIAL"` | Validation Result |
+| `required_checks` | `tuple[str, ...]` | VerificationRequirement — 이 Stage가 실행하는 결정적 검증 항목 이름 4개 고정 선언 |
+| `check_results` | `list[dict]`(`name`, `status: "PASS"\|"FAIL"\|"INCONCLUSIVE"`, `blocking: bool`, `detail: dict`) | 위 4개 검사 결과를 항목 단위로 구조화(값은 기존 4개 키의 재노출, 새 판정 로직 없음) |
+| `verdict` | `"PASS" \| "FAIL" \| "PARTIAL"` | Validation Result — `_determine_verdict()`가 그대로 계산(`check_results`는 그 결과를 항목 단위로 드러낼 뿐 판정 규칙을 바꾸지 않음) |
 
 이 dict 전체가 Evidence다 — 각 하위 키가 Evidence Collection
 Capability의 산출물이며, 별도의 "evidence" 래퍼 키를 추가하지 않았다
 (Stage 01~04와 동일하게 새 Contract를 만들지 않는 원칙).
-
-## Stage 03 Design을 이 Stage가 직접 소비하지 않는 이유
-
-`stage_03_output`은 함수 시그니처에는 있지만(향후 `workflow.py`가 5개
-Stage를 동일 패턴으로 연결하기 위함), 6개 Capability는 Stage 03
-`design` 텍스트를 읽지 않는다 — AST Scope 검증은 실제 코드(Stage 04
-`implementation`)와 변경 전 파일만 비교하면 충분하며, Design 프로즈를
-Engine으로 재해석하지 않는 이유는 Policy 구현 금지 근거와 같다.
 
 ## 검증 원칙
 

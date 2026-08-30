@@ -1,5 +1,9 @@
 """01→05 Integrated Workflow — Stage 01~05를 순서대로 호출·연결한다(ADR-0008
-§4). `mvp/workflow.py`(MVP-0001)와는 다른 파일이며 그 파일을 수정하지 않는다."""
+§4). `mvp/workflow.py`(MVP-0001)와는 다른 파일이며 그 파일을 수정하지 않는다.
+
+Handover와 함께, 각 Stage Output이 `stages/contracts.py`가 정의한 필수 키를
+갖췄는지 명시적으로 검증한다(계약 위반이 다음 Stage로 조용히 전파되지
+않도록 함 — 값의 재해석은 하지 않고 키 존재만 확인)."""
 
 import importlib.util
 import sys
@@ -23,6 +27,7 @@ stage_02 = _load_stage("02_planning_specification", "stage_02")
 stage_03 = _load_stage("03_architecture_design", "stage_03")
 stage_04 = _load_stage("04_implementation", "stage_04")
 stage_05 = _load_stage("05_validation", "stage_05")
+contracts = _load_stage("", "contracts")
 
 
 def run_workflow(issue: dict, expose_target: bool = False) -> dict:
@@ -40,6 +45,7 @@ def run_workflow(issue: dict, expose_target: bool = False) -> dict:
 
     try:
         result["stage_01"] = stage_01.run_stage_01(issue)
+        contracts.validate_context_analysis_result(result["stage_01"])
     except Exception as exc:
         result["failed_at"] = "stage_01"
         result["error"] = str(exc)
@@ -47,6 +53,7 @@ def run_workflow(issue: dict, expose_target: bool = False) -> dict:
 
     try:
         result["stage_02"] = stage_02.run_stage_02(issue, result["stage_01"])
+        contracts.validate_specification_result(result["stage_02"])
     except Exception as exc:
         result["failed_at"] = "stage_02"
         result["error"] = str(exc)
@@ -54,22 +61,23 @@ def run_workflow(issue: dict, expose_target: bool = False) -> dict:
 
     try:
         result["stage_03"] = stage_03.run_stage_03(issue, result["stage_01"], result["stage_02"])
+        contracts.validate_design_result(result["stage_03"])
     except Exception as exc:
         result["failed_at"] = "stage_03"
         result["error"] = str(exc)
         return result
 
     try:
-        result["stage_04"] = stage_04.run_stage_04(issue, result["stage_03"], expose_target=expose_target)
+        result["stage_04"] = stage_04.run_stage_04(result["stage_01"], result["stage_03"], expose_target=expose_target)
+        contracts.validate_implementation_result(result["stage_04"])
     except Exception as exc:
         result["failed_at"] = "stage_04"
         result["error"] = str(exc)
         return result
 
     try:
-        result["stage_05"] = stage_05.run_stage_05(
-            issue, result["stage_02"], result["stage_03"], result["stage_04"]
-        )
+        result["stage_05"] = stage_05.run_stage_05(result["stage_02"], result["stage_04"])
+        contracts.validate_verification_result(result["stage_05"])
     except Exception as exc:
         result["failed_at"] = "stage_05"
         result["error"] = str(exc)

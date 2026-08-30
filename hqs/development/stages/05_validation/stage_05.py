@@ -15,6 +15,14 @@ from mvp.workflow import _engine_failure_message
 _TESTS_DIR = ROOT / "hqs" / "development" / "mvp" / "tests"
 _PYTEST_TIMEOUT_SECONDS = 300
 
+# VerificationRequirement — 이 Stage가 실제로 실행하는 결정적 검증 항목의
+# 이름과 차단 여부를 명시한다(required_checks Contract). BLOCKING 항목의
+# FAIL은 Verdict를 FAIL로 만들고, 나머지는 미충족 시 PARTIAL만 유발한다
+# (`_determine_verdict()`의 기존 규칙과 완전히 동일 — 여기서는 그 규칙을
+# 검사 항목 단위로 구조화해 드러낼 뿐, 판정 로직 자체는 바꾸지 않는다).
+REQUIRED_CHECKS = ("structural", "specification_scope", "design_scope", "test_execution")
+_BLOCKING_CHECKS = frozenset({"structural", "design_scope", "test_execution"})
+
 
 def _check_structural(stage_04_output: dict) -> dict:
     valid = all(key in stage_04_output for key in ("target", "implementation", "expose_target"))
@@ -103,9 +111,43 @@ def _determine_verdict(structural_check, specification_check, design_scope_check
     return "PARTIAL" if incomplete else "PASS"
 
 
-def run_stage_05(issue: dict, stage_02_output: dict, stage_03_output: dict, stage_04_output: dict) -> dict:
+def _check_result(name: str, status: str, detail: dict) -> dict:
+    return {"name": name, "status": status, "blocking": name in _BLOCKING_CHECKS, "detail": detail}
+
+
+def _build_check_results(structural_check, specification_check, design_scope_check, test_execution) -> list:
+    """4개 결정적 Capability 결과를 CheckResult 목록(VerificationResult
+    Contract)으로 구조화한다. `_determine_verdict()`가 쓰는 FAIL/미충족
+    조건과 1:1로 대응하며, 새 판정 규칙을 추가하지 않는다."""
+    return [
+        _check_result(
+            "structural",
+            "FAIL" if structural_check["engine_failed"] else ("INCONCLUSIVE" if not structural_check["valid"] else "PASS"),
+            structural_check,
+        ),
+        _check_result(
+            "specification_scope",
+            "INCONCLUSIVE" if specification_check["target_in_scope"] is not True else "PASS",
+            specification_check,
+        ),
+        _check_result(
+            "design_scope",
+            "FAIL" if design_scope_check["scope_ok"] is False else ("INCONCLUSIVE" if design_scope_check["scope_ok"] is None else "PASS"),
+            design_scope_check,
+        ),
+        _check_result(
+            "test_execution",
+            "FAIL" if test_execution["executed"] and test_execution["returncode"] != 0 else ("INCONCLUSIVE" if not test_execution["executed"] else "PASS"),
+            test_execution,
+        ),
+    ]
+
+
+def run_stage_05(stage_02_output: dict, stage_04_output: dict) -> dict:
     """Structural/Specification/Design Scope 검사 -> Test Execution -> Code
-    Review Evidence -> Validation Result. `stage_03_output`은 시그니처 통일용, 미사용(VALIDATION.md)."""
+    Review Evidence -> Validation Result. `issue`/`stage_03_output`은 이
+    Stage가 실제로 쓰지 않아 Input에서 제거했다(ImplementationResult/
+    SpecificationResult Contract만 Consume)."""
     target = stage_04_output.get("target")
     expose_target = stage_04_output.get("expose_target", False)
     implementation = stage_04_output.get("implementation", "")
@@ -124,6 +166,7 @@ def run_stage_05(issue: dict, stage_02_output: dict, stage_03_output: dict, stag
             code_review = _engine_failure_message(exc)
 
     verdict = _determine_verdict(structural_check, specification_check, design_scope_check, test_execution)
+    check_results = _build_check_results(structural_check, specification_check, design_scope_check, test_execution)
 
     return {
         "structural_check": structural_check,
@@ -131,5 +174,7 @@ def run_stage_05(issue: dict, stage_02_output: dict, stage_03_output: dict, stag
         "design_scope_check": design_scope_check,
         "test_execution": test_execution,
         "code_review": code_review,
+        "required_checks": REQUIRED_CHECKS,
+        "check_results": check_results,
         "verdict": verdict,
     }

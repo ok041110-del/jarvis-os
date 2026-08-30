@@ -18,8 +18,6 @@ stage_05 = importlib.util.module_from_spec(_spec)
 sys.modules["stage_05"] = stage_05
 _spec.loader.exec_module(stage_05)
 
-SAMPLE_ISSUE = {"title": "Sample Issue", "description": "Do the thing.", "status": "Open"}
-
 ORIGINAL_SOURCE = "def target_fn():\n    pass\n\n\ndef other_fn():\n    return 1\n"
 SCOPE_COMPLIANT_SOURCE = "def target_fn():\n    return 42\n\n\ndef other_fn():\n    return 1\n"
 SCOPE_VIOLATING_SOURCE = "def target_fn():\n    return 42\n\n\ndef other_fn():\n    return 2\n"
@@ -197,7 +195,7 @@ def test_verdict_partial_when_scope_undetermined():
 def test_run_stage_05_engine_failure_short_circuits_to_fail(monkeypatch):
     stage_04_output = {"target": None, "implementation": "Engine call failed: boom", "expose_target": False}
 
-    result = stage_05.run_stage_05(SAMPLE_ISSUE, {"skeleton": {"scope_candidates": []}}, {"design": "D"}, stage_04_output)
+    result = stage_05.run_stage_05({"skeleton": {"scope_candidates": []}}, stage_04_output)
 
     assert result["verdict"] == "FAIL"
     assert result["code_review"] == "(Stage 04 Engine 실패로 Code Review를 건너뜀)"
@@ -213,7 +211,7 @@ def test_run_stage_05_code_review_receives_implementation(monkeypatch):
     monkeypatch.setattr(stage_05, "backend_agent_code_review", fake_review)
 
     stage_04_output = {"target": None, "implementation": "SOME CODE", "expose_target": False}
-    result = stage_05.run_stage_05(SAMPLE_ISSUE, {"skeleton": {"scope_candidates": []}}, {"design": "D"}, stage_04_output)
+    result = stage_05.run_stage_05({"skeleton": {"scope_candidates": []}}, stage_04_output)
 
     assert seen["code"] == "SOME CODE"
     assert result["code_review"] == "REVIEW"
@@ -227,7 +225,38 @@ def test_run_stage_05_code_review_engine_failure_preserves_verdict_logic(monkeyp
     monkeypatch.setattr(stage_05, "backend_agent_code_review", raising_review)
 
     stage_04_output = {"target": None, "implementation": "SOME CODE", "expose_target": False}
-    result = stage_05.run_stage_05(SAMPLE_ISSUE, {"skeleton": {"scope_candidates": []}}, {"design": "D"}, stage_04_output)
+    result = stage_05.run_stage_05({"skeleton": {"scope_candidates": []}}, stage_04_output)
 
     assert result["code_review"] == "Engine call failed: boom"
     assert result["verdict"] == "PARTIAL"
+
+
+# --- required_checks / VerificationResult Contract (regression) --------------
+
+
+def test_required_checks_is_declared_and_stable():
+    assert stage_05.REQUIRED_CHECKS == ("structural", "specification_scope", "design_scope", "test_execution")
+
+
+def test_run_stage_05_exposes_structured_check_results(monkeypatch):
+    monkeypatch.setattr(stage_05, "backend_agent_code_review", lambda code: "REVIEW")
+
+    stage_04_output = {"target": None, "implementation": "SOME CODE", "expose_target": False}
+    result = stage_05.run_stage_05({"skeleton": {"scope_candidates": []}}, stage_04_output)
+
+    assert result["required_checks"] == stage_05.REQUIRED_CHECKS
+    names = [check["name"] for check in result["check_results"]]
+    assert names == list(stage_05.REQUIRED_CHECKS)
+    for check in result["check_results"]:
+        assert check["status"] in ("PASS", "FAIL", "INCONCLUSIVE")
+
+
+def test_blocking_check_failure_is_reflected_in_check_results(monkeypatch):
+    stage_04_output = {"target": None, "implementation": "Engine call failed: boom", "expose_target": False}
+
+    result = stage_05.run_stage_05({"skeleton": {"scope_candidates": []}}, stage_04_output)
+
+    structural = next(check for check in result["check_results"] if check["name"] == "structural")
+    assert structural["status"] == "FAIL"
+    assert structural["blocking"] is True
+    assert result["verdict"] == "FAIL"

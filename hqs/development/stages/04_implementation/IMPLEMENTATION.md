@@ -1,7 +1,11 @@
 # Stage 04: Implementation Output 스키마 / Contract
 
-`run_stage_04(issue, stage_03_output, expose_target: bool = False)`이
-반환하는 `dict`의 키 3개. Stage 01~03처럼 새 Contract를 만들지 않고,
+`run_stage_04(stage_01_context, stage_03_output, expose_target: bool = False)`
+이 반환하는 `dict`(`ImplementationResult`, `../contracts.py`)의 키 3개.
+`issue`는 이 Stage가 실제로 쓰지 않아 Input에서 제거했다 — 대신 Stage 01
+Output(`stage_01_context`)에서 `candidate_index`를 재사용해 Target
+Identification 시 후보 인덱스를 다시 계산하지 않는다(CandidateIndex
+Contract, Producer: Stage 01). Stage 01~03처럼 새 Contract를 만들지 않고,
 `workflow_ast_context.run_pipeline_with_ast_context()`가 이미 반환하는
 `target`/`implementation` 키 형태를 그대로 재사용한다.
 

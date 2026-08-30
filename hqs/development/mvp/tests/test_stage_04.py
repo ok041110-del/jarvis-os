@@ -21,7 +21,7 @@ stage_04 = importlib.util.module_from_spec(_spec)
 sys.modules["stage_04"] = stage_04
 _spec.loader.exec_module(stage_04)
 
-SAMPLE_ISSUE = {"title": "Sample Issue", "description": "Do the thing.", "status": "Open"}
+SAMPLE_STAGE_01_CONTEXT = {"candidate_index": "FILE: hqs/development/mvp/agents.py\n..."}
 SAMPLE_STAGE_03_OUTPUT = {
     "skeleton": {
         "component_candidates": "FILE: hqs/development/mvp/agents.py\n...",
@@ -75,19 +75,21 @@ def test_assemble_with_target_and_exposure_includes_full_file_and_policy(tmp_pat
 
 
 def test_run_stage_04_happy_path_no_target(monkeypatch):
-    monkeypatch.setattr(stage_04, "identify_target", lambda design: None)
+    monkeypatch.setattr(stage_04, "identify_target", lambda design, candidate_index: None)
     monkeypatch.setattr(stage_04, "backend_agent_code_generation", lambda build_input: "CODE")
 
-    result = stage_04.run_stage_04(SAMPLE_ISSUE, SAMPLE_STAGE_03_OUTPUT)
+    result = stage_04.run_stage_04(SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_03_OUTPUT)
 
     assert result == {"target": None, "implementation": "CODE", "expose_target": False}
 
 
 def test_run_stage_04_happy_path_with_target(monkeypatch):
-    monkeypatch.setattr(stage_04, "identify_target", lambda design: ("agents.backend", "_strip_code_fence"))
+    monkeypatch.setattr(
+        stage_04, "identify_target", lambda design, candidate_index: ("agents.backend", "_strip_code_fence")
+    )
     monkeypatch.setattr(stage_04, "backend_agent_code_generation", lambda build_input: "CODE")
 
-    result = stage_04.run_stage_04(SAMPLE_ISSUE, SAMPLE_STAGE_03_OUTPUT, expose_target=True)
+    result = stage_04.run_stage_04(SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_03_OUTPUT, expose_target=True)
 
     assert result["target"] == ("agents.backend", "_strip_code_fence")
     assert result["implementation"] == "CODE"
@@ -97,38 +99,58 @@ def test_run_stage_04_happy_path_with_target(monkeypatch):
 def test_identify_target_receives_stage_03_design(monkeypatch):
     seen = {}
 
-    def fake_identify(design):
+    def fake_identify(design, candidate_index):
         seen["design"] = design
         return None
 
     monkeypatch.setattr(stage_04, "identify_target", fake_identify)
     monkeypatch.setattr(stage_04, "backend_agent_code_generation", lambda build_input: "CODE")
 
-    stage_04.run_stage_04(SAMPLE_ISSUE, SAMPLE_STAGE_03_OUTPUT)
+    stage_04.run_stage_04(SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_03_OUTPUT)
 
     assert seen["design"] == "DESIGN TEXT"
 
 
+def test_identify_target_reuses_stage_01_candidate_index_without_recomputing(monkeypatch):
+    """중복 계산 제거 회귀 테스트: Stage 04는 Stage 01이 이미 계산한
+    candidate_index를 그대로 넘겨야 하며, 자체적으로 다시 계산하지
+    않는다(CandidateIndex Contract, Producer: Stage 01)."""
+    seen = {}
+
+    def fake_identify(design, candidate_index):
+        seen["candidate_index"] = candidate_index
+        return None
+
+    monkeypatch.setattr(stage_04, "identify_target", fake_identify)
+    monkeypatch.setattr(stage_04, "backend_agent_code_generation", lambda build_input: "CODE")
+
+    stage_04.run_stage_04(SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_03_OUTPUT)
+
+    assert seen["candidate_index"] == SAMPLE_STAGE_01_CONTEXT["candidate_index"]
+
+
 def test_engine_failure_in_code_generation_returns_error_message(monkeypatch):
-    monkeypatch.setattr(stage_04, "identify_target", lambda design: ("agents.backend", "_strip_code_fence"))
+    monkeypatch.setattr(
+        stage_04, "identify_target", lambda design, candidate_index: ("agents.backend", "_strip_code_fence")
+    )
 
     def raising_generation(build_input):
         raise RuntimeError("boom")
 
     monkeypatch.setattr(stage_04, "backend_agent_code_generation", raising_generation)
 
-    result = stage_04.run_stage_04(SAMPLE_ISSUE, SAMPLE_STAGE_03_OUTPUT)
+    result = stage_04.run_stage_04(SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_03_OUTPUT)
 
     assert result == {"target": None, "implementation": "Engine call failed: boom", "expose_target": False}
 
 
 def test_engine_failure_in_identify_target_returns_error_message(monkeypatch):
-    def raising_identify(design):
+    def raising_identify(design, candidate_index):
         raise TimeoutError("timed out")
 
     monkeypatch.setattr(stage_04, "identify_target", raising_identify)
 
-    result = stage_04.run_stage_04(SAMPLE_ISSUE, SAMPLE_STAGE_03_OUTPUT)
+    result = stage_04.run_stage_04(SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_03_OUTPUT)
 
     assert result == {
         "target": None,

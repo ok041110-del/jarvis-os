@@ -38,10 +38,13 @@ _EXPOSURE_POLICY_INSTRUCTION = (
 )
 
 
-def identify_target(design: str):
+def identify_target(design: str, candidate_index: str | None = None):
     """AST 함수 후보 인덱스 + Design으로 시작점(module, function)을 식별
-    (T17~T19 3/3 재현, `call_engine` 직접 호출)."""
-    index = build_function_candidate_index()
+    (T17~T19 3/3 재현, `call_engine` 직접 호출). `candidate_index`를 넘기면
+    그 값을 재사용하고 새로 계산하지 않는다(Stage 01이 이미 계산해 둔 값을
+    Stage 04가 재사용할 수 있도록 하는 additive extension — 생략 시 기존과
+    동일하게 이 함수가 직접 계산한다, `run_pipeline_with_ast_context()` 무변경)."""
+    index = candidate_index if candidate_index is not None else build_function_candidate_index()
     prompt = f"{_IDENTIFY_INSTRUCTION}\n\n---DESIGN---\n{design}\n\n---CANDIDATE INDEX---\n{index}"
     response = call_engine(prompt)
 
