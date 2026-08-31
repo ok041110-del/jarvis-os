@@ -2,9 +2,10 @@
 
 `run_stage_01(issue, target=None)`이 반환하는 `dict`의 키 5개.
 후속 Stage(특히 02 Planning & Specification)는 이 구조를 그대로
-입력으로 사용할 수 있다 — 새 Contract를 만들지 않고, 기존
-`build_context_bundle()`/`build_function_candidate_index()`의 반환
-형태를 그대로 재노출한다.
+입력으로 사용할 수 있다 — 기존 `build_context_bundle()`/
+`build_function_candidate_index()`의 반환 형태를 그대로 재노출하며,
+이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의 Public
+Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
 
 | 키 | 타입 | 생성 Capability | 항상 채워지는가 |
 |---|---|---|---|
