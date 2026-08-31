@@ -83,15 +83,18 @@ _NOISE_DIR_NAMES = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache", ".r
 
 
 def _directory_structure(max_depth: int = 2) -> list:
+    # `max_depth`는 각 base 기준 깊이다 — ROOT 기준으로 재면 base 경로
+    # 자체가 이미 depth를 소모해 base 하위가 통째로 잘려나간다(실제
+    # Blind Spot, DEV-HQ-V2.0-CATEGORY-PATHS-BLIND-SPOT-REVIEW-0001 §7.2).
     structure = []
     for base in (ROOT / "hqs" / "development", ROOT / "docs"):
         if not base.exists():
             continue
         for path in sorted(base.rglob("*")):
-            rel = path.relative_to(ROOT)
-            if len(rel.parts) > max_depth or _NOISE_DIR_NAMES & set(rel.parts):
+            rel_to_base = path.relative_to(base)
+            if len(rel_to_base.parts) > max_depth or _NOISE_DIR_NAMES & set(rel_to_base.parts):
                 continue
-            structure.append(str(rel) + ("/" if path.is_dir() else ""))
+            structure.append(str(path.relative_to(ROOT)) + ("/" if path.is_dir() else ""))
     return structure
 
 
