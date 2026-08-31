@@ -68,6 +68,26 @@ def test_specification_scope_target_not_in_scope_candidates(monkeypatch):
     assert result == {"target_in_scope": False}
 
 
+def test_specification_scope_missing_scope_candidates_returns_none_without_raising(monkeypatch):
+    """`skeleton`은 있지만 nested `scope_candidates`가 없는 불완전한 Stage 02
+    Output(contracts.py는 top-level 키만 검사해 감지하지 못함) — raw KeyError
+    대신 target 미상과 동일한 판정 불가(None)로 처리된다."""
+    monkeypatch.setattr(stage_05, "module_source_path", lambda module: stage_05.ROOT / "hqs/development/mvp/agents.py")
+
+    result = stage_05._check_specification_scope(
+        ("agents", "backend_agent_code_review"),
+        {"skeleton": {}, "specification": "x"},
+    )
+    assert result == {"target_in_scope": None}
+
+
+def test_specification_scope_missing_skeleton_key_returns_none_without_raising(monkeypatch):
+    monkeypatch.setattr(stage_05, "module_source_path", lambda module: stage_05.ROOT / "hqs/development/mvp/agents.py")
+
+    result = stage_05._check_specification_scope(("agents", "backend_agent_code_review"), {})
+    assert result == {"target_in_scope": None}
+
+
 # --- _check_design_scope ------------------------------------------------------
 
 
@@ -100,6 +120,56 @@ def test_design_scope_violation_when_other_function_changed(tmp_path, monkeypatc
 
     assert result["scope_ok"] is False
     assert result["changed_names"] == ["other_fn"]
+
+
+# malformed Engine implementation(신뢰할 수 없는 입력) — ast.parse()가
+# raw SyntaxError를 던지는 대신 구조화된 blocking FAIL로 처리되는지 확인.
+MALFORMED_IMPLEMENTATIONS = {
+    "unterminated_string": '"unterminated',
+    "unterminated_paren": "def target_fn(:\n    return 42\n",
+    "bad_indentation": "def target_fn():\nreturn 42\n",
+}
+
+
+@pytest.mark.parametrize("implementation", MALFORMED_IMPLEMENTATIONS.values(), ids=MALFORMED_IMPLEMENTATIONS.keys())
+def test_design_scope_handles_malformed_implementation_without_raising(tmp_path, monkeypatch, implementation):
+    fake_module = tmp_path / "sample_module.py"
+    fake_module.write_text(ORIGINAL_SOURCE)
+    monkeypatch.setattr(stage_05, "module_source_path", lambda module: fake_module)
+
+    result = stage_05._check_design_scope(("sample_module", "target_fn"), True, implementation)
+
+    assert result["scope_ok"] is False
+    assert result["changed_names"] == []
+    assert "parse_error" in result
+
+
+@pytest.mark.parametrize("implementation", MALFORMED_IMPLEMENTATIONS.values(), ids=MALFORMED_IMPLEMENTATIONS.keys())
+def test_malformed_implementation_yields_fail_verdict_via_design_scope_blocking(tmp_path, monkeypatch, implementation):
+    """design_scope는 blocking이므로, malformed implementation이 구조화된
+    FAIL로 처리되면 최종 Verdict도 raw exception 없이 FAIL이 된다."""
+    fake_module = tmp_path / "sample_module.py"
+    fake_module.write_text(ORIGINAL_SOURCE)
+    monkeypatch.setattr(stage_05, "module_source_path", lambda module: fake_module)
+    monkeypatch.setattr(stage_05, "backend_agent_code_review", lambda code: "REVIEW")
+    monkeypatch.setattr(
+        stage_05, "_check_specification_scope", lambda target, stage_02_output: {"target_in_scope": True}
+    )
+    monkeypatch.setattr(
+        stage_05,
+        "_run_pytest_with_applied_implementation",
+        lambda target, expose_target, implementation: {"executed": False, "returncode": None, "output": ""},
+    )
+
+    stage_04_output = {"target": ("sample_module", "target_fn"), "implementation": implementation, "expose_target": True}
+    stage_02_output = {"skeleton": {"scope_candidates": []}}
+
+    result = stage_05.run_stage_05(stage_02_output, stage_04_output)
+
+    design_scope = next(check for check in result["check_results"] if check["name"] == "design_scope")
+    assert design_scope["status"] == "FAIL"
+    assert design_scope["blocking"] is True
+    assert result["verdict"] == "FAIL"
 
 
 # --- _run_pytest_with_applied_implementation ----------------------------------

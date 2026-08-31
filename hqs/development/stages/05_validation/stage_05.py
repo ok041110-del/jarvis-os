@@ -71,7 +71,13 @@ def _check_specification_scope(target, stage_02_output: dict) -> dict:
 
     module_name, _ = target
     target_path = str(module_source_path(module_name).relative_to(ROOT))
-    scope_candidates = stage_02_output["skeleton"]["scope_candidates"]
+    # Stage 02 Output은 top-level 키(`skeleton`)만 Contract로 보장되고
+    # `skeleton` 내부 구조(`scope_candidates`)는 Hidden이라 결측 가능 —
+    # 판정 불가(target 미상과 동일한 None)로 처리하고 raw KeyError로
+    # Stage 전체를 죽이지 않는다.
+    scope_candidates = stage_02_output.get("skeleton", {}).get("scope_candidates")
+    if scope_candidates is None:
+        return {"target_in_scope": None}
     return {"target_in_scope": target_path in scope_candidates}
 
 
@@ -90,9 +96,16 @@ def _check_design_scope(target, expose_target: bool, implementation: str) -> dic
 
     module_name, function_name = target
     original_source = module_source_path(module_name).read_text(encoding="utf-8")
-
     original_defs = _top_level_defs(original_source)
-    new_defs = _top_level_defs(implementation)
+
+    try:
+        # `implementation`은 Engine이 생성한 신뢰할 수 없는 입력이다 —
+        # malformed Python(미종료 문자열/괄호, 잘못된 들여쓰기 등)이면
+        # raw SyntaxError로 Stage 전체를 죽이는 대신 scope 위반과 동일하게
+        # blocking FAIL로 구조화한다.
+        new_defs = _top_level_defs(implementation)
+    except SyntaxError as exc:
+        return {"scope_ok": False, "changed_names": [], "parse_error": str(exc)}
 
     changed_names = [
         name
