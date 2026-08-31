@@ -10,8 +10,12 @@
 6개 Capability는 Stage 03 `design` 텍스트를 읽지 않는다(AST Scope
 검증은 실제 코드(Stage 04 `implementation`)와 변경 전 파일만 비교하면
 충분하며, Design 프로즈를 Engine으로 재해석하지 않는 이유는 Policy
-구현 금지 근거와 같다). 이전 Stage처럼 새 Contract를 만들지 않고,
-각 Capability의 결과를 그대로 재노출한다.
+구현 금지 근거와 같다). 이전 Stage처럼 각 Capability의 결과를 그대로
+재노출하며, `required_checks`/`check_results`/`KNOWN_CHECK_NAMES`를
+포함해 이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의 Public
+Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
+`KNOWN_CHECK_NAMES`에 새 검사 이름을 추가하는 것은 이 Public Scope의
+변경이므로 별도 RFC → ADC → ADR 대상이다.
 
 | 키 | 타입 | 생성 Capability |
 |---|---|---|

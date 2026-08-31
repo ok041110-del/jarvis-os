@@ -5,9 +5,11 @@
 `issue`는 이 Stage가 실제로 쓰지 않아 Input에서 제거했다 — 대신 Stage 01
 Output(`stage_01_context`)에서 `candidate_index`를 재사용해 Target
 Identification 시 후보 인덱스를 다시 계산하지 않는다(CandidateIndex
-Contract, Producer: Stage 01). Stage 01~03처럼 새 Contract를 만들지 않고,
+Contract, Producer: Stage 01). Stage 01~03처럼
 `workflow_ast_context.run_pipeline_with_ast_context()`가 이미 반환하는
-`target`/`implementation` 키 형태를 그대로 재사용한다.
+`target`/`implementation` 키 형태를 그대로 재사용하며, 이 형태는
+`ADR-0009`가 정의하는 Stage Data Contract의 Public
+Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
 
 | 키 | 타입 | 생성 Capability | 항상 채워지는가 |
 |---|---|---|---|

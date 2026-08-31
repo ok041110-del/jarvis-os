@@ -1,8 +1,10 @@
 # Stage 03: Design 산출물 스키마
 
 `run_stage_03(issue, stage_01_context, stage_02_output)`이 반환하는
-`dict`의 키 2개. Stage 01/02처럼 새 Contract를 만들지 않고, 기존
-Capability의 반환 형태를 그대로 재노출한다.
+`dict`의 키 2개. Stage 01/02처럼 기존 Capability의 반환 형태를 그대로
+재노출하며, 이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의
+Public Scope다(`hqs/development/BASELINE.md` "Stage Data Contract"
+절).
 
 | 키 | 타입 | 생성 Capability | 항상 채워지는가 |
 |---|---|---|---|
