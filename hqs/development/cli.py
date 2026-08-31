@@ -34,6 +34,31 @@ def _load_issue(issue_path: str | None) -> dict:
     return json.loads(text)
 
 
+def _warn_if_expose_target_degraded_checks(result: dict, expose_target: bool) -> None:
+    """`--expose-target` 없이 실행하면 `design_scope`/`test_execution`(둘 다
+    blocking)이 조용히 INCONCLUSIVE로 빠져 verdict가 PARTIAL에 그칠 수 있다
+    — 이 경우 실제 구현 결함은 non-blocking `code_review` 서술에만 남는다.
+    Verdict/Contract 계산은 그대로 두고 stderr 경고만 추가한다."""
+    if expose_target or result["failed_at"] is not None:
+        return
+
+    stage_05 = result.get("stage_05") or {}
+    degraded = [
+        check["name"]
+        for check in stage_05.get("check_results", [])
+        if check["blocking"] and check["status"] == "INCONCLUSIVE"
+    ]
+    if degraded:
+        print(
+            "WARNING: --expose-target was not set, so blocking check(s) "
+            f"{', '.join(degraded)} were skipped (INCONCLUSIVE) and did not "
+            "affect the verdict. A real implementation defect may only be "
+            "visible in the non-blocking 'code_review' field. Re-run with "
+            "--expose-target for a decisive verdict.",
+            file=sys.stderr,
+        )
+
+
 def main() -> None:
     args = _parse_args(sys.argv[1:])
 
@@ -48,6 +73,8 @@ def main() -> None:
     if result["failed_at"] is not None:
         print(f"WORKFLOW FAILED at {result['failed_at']}: {result['error']}", file=sys.stderr)
         sys.exit(1)
+
+    _warn_if_expose_target_degraded_checks(result, args.expose_target)
 
     print(json.dumps(result, ensure_ascii=False, indent=2))
     sys.exit(0)
