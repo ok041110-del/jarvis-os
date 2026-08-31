@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import contracts
 from mvp.agents import backend_agent_code_review
 from mvp.ast_context import ROOT, module_source_path
-from mvp.workflow import _engine_failure_message
+from mvp.workflow import _engine_failure_message, is_engine_failure
 
 _TESTS_DIR = ROOT / "hqs" / "development" / "mvp" / "tests"
 _PYTEST_TIMEOUT_SECONDS = 300
@@ -61,7 +61,7 @@ _CHECK_EVALUATORS = {
 def _check_structural(stage_04_output: dict) -> dict:
     valid = all(key in stage_04_output for key in ("target", "implementation", "expose_target"))
     implementation = stage_04_output.get("implementation", "")
-    engine_failed = implementation.startswith("Engine call failed:")
+    engine_failed = is_engine_failure(implementation)
     return {"valid": valid, "engine_failed": engine_failed}
 
 
@@ -238,7 +238,7 @@ def run_stage_05(stage_02_output: dict, stage_04_output: dict, required_checks=N
     # Code Review 실행 여부는 "structural이 required인지"와 무관하게,
     # Stage 04 Output 자체의 Engine 실패 여부로만 판단한다(구 동작과 동일
     # — structural을 skip해도 이 게이팅은 깨지지 않는다).
-    if implementation.startswith("Engine call failed:"):
+    if is_engine_failure(implementation):
         code_review = "(Stage 04 Engine 실패로 Code Review를 건너뜀)"
     else:
         try:
