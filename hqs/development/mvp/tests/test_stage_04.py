@@ -69,6 +69,9 @@ def test_assemble_with_target_and_exposure_includes_full_file_and_policy(tmp_pat
     assert "---TARGET FILE (sample_module.py, full content)---" in build_input
     assert "def target_fn():" in build_input
     assert "extending exactly one existing function, `target_fn`" in build_input
+    # Phase 2.5 Case C 회귀: Exposure Policy 충돌 시 자유 텍스트 질문 대신
+    # 결정적 마커로 응답하도록 지시하는 프로토콜이 포함돼야 한다.
+    assert "EXPOSURE_POLICY_CONFLICT: <one-sentence reason>" in build_input
 
 
 # --- run_stage_04(Capability 1+2+3 통합) ------------------------------------

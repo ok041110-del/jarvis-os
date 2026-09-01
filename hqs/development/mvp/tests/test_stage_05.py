@@ -144,6 +144,34 @@ def test_design_scope_handles_malformed_implementation_without_raising(tmp_path,
     assert "parse_error" in result
 
 
+# Phase 2.5 Case C 회귀: rename/multi-site 요구와 Exposure Policy가
+# 충돌할 때 Engine이 EXPOSURE_POLICY_CONFLICT 마커로 응답하면, 모호한
+# parse_error 대신 구조화된 policy_conflict로 FAIL 처리해야 한다.
+def test_design_scope_reports_structured_policy_conflict(tmp_path, monkeypatch):
+    fake_module = tmp_path / "sample_module.py"
+    fake_module.write_text(ORIGINAL_SOURCE)
+    monkeypatch.setattr(stage_05, "module_source_path", lambda module: fake_module)
+
+    implementation = "EXPOSURE_POLICY_CONFLICT: design requires renaming target_fn"
+    result = stage_05._check_design_scope(("sample_module", "target_fn"), True, implementation)
+
+    assert result == {
+        "scope_ok": False,
+        "changed_names": [],
+        "policy_conflict": "design requires renaming target_fn",
+    }
+
+
+def test_test_execution_skips_when_policy_conflict_detected(monkeypatch):
+    implementation = "EXPOSURE_POLICY_CONFLICT: design requires renaming target_fn"
+    result = stage_05._run_pytest_with_applied_implementation(
+        ("sample_module", "target_fn"), True, implementation
+    )
+
+    assert result["executed"] is False
+    assert result["returncode"] is None
+
+
 @pytest.mark.parametrize("implementation", MALFORMED_IMPLEMENTATIONS.values(), ids=MALFORMED_IMPLEMENTATIONS.keys())
 def test_malformed_implementation_yields_fail_verdict_via_design_scope_blocking(tmp_path, monkeypatch, implementation):
     """design_scope는 blocking이므로, malformed implementation이 구조화된
