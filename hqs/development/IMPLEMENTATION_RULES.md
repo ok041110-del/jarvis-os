@@ -126,6 +126,16 @@ scope 위반 유도 사례는 Stage 04 프롬프트 정책(`_EXPOSURE_POLICY_INS
 Stage 03/04에 자동으로 되먹이는 내부 재진입은 어느 사례에서도
 필요하지 않았다.
 
+**[Evidence 출처 상태]** 위 2건 서술은 PR #129(commit `92bcba0`)
+커밋 메시지가 "Dynamic Workflow Boundary Validation 세션"으로
+명명했으나, 그 명칭에 해당하는 별도 원본 문서·실행 로그·Issue
+입력은 repo와 git 전체 이력 어디에도 존재하지 않는다(2026-08-31
+감사 재확인, 전체 git 이력 및 `docs/` 전수 탐색 결과 미발견). 이는
+서술 내용이 거짓이라는 뜻이 아니라, 현재로서는 **재현 가능한 원본
+Evidence 없이 검증 불가**하다는 뜻이다. Trigger 조건(아래 ①·②)과
+금지 유지 판단 자체는 이 서술과 무관하게 현재 코드/실행 상태로
+언제든 재확인 가능하다.
+
 **재검토 Trigger**: 다음이 실제 코드/실행에서 반복적으로(1회 관찰은
 Evidence로 인정하지 않음 — 다른 Accept 판단과 동일 기준) 관찰되면,
 Dynamic Workflow/Retry/Re-entry/조건부 Stage 실행 금지를 RFC → ADC
