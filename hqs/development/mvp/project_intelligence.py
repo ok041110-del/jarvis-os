@@ -13,7 +13,10 @@ _EXECUTION_LAYER = ROOT / "docs" / "core" / "execution-layer"
 
 # 카테고리별 (검색 대상 디렉토리 1개 또는 여러 개, glob 패턴, 제외 디렉토리명)
 CATEGORY_PATHS = {
-    "source_code": (ROOT / "hqs" / "development" / "mvp", "*.py", {"tests", "__pycache__"}),
+    # `hqs/development` 전체(mvp/, stages/, cli.py, workflow.py)를 재귀 탐색한다
+    # — 이전에는 mvp/만 대상이라 v2.0 Stage 파이프라인(cli.py/workflow.py/
+    # stages/)이 candidate에서 구조적으로 제외돼 있었다(Phase 2.5 Case D).
+    "source_code": (ROOT / "hqs" / "development", "*.py", {"tests", "__pycache__"}),
     "existing_workflow": (ROOT / "hqs" / "development" / "mvp", "workflow*.py", {"__pycache__"}),
     "mvp_documents": (ROOT / "docs" / "01_mvp", "*.md", set()),
     "obs_documents": (ROOT / "docs" / "governance" / "observations", "OBS-*.md", set()),

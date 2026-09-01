@@ -90,9 +90,21 @@ def _top_level_defs(source: str) -> dict:
     return defs
 
 
+_EXPOSURE_POLICY_CONFLICT_PREFIX = "EXPOSURE_POLICY_CONFLICT:"
+
+
 def _check_design_scope(target, expose_target: bool, implementation: str) -> dict:
     if target is None or not expose_target:
         return {"scope_ok": None, "changed_names": []}
+
+    # Stage 04 Exposure Policy(단일 함수 본문만 허용)가 Design과 구조적으로
+    # 충돌할 때 Engine이 낼 수 있는 결정적 신호(workflow_ast_context.py
+    # `_EXPOSURE_POLICY_INSTRUCTION`) — 자유 텍스트를 코드로 오인해
+    # 모호한 SyntaxError로 보고하는 대신 원인을 명시적으로 구조화한다
+    # (Phase 2.5 Case C, rename/multi-site 설계 vs 단일 함수 노출 정책).
+    if implementation.strip().startswith(_EXPOSURE_POLICY_CONFLICT_PREFIX):
+        reason = implementation.strip()[len(_EXPOSURE_POLICY_CONFLICT_PREFIX):].strip()
+        return {"scope_ok": False, "changed_names": [], "policy_conflict": reason}
 
     module_name, function_name = target
     original_source = module_source_path(module_name).read_text(encoding="utf-8")
@@ -118,6 +130,12 @@ def _check_design_scope(target, expose_target: bool, implementation: str) -> dic
 def _run_pytest_with_applied_implementation(target, expose_target: bool, implementation: str) -> dict:
     if target is None or not expose_target:
         return {"executed": False, "returncode": None, "output": ""}
+
+    # Exposure Policy 충돌 신호는 애초에 코드가 아니므로 파일에 적용해
+    # pytest를 돌리면 design_scope와 무관한 collection error 노이즈만
+    # 남는다 — design_scope가 이미 FAIL로 판정하므로 실행을 건너뛴다.
+    if implementation.strip().startswith(_EXPOSURE_POLICY_CONFLICT_PREFIX):
+        return {"executed": False, "returncode": None, "output": "(design_scope policy_conflict로 건너뜀)"}
 
     module_name, _ = target
     path = module_source_path(module_name)
