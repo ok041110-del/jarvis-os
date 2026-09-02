@@ -1007,7 +1007,109 @@ Dev HQ 개선 트랙)로 남는다.
 확장하는 등의 실제 변경은 별도 판단(가능하면 Engine 호출 계층 개선
 Dev HQ 트랙과 조율)을 거쳐야 한다.
 
-### 16.6 미결 항목
+### 16.6 Scoped Workflow Graph Execution — 조건부 분기·Loop·값 기반 Checkpoint/Resume (Accept, Scoped, Conditional)
+
+**책임**: HQ가 이미 정의한 Workflow 그래프와 이미 구성된 실행 단위를
+입력으로 받아, 그 그래프가 기술하는 (a) 공유 실행 상태(State)의 보유,
+(b) 단일 실행 단계(Node)의 진행, (c) 실행 중 상태에 따른 조건부
+분기(Conditional Edge), (d) 조건 만족까지의 반복(Loop), (e) 진행 상태를
+값으로 표현하고 호출자가 그 값을 보관했다 반환하면 이어서 진행하는 것
+(값 기반 Checkpoint/Resume) — 이 다섯을 진행시키는 책임. 이 책임은
+영속화 계층을 소유하지 않는다 — Checkpoint 값을 생산할 뿐, 그 값의
+저장·복원은 호출자의 몫이다(§15.2 "호출자가 그 값을 들고 있는 것"
+패턴과 동일). 실행 결과(성공/실패/취소에 준하는 상태)는 예외가 아닌
+값으로 표현한다(§14.3 G-6).
+
+**근거**: `docs/architecture/core/RFC-0019-langgraph-scoped-workflow-adapter-runtime-existence-boundary.md`
+§8이 연 좁은 Boundary Question("§16.3~16.5가 Accept한 범위를 넘어서는
+Workflow 그래프 해석·실행 책임(조건부 분기·Loop·Checkpoint/Resume 포함)이
+재검토 대상이 될 수 있는가")을,
+`docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md`
+가 v1 `ADR-0007`(`archive/v1`, Accepted — `LangGraphWorkflowEngine`
+실사용 검증 + `test_workflow_adapter_reversibility.py`)와 이번 세션
+PoC(`langgraph` 1.2.11 API 재확인) 2건의 Evidence를 근거로
+Accept(Scoped, Conditional)했다. Evidence 2건은 동일 계보이고 Governance
+v2 Rule B(3건 이상 독립 관찰)를 형식적으로 충족하지 않으나, 범위를
+아래 A-IN으로 극소화하고 검증되지 않은 v2 공백을 조건으로 이월하며
+Reversibility를 필수 불변조건으로 요구하는 것을 전제로 Accept됐다
+(`ADC-0019` §Q2).
+
+**A-IN (Kernel Module로서 다루는 것)**: State, Node, Conditional Edge,
+Loop, 값 기반 Checkpoint/Resume — 위 "책임" 문단의 다섯 항목, 그리고
+그 진행이 개입하는 구간("HQ가 실행 단위를 구성한 이후 ~ 그 실행이 모두
+끝나는 시점")으로 한정된다(`ADC-0019` §Q3·§Decision 조건 1).
+
+**A-OUT (이 Accept가 다루지 않는 것)**: HQ Routing/Registry, Policy
+판정(PDP/PEP), Capability/Connector Discovery, Domain Lifecycle 전이
+규칙, Event Bus 구독·라우팅, §16.5 Multi-Task Result Store 저장 전 검증
+게이트, Multi-HQ 및 자연어 요청 분해(`ADC-0018` 범위), Registry/Discovery
+일반화는 이 책임에 포함되지 않으며, 이 책임의 어떤 구현체도 이를
+소유·재구현·대체하지 않는다(`ADC-0019` §Q4·§Decision 조건 2). "무엇을
+실행할지"(Workflow 도메인 내용)는 §7 System Boundary대로 HQ가 채운다.
+
+**§16.3~16.5와의 경계**: 이 책임은 Execution Host(§16.3)·Multi-Task(§16.4)·
+Multi-Task Result Store(§16.5)의 확장이 아니라 별개 Concept이다
+(`ADC-0019` §Q5). Execution Host는 이미 dispatch가 결정된 단일 실행
+단위의 Execution Isolation을, Multi-Task는 이미 고정된 소수 독립 실행
+단위의 Coordination을 다룬다 — 이 책임은 그 "고정" 자체가 실행 중 조건에
+따라 달라지거나(Conditional Edge) 같은 단계가 반복되는(Loop) 경우, 즉
+§16.4가 명시적으로 제외한 영역을 다룬다. §16.3~16.5의 범위·명칭·구현
+전략·Accept 조건은 이 Accept로 전혀 변경되지 않는다.
+
+**Checkpoint 용어 구분**: `hqs/investment/checkpoint.py`(§16.5 실증
+사례)의 저장 전 검증 게이트와 이 책임의 값 기반 Checkpoint/Resume은
+동일 개념이 아니다(`ADC-0019` §Q5) — 전자는 Result 저장 시점의
+유효성 게이트, 후자는 그래프 실행 상태의 pause/resume 메커니즘으로
+계층이 다르며, 하나가 다른 하나를 함의하지 않는다. Investment HQ가
+향후 이 책임을 실제로 쓰게 되더라도 `checkpoint.py`의 저장 전 검증
+책임은 §16.5 그대로 유지되고 자동으로 대체되지 않는다.
+
+**Reversibility — 필수 Architecture 불변조건**: 이 책임의 어떤 구현체를
+제거하고 다른 구현체(최소한으로는 순차 함수 호출)로 교체해도, Kernel과
+HQ가 정의하는 코드는 한 줄도 수정되지 않아야 한다. 구현체 고유
+문법(`StateGraph`/`START`/`END`/Checkpointer API 등)은 이 책임의 경계
+안에서만 쓰인다. 이 조건은 v1 `test_workflow_adapter_reversibility.py`가
+실증한 선례를 근거로 하며, 이 책임을 실제로 구현하려는 후속 절차는
+v2 맥락의 통합 테스트로 이 불변조건을 재현 검증해야 한다(`ADC-0019`
+§Q6·§Decision 조건 4).
+
+**미해결 상태로 유지되는 v2 공백 (Conditional)**: v1 `ADR-0007` 결정
+2(Core 소유 Lifecycle 소비)·5(Team/Division 경계)·9(`IWorkflowEngine`
+Port)·11(State Model)의 v2 대응 부재는 이 Accept로 해소되지 않는다
+(`ADC-0019` §Q7·§Decision 조건 5). 이 네 공백이 후속 Architecture
+절차(ADR 또는 별도 RFC)로 다뤄지기 전에는, 이 책임을 Kernel Public
+Contract(§14)로 승격하거나 Production 구현에 착수할 수 없다. 결정 9의
+공백 원인은 §14.1이 "Task 전달 책임"을 계약 범위 밖으로 두는 것이며,
+이는 이 책임보다 상위의, 별도로 이미 Open인 질문이다.
+
+**Workflow Module Defer(§16.7)와의 구분**: 이 절의 "Scoped Workflow
+Graph Execution"은 §16.7 미결 항목이 Defer 상태로 기록한 Workflow
+Kernel Module(`ADC-0001` Module 2 — Module 존재 여부의 축)과 다른
+것이다. 이 절은 §6 "Runtime" 정의(ADC-02의 축) 중 조건부 분기·Loop
+조율이라는 좁은 책임의 존재만 Accept하며, Workflow Module의 Defer
+상태를 재판단하지 않는다.
+
+**이 Accept가 결정하지 않는 것**: 구현체 선택(LangGraph 채택 여부 포함),
+이 책임의 명칭(Workflow Adapter / Workflow Engine 등), Public Port 정의,
+구현 전략은 모두 별도 절차(RFC → ADC → ADR)로 남는다 — Execution
+Host가 존재(`ADC-0013`) → 명명(`ADC-0014`) → 구현 전략(`ADC-0015`)
+3단계로 분리한 선례를 그대로 따른다. `docs/decisions/adc/ADC.md`
+ADC-02(Runtime 존폐, Open·NOW)와 `docs/architecture/core/ADC-0008`(넓은
+"유지 대 대체", Not Accepted)은 이 Accept로 갱신·전복되지 않는다 —
+이 책임은 §6 "Runtime" 정의 중 "조건부·반복 조율" 조각 하나일 뿐이다
+(`ADC-0019` §Q8).
+
+**Production 구현과의 관계**: 이 Accept는 위 A-IN 범위의 존재만
+등재하며, Production 구현 착수를 승인하지 않는다.
+`hqs/development/IMPLEMENTATION_RULES.md`의 Workflow Parser 구현 금지,
+Scheduler/우선순위/Workflow orchestration/Dynamic Routing(조건부 목적지
+선택·Agent 동적 배분) 및 §6 넓은 Runtime 구현 금지, Stage 재진입
+(Retry/Re-entry)·조건부 Stage 실행 구현 금지, Event Bus 구현 금지
+조항은 이 Accept로 해제되지 않는다. v1 `ADR-0007` 결정 2/5/9/11 공백
+해소와 Reversibility의 v2 재현 검증 이후, 별도 ADR이 A-IN 범위에 한해
+그 금지의 Scoped 해제 여부를 판단한다(`ADC-0019` §Next Step 2·5).
+
+### 16.7 미결 항목
 
 Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 **Defer**됐다(`ADC-0001-core-baseline.md` Module 2·3·5) — 재평가
@@ -1018,7 +1120,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.11 |
+| Version | v1.12 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -1026,6 +1128,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.12 | §16에 §16.6 Scoped Workflow Graph Execution(조건부 분기·Loop·값 기반 Checkpoint/Resume) 신설 — Accept(Scoped, Conditional). §16.3~16.5 무변경(Execution Host/Multi-Task/Result Store 게이트 범위·명칭·구현 전략 불변). Reversibility를 필수 Architecture 불변조건으로 등재. A-OUT(Routing/Registry·Policy·Discovery·Domain Lifecycle·Event Bus·§16.5 저장 게이트·Multi-HQ decomposition·Registry 일반화) 명시 제외. v1 ADR-0007 결정 2/5/9/11의 v2 공백은 미해결로 유지 — 해소 전 Public Contract 승격·Production 구현 착수 불가. 구현체 선택(LangGraph 포함)·명칭·Public Port·구현 전략은 별도 결정. 기존 §16.6(미결 항목)은 §16.7로 재배치. §6 Concept Model 표·§16.1~§16.5는 변경하지 않음. IMPLEMENTATION_RULES.md는 금지 조항 유지(무변경). 근거: `docs/architecture/core/ADR-0008-scoped-workflow-graph-execution-baseline.md` |
 | v1.11 | §16.5에 Multi-Task Result Store 저장 전 검증 게이트 신설 — Accept(Scoped, Narrow). Investment HQ Checkpointer/`run_step`에 한정된 실증 사례, Multi-Task 전용 아님(4회 재현 중 2건은 Multi-Task 이전, 나머지도 순차 구간에서 발생), 근본 원인(Engine 호출 계층)은 별도 Dev HQ 개선 트랙으로 분리. Resume 재검증·판정 기준·Retry/Alert/Recovery 정책·새 Component는 계속 Open. 기존 §16.5(미결 항목)는 §16.6으로 재배치. §6 Concept Model 표·§16.1~§16.4는 변경하지 않음. `IMPLEMENTATION_RULES.md`는 검토 결과 변경 대상 없어 무변경. 근거: `docs/architecture/core/ADR-0007-multi-task-result-store-integrity-baseline.md` |
 | v1.10 | §16.4에 Multi-Task 최소 책임(독립 Task 동시 실행·결과 수집) 신설 — Accept(Scoped, Conditional on Data/Artifact Isolation). Execution Host(§16.3)와 명확히 분리, 기존 Agent 재사용 전제(동적 할당 제외), Scheduler/우선순위/Workflow orchestration/§6 넓은 Runtime은 계속 Open. 기존 §16.4(미결 항목)는 §16.5로 재배치. §6 Concept Model 표·§16.1~§16.3은 변경하지 않음. `IMPLEMENTATION_RULES.md`에 "Multi-Task 구현 허용 범위" 절 신설. 근거: `docs/architecture/core/ADR-0006-multi-task-minimal-responsibility-baseline.md` |
 | v1.9 | §16.3에 구현 전략 문단 신설 — Process를 1차, Subprocess를 대안으로 Conditional Accept, Thread는 "동일 Target 동시 실행" 조건에서 배제. Scheduler/Multi-Task/Workflow, §6 넓은 Runtime 확장은 계속 Open. `IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"를 Execution Host 범위로 Scoped 해제. §6 Concept Model 표는 변경하지 않음. 근거: `docs/architecture/core/ADR-0005-execution-host-implementation-strategy-baseline.md` |
