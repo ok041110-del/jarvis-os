@@ -70,7 +70,7 @@ def part2_identical_target_concurrency_probe() -> None:
         print(
             f"trial {trial}: run1(rc={rc1}, passed={p1}, failed={fail1}) "
             f"run2(rc={rc2}, passed={p2}, failed={fail2}) "
-            f"combined_passed={p1 + p2} (baseline 2x16=32이어야 함)"
+            f"combined_passed={p1 + p2} (baseline 2x20=40이어야 함)"
         )
 
 

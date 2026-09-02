@@ -242,9 +242,15 @@ def test_investment_hq_progress_known_only_for_trader_decision_pattern():
 def _team_step_names_from_source(team_file: Path) -> set[str]:
     """`hqs/investment/teams/*.py`의 `run()`에 실제 존재하는 Task
     이름을 import 없이 AST로만 추출한다: Wave1/Wave2는 `wave1_jobs`/
-    `wave2_jobs` dict 리터럴의 키, Wave3/Wave4는 `run_step(cp, "이름",
-    ...)` 직접 호출의 문자열 리터럴이다. `_TEAM_TOTAL_STEPS`가
-    실제 팀 코드와 어긋나면(drift) 이 테스트가 실패해야 한다."""
+    `wave2_jobs` dict 리터럴의 키, Wave3는 `run_step(cp, "이름", ...)`
+    직접 호출의 문자열 리터럴이다. Trader Task(Wave3)는
+    `hqs/investment/trader.py`의 `run_trader_decision(cp, trader_decision,
+    ...)`를 거치며, 그 안의 `run_step(cp, "trader_decision", ...)` 호출은
+    이 파일이 아니라 `trader.py`에 있어 여기서는 보이지 않는다 —
+    `run_trader_decision(...)` 호출 자체를 `"trader_decision"` 리터럴 1개로
+    센다(그 이름이 검증 전 저장을 막는 checkpoint 저장 전 게이트라는
+    책임은 여전히 고정이다). `_TEAM_TOTAL_STEPS`가 실제 팀 코드와
+    어긋나면(drift) 이 테스트가 실패해야 한다."""
     tree = ast.parse(team_file.read_text(encoding="utf-8"))
     names: set[str] = set()
     for node in ast.walk(tree):
@@ -263,6 +269,12 @@ def _team_step_names_from_source(team_file: Path) -> set[str]:
             and isinstance(node.args[1].value, str)
         ):
             names.add(node.args[1].value)
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "run_trader_decision"
+        ):
+            names.add("trader_decision")
     return names
 
 

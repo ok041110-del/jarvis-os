@@ -3,6 +3,8 @@ Registry/Scheduler가 아니다 — 고정된 텍스트 처리만 한다."""
 
 import re
 
+from checkpoint import run_step
+
 # Prototype 검증본과 동일 문구 — "not a trade order" 문장 대체용.
 TRADER_DECISION_INSTRUCTION = (
     "\n\n추가로, 여기 주어진 정보만을 근거로 이 개별 증권에 대한 현재 시점의 방향성 입장을 결정하라. "
@@ -25,8 +27,10 @@ TRADER_DECISION_INSTRUCTION = (
 
 
 class TraderOutputError(ValueError):
-    """REPORT/DECISION 헤더 구조가 없을 때 발생 — `run_step()`이 저장 전에
-    받으므로 `ContentFailureError`처럼 다음 실행에서 자동 재시도된다."""
+    """REPORT/DECISION 헤더 구조가 없을 때 발생. `run_trader_decision()`을 통해
+    호출하면 `ContentFailureError`처럼 checkpoint 저장 전에 발생해 다음 실행에서
+    자동 재시도된다 — `run_step()`에 원본 `trader_decision` 함수를 직접 넘기면
+    검증이 저장 이후에 일어나 이 보장이 깨진다."""
 
 
 _REPORT_HEADER = re.compile(r"^##\s*REPORT\s*$", re.MULTILINE)
@@ -48,10 +52,30 @@ def split_report_decision(raw: str) -> tuple[str, str]:
     return report_text, decision_text
 
 
+def run_trader_decision(cp, trader_decision_fn, bull_case: str, bear_case: str) -> str:
+    """`trader_decision_fn(bull_case, bear_case)` 호출 결과를 checkpoint에
+    저장하기 전에 `split_report_decision()`으로 형식을 검증한다. 세 Team
+    (`stock_team.py`/`etf_team.py`/`dividend_stock_team.py`)이 각자
+    `run_step(cp, "trader_decision", trader_decision, ...)`을 직접 호출하지
+    않고 이 함수를 거쳐야 `TraderOutputError`가 저장 전에 발생해 다음
+    실행에서 자동 재시도된다."""
+
+    def _validated(b: str, c: str) -> str:
+        raw = trader_decision_fn(b, c)
+        split_report_decision(raw)
+        return raw
+
+    return run_step(cp, "trader_decision", _validated, bull_case, bear_case)
+
+
 _DIRECTION_RE = re.compile(r"Direction:\**\s*([A-Za-z ]{3,20})", re.IGNORECASE)
 _RATIONALE_RE = re.compile(r"Rationale:\**\s*(.+?)(?=\n-\s*\**Reassess|\Z)", re.IGNORECASE | re.DOTALL)
 _REASSESS_RE = re.compile(r"Reassess when:\**\s*(.+)", re.IGNORECASE | re.DOTALL)
-_VALID_ACTIONS = {"BUY", "SELL", "HOLD"}
+# set이 아닌 고정 순서 tuple — 후보 문자열에 방향 단어가 둘 이상 섞인
+# 모호한 응답에서도 어떤 단어를 고를지가 set 순회 순서(프로세스마다
+# 문자열 해시가 랜덤화돼 달라질 수 있음)에 좌우되지 않고 항상 동일하게
+# 결정되게 한다.
+_VALID_ACTIONS = ("BUY", "SELL", "HOLD")
 
 
 def parse_decision(decision_text: str) -> dict:

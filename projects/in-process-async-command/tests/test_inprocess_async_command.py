@@ -41,7 +41,7 @@ def test_dev_and_investment_run_concurrently_with_independent_lifecycles():
         case_b.refresh(inv_task.task_id)
 
     assert inv_task.status == "COMPLETED"
-    assert inv_task.result == (16, 0)
+    assert inv_task.result == (20, 0)
 
     # investment가 끝난 뒤에도 dev는 계속 RUNNING이어야 한다(69초 작업).
     case_b.refresh(dev_task.task_id)
@@ -60,7 +60,7 @@ def test_case_a_full_lifecycle_completes():
         case_a.refresh(command)
 
     assert command.status == "COMPLETED"
-    assert command.passed == 16
+    assert command.passed == 20
 
 
 def test_case_b_full_lifecycle_completes():
@@ -73,7 +73,7 @@ def test_case_b_full_lifecycle_completes():
         case_b.refresh(task.task_id)
 
     assert task.status == "COMPLETED"
-    assert task.result == (16, 0)
+    assert task.result == (20, 0)
 
 
 # --- Failure / Retry ---------------------------------------------------------

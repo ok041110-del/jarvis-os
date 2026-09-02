@@ -7,7 +7,7 @@ from pathlib import Path
 
 from checkpoint import Checkpointer, run_step
 from engine_client import call_engine
-from trader import TRADER_DECISION_INSTRUCTION, parse_decision, split_report_decision
+from trader import TRADER_DECISION_INSTRUCTION, parse_decision, run_trader_decision, split_report_decision
 
 _DATA_LIMITATION_NOTICE = (
     "You are given only the data explicitly provided below (collected via web "
@@ -232,7 +232,7 @@ def run(company_label: str, raw_data_path: Path, issue_dir: Path) -> dict:
     bear_case = wave2_results["bear_case"]
 
     wave3_t0 = time.monotonic()
-    trader_raw = run_step(cp, "trader_decision", trader_decision, bull_case, bear_case)
+    trader_raw = run_trader_decision(cp, trader_decision, bull_case, bear_case)
     report_text, decision_text = split_report_decision(trader_raw)
     decision_parsed = parse_decision(decision_text)
     wave3_elapsed = time.monotonic() - wave3_t0

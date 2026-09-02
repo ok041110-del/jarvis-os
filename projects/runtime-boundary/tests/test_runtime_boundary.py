@@ -2,7 +2,7 @@
 
 `hqs/investment/tests/test_stock_team_integration.py`(실측 0.03~0.13초,
 2 passed)를 오염 재현의 최소 대상으로 쓴다 — in-process-async-command
-Prototype이 발견한 오염(§8/§12, `hqs/investment/tests` 전체 16개 중
+Prototype이 발견한 오염(§8/§12, `hqs/investment/tests` 전체 20개 중
 `monkeypatch` 충돌)을 가장 작은 실제 대상으로 재현한다(작업 지시 §1).
 """
 
@@ -20,7 +20,7 @@ import rtb_runtime as runtime  # noqa: E402
 import rtb_task as task  # noqa: E402
 
 CONTAMINATION_TARGET = "hqs/investment/tests/test_stock_team_integration.py"  # 2 tests, ~0.03s
-FAST_TARGET = "hqs/investment/tests"  # 16 tests, <1s
+FAST_TARGET = "hqs/investment/tests"  # 20 tests, <1s
 
 
 def _wait_until_done(task_obj, timeout=5.0):
@@ -46,7 +46,7 @@ def test_thread_execution_returns_without_blocking():
     assert t.status in ("PENDING", "RUNNING")
     _wait_until_done(t)
     assert t.status == "COMPLETED"
-    assert t.result == (16, 0)
+    assert t.result == (20, 0)
 
 
 def test_process_execution_returns_without_blocking():
@@ -54,7 +54,7 @@ def test_process_execution_returns_without_blocking():
     assert t.status in ("PENDING", "RUNNING")
     _wait_until_done(t)
     assert t.status == "COMPLETED"
-    assert t.result == (16, 0)
+    assert t.result == (20, 0)
 
 
 # --- 핵심 비교: 동일 대상 동시 실행 — Thread vs Process ------------------------
@@ -145,7 +145,7 @@ def test_concurrent_tasks_on_different_targets_are_independent():
     _wait_until_done(t_slow)
 
     assert t_fast.result == (2, 0)
-    assert t_slow.result == (16, 0)
+    assert t_slow.result == (20, 0)
     assert t_fast.task_id != t_slow.task_id
 
 
