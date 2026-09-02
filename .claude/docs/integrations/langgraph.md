@@ -7,18 +7,29 @@
 > `main`에 병합되지 않아, `RFC-0019` → `ADC-0019` → `ADR-0008`(모두 `main`
 > 병합 완료)이 이 문서를 Evidence(E2)로 인용하면서도 `main` 트리에서는
 > 파일을 따라갈 수 없는 상태였다. 이 복원은 그 Traceability 공백만
-> 해소한다 — 본문(아래 "검증일: 2026-08-30" 이후)은 `a7fd7c5` 원문과
-> 바이트 단위로 동일하며, 내용을 보강하지 않았다.
+> 해소한다 — 최초 복원 시 본문(아래 "검증일: 2026-08-30" 이후)은
+> `a7fd7c5` 원문과 바이트 단위로 동일했다. **2026-09-02 개정**: §2.2에
+> 실행 파라미터(`target=9`)를 명시하고, 아래 "재현 확인" 항목과
+> §부록 A(복구된 원본 스크립트)를 추가했다 — PoC 결과값·판정은 바꾸지
+> 않았다.
 >
-> **이 문서는 PoC "결과를 기록한" 문서다 — 실행 원본은 보존되어 있지
-> 않다.** PoC는 저장소 밖 임시 디렉터리(`scratchpad/langgraph-poc`)의
-> 독립 venv에서 수행됐고, 스크립트(`poc.py`)와 원본 실행 로그
-> (`poc_output.txt`)는 세션 종료와 함께 삭제됐다(§2.2). 본문에 인용된
-> 로그가 유일하게 남은 기록이며, 그 실행을 지금 재현·재검증할 수는 없다.
+> **이 문서는 PoC "결과를 기록한" 문서다.** PoC는 저장소 밖 임시
+> 디렉터리(`scratchpad/langgraph-poc`)의 독립 venv에서 수행됐고,
+> 스크립트(`poc.py`)와 원본 실행 로그(`poc_output.txt`)는 최초 커밋
+> `a7fd7c5`에 포함되지 않았다.
+>
+> **재현 확인 (2026-09-02).** 원본 `poc.py`와 원본 실행 출력을, PoC를
+> 수행하고 `a7fd7c5`를 커밋한 세션 transcript
+> (`16490bb3-7c0f-4794-abd8-1108d9074ede`)에서 전체 복구했다. 복구한
+> 원본을 `langgraph==1.2.11`에서 재실행한 결과가 transcript에 남은 원본
+> 실행 출력과 **byte 단위로 동일**했다(§2.1·§2.2 로그 전 줄 일치).
+> 복구한 원본 스크립트는 §부록 A에 그대로 싣는다 — 이 문서만으로 재현이
+> 가능하다. (최초 서술의 "지금 재현·재검증할 수 없다"는 이 복구로 정정됨.)
 >
 > **E2가 뒷받침하는 것 / 뒷받침하지 않는 것** — E2는 (a) `langgraph`
 > 1.2.11이 별도 venv에서 설치·실행되고, (b) toy 카운터로 구성한 State→
-> Node→Conditional Edge→Loop 그래프가 4회 반복 후 종료되며, (c)
+> Node→Conditional Edge→Loop 그래프가 목표값 도달 시 종료되며(§2.1
+> `target=10` → 4회 반복, §2.2 `target=9` → 3회 반복), (c)
 > `MemorySaver` 기반 중단/재개(동일 `thread_id`)가 동작하고, (d)
 > `langgraph`가 `langchain-core`에만 의존하며, (e) 핵심 API
 > (`StateGraph`/`add_conditional_edges`/`compile()`)가 v1 PoC 시점 대비
@@ -76,7 +87,7 @@ pip install langgraph==1.2.11
 
 ### 2.1 State → Node → Conditional Edge → Loop → 종료
 
-시나리오: "목표값(10) 이상이 될 때까지 3씩 더하는 Loop" — `increment` Node가 조건부 Edge(`should_continue`)로 자기 자신에게 돌아가거나 `finalize`로 빠져나간다.
+시나리오: "목표값(`target=10`) 이상이 될 때까지 3씩 더하는 Loop" — `increment` Node가 조건부 Edge(`should_continue`)로 자기 자신에게 돌아가거나 `finalize`로 빠져나간다. checkpointer 없이 `run_basic()`로 실행.
 
 실제 실행 결과:
 
@@ -93,7 +104,7 @@ PASS: loop이 조건을 만족할 때까지 반복 후 종료함
 
 ### 2.2 Checkpoint/Persistence (핵심 장점 추가 검증)
 
-`MemorySaver`로 컴파일하고 `interrupt_before=["increment"]`를 지정해 매 Node 실행 전 중단시킨 뒤, 동일 `thread_id`로 `invoke(None, config)`를 반복 호출해 checkpoint에서 이어서 실행되는지 확인했다.
+이 절은 `run_checkpoint_resume()`로 실행하며 §2.1과 달리 **`target=9`**를 쓴다 — 3씩 3회 더해 `value=9`에서 종료(`should_continue`가 `value < target`을 볼 때 `value==target`이면 `finalize`), 그 결과 checkpoint 히스토리가 6건 남는다. `MemorySaver`로 컴파일하고 `interrupt_before=["increment"]`를 지정해 매 Node 실행 전 중단시킨 뒤, 동일 `thread_id`로 `invoke(None, config)`를 반복 호출해 checkpoint에서 이어서 실행되는지 확인했다.
 
 ```
 === 2) Checkpoint/Persistence 검증 (MemorySaver, 중단 후 재개) ===
@@ -107,7 +118,7 @@ checkpoint 히스토리 개수: 6 (매 super-step마다 하나씩 저장됨)
 PASS: MemorySaver가 super-step마다 checkpoint를 실제로 저장함
 ```
 
-전체 스크립트(`poc.py`)와 원본 실행 로그(`poc_output.txt`)는 세션 종료와 함께 사라지는 임시 디렉터리에만 있다 — 이 문서의 로그 인용이 재현 결과의 기록이다. 재현 절차: 위 설치 명령 + 본 절의 시나리오를 동일하게 구현하면 동일 결과가 나온다.
+전체 스크립트(`poc.py`)와 원본 실행 로그(`poc_output.txt`)는 최초 커밋 `a7fd7c5`에 포함되지 않았으나, PoC 세션 transcript에서 복구해 §부록 A에 실었다(복원 노트 "재현 확인" 참조). 재현 절차: §부록 A의 스크립트를 `langgraph==1.2.11` 환경에서 그대로 실행하면 §2.1·§2.2의 위 로그와 동일한 결과가 나온다 — 2026-09-02 재실행에서 원본 출력과 byte 단위 일치를 확인했다.
 
 ### 2.3 LangChain 의존성 범위 확인
 
@@ -169,3 +180,151 @@ Requires: langchain-core, langgraph-checkpoint, langgraph-prebuilt, langgraph-sd
 - **제외하지 않는 이유**: 도구 자체의 기능(State/Node/Conditional Edge/Loop/Checkpoint)과 Architecture 정합성(Kernel 경계를 지키는 Adapter로 배선 가능)은 실제 실행 Evidence와 v1 선례로 이미 검증되었다. 역할 중복도 없다.
 - **재검토 조건**: (1) ADC-02(Runtime 존폐)가 Accept로 판정되고, (2) 실제 Multi-Task/Workflow orchestration 구현 근거(Implementation Stop Trigger 또는 Kernel Extraction Candidate)가 발생하면, 그때 RFC → ADC → ADR 절차로 LangGraph를 Workflow Engine 구현 후보 중 하나로 정식 평가한다 — v1 ADR-0007과 이 문서가 그 시작점이 된다.
 - 이번 세션은 Kernel/Architecture/MVP 코드를 변경하지 않았다(`git status --short` 클린 확인) — PoC는 저장소 밖 임시 디렉터리에서만 수행했다.
+
+## 부록 A. 복구된 PoC 원본 (`poc.py`)
+
+**출처.** 이 스크립트는 최초 커밋 `a7fd7c5`(브랜치 `claude/context7-graphify-validation-g3raoe`)에 포함되지 않았다. PoC를 수행하고 `a7fd7c5`를 커밋한 세션의 transcript(`~/.claude/projects/-Users-chan-Developer-jarvis-os/16490bb3-7c0f-4794-abd8-1108d9074ede.jsonl`)에 남은 파일 생성·수정·실행 기록에서 전체를 복구했다. 원본 실행 환경은 별도 Linux 임시 디렉터리의 venv(Python 3.11, `langgraph==1.2.11`)였다.
+
+**재현 확인 (2026-09-02).** 아래 스크립트를 저장소 밖 venv(Python 3.12, `langgraph==1.2.11`, `langgraph-checkpoint 4.2.0`, `langchain-core 1.6.1`)에서 그대로 실행한 결과가 transcript에 남은 원본 실행 출력과 **byte 단위로 동일**했다(§2.1·§2.2 인용 로그 전 줄 일치, `checkpoint 히스토리 개수: 6`). 저장소·Core/HQ 코드는 이 재실행으로 변경되지 않았다.
+
+```python
+"""LangGraph 최소 PoC.
+
+State -> Node -> Conditional Edge -> Loop -> 종료 구조를 실제로 구성하고 실행한다.
+시나리오: "숫자를 목표값 이상이 될 때까지 3씩 더하는 Agent Loop".
+- increment 노드: state.value += 3, attempts += 1
+- should_continue 조건부 엣지: value < target 이면 increment로 되돌아가 loop,
+  아니면 finalize로 이동해 종료
+- MemorySaver checkpointer로 실행 중간 상태를 저장하고, 그래프를 중단했다가
+  동일 thread_id로 재개해 checkpoint에서 이어서 실행되는지 검증한다.
+"""
+from typing import TypedDict
+
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, START, StateGraph
+
+
+class LoopState(TypedDict):
+    value: int
+    target: int
+    attempts: int
+    log: list[str]
+
+
+def increment(state: LoopState) -> dict:
+    new_value = state["value"] + 3
+    return {
+        "value": new_value,
+        "attempts": state["attempts"] + 1,
+        "log": state["log"] + [f"attempt {state['attempts'] + 1}: value -> {new_value}"],
+    }
+
+
+def finalize(state: LoopState) -> dict:
+    return {"log": state["log"] + [f"finalized at value={state['value']} after {state['attempts']} attempts"]}
+
+
+def should_continue(state: LoopState) -> str:
+    if state["value"] < state["target"]:
+        return "increment"
+    return "finalize"
+
+
+def build_graph(checkpointer=None):
+    graph = StateGraph(LoopState)
+    graph.add_node("increment", increment)
+    graph.add_node("finalize", finalize)
+    graph.add_edge(START, "increment")
+    graph.add_conditional_edges("increment", should_continue, {"increment": "increment", "finalize": "finalize"})
+    graph.add_edge("finalize", END)
+    return graph.compile(checkpointer=checkpointer)
+
+
+def run_basic():
+    print("=== 1) State -> Node -> Conditional Edge -> Loop -> 종료 (checkpoint 없음) ===")
+    app = build_graph()
+    result = app.invoke({"value": 0, "target": 10, "attempts": 0, "log": []})
+    for line in result["log"]:
+        print(" ", line)
+    print("최종 state:", {k: v for k, v in result.items() if k != "log"})
+    assert result["value"] >= result["target"]
+    assert result["attempts"] == 4  # 0->3->6->9->12, 4회 loop
+    print("PASS: loop이 조건을 만족할 때까지 반복 후 종료함\n")
+
+
+def run_checkpoint_resume():
+    print("=== 2) Checkpoint/Persistence 검증 (MemorySaver, 중단 후 재개) ===")
+    checkpointer = MemorySaver()
+    config = {"configurable": {"thread_id": "poc-thread-1"}}
+
+    # interrupt_before로 increment 노드 실행 전마다 멈추게 해 "중단 후 재개"를 흉내낸다.
+    app2 = StateGraph(LoopState)
+    app2.add_node("increment", increment)
+    app2.add_node("finalize", finalize)
+    app2.add_edge(START, "increment")
+    app2.add_conditional_edges("increment", should_continue, {"increment": "increment", "finalize": "finalize"})
+    app2.add_edge("finalize", END)
+    compiled = app2.compile(checkpointer=checkpointer, interrupt_before=["increment"])
+
+    state_in = {"value": 0, "target": 9, "attempts": 0, "log": []}
+    step = 0
+    result = compiled.invoke(state_in, config)
+    print(f"  최초 invoke: interrupt 직후 상태 -> value={result['value']}, attempts={result['attempts']}")
+
+    while True:
+        snapshot = compiled.get_state(config)
+        if not snapshot.next:
+            break
+        step += 1
+        result = compiled.invoke(None, config)
+        print(f"  재개 {step}: value={result['value']}, attempts={result['attempts']}, next={compiled.get_state(config).next}")
+
+    final_snapshot = compiled.get_state(config)
+    print("최종 log:")
+    for line in result["log"]:
+        print(" ", line)
+    assert result["value"] >= 9
+    assert not final_snapshot.next
+    print("PASS: 중간에 멈춘 뒤(checkpoint) 동일 thread_id로 재개하여 끝까지 실행 완료함\n")
+
+    history = list(compiled.get_state_history(config))
+    print(f"checkpoint 히스토리 개수: {len(history)} (매 super-step마다 하나씩 저장됨)")
+    assert len(history) > 1
+    print("PASS: MemorySaver가 super-step마다 checkpoint를 실제로 저장함\n")
+
+
+if __name__ == "__main__":
+    run_basic()
+    run_checkpoint_resume()
+    print("=== 전체 PoC 통과 ===")
+```
+
+**전체 실행 출력** (`poc_output.txt`, 2026-09-02 재실행 = 원본 transcript 로그와 diff 0):
+
+```
+=== 1) State -> Node -> Conditional Edge -> Loop -> 종료 (checkpoint 없음) ===
+  attempt 1: value -> 3
+  attempt 2: value -> 6
+  attempt 3: value -> 9
+  attempt 4: value -> 12
+  finalized at value=12 after 4 attempts
+최종 state: {'value': 12, 'target': 10, 'attempts': 4}
+PASS: loop이 조건을 만족할 때까지 반복 후 종료함
+
+=== 2) Checkpoint/Persistence 검증 (MemorySaver, 중단 후 재개) ===
+  최초 invoke: interrupt 직후 상태 -> value=0, attempts=0
+  재개 1: value=3, attempts=1, next=('increment',)
+  재개 2: value=6, attempts=2, next=('increment',)
+  재개 3: value=9, attempts=3, next=()
+최종 log:
+  attempt 1: value -> 3
+  attempt 2: value -> 6
+  attempt 3: value -> 9
+  finalized at value=9 after 3 attempts
+PASS: 중간에 멈춘 뒤(checkpoint) 동일 thread_id로 재개하여 끝까지 실행 완료함
+
+checkpoint 히스토리 개수: 6 (매 super-step마다 하나씩 저장됨)
+PASS: MemorySaver가 super-step마다 checkpoint를 실제로 저장함
+
+=== 전체 PoC 통과 ===
+```
