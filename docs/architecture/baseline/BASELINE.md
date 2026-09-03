@@ -1007,7 +1007,7 @@ Dev HQ 개선 트랙)로 남는다.
 확장하는 등의 실제 변경은 별도 판단(가능하면 Engine 호출 계층 개선
 Dev HQ 트랙과 조율)을 거쳐야 한다.
 
-### 16.6 Scoped Workflow Graph Execution — 조건부 분기·Loop·값 기반 Checkpoint/Resume (Accept, Scoped, Conditional)
+### 16.6 Workflow Adapter — Scoped Workflow Graph Execution (조건부 분기·Loop·값 기반 Checkpoint/Resume) (Accept, Scoped, Conditional)
 
 **책임**: HQ가 이미 정의한 Workflow 그래프와 이미 구성된 실행 단위를
 입력으로 받아, 그 그래프가 기술하는 (a) 공유 실행 상태(State)의 보유,
@@ -1089,11 +1089,68 @@ Kernel Module(`ADC-0001` Module 2 — Module 존재 여부의 축)과 다른
 조율이라는 좁은 책임의 존재만 Accept하며, Workflow Module의 Defer
 상태를 재판단하지 않는다.
 
+**명칭**: 이 책임의 공식 명칭은 **Workflow Adapter**다
+(`docs/architecture/core/ADC-0020-workflow-adapter-naming-and-contract-boundary.md`
+§Q-B). 이는 이 절(§16.6 "Scoped Workflow Graph Execution")이 기술하는
+바로 그 책임에 붙는 이름이며, 절 제목은 위와 같이 "Workflow Adapter —"
+접두로 갱신된다(`ADR-0004`가 §16.3 제목에 "Execution Host —"를 접두한
+선례와 동일). `RFC-0019` §3이 이미 이 책임을 "Workflow Adapter"로,
+§16.2 Model/LLM Provider 호출 책임을 "Engine Adapter"로 구분해 온
+비공식 용법을 공식화한 것이다 — 두 경계 모두 Execution Layer의 교체
+가능한 seam이며, "Adapter" 접미사는 이 저장소에서 이미 그 의미로
+쓰인다. Workflow Adapter는 §16.2 Engine Adapter를 재명명하거나 흡수한
+것이 아니라 그와 별개의 책임이다. v1 `archive/v1` `ADR-0007`의
+`IWorkflowEngine` Port("Engine" 계보)가 함의하던 Core 소유 Lifecycle
+소비는 v2 §5(Kernel이 Team/Division을 모른다)가 이미 폐기했으므로,
+이 명칭은 "Engine" 프레이밍을 의도적으로 계승하지 않는다(`ADC-0019`
+G2, `ADC-0020` §Q-B). §6 Concept Model의 "Runtime"·"Adapter" 항목은
+이 명칭 반영으로 변경되지 않으며, `docs/decisions/adc/ADC.md`
+ADC-02(Runtime 존폐, Open)도 그대로다.
+
+**Adapter Contract — §16.6 A-IN 부속 명세 (구현체 내부 의무)**: 아래
+(a)·(b)·(d)는 §16.6 A-IN이 이미 짊어진 의무를 계약 언어로 정련한
+것이다(`ADC-0020` §Q-C·§Q-D). **§16.6 A-IN의 부속 명세(sub-specification)
+이며, 그 위의 새 계층이 아니다.** 구현체 내부 의무를 서술할 뿐 Public
+Surface가 아니고, `RFC-0019` §7의 "개념 수준" 지위를 그대로 계승한다.
+이 명세는 §14 Kernel Public Contract가 아니며 그 선행물도 아니다 —
+§14로 이어지는 자동 승격 경로는 없다(§14 승격은 위 "미해결 상태로
+유지되는 v2 공백" 문단이 계속 차단한다). 이 명세에는 "Port" / "Public" /
+"Guarantee" / "Interface" 어휘를 쓰지 않으며, §14에는 어떤 항목도
+추가되지 않는다.
+
+- **(a) caller-owned Checkpoint 값 소유 모델**: 진행 상태(중간·최종)는
+  직렬화 가능한 값으로 표현되고, 어댑터는 그 값을 **생산**만 하며
+  영속화·복원을 소유하지 않는다(§15.2, §14.3 G-6, A-IN(e)의 재기술).
+  재개 입도(어느 지점에서 이어서 진행하는가)는 이 절이 정하지 않는다.
+- **(b) 실행 결과의 값 표현 — 어댑터 책임**: 어댑터 경계를 벗어나는
+  실행 결과(성공/실패/취소에 준하는 상태)는 예외가 아닌 State 값이어야
+  한다(§14.3 G-6). 구현체가 단계(Node) 예외를 실행 경계 밖으로
+  전파하는 경우, 그것을 catch-and-encode 하여 값으로 변환하는 것은
+  구현체의 보장이 아니라 **어댑터의 책임**이다. "모든 Node에서 강제"의
+  강제·검증 메커니즘(정적 분석 / Conformance Test)은 이 절이 확정하지
+  않는다 — 이 절은 **의무의 소재**까지만 확정하며, 메커니즘은 후속
+  Implementation Strategy가 다룬다.
+- **(d) Reversibility — 재확인 (신규 계약 아님)**: 어떤 구현체를
+  제거하고 다른 구현체(최소한 순차 함수 호출)로 교체해도 Kernel·HQ가
+  정의하는 코드는 한 줄도 수정되지 않는다. 이것은 **신규 계약이 아니라**
+  위 "Reversibility — 필수 Architecture 불변조건" 문단의 재기술이며,
+  더하는 것은 검증 방법이 v2 맥락의 통합 테스트임을 명문화하는
+  것뿐이다. 그 통합 테스트의 **실행**은 이 반영의 결과가 아니다(후속
+  Implementation Strategy, `ADC-0019` §Next Step 4).
+
+병렬 fan-out Node가 동일 State 키에 reducer 선언 없이 쓰는 경우의
+동시 쓰기 규약("(c)")은 이 부속 명세에 **포함되지 않는다** — `ADC-0020`
+§Q-D가 (c)를 정식화하지 않고 Defer했다. (c)는 문서화된 hazard로만
+존재하며, 그 계약화·배치·HQ State 설계 구속 여부는 v1 `ADR-0007` 결정
+11(State Model)이 다뤄질 때 후속 절차가 결합 판정한다. 이 절은 (c)에
+어떤 규범 효력도 부여하지 않는다.
+
 **이 Accept가 결정하지 않는 것**: 구현체 선택(LangGraph 채택 여부 포함),
-이 책임의 명칭(Workflow Adapter / Workflow Engine 등), Public Port 정의,
-구현 전략은 모두 별도 절차(RFC → ADC → ADR)로 남는다 — Execution
-Host가 존재(`ADC-0013`) → 명명(`ADC-0014`) → 구현 전략(`ADC-0015`)
-3단계로 분리한 선례를 그대로 따른다. `docs/decisions/adc/ADC.md`
+Public Port 정의, 구현 전략은 모두 별도 절차(RFC → ADC → ADR)로
+남는다 — Execution Host가 존재(`ADC-0013`) → 명명(`ADC-0014`) → 구현
+전략(`ADC-0015`) 3단계로 분리한 선례를 그대로 따른다. 이 책임의
+**명칭**은 그 선례대로 별도 명명 절차(`ADC-0020` §Q-B)로 **Workflow
+Adapter**로 확정됐다(위 "명칭" 문단). `docs/decisions/adc/ADC.md`
 ADC-02(Runtime 존폐, Open·NOW)와 `docs/architecture/core/ADC-0008`(넓은
 "유지 대 대체", Not Accepted)은 이 Accept로 갱신·전복되지 않는다 —
 이 책임은 §6 "Runtime" 정의 중 "조건부·반복 조율" 조각 하나일 뿐이다
@@ -1120,7 +1177,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.12 |
+| Version | v1.13 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -1128,6 +1185,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.13 | §16.6 책임에 명칭 **Workflow Adapter** 반영(재명명 아님 — §16.2 Engine Adapter와 별개, v1 `IWorkflowEngine` "Engine" 계보 비계승) + Adapter Contract 부속 명세 (a)(b)(d)를 §16.6 A-IN 부속으로 추가((a) caller-owned Checkpoint 값 소유, (b) 실행 결과의 값 표현 = 어댑터 책임, (d) Reversibility 재확인). 부속 명세는 구현체 내부 의무이며 Public Surface·§14 Kernel Public Contract가 아니고 그 선행물도 아님(자동 승격 경로 없음) — §14 무변경, "Port/Public/Guarantee/Interface" 어휘 불사용. (c) 병렬 State 동시 쓰기(disjoint key/reducer) 규약은 Defer — 반영하지 않음(v1 ADR-0007 결정 11과 결합해 후속 판정). Checkpoint 입도(C1)·phase 경계 선언 주체·"Sequential=Reference"·구현체 선택(LangGraph)·구현 전략·Conformance Test·IMPLEMENTATION_RULES Scoped 해제는 반영 대상 아님(후속 Implementation Strategy). v1 ADR-0007 결정 2/5/9/11 미해결 유지, Rule B 미충족(재검토 조건 (c)) 유지. §16.1~§16.5·§16.7·§6 Concept Model 표·§14는 변경하지 않음. `GLOSSARY.md`에 "Kernel Modules — Workflow Adapter (Reference)" 절 신설. `IMPLEMENTATION_RULES.md` 무변경. 근거: `docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md` |
 | v1.12 | §16에 §16.6 Scoped Workflow Graph Execution(조건부 분기·Loop·값 기반 Checkpoint/Resume) 신설 — Accept(Scoped, Conditional). §16.3~16.5 무변경(Execution Host/Multi-Task/Result Store 게이트 범위·명칭·구현 전략 불변). Reversibility를 필수 Architecture 불변조건으로 등재. A-OUT(Routing/Registry·Policy·Discovery·Domain Lifecycle·Event Bus·§16.5 저장 게이트·Multi-HQ decomposition·Registry 일반화) 명시 제외. v1 ADR-0007 결정 2/5/9/11의 v2 공백은 미해결로 유지 — 해소 전 Public Contract 승격·Production 구현 착수 불가. 구현체 선택(LangGraph 포함)·명칭·Public Port·구현 전략은 별도 결정. 기존 §16.6(미결 항목)은 §16.7로 재배치. §6 Concept Model 표·§16.1~§16.5는 변경하지 않음. IMPLEMENTATION_RULES.md는 금지 조항 유지(무변경). 근거: `docs/architecture/core/ADR-0008-scoped-workflow-graph-execution-baseline.md` |
 | v1.11 | §16.5에 Multi-Task Result Store 저장 전 검증 게이트 신설 — Accept(Scoped, Narrow). Investment HQ Checkpointer/`run_step`에 한정된 실증 사례, Multi-Task 전용 아님(4회 재현 중 2건은 Multi-Task 이전, 나머지도 순차 구간에서 발생), 근본 원인(Engine 호출 계층)은 별도 Dev HQ 개선 트랙으로 분리. Resume 재검증·판정 기준·Retry/Alert/Recovery 정책·새 Component는 계속 Open. 기존 §16.5(미결 항목)는 §16.6으로 재배치. §6 Concept Model 표·§16.1~§16.4는 변경하지 않음. `IMPLEMENTATION_RULES.md`는 검토 결과 변경 대상 없어 무변경. 근거: `docs/architecture/core/ADR-0007-multi-task-result-store-integrity-baseline.md` |
 | v1.10 | §16.4에 Multi-Task 최소 책임(독립 Task 동시 실행·결과 수집) 신설 — Accept(Scoped, Conditional on Data/Artifact Isolation). Execution Host(§16.3)와 명확히 분리, 기존 Agent 재사용 전제(동적 할당 제외), Scheduler/우선순위/Workflow orchestration/§6 넓은 Runtime은 계속 Open. 기존 §16.4(미결 항목)는 §16.5로 재배치. §6 Concept Model 표·§16.1~§16.3은 변경하지 않음. `IMPLEMENTATION_RULES.md`에 "Multi-Task 구현 허용 범위" 절 신설. 근거: `docs/architecture/core/ADR-0006-multi-task-minimal-responsibility-baseline.md` |
