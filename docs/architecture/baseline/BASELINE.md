@@ -1073,6 +1073,29 @@ HQ가 정의하는 코드는 한 줄도 수정되지 않아야 한다. 구현체
 v2 맥락의 통합 테스트로 이 불변조건을 재현 검증해야 한다(`ADC-0019`
 §Q6·§Decision 조건 4).
 
+**Reversibility v2 통합 테스트 재현 — 부분 충족 (E4, `ADC-0021` §8 Gate (C))**:
+`projects/workflow-adapter-reversibility-v2/`의 in-repo 통합 테스트가
+Sequential Reference 어댑터와 LangGraph 대조 어댑터로 도메인 형태
+그래프(5-way 병렬 fan-out → 토론 Loop → 조건부 라우팅, 3 시나리오)에서
+위 불변조건을 v2 맥락·저장소 안에서 재현했다 — 최종 State 동치, 실행
+결과의 값 표현(예외 비전파), caller-owned 값 Checkpoint의 별도-프로세스
+재개, 어댑터 교체 시 Kernel·HQ 파일 해시 불변, 구현체 고유 문법의 단일
+모듈 격리를 IN-1~IN-5 22개 테스트 PASS로 확인했다(E4
+`projects/workflow-adapter-reversibility-v2/EVIDENCE.md`,
+`docs/research/JARVIS-OS-V2.0-WORKFLOW-ADAPTER-REVERSIBILITY-V2-TEST-DESIGN-0001.md`).
+이는 **부분 충족**이며 `ADC-0019` §Decision 조건 4의 완전 discharge가
+아니다. 잔여 한계: (i) 노드가 결정론적 stub — 실제 엔진 비결정성·부분
+실패율 미검증, (ii) 대조 구현체가 여전히 LangGraph 단일 계보(E1·E2·E3·E4
+전부 동일 계보), (iii) 실제 엔진 실행·프로덕션 트래픽 미검증. 이 재현은
+`ADC-0019` 재검토 조건 (c)(다른 계보 또는 v2 프로덕션 관찰 — `ADC-0021`
+§8 Gate (B))를 **충족하지 않으며**, v1 `ADR-0007` 결정 2/5/9/11 공백
+(`ADC-0021` §8 Gate (A))도 해소하지 않는다. E4는
+`docs/00_governance/ARCHITECTURE_GOVERNANCE.md` "Experimental Implementation"의
+Evidence이며, 그 존재만으로 Public Contract 승격·LangGraph 채택·
+`IMPLEMENTATION_RULES.md` 해제·Production 구현 착수를 발생시키지 않는다.
+완전 discharge 및 조건 4의 Conditional 해제는 위 잔여 한계 (i)~(iii)가
+후속 절차로 메워질 때 별도로 판정된다.
+
 **미해결 상태로 유지되는 v2 공백 (Conditional)**: v1 `ADR-0007` 결정
 2(Core 소유 Lifecycle 소비)·5(Team/Division 경계)·9(`IWorkflowEngine`
 Port)·11(State Model)의 v2 대응 부재는 이 Accept로 해소되지 않는다
@@ -1177,7 +1200,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.13 |
+| Version | v1.14 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -1185,6 +1208,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.14 | §16.6 Reversibility 필수 불변조건의 v2 통합 테스트 재현 상태를 **부분 충족(E4)**으로 기록 — `projects/workflow-adapter-reversibility-v2/` in-repo 통합 테스트(IN-1~IN-5, 22 PASS: 최종 State 동치·예외 비전파·caller-owned Checkpoint 별도-프로세스 재개·교체 시 파일 해시 불변·구현체 문법 격리)가 Sequential Reference ↔ LangGraph 대조로 도메인 형태 그래프에서 불변조건 재현. **완전 discharge 아님** — 잔여 한계: 결정론적 stub(실엔진 비결정성 미검증)·LangGraph 단일 계보·프로덕션 트래픽 미검증. `ADC-0019` 재검토 조건 (c)(=Gate (B)) 미충족 유지, v1 ADR-0007 결정 2/5/9/11(=Gate (A)) 미해소 유지. E4는 Experimental Evidence이며 Public Contract 승격·LangGraph 채택·IMPLEMENTATION_RULES 해제·Production 구현 착수를 발생시키지 않음(자동 승격 없음). §16.6 A-IN/A-OUT·Adapter Contract (a)(b)(c)(d) 문언(특히 (d) verbatim)·§16.1~§16.5·§16.7·§6·§14·§15.2 무변경. Checkpoint 입도 C1·Q-E-2·"Sequential=Reference" GLOSSARY 신설은 반영 대상 아님. `IMPLEMENTATION_RULES.md` 무변경. 근거: `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md` |
 | v1.13 | §16.6 책임에 명칭 **Workflow Adapter** 반영(재명명 아님 — §16.2 Engine Adapter와 별개, v1 `IWorkflowEngine` "Engine" 계보 비계승) + Adapter Contract 부속 명세 (a)(b)(d)를 §16.6 A-IN 부속으로 추가((a) caller-owned Checkpoint 값 소유, (b) 실행 결과의 값 표현 = 어댑터 책임, (d) Reversibility 재확인). 부속 명세는 구현체 내부 의무이며 Public Surface·§14 Kernel Public Contract가 아니고 그 선행물도 아님(자동 승격 경로 없음) — §14 무변경, "Port/Public/Guarantee/Interface" 어휘 불사용. (c) 병렬 State 동시 쓰기(disjoint key/reducer) 규약은 Defer — 반영하지 않음(v1 ADR-0007 결정 11과 결합해 후속 판정). Checkpoint 입도(C1)·phase 경계 선언 주체·"Sequential=Reference"·구현체 선택(LangGraph)·구현 전략·Conformance Test·IMPLEMENTATION_RULES Scoped 해제는 반영 대상 아님(후속 Implementation Strategy). v1 ADR-0007 결정 2/5/9/11 미해결 유지, Rule B 미충족(재검토 조건 (c)) 유지. §16.1~§16.5·§16.7·§6 Concept Model 표·§14는 변경하지 않음. `GLOSSARY.md`에 "Kernel Modules — Workflow Adapter (Reference)" 절 신설. `IMPLEMENTATION_RULES.md` 무변경. 근거: `docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md` |
 | v1.12 | §16에 §16.6 Scoped Workflow Graph Execution(조건부 분기·Loop·값 기반 Checkpoint/Resume) 신설 — Accept(Scoped, Conditional). §16.3~16.5 무변경(Execution Host/Multi-Task/Result Store 게이트 범위·명칭·구현 전략 불변). Reversibility를 필수 Architecture 불변조건으로 등재. A-OUT(Routing/Registry·Policy·Discovery·Domain Lifecycle·Event Bus·§16.5 저장 게이트·Multi-HQ decomposition·Registry 일반화) 명시 제외. v1 ADR-0007 결정 2/5/9/11의 v2 공백은 미해결로 유지 — 해소 전 Public Contract 승격·Production 구현 착수 불가. 구현체 선택(LangGraph 포함)·명칭·Public Port·구현 전략은 별도 결정. 기존 §16.6(미결 항목)은 §16.7로 재배치. §6 Concept Model 표·§16.1~§16.5는 변경하지 않음. IMPLEMENTATION_RULES.md는 금지 조항 유지(무변경). 근거: `docs/architecture/core/ADR-0008-scoped-workflow-graph-execution-baseline.md` |
 | v1.11 | §16.5에 Multi-Task Result Store 저장 전 검증 게이트 신설 — Accept(Scoped, Narrow). Investment HQ Checkpointer/`run_step`에 한정된 실증 사례, Multi-Task 전용 아님(4회 재현 중 2건은 Multi-Task 이전, 나머지도 순차 구간에서 발생), 근본 원인(Engine 호출 계층)은 별도 Dev HQ 개선 트랙으로 분리. Resume 재검증·판정 기준·Retry/Alert/Recovery 정책·새 Component는 계속 Open. 기존 §16.5(미결 항목)는 §16.6으로 재배치. §6 Concept Model 표·§16.1~§16.4는 변경하지 않음. `IMPLEMENTATION_RULES.md`는 검토 결과 변경 대상 없어 무변경. 근거: `docs/architecture/core/ADR-0007-multi-task-result-store-integrity-baseline.md` |
