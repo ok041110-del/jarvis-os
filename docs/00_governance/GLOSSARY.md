@@ -128,6 +128,25 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 > `hqs/development/IMPLEMENTATION_RULES.md`의 "Runtime 구현 금지"는
 > 그대로 유효하다.
 
+## Kernel Modules — Workflow Adapter (Reference)
+
+상세 정의는 `docs/architecture/baseline/BASELINE.md` §16.6 참조.
+
+| 용어 | 정의 |
+|---|---|
+| Workflow Adapter | HQ가 정의한 고정 Workflow 그래프의 실행 진행(State 보유·Node 진행·조건부 분기·Loop·값 기반 Checkpoint/Resume — §16.6 A-IN 5항목)을 담당하는 책임의 공식 명칭. §16.2 **Engine Adapter**(Model/LLM Provider 호출)와는 별개의 책임이며 그것을 재명명·흡수한 것이 아니다(`docs/architecture/core/ADC-0020-workflow-adapter-naming-and-contract-boundary.md` §Q-B). v1 `archive/v1` `ADR-0007`의 `IWorkflowEngine` Port("Engine" 계보)를 계승하지 않는다 — "Engine" 프레이밍이 함의하던 Core 소유 Lifecycle 소비를 v2가 폐기했기 때문이다(`ADC-0019` G2) |
+| Adapter Contract | Workflow Adapter 구현체가 지켜야 할 **내부 의무**를 §16.6 A-IN의 부속 명세로 정련한 것 — (a) caller-owned Checkpoint 값 소유, (b) 실행 결과의 값 표현 = 어댑터 책임, (d) Reversibility 재확인. Public Surface가 아니고 §14 Kernel Public Contract가 아니며 그 선행물도 아니다 — §14 자동 승격 경로 없음(`ADC-0020` §Q-C). 병렬 State 동시 쓰기 규약("(c)")은 이 명세에서 Defer됨(`ADC-0020` §Q-D) |
+
+> Workflow Adapter는 §6 Concept Model 표에 등재되지 않는다 — Execution
+> Host(§16.3)와 같은 Kernel Module(§16) 수준의 좁은 책임이다
+> (`docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md`
+> §Decision 4). Reversibility는 이 책임의 필수 Architecture 불변조건이며,
+> 어떤 구현체(LangGraph 포함)를 제거·교체해도 Kernel·HQ 코드는 수정되지
+> 않는다. 구현체 선택·구현 전략·Public Port·§14 승격은 미확정이며, v1
+> `ADR-0007` 결정 2/5/9/11이 미해결인 동안 §14 승격·Production 구현
+> 착수는 불가하다. `hqs/development/IMPLEMENTATION_RULES.md`의 Workflow/
+> Scheduler/Runtime/Event Bus 구현 금지는 그대로 유효하다.
+
 ## 핵심 원칙 (Reference)
 
 | 용어 | 정의 |
