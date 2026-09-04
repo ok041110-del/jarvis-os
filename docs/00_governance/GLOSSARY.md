@@ -136,6 +136,7 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 |---|---|
 | Workflow Adapter | HQ가 정의한 고정 Workflow 그래프의 실행 진행(State 보유·Node 진행·조건부 분기·Loop·값 기반 Checkpoint/Resume — §16.6 A-IN 5항목)을 담당하는 책임의 공식 명칭. §16.2 **Engine Adapter**(Model/LLM Provider 호출)와는 별개의 책임이며 그것을 재명명·흡수한 것이 아니다(`docs/architecture/core/ADC-0020-workflow-adapter-naming-and-contract-boundary.md` §Q-B). v1 `archive/v1` `ADR-0007`의 `IWorkflowEngine` Port("Engine" 계보)를 계승하지 않는다 — "Engine" 프레이밍이 함의하던 Core 소유 Lifecycle 소비를 v2가 폐기했기 때문이다(`ADC-0019` G2) |
 | Adapter Contract | Workflow Adapter 구현체가 지켜야 할 **내부 의무**를 §16.6 A-IN의 부속 명세로 정련한 것 — (a) caller-owned Checkpoint 값 소유, (b) 실행 결과의 값 표현 = 어댑터 책임, (d) Reversibility 재확인. Public Surface가 아니고 §14 Kernel Public Contract가 아니며 그 선행물도 아니다 — §14 자동 승격 경로 없음(`ADC-0020` §Q-C). 병렬 State 동시 쓰기 규약("(c)")은 이 명세에서 Defer됨(`ADC-0020` §Q-D) |
+| 실행 단위 (Execution Unit) | `BASELINE.md` §16.6 A-IN이 입력으로 받는 "이미 구성된 실행 단위" — HQ가 구성한 "무엇을·어떤 순서·병렬성으로·어느 Agent가 수행하는가"의 묶음. Kernel은 그 내부 구조·생명주기·조직적 출처(Division/Team 유무)를 정의하지 않는다(`docs/architecture/core/ADC-0022-workflow-adapter-execution-unit-lifecycle-state-model-resolution.md` §D-0). §16.3·§16.4·§16.6이 공유하는 용어이며 §6 Concept Model에 등재되지 않는다 |
 
 > Workflow Adapter는 §6 Concept Model 표에 등재되지 않는다 — Execution
 > Host(§16.3)와 같은 Kernel Module(§16) 수준의 좁은 책임이다
@@ -143,16 +144,17 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 > §Decision 4). Reversibility는 이 책임의 필수 Architecture 불변조건이며,
 > 어떤 구현체(LangGraph 포함)를 제거·교체해도 Kernel·HQ 코드는 수정되지
 > 않는다. 구현체 선택·구현 전략·Public Port·§14 승격은 미확정이며, v1
-> `ADR-0007` 결정 2/5/9/11이 미해결인 동안 §14 승격·Production 구현
-> 착수는 불가하다. `hqs/development/IMPLEMENTATION_RULES.md`의 Workflow/
+> `ADR-0007` 결정 9(및 `ADC-0021` §8 Gate (B)·(C))가 미해결인 동안 §14
+> 승격·Production 구현 착수는 불가하다 — v1 `ADR-0007` 결정 2·5·11은
+> `ADC-0022`로 해소됐다. `hqs/development/IMPLEMENTATION_RULES.md`의 Workflow/
 > Scheduler/Runtime/Event Bus 구현 금지는 그대로 유효하다.
 > Reversibility 불변조건은 `ADC-0021` §8 Gate (C)의 in-repo 통합
 > 테스트(E4 `projects/workflow-adapter-reversibility-v2/EVIDENCE.md`,
 > IN-1~IN-5 22 PASS)로 v2 맥락에서 **부분 충족**으로 재현됐다 —
 > 결정론적 stub·LangGraph 단일 계보·실엔진 미검증이라는 잔여 한계가
 > 있어 완전 discharge는 아니며, `ADC-0019` 재검토 조건 (c)와 v1
-> `ADR-0007` 결정 2/5/9/11은 그대로 미충족이다
-> (`docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md`).
+> `ADR-0007` 결정 9는 그대로 미충족이다(결정 2·5·11은 `ADC-0022`로
+> 해소; `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md`).
 
 ## 핵심 원칙 (Reference)
 
