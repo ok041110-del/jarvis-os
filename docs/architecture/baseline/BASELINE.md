@@ -1037,7 +1037,46 @@ Reversibility를 필수 불변조건으로 요구하는 것을 전제로 Accept�
 **A-IN (Kernel Module로서 다루는 것)**: State, Node, Conditional Edge,
 Loop, 값 기반 Checkpoint/Resume — 위 "책임" 문단의 다섯 항목, 그리고
 그 진행이 개입하는 구간("HQ가 실행 단위를 구성한 이후 ~ 그 실행이 모두
-끝나는 시점")으로 한정된다(`ADC-0019` §Q3·§Decision 조건 1).
+끝나는 시점")으로 한정된다(`ADC-0019` §Q3·§Decision 조건 1). 이
+입력("이미 구성된 실행 단위")은 HQ 내부 조직 구조(Division/Team의 존재
+여부·이름·책임 분담)와 **독립적으로** 성립하며, Adapter는 그 구조를
+관측하지도 그에 의존하지도 않는다 — 새 입력 계약 의무가 아니라 §5·§7이
+이미 함의한 경계의 확인이다(`ADC-0022` §D-5, `hqs/development/BOUNDARY.md`가
+"Division/Team 관례를 쓸지 말지 결정"을 HQ 책임으로 명시). 후속 Adapter
+Contract 정련이나 Public Port 정의가 HQ 내부 조직 구조를 입력 스키마에
+노출하면 이 경계 위반이다. 입력의 **구체 시그니처**(v1 `ADR-0007` 결정
+9 `IWorkflowEngine.run(team, dispatch)`의 v2 대응)는 이 Accept가 정하지
+않는다 — §14.1 "Task 전달 책임" 트랙에 남는다.
+
+**실행 단위(Execution Unit) — §16.6 A-IN 입력 경계 설명 용어**: 위 A-IN이
+입력으로 받는 "이미 구성된 실행 단위"는 **HQ가 구성한 "무엇을·어떤 순서·
+병렬성으로·어느 Agent가 수행하는가"의 묶음**이며, Workflow Adapter는 이를
+**불투명한 입력**으로 받는다. Kernel은 그 내부 구조·생명주기·조직적
+출처(Division/Team의 유무)를 정의하지 않는다(`ADC-0022` §D-0). 이 용어는
+§16.3·§16.4·§16.6이 이미 정의 없이 써 온 "실행 단위"에 §16.6 맥락의
+설명을 붙인 것이지 — **§6 Concept Model 항목이 아니고, 새 Kernel
+Domain·Layer·Component가 아니며, §16.7이 Defer한 Workflow Kernel Module이
+아니다**(`ADR-0009` §Decision 4가 "Workflow Adapter" 명칭을 §6에 등재하지
+않고 §16.6 본문 용어로 둔 것과 동일 판단).
+
+**A-IN(a) 공유 State가 담는 정보 — Workflow Execution State ↔ HQ Domain
+State (`ADC-0022` §D-11)**: A-IN(a) "공유 실행 상태(State)의 보유"가 담는
+정보는 두 종류로 **기술된다**(규범 축을 정의하는 것이 아니라 서술이다) —
+(i) **진행 정보**: 그래프의 어느 Node에 있는지, 무엇을 반복 중인지.
+Adapter가 생산하는 값이며 호출자가 보관·반환한다(A-IN(e), Adapter
+Contract (a)). (ii) **종료 disposition 정보**: 실행이 어떻게
+끝났는가(성공/실패/취소에 준하는 상태). 이것이 값으로 표현되고 예외로
+전파되지 않는 것은 §14.3 G-6 · 위 A-IN · Adapter Contract (b)가 이미
+규정한 **형식 제약**이며, 그 **내용·어휘**(어떤 상태가 있고 무슨 뜻인지)는
+§7상 **HQ 도메인 책임**이고 Kernel이 규정하지 않는다. Kernel은 v1
+`ADR-0007` 결정 11의 `WorkflowStatus{SUCCESS, FAILURE, CANCELLED}`
+enum이나 `WorkflowResult` 타입을 v2에 도입하지 않으며, 종료 disposition
+정보가 State에 명시 축으로 존재하도록 **요구하지 않는다**. v1이
+`WorkflowStatus`를 `TeamState`와 대비해 정의했던 "별개 축" 구도는 v2에서
+"진행 정보 vs 종료 정보"로 약하게 재기술되며, 둘은 A-IN(a) State가 함께
+담을 수 있는 정보이지 Kernel이 강제하는 별도 State 축이 아니다. 실행
+결과를 호출자에게 돌려주는 반환 타입(`WorkflowResult` 대응)은 이 Accept
+밖이며 §14.1 "Task 전달 책임" 트랙에 남는다.
 
 **A-OUT (이 Accept가 다루지 않는 것)**: HQ Routing/Registry, Policy
 판정(PDP/PEP), Capability/Connector Discovery, Domain Lifecycle 전이
@@ -1046,6 +1085,23 @@ Loop, 값 기반 Checkpoint/Resume — 위 "책임" 문단의 다섯 항목, 그
 일반화는 이 책임에 포함되지 않으며, 이 책임의 어떤 구현체도 이를
 소유·재구현·대체하지 않는다(`ADC-0019` §Q4·§Decision 조건 2). "무엇을
 실행할지"(Workflow 도메인 내용)는 §7 System Boundary대로 HQ가 채운다.
+
+**실행 단위 Lifecycle — Adapter가 소비할 Kernel 소유 전이는 없다
+(`ADC-0022` §D-2)**: Workflow Adapter의 개입 구간(위 A-IN, "HQ가 실행
+단위를 구성한 이후 ~ 그 실행이 모두 끝나는 시점")에는 **Adapter가 소비할
+Kernel/Core 소유 실행 단위 생명주기 전이가 존재하지 않는다.** v1
+`ADR-0007` 결정 2가 전제한 `Team`/`TeamState`의 v2 대응물은 §5(Kernel이
+Team/Division을 모른다)로 인해 구조적으로 부재하며, Investment/Development
+HQ 코드에도 실행 단위 상태 머신이 없다. 이 "부재"는 **실행 단위 수준**에
+한정된다 — §6 "HQ는 Lifecycle State를 가진다"와 §7 "HQ의 생명주기 관리
+및 상태 전환 통제 = Jarvis OS"는 이 서술로 변경되지 않으며, HQ Lifecycle
+State는 Adapter 개입 구간 **밖**에서 Jarvis OS가 통제하고 Adapter가
+전이시키지 않는다. HQ가 구성한 실행 단위가 자체 도메인 전이 로직을
+포함하는 경우, Workflow Adapter는 그 로직을 **호출만** 하고 전이 규칙을
+재구현하거나 재정렬하지 않는다 — 이는 위 A-OUT "Domain Lifecycle 전이
+규칙 재구현 금지"(v1 `ADR-0007` 결정 2·대안 B 기각 인용)의 **긍정형
+재기술**이며 새 의무가 아니다. 현재 이 조건을 트리거하는 실행 단위 전이
+로직은 어느 HQ에도 없다 — 이 조항은 미래 대비로 존속한다.
 
 **§16.3~16.5와의 경계**: 이 책임은 Execution Host(§16.3)·Multi-Task(§16.4)·
 Multi-Task Result Store(§16.5)의 확장이 아니라 별개 Concept이다
@@ -1096,14 +1152,24 @@ Evidence이며, 그 존재만으로 Public Contract 승격·LangGraph 채택·
 완전 discharge 및 조건 4의 Conditional 해제는 위 잔여 한계 (i)~(iii)가
 후속 절차로 메워질 때 별도로 판정된다.
 
-**미해결 상태로 유지되는 v2 공백 (Conditional)**: v1 `ADR-0007` 결정
-2(Core 소유 Lifecycle 소비)·5(Team/Division 경계)·9(`IWorkflowEngine`
-Port)·11(State Model)의 v2 대응 부재는 이 Accept로 해소되지 않는다
-(`ADC-0019` §Q7·§Decision 조건 5). 이 네 공백이 후속 Architecture
-절차(ADR 또는 별도 RFC)로 다뤄지기 전에는, 이 책임을 Kernel Public
-Contract(§14)로 승격하거나 Production 구현에 착수할 수 없다. 결정 9의
-공백 원인은 §14.1이 "Task 전달 책임"을 계약 범위 밖으로 두는 것이며,
-이는 이 책임보다 상위의, 별도로 이미 Open인 질문이다.
+**v2 공백의 현재 상태 (Conditional)**: v1 `ADR-0007` 결정 **2(Core 소유
+Lifecycle 소비)·5(Team/Division 경계)·11(State Model)은 `ADC-0022`로
+Resolved**다 — Team/Division 부재에서 비롯된 세 공백의 v2 재정의가
+완료됐다(위 "실행 단위(Execution Unit)"·"실행 단위 Lifecycle"·"A-IN(a)
+공유 State가 담는 정보" 문단, `ADC-0022` §D-2·§D-5·§D-11·§D-11c).
+**결정 9(`IWorkflowEngine` Port / 결과 반환 타입 / 입력 시그니처)는
+미해결로 남는다** — 공백 원인이 Team 부재가 아니라 §14.1이 "Task 전달
+책임"·"Engine 호출 책임"을 계약 범위 밖으로 두는 것이므로, 이 책임보다
+상위의 별도 Kernel Public Contract 확장 절차(별도 RFC → ADC → ADR)가
+다룬다. **이 책임을 Kernel Public Contract(§14)로 승격하는 것은 결정 9
+해소 이후에만 가능하다**(`ADC-0019` §Q7·§Decision 조건 5). Production
+구현 착수는 결정 9 + `ADC-0019` 재검토 조건 (c)(다른 계보 또는 v2
+프로덕션 관찰 — `ADC-0021` §8 Gate (B)) + Reversibility 필수 불변조건의
+v2 완전 검증(위 "부분 충족(E4)" 문단, `ADC-0021` §8 Gate (C)) +
+`hqs/development/IMPLEMENTATION_RULES.md`로 **계속 차단된다** — 결정
+2·5·11의 해소는 이 중 어느 것도 해제하지 않는다. `ADC-0021` §8 Gate
+(A)는 이 반영 이후 **"부분 해소(결정 2·5·11 Resolved / 결정 9 pending)"**로
+읽힌다.
 
 **Workflow Module Defer(§16.7)와의 구분**: 이 절의 "Scoped Workflow
 Graph Execution"은 §16.7 미결 항목이 Defer 상태로 기록한 Workflow
@@ -1166,7 +1232,14 @@ Surface가 아니고, `RFC-0019` §7의 "개념 수준" 지위를 그대로 계�
 §Q-D가 (c)를 정식화하지 않고 Defer했다. (c)는 문서화된 hazard로만
 존재하며, 그 계약화·배치·HQ State 설계 구속 여부는 v1 `ADR-0007` 결정
 11(State Model)이 다뤄질 때 후속 절차가 결합 판정한다. 이 절은 (c)에
-어떤 규범 효력도 부여하지 않는다.
+어떤 규범 효력도 부여하지 않는다. 결정 11이 `ADC-0022`에서 다뤄진 결과,
+(c)의 **배치**는 HQ의 State 스키마 설계 책임(§7 도메인 내용 / §13.3류
+구조 불변식)으로 확정된다(`ADC-0022` §D-11c) — 어댑터의 의무는 HQ
+스키마가 선언한 disjoint/accumulate 의미론을 **기계적·결정론적으로
+이행**하는 것뿐이다. (c)의 **계약화 여부**와 **HQ 설계 구속 강화**는
+여전히 `ADC-0020` §Q-D Defer·`ADR-0009` §3 그대로이며, (c)는 규범 효력
+없는 hazard + 배치 원칙으로만 남는다(실제 HQ에 공유 키 병렬 쓰기 사례
+없음).
 
 **이 Accept가 결정하지 않는 것**: 구현체 선택(LangGraph 채택 여부 포함),
 Public Port 정의, 구현 전략은 모두 별도 절차(RFC → ADC → ADR)로
@@ -1185,9 +1258,10 @@ ADC-02(Runtime 존폐, Open·NOW)와 `docs/architecture/core/ADC-0008`(넓은
 Scheduler/우선순위/Workflow orchestration/Dynamic Routing(조건부 목적지
 선택·Agent 동적 배분) 및 §6 넓은 Runtime 구현 금지, Stage 재진입
 (Retry/Re-entry)·조건부 Stage 실행 구현 금지, Event Bus 구현 금지
-조항은 이 Accept로 해제되지 않는다. v1 `ADR-0007` 결정 2/5/9/11 공백
-해소와 Reversibility의 v2 재현 검증 이후, 별도 ADR이 A-IN 범위에 한해
-그 금지의 Scoped 해제 여부를 판단한다(`ADC-0019` §Next Step 2·5).
+조항은 이 Accept로 해제되지 않는다. v1 `ADR-0007` 결정 9 공백 해소(결정
+2·5·11은 `ADC-0022`로 해소됨)와 `ADC-0021` §8 Gate (B)·(C) 충족 및
+Reversibility의 v2 완전 검증 이후, 별도 ADR이 A-IN 범위에 한해 그 금지의
+Scoped 해제 여부를 판단한다(`ADC-0019` §Next Step 2·5).
 
 ### 16.7 미결 항목
 
@@ -1200,7 +1274,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.14 |
+| Version | v1.15 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -1208,6 +1282,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.15 | §16.6에 Gate (A) 결정 2·5·11 Resolution 반영(`ADC-0022` → `ADR-0011`) — "실행 단위(Execution Unit)"를 §16.6 A-IN 입력 경계 설명 용어로 명시(§6 Concept Model 미등재, 새 Kernel Domain·Layer·Component 아님, D-0). D-2: Adapter 개입 구간에 소비할 Kernel 소유 실행 단위 생명주기 전이 부재 + HQ Lifecycle State(§6/§7) 2층 분리 무변경 + A-OUT 금지의 긍정형 조건형 불변조건("현재 트리거 없음"). D-5: 결정 5 = §16.6 A-IN/A-OUT+§7로 대체, 입력은 HQ 내부 조직 구조 비의존(확인용 서술 — 새 입력 계약 의무 아님, 구체 시그니처는 §14.1 트랙). D-11: Kernel `WorkflowStatus` enum·`WorkflowResult` 타입 미도입, A-IN(a) State가 담는 정보를 진행 정보/종료 disposition으로 **서술**(종료 disposition 내용·어휘 = HQ 도메인, Kernel은 축의 존재를 요구하지 않음). D-11c: (c) 병렬 State 동시 쓰기 규약의 **배치 = HQ State 스키마** — 계약화 여부·HQ 구속 강화는 `ADC-0020` §Q-D·`ADR-0009` §3 그대로, 규범 효력 없음, 독립 Decision 아님. **결정 9(`IWorkflowEngine` Port/결과 반환 타입/시그니처)는 §14.1 "Task 전달 책임" 트랙 pending — Gate (A) 부분 해소.** Gate (B)(재검토 조건 (c))·Gate (C)(Reversibility 완전 검증)·§14 승격·`IMPLEMENTATION_RULES.md` line 9/13/14/19 차단 유지. §5·§6·§7·§14·§16.1~§16.5·§16.7·§6 Concept Model 표·Adapter Contract (a)(b)(d) 문언·Reversibility 2문단 무변경. `GLOSSARY.md` "Workflow Adapter (Reference)" 절에 "실행 단위" 행 추가 + 결정 참조번호(2/5/9/11 → 9) 정정. 근거: `docs/architecture/core/ADR-0011-gate-a-decisions-2-5-11-resolution-baseline.md` |
 | v1.14 | §16.6 Reversibility 필수 불변조건의 v2 통합 테스트 재현 상태를 **부분 충족(E4)**으로 기록 — `projects/workflow-adapter-reversibility-v2/` in-repo 통합 테스트(IN-1~IN-5, 22 PASS: 최종 State 동치·예외 비전파·caller-owned Checkpoint 별도-프로세스 재개·교체 시 파일 해시 불변·구현체 문법 격리)가 Sequential Reference ↔ LangGraph 대조로 도메인 형태 그래프에서 불변조건 재현. **완전 discharge 아님** — 잔여 한계: 결정론적 stub(실엔진 비결정성 미검증)·LangGraph 단일 계보·프로덕션 트래픽 미검증. `ADC-0019` 재검토 조건 (c)(=Gate (B)) 미충족 유지, v1 ADR-0007 결정 2/5/9/11(=Gate (A)) 미해소 유지. E4는 Experimental Evidence이며 Public Contract 승격·LangGraph 채택·IMPLEMENTATION_RULES 해제·Production 구현 착수를 발생시키지 않음(자동 승격 없음). §16.6 A-IN/A-OUT·Adapter Contract (a)(b)(c)(d) 문언(특히 (d) verbatim)·§16.1~§16.5·§16.7·§6·§14·§15.2 무변경. Checkpoint 입도 C1·Q-E-2·"Sequential=Reference" GLOSSARY 신설은 반영 대상 아님. `IMPLEMENTATION_RULES.md` 무변경. 근거: `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md` |
 | v1.13 | §16.6 책임에 명칭 **Workflow Adapter** 반영(재명명 아님 — §16.2 Engine Adapter와 별개, v1 `IWorkflowEngine` "Engine" 계보 비계승) + Adapter Contract 부속 명세 (a)(b)(d)를 §16.6 A-IN 부속으로 추가((a) caller-owned Checkpoint 값 소유, (b) 실행 결과의 값 표현 = 어댑터 책임, (d) Reversibility 재확인). 부속 명세는 구현체 내부 의무이며 Public Surface·§14 Kernel Public Contract가 아니고 그 선행물도 아님(자동 승격 경로 없음) — §14 무변경, "Port/Public/Guarantee/Interface" 어휘 불사용. (c) 병렬 State 동시 쓰기(disjoint key/reducer) 규약은 Defer — 반영하지 않음(v1 ADR-0007 결정 11과 결합해 후속 판정). Checkpoint 입도(C1)·phase 경계 선언 주체·"Sequential=Reference"·구현체 선택(LangGraph)·구현 전략·Conformance Test·IMPLEMENTATION_RULES Scoped 해제는 반영 대상 아님(후속 Implementation Strategy). v1 ADR-0007 결정 2/5/9/11 미해결 유지, Rule B 미충족(재검토 조건 (c)) 유지. §16.1~§16.5·§16.7·§6 Concept Model 표·§14는 변경하지 않음. `GLOSSARY.md`에 "Kernel Modules — Workflow Adapter (Reference)" 절 신설. `IMPLEMENTATION_RULES.md` 무변경. 근거: `docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md` |
 | v1.12 | §16에 §16.6 Scoped Workflow Graph Execution(조건부 분기·Loop·값 기반 Checkpoint/Resume) 신설 — Accept(Scoped, Conditional). §16.3~16.5 무변경(Execution Host/Multi-Task/Result Store 게이트 범위·명칭·구현 전략 불변). Reversibility를 필수 Architecture 불변조건으로 등재. A-OUT(Routing/Registry·Policy·Discovery·Domain Lifecycle·Event Bus·§16.5 저장 게이트·Multi-HQ decomposition·Registry 일반화) 명시 제외. v1 ADR-0007 결정 2/5/9/11의 v2 공백은 미해결로 유지 — 해소 전 Public Contract 승격·Production 구현 착수 불가. 구현체 선택(LangGraph 포함)·명칭·Public Port·구현 전략은 별도 결정. 기존 §16.6(미결 항목)은 §16.7로 재배치. §6 Concept Model 표·§16.1~§16.5는 변경하지 않음. IMPLEMENTATION_RULES.md는 금지 조항 유지(무변경). 근거: `docs/architecture/core/ADR-0008-scoped-workflow-graph-execution-baseline.md` |
