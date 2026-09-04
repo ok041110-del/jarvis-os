@@ -1046,7 +1046,11 @@ Loop, 값 기반 Checkpoint/Resume — 위 "책임" 문단의 다섯 항목, 그
 Contract 정련이나 Public Port 정의가 HQ 내부 조직 구조를 입력 스키마에
 노출하면 이 경계 위반이다. 입력의 **구체 시그니처**(v1 `ADR-0007` 결정
 9 `IWorkflowEngine.run(team, dispatch)`의 v2 대응)는 이 Accept가 정하지
-않는다 — §14.1 "Task 전달 책임" 트랙에 남는다.
+않는다 — §14.1 "Task 전달 책임" 트랙에 남는다. `ADC-0023` §D-9c는 이
+입력 시그니처를 **Kernel이 규정하지 않는다**로 종결했다 — 실행 단위
+절반 = 불투명 HQ 입력(`ADC-0022` §D-5), 나머지 = HQ별 진입
+시그니처(`run_mvp_0001(code)`, `team.run(...)`). "Task 전달 책임"을
+Kernel 책임으로 승격할지 여부는 그와 별개로 §14.1 #1에 남는다.
 
 **실행 단위(Execution Unit) — §16.6 A-IN 입력 경계 설명 용어**: 위 A-IN이
 입력으로 받는 "이미 구성된 실행 단위"는 **HQ가 구성한 "무엇을·어떤 순서·
@@ -1076,7 +1080,13 @@ enum이나 `WorkflowResult` 타입을 v2에 도입하지 않으며, 종료 dispo
 "진행 정보 vs 종료 정보"로 약하게 재기술되며, 둘은 A-IN(a) State가 함께
 담을 수 있는 정보이지 Kernel이 강제하는 별도 State 축이 아니다. 실행
 결과를 호출자에게 돌려주는 반환 타입(`WorkflowResult` 대응)은 이 Accept
-밖이며 §14.1 "Task 전달 책임" 트랙에 남는다.
+밖이며 §14.1 "Task 전달 책임" 트랙에 남는다. `ADC-0023` §D-9d는 이 반환
+타입을 **Kernel이 정의하지 않는다**로 종결했다 — 어댑터 경계 산출물 =
+caller-owned 최종 State 값(Adapter Contract (a)(b), §14.3 G-6), 그
+값에서 HQ가 도출하는 종료 disposition·요약의 타입 = HQ 도메인
+(`hqs/development` `VerificationResult` 등 HQ-level Public Contract).
+Kernel-typed envelope(`WorkflowResult` 대응)는 도입하지 않는다(`ADC-0022`
+§D-11 계승).
 
 **A-OUT (이 Accept가 다루지 않는 것)**: HQ Routing/Registry, Policy
 판정(PDP/PEP), Capability/Connector Discovery, Domain Lifecycle 전이
@@ -1153,23 +1163,29 @@ Evidence이며, 그 존재만으로 Public Contract 승격·LangGraph 채택·
 후속 절차로 메워질 때 별도로 판정된다.
 
 **v2 공백의 현재 상태 (Conditional)**: v1 `ADR-0007` 결정 **2(Core 소유
-Lifecycle 소비)·5(Team/Division 경계)·11(State Model)은 `ADC-0022`로
-Resolved**다 — Team/Division 부재에서 비롯된 세 공백의 v2 재정의가
-완료됐다(위 "실행 단위(Execution Unit)"·"실행 단위 Lifecycle"·"A-IN(a)
-공유 State가 담는 정보" 문단, `ADC-0022` §D-2·§D-5·§D-11·§D-11c).
-**결정 9(`IWorkflowEngine` Port / 결과 반환 타입 / 입력 시그니처)는
-미해결로 남는다** — 공백 원인이 Team 부재가 아니라 §14.1이 "Task 전달
-책임"·"Engine 호출 책임"을 계약 범위 밖으로 두는 것이므로, 이 책임보다
-상위의 별도 Kernel Public Contract 확장 절차(별도 RFC → ADC → ADR)가
-다룬다. **이 책임을 Kernel Public Contract(§14)로 승격하는 것은 결정 9
-해소 이후에만 가능하다**(`ADC-0019` §Q7·§Decision 조건 5). Production
-구현 착수는 결정 9 + `ADC-0019` 재검토 조건 (c)(다른 계보 또는 v2
-프로덕션 관찰 — `ADC-0021` §8 Gate (B)) + Reversibility 필수 불변조건의
-v2 완전 검증(위 "부분 충족(E4)" 문단, `ADC-0021` §8 Gate (C)) +
+Lifecycle 소비)·5(Team/Division 경계)·11(State Model)은 `ADC-0022`로,
+9(`IWorkflowEngine` Port 존재 지위 / 입력 시그니처 / `WorkflowResult`
+반환 타입)는 `ADC-0023`으로 Resolved**다 — Gate (A)의 네 공백이 모두
+v2 위에서 재정의됐다(위 "실행 단위(Execution Unit)"·"실행 단위
+Lifecycle"·"A-IN(a) 공유 State가 담는 정보" 문단, `ADC-0022`
+§D-2·§D-5·§D-11·§D-11c, `ADC-0023` §D-9a~§D-9f). 결정 9에 대해
+**Kernel은 (i) 교체 가능 seam을 §16.6 Adapter Contract(비-§14)로 두고,
+(ii) 실행 메커니즘 호출의 입력 시그니처를 규정하지 않으며, (iii) 결과
+반환 타입을 정의하지 않는다**(caller-owned 최종 State 값 + HQ 도메인
+타입) — 결정 9의 공백 원인은 Team 부재가 아니라 §14.1이 "Task 전달
+책임"을 계약 범위 밖으로 두는 것이었고, `ADC-0023`은 그 잔여 계약
+표면을 "Kernel이 §16.6 밖 별도 계약으로 규정하지 않는다"로 종결했다.
+**이 책임을 Kernel Public Contract(§14)로 승격하는 것은 여전히 별도
+절차 — §14 scope의 Context→Execution 확장(별도 RFC → ADC → ADR) — 를
+거쳐야 한다**(`ADC-0019` §Q7·§Decision 조건 5, `ADC-0023` §D-9a);
+결정 9 해소는 그 승격의 선행조건 하나를 충족한 것이다. Production 구현
+착수는 `ADC-0019` 재검토 조건 (c)(다른 계보 또는 v2 프로덕션 관찰 —
+`ADC-0021` §8 Gate (B)) + Reversibility 필수 불변조건의 v2 완전
+검증(위 "부분 충족(E4)" 문단, `ADC-0021` §8 Gate (C)) +
 `hqs/development/IMPLEMENTATION_RULES.md`로 **계속 차단된다** — 결정
-2·5·11의 해소는 이 중 어느 것도 해제하지 않는다. `ADC-0021` §8 Gate
-(A)는 이 반영 이후 **"부분 해소(결정 2·5·11 Resolved / 결정 9 pending)"**로
-읽힌다.
+2·5·9·11의 해소는 이 중 어느 것도 해제하지 않는다. `ADC-0021` §8 Gate
+(A)는 이 반영 이후 **"해소(결정 2·5·9·11 전부 Resolved)"**로 읽히며,
+그것이 여는 것은 `ADC-0021` §8 진입 순서의 "(A)" 항목뿐이다.
 
 **Workflow Module Defer(§16.7)와의 구분**: 이 절의 "Scoped Workflow
 Graph Execution"은 §16.7 미결 항목이 Defer 상태로 기록한 Workflow
@@ -1194,7 +1210,15 @@ Kernel Module(`ADC-0001` Module 2 — Module 존재 여부의 축)과 다른
 이 명칭은 "Engine" 프레이밍을 의도적으로 계승하지 않는다(`ADC-0019`
 G2, `ADC-0020` §Q-B). §6 Concept Model의 "Runtime"·"Adapter" 항목은
 이 명칭 반영으로 변경되지 않으며, `docs/decisions/adc/ADC.md`
-ADC-02(Runtime 존폐, Open)도 그대로다.
+ADC-02(Runtime 존폐, Open)도 그대로다. v1 `IWorkflowEngine`의
+"Engine"(Workflow 그래프 실행 조립·진행)과 §16.2 Engine Adapter /
+§14.1 #3 "Engine 호출 책임" / §11 "Engine Gateway"(Model/LLM Provider
+호출)는 **별개 seam**이며, `ADC-0023` §D-9b는 결정 9를 이 구분 위에서
+§14.1 #1 "Task 전달 책임" 트랙 하나로 판정했다(#3 및 `ADC-0010`
+Engine Caller 위치 Not Accepted와 무관). §7 "Engine 호출의 표준
+인터페이스 제공 (Port/Adapter)"(책임 소재 선언)와 §14.1 "Engine 호출
+책임 = 계약 범위 밖"(Public Guarantee 결정 여부)은 층위 차이이지
+모순이 아니다(`ADC-0023` §D-9e).
 
 **Adapter Contract — §16.6 A-IN 부속 명세 (구현체 내부 의무)**: 아래
 (a)·(b)·(d)는 §16.6 A-IN이 이미 짊어진 의무를 계약 언어로 정련한
@@ -1202,10 +1226,13 @@ ADC-02(Runtime 존폐, Open)도 그대로다.
 이며, 그 위의 새 계층이 아니다.** 구현체 내부 의무를 서술할 뿐 Public
 Surface가 아니고, `RFC-0019` §7의 "개념 수준" 지위를 그대로 계승한다.
 이 명세는 §14 Kernel Public Contract가 아니며 그 선행물도 아니다 —
-§14로 이어지는 자동 승격 경로는 없다(§14 승격은 위 "미해결 상태로
-유지되는 v2 공백" 문단이 계속 차단한다). 이 명세에는 "Port" / "Public" /
+§14로 이어지는 자동 승격 경로는 없다(§14 승격은 위 "v2 공백의 현재
+상태" 문단이 계속 차단한다). 이 명세에는 "Port" / "Public" /
 "Guarantee" / "Interface" 어휘를 쓰지 않으며, §14에는 어떤 항목도
-추가되지 않는다.
+추가되지 않는다. `ADC-0023` §D-9a는 이 부속 명세가 규정하는 교체 가능
+seam의 §14 지위를 **비-§14**로 확정했다 — §14 Extension Point 승격은
+§14 scope의 Context→Execution 확장이라는 별도 ADR의 몫이며, 결정 9
+해소는 §14 항목을 추가하지 않는다.
 
 - **(a) caller-owned Checkpoint 값 소유 모델**: 진행 상태(중간·최종)는
   직렬화 가능한 값으로 표현되고, 어댑터는 그 값을 **생산**만 하며
@@ -1274,7 +1301,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.15 |
+| Version | v1.16 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -1282,6 +1309,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.16 | §16.6에 Gate (A) 결정 9 Resolution 반영(`ADC-0023` → `ADR-0012`; 결정 2·5·11은 v1.15 `ADR-0011`). D-9b: v1 `IWorkflowEngine`의 "Engine"(Workflow 그래프 실행)과 §16.2 Engine Adapter / §14.1 #3 "Engine 호출 책임"(Model/LLM 호출)은 **별개 seam** — 결정 9는 §14.1 #1 "Task 전달 책임" 트랙 하나. D-9a: 교체 가능 seam의 §14 지위 = **비-§14**(§16.6 Adapter Contract) — §14 승격은 §14 scope의 Context→Execution 확장 별도 절차, 이 반영은 §14 항목 무추가. D-9c: 입력 시그니처 = **Kernel 미규정**(실행 단위 절반 = 불투명 HQ 입력, 나머지 = HQ별 진입 시그니처). D-9d: 결과 반환 타입 = **Kernel 미정의**(caller-owned 최종 State 값 + HQ 도메인 타입, `WorkflowResult` 대응 미도입 — `ADC-0022` §D-11 계승). D-9e: §7 "표준 인터페이스 제공"(책임 소재) ↔ §14.1 "계약 범위 밖"(Public Guarantee 결정 여부)은 층위 차이 — `ADC-0010`(Engine Caller 위치 Not Accepted) 유지. **`ADC-0021` §8 Gate (A) = "해소"(결정 2·5·9·11 전부 Resolved)** — 여는 것은 §8 진입 순서 "(A)" 항목뿐. Gate (B)(재검토 조건 (c))·Gate (C)(Reversibility 완전 검증)·§14 승격·`IMPLEMENTATION_RULES.md` line 9/13/14/15/16/19·Production 구현 차단 유지. §5·§6·§7·§11·§14·§14.1 표·§16.1~§16.5·§16.7·§6 Concept Model 표·§16.2·§16.6 Reversibility 2문단·Adapter Contract (a)(b)(c)(d) bullet·"실행 단위"·"실행 단위 Lifecycle" 문단 무변경. `GLOSSARY.md` "Workflow Adapter (Reference)" 절 주석 2문장 정정(결정 9 = `ADC-0023` Resolved). 근거: `docs/architecture/core/ADR-0012-gate-a-decision-9-contract-surface-resolution-baseline.md` |
 | v1.15 | §16.6에 Gate (A) 결정 2·5·11 Resolution 반영(`ADC-0022` → `ADR-0011`) — "실행 단위(Execution Unit)"를 §16.6 A-IN 입력 경계 설명 용어로 명시(§6 Concept Model 미등재, 새 Kernel Domain·Layer·Component 아님, D-0). D-2: Adapter 개입 구간에 소비할 Kernel 소유 실행 단위 생명주기 전이 부재 + HQ Lifecycle State(§6/§7) 2층 분리 무변경 + A-OUT 금지의 긍정형 조건형 불변조건("현재 트리거 없음"). D-5: 결정 5 = §16.6 A-IN/A-OUT+§7로 대체, 입력은 HQ 내부 조직 구조 비의존(확인용 서술 — 새 입력 계약 의무 아님, 구체 시그니처는 §14.1 트랙). D-11: Kernel `WorkflowStatus` enum·`WorkflowResult` 타입 미도입, A-IN(a) State가 담는 정보를 진행 정보/종료 disposition으로 **서술**(종료 disposition 내용·어휘 = HQ 도메인, Kernel은 축의 존재를 요구하지 않음). D-11c: (c) 병렬 State 동시 쓰기 규약의 **배치 = HQ State 스키마** — 계약화 여부·HQ 구속 강화는 `ADC-0020` §Q-D·`ADR-0009` §3 그대로, 규범 효력 없음, 독립 Decision 아님. **결정 9(`IWorkflowEngine` Port/결과 반환 타입/시그니처)는 §14.1 "Task 전달 책임" 트랙 pending — Gate (A) 부분 해소.** Gate (B)(재검토 조건 (c))·Gate (C)(Reversibility 완전 검증)·§14 승격·`IMPLEMENTATION_RULES.md` line 9/13/14/19 차단 유지. §5·§6·§7·§14·§16.1~§16.5·§16.7·§6 Concept Model 표·Adapter Contract (a)(b)(d) 문언·Reversibility 2문단 무변경. `GLOSSARY.md` "Workflow Adapter (Reference)" 절에 "실행 단위" 행 추가 + 결정 참조번호(2/5/9/11 → 9) 정정. 근거: `docs/architecture/core/ADR-0011-gate-a-decisions-2-5-11-resolution-baseline.md` |
 | v1.14 | §16.6 Reversibility 필수 불변조건의 v2 통합 테스트 재현 상태를 **부분 충족(E4)**으로 기록 — `projects/workflow-adapter-reversibility-v2/` in-repo 통합 테스트(IN-1~IN-5, 22 PASS: 최종 State 동치·예외 비전파·caller-owned Checkpoint 별도-프로세스 재개·교체 시 파일 해시 불변·구현체 문법 격리)가 Sequential Reference ↔ LangGraph 대조로 도메인 형태 그래프에서 불변조건 재현. **완전 discharge 아님** — 잔여 한계: 결정론적 stub(실엔진 비결정성 미검증)·LangGraph 단일 계보·프로덕션 트래픽 미검증. `ADC-0019` 재검토 조건 (c)(=Gate (B)) 미충족 유지, v1 ADR-0007 결정 2/5/9/11(=Gate (A)) 미해소 유지. E4는 Experimental Evidence이며 Public Contract 승격·LangGraph 채택·IMPLEMENTATION_RULES 해제·Production 구현 착수를 발생시키지 않음(자동 승격 없음). §16.6 A-IN/A-OUT·Adapter Contract (a)(b)(c)(d) 문언(특히 (d) verbatim)·§16.1~§16.5·§16.7·§6·§14·§15.2 무변경. Checkpoint 입도 C1·Q-E-2·"Sequential=Reference" GLOSSARY 신설은 반영 대상 아님. `IMPLEMENTATION_RULES.md` 무변경. 근거: `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md` |
 | v1.13 | §16.6 책임에 명칭 **Workflow Adapter** 반영(재명명 아님 — §16.2 Engine Adapter와 별개, v1 `IWorkflowEngine` "Engine" 계보 비계승) + Adapter Contract 부속 명세 (a)(b)(d)를 §16.6 A-IN 부속으로 추가((a) caller-owned Checkpoint 값 소유, (b) 실행 결과의 값 표현 = 어댑터 책임, (d) Reversibility 재확인). 부속 명세는 구현체 내부 의무이며 Public Surface·§14 Kernel Public Contract가 아니고 그 선행물도 아님(자동 승격 경로 없음) — §14 무변경, "Port/Public/Guarantee/Interface" 어휘 불사용. (c) 병렬 State 동시 쓰기(disjoint key/reducer) 규약은 Defer — 반영하지 않음(v1 ADR-0007 결정 11과 결합해 후속 판정). Checkpoint 입도(C1)·phase 경계 선언 주체·"Sequential=Reference"·구현체 선택(LangGraph)·구현 전략·Conformance Test·IMPLEMENTATION_RULES Scoped 해제는 반영 대상 아님(후속 Implementation Strategy). v1 ADR-0007 결정 2/5/9/11 미해결 유지, Rule B 미충족(재검토 조건 (c)) 유지. §16.1~§16.5·§16.7·§6 Concept Model 표·§14는 변경하지 않음. `GLOSSARY.md`에 "Kernel Modules — Workflow Adapter (Reference)" 절 신설. `IMPLEMENTATION_RULES.md` 무변경. 근거: `docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md` |
