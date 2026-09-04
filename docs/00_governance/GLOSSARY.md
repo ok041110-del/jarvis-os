@@ -144,17 +144,20 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 > §Decision 4). Reversibility는 이 책임의 필수 Architecture 불변조건이며,
 > 어떤 구현체(LangGraph 포함)를 제거·교체해도 Kernel·HQ 코드는 수정되지
 > 않는다. 구현체 선택·구현 전략·Public Port·§14 승격은 미확정이며, v1
-> `ADR-0007` 결정 9(및 `ADC-0021` §8 Gate (B)·(C))가 미해결인 동안 §14
-> 승격·Production 구현 착수는 불가하다 — v1 `ADR-0007` 결정 2·5·11은
-> `ADC-0022`로 해소됐다. `hqs/development/IMPLEMENTATION_RULES.md`의 Workflow/
+> `ADR-0007` 결정 9는 `ADC-0023`으로 해소됐고(Kernel은 seam 지위·입력
+> 시그니처·결과 반환 타입을 §16.6 밖 별도 계약으로 규정하지 않는다),
+> `ADC-0021` §8 Gate (B)·(C)가 미해결인 동안 §14 승격·Production 구현
+> 착수는 불가하다 — v1 `ADR-0007` 결정 2·5·11은 `ADC-0022`로 해소됐고,
+> §14 승격은 §14 scope의 Context→Execution 확장 이후다.
+> `hqs/development/IMPLEMENTATION_RULES.md`의 Workflow/
 > Scheduler/Runtime/Event Bus 구현 금지는 그대로 유효하다.
 > Reversibility 불변조건은 `ADC-0021` §8 Gate (C)의 in-repo 통합
 > 테스트(E4 `projects/workflow-adapter-reversibility-v2/EVIDENCE.md`,
 > IN-1~IN-5 22 PASS)로 v2 맥락에서 **부분 충족**으로 재현됐다 —
 > 결정론적 stub·LangGraph 단일 계보·실엔진 미검증이라는 잔여 한계가
-> 있어 완전 discharge는 아니며, `ADC-0019` 재검토 조건 (c)와 v1
-> `ADR-0007` 결정 9는 그대로 미충족이다(결정 2·5·11은 `ADC-0022`로
-> 해소; `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md`).
+> 있어 완전 discharge는 아니며, `ADC-0019` 재검토 조건 (c)는 그대로
+> 미충족이다(v1 `ADR-0007` 결정 9는 `ADC-0023`으로, 결정 2·5·11은
+> `ADC-0022`로 해소; `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md`).
 
 ## 핵심 원칙 (Reference)
 
