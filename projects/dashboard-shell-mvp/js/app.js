@@ -54,8 +54,22 @@
   }
 
   function renderMain() {
-    var snapshot = MockData.getHQSnapshot(state.activeHQ);
-    el.main.innerHTML = Render.main(state.activeHQ, snapshot);
+    var hqId = state.activeHQ;
+    // getHQSnapshot()은 Development에서만 Promise를 반환한다(fetch 기반) —
+    // Investment/Trading은 여전히 동기 객체를 그대로 반환하므로,
+    // Promise.resolve()로 감싸 두 경우를 같은 경로에서 처리한다.
+    Promise.resolve(MockData.getHQSnapshot(hqId))
+      .then(function (snapshot) {
+        if (hqId !== state.activeHQ) return; // 응답 도착 전 탭이 바뀐 경우 무시
+        el.main.innerHTML = Render.main(hqId, snapshot);
+      })
+      .catch(function (err) {
+        if (hqId !== state.activeHQ) return;
+        el.main.innerHTML = Render.errorPanel(
+          hqId,
+          err && err.message ? err.message : String(err)
+        );
+      });
   }
 
   function renderChat() {

@@ -1,14 +1,20 @@
 /*
  * Mock Data Layer — Experimental Prototype
  *
- * 이 파일은 실제 Backend/Core/HQ에 연결되어 있지 않다. 모든 값은
- * JavaScript 객체 안에 보관된 Mock Data이며, 아래 get* 함수들이
- * 유일한 조회 지점(single source)이다.
+ * Investment/Trading/Header/Chat/Mock Refresh는 여전히 실제 Backend/
+ * Core/HQ에 연결되어 있지 않다 — 아래 JavaScript 객체 안 Mock Data가
+ * 유일한 소스다.
  *
- * 향후 실제 데이터로 교체할 때는 이 파일의 get* 함수 "내부 구현"만
- * fetch(API)/이벤트 구독 등으로 바꾸면 된다 — render.js와 app.js는
- * 이 함수들의 반환 형태(shape)만 알면 되고, Mock인지 실제인지는
- * 몰라도 되도록 분리했다.
+ * `getHQSnapshot('development')`만 예외다 — `generate_development_
+ * snapshot.py`(projects/unified-dashboard/snapshot.py의 Evidence 수집을
+ * 재사용)가 생성한 `data/development-snapshot.json`을 fetch()로 읽는다.
+ * 이 함수는 그래서 Development일 때만 Promise를 반환하고, 나머지는
+ * 기존과 동일하게 동기 객체를 반환한다 — app.js가 `Promise.resolve()`로
+ * 두 경우를 모두 감싸 처리한다.
+ *
+ * Evidence fetch가 실패하면(파일 없음/서버 미기동/JSON 손상) Mock으로
+ * 조용히 대체하지 않는다 — Promise를 reject해 app.js가 실패 사실을
+ * 그대로 화면에 드러내게 한다.
  */
 
 var MockData = (function () {
@@ -78,6 +84,16 @@ var MockData = (function () {
   }
 
   function getHQSnapshot(hqId) {
+    if (hqId === "development") {
+      return fetch("data/development-snapshot.json").then(function (res) {
+        if (!res.ok) {
+          throw new Error(
+            "development-snapshot.json 응답 실패: HTTP " + res.status
+          );
+        }
+        return res.json();
+      });
+    }
     return state[hqId] || null;
   }
 
