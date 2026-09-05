@@ -1,14 +1,15 @@
 /*
  * Mock Data Layer — Experimental Prototype
  *
- * Investment/Trading/Header/Chat/Mock Refresh는 여전히 실제 Backend/
- * Core/HQ에 연결되어 있지 않다 — 아래 JavaScript 객체 안 Mock Data가
- * 유일한 소스다.
+ * Trading/Header/Chat/Mock Refresh는 여전히 실제 Backend/Core/HQ에
+ * 연결되어 있지 않다 — 아래 JavaScript 객체 안 Mock Data가 유일한
+ * 소스다.
  *
- * `getHQSnapshot('development')`만 예외다 — `generate_development_
- * snapshot.py`(projects/unified-dashboard/snapshot.py의 Evidence 수집을
- * 재사용)가 생성한 `data/development-snapshot.json`을 fetch()로 읽는다.
- * 이 함수는 그래서 Development일 때만 Promise를 반환하고, 나머지는
+ * `getHQSnapshot('development'|'investment')`만 예외다 —
+ * `generate_development_snapshot.py`/`generate_investment_snapshot.py`
+ * (둘 다 projects/unified-dashboard/snapshot.py의 Evidence 수집을
+ * 재사용)가 생성한 JSON을 fetch()로 읽는다(`EVIDENCE_SNAPSHOT_FILES`
+ * 참조). 이 함수는 그래서 두 HQ일 때만 Promise를 반환하고, Trading은
  * 기존과 동일하게 동기 객체를 반환한다 — app.js가 `Promise.resolve()`로
  * 두 경우를 모두 감싸 처리한다.
  *
@@ -35,16 +36,6 @@ var MockData = (function () {
         "Kernel Boundary Validation 재확인",
         "회귀 테스트 36 passed"
       ]
-    },
-    investment: {
-      connection: "MOCK",
-      status: "ACTIVE",
-      teams: [
-        { name: "Stock Team", status: "Promoted", lastDecision: "HOLD" },
-        { name: "ETF Team", status: "Promoted", lastDecision: "HOLD" },
-        { name: "Dividend Stock Team", status: "Promoted", lastDecision: "HOLD" }
-      ],
-      deferred: ["Portfolio", "Risk", "Execution"]
     },
     trading: {
       connection: "NOT_IMPLEMENTED",
@@ -83,13 +74,17 @@ var MockData = (function () {
     ];
   }
 
+  var EVIDENCE_SNAPSHOT_FILES = {
+    development: "data/development-snapshot.json",
+    investment: "data/investment-snapshot.json"
+  };
+
   function getHQSnapshot(hqId) {
-    if (hqId === "development") {
-      return fetch("data/development-snapshot.json").then(function (res) {
+    var snapshotFile = EVIDENCE_SNAPSHOT_FILES[hqId];
+    if (snapshotFile) {
+      return fetch(snapshotFile).then(function (res) {
         if (!res.ok) {
-          throw new Error(
-            "development-snapshot.json 응답 실패: HTTP " + res.status
-          );
+          throw new Error(snapshotFile + " 응답 실패: HTTP " + res.status);
         }
         return res.json();
       });

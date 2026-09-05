@@ -1,0 +1,31 @@
+{
+  "connection": "EVIDENCE",
+  "status": "NORMAL",
+  "teams": [
+    {
+      "name": "Stock (AAPL)",
+      "status": "9단계 완료, Final Report 있음",
+      "lastDecision": "HOLD"
+    },
+    {
+      "name": "Dividend Stock (PG)",
+      "status": "11단계 완료, Final Report 있음",
+      "lastDecision": "HOLD"
+    },
+    {
+      "name": "ETF (EFA)",
+      "status": "10단계 완료, Final Report 있음",
+      "lastDecision": "HOLD"
+    }
+  ],
+  "deferred": [
+    "Portfolio",
+    "Risk",
+    "Execution (Trade Execution)"
+  ],
+  "sourceFiles": [
+    "hqs/investment/dogfooding/aapl-trader-verify/checkpoints/manifest.json",
+    "hqs/investment/dogfooding/pg-trader-verify/checkpoints/manifest.json",
+    "hqs/investment/dogfooding/efa-trader-verify/checkpoints/manifest.json"
+  ]
+}
