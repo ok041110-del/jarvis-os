@@ -179,14 +179,18 @@ html, body {
   padding: 14px;
 }
 
+/* label(span)이 shrink되어 긴 value(strong) 위로 겹치는 것을 막는다 —
+   Evidence 기반 문자열은 기존 Mock 값보다 훨씬 길 수 있다. */
 .kv {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   margin: 6px 0;
   color: var(--text-dim);
 }
 
-.kv strong { color: var(--text); font-weight: 600; }
+.kv span { flex-shrink: 0; }
+.kv strong { color: var(--text); font-weight: 600; text-align: right; }
 
 .progress-track {
   height: 6px;
@@ -347,6 +351,13 @@ html, body {
 
 .table-scroll {
   overflow-x: auto;
+}
+
+.evidence-missing {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-style: italic;
+  margin: 10px 0;
 }
 
 /* ---- Responsive ----

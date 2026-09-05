@@ -1,0 +1,24 @@
+{
+  "connection": "EVIDENCE",
+  "status": "NORMAL",
+  "stage": "Stable v2.0 Freeze (RFC-0007 -> ADC-0005 -> ADR-0008 -> Stage 01~05 -> Integrated Workflow -> CLI)",
+  "progressPercent": null,
+  "currentTask": "None (idle — 상시 Runtime 없음, 명시적 호출 시에만 실행됨, ADC-02 Open)",
+  "agents": [
+    "backend",
+    "design",
+    "qa",
+    "requirements"
+  ],
+  "recentEvents": [
+    "Phase: Stable v2.0 Freeze (RFC-0007 -> ADC-0005 -> ADR-0008 -> Stage 01~05 -> Integrated Workflow -> CLI)",
+    "Workflow: Stage 01~05 (01_repository_intelligence ~ 05_devops_release 명명, workflow.py로 연쇄)",
+    "Agent Roles: backend, design, qa, requirements",
+    "Latest Validation: 109 passed",
+    "Current Task: None (idle — 상시 Runtime 없음, 명시적 호출 시에만 실행됨, ADC-02 Open)"
+  ],
+  "sourceFiles": [
+    "docs/architecture/core/DEVELOPMENT-HQ-V2.0-FREEZE-0001.md",
+    "hqs/development/mvp/agents/*.py"
+  ]
+}

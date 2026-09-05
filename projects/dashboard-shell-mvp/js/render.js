@@ -59,13 +59,18 @@ var Render = (function () {
     var agents = snapshot.agents.map(function (a) {
       return '<span class="chip">' + escapeHtml(a) + "</span>";
     }).join("");
+    // progressPercent는 Evidence 기반 값에서 null일 수 있다(Development HQ에는
+    // 진행률(%) Evidence 자체가 없음) — 임의로 0%를 그리지 않고 없음을 그대로 드러낸다.
+    var progressMarkup = typeof snapshot.progressPercent === "number"
+      ? '<div class="progress-track"><div class="progress-fill" style="width:' + snapshot.progressPercent + '%"></div></div>'
+      : '<p class="evidence-missing">진행률(%) Evidence 없음 — 표시하지 않음</p>';
     return (
       '<div class="panel-grid">' +
         '<div class="card">' +
           '<div class="card-header"><h3>Development HQ</h3>' + connectionBadge(snapshot.connection) + "</div>" +
           '<div class="card-body">' +
             '<p class="kv"><span>Stage</span><strong>' + escapeHtml(snapshot.stage) + "</strong></p>" +
-            '<div class="progress-track"><div class="progress-fill" style="width:' + snapshot.progressPercent + '%"></div></div>' +
+            progressMarkup +
             '<p class="kv"><span>Current Task</span><strong>' + escapeHtml(snapshot.currentTask) + "</strong></p>" +
           "</div>" +
         "</div>" +
@@ -131,6 +136,20 @@ var Render = (function () {
     return "<p>Unknown HQ</p>";
   }
 
+  function errorPanel(hqId, message) {
+    return (
+      '<div class="panel-grid">' +
+        '<div class="card card-wide">' +
+          '<div class="card-header"><h3>' + escapeHtml(hqId) + ' — Evidence 연결 실패</h3>' + connectionBadge("ERROR") + "</div>" +
+          '<div class="card-body">' +
+            '<p class="evidence-missing">Mock으로 대체하지 않음 — 실패 원인을 그대로 표시한다.</p>' +
+            "<p><code>" + escapeHtml(message) + "</code></p>" +
+          "</div>" +
+        "</div>" +
+      "</div>"
+    );
+  }
+
   function chat(messages) {
     var list = messages.map(function (m) {
       return '<div class="chat-message chat-' + m.role + '">' +
@@ -152,7 +171,8 @@ var Render = (function () {
     header: header,
     nav: nav,
     main: main,
-    chat: chat
+    chat: chat,
+    errorPanel: errorPanel
   };
 
 })();
