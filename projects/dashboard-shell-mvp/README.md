@@ -14,8 +14,8 @@ Dashboard 완성이 목적이 아니다 — 기존 `projects/unified-dashboard/`
 순수 Mock Data와 client-side 동적 상태 전환 자체를 검증 대상으로
 삼는다.
 
-Development/Investment HQ Evidence 표시와 Chat → Command Resolution
-연결만 예외다 — 아래 두 절 참조.
+Development/Investment HQ Evidence 표시와 Chat → 실제 Claude → Command
+Resolution 연결만 예외다 — 아래 두 절 참조.
 
 ## 실행
 
@@ -69,7 +69,7 @@ HQ 화면에 "Evidence 연결 실패"가 그대로 표시된다 — 반드시 �
 | `generate_development_snapshot.py` | `projects/unified-dashboard/snapshot.py`의 `build_dev_hq_snapshot()`을 재사용해 `data/development-snapshot.json`을 생성하는 CLI |
 | `generate_investment_snapshot.py` | 같은 `snapshot.py`의 `build_investment_hq_snapshot()`을 재사용해 `data/investment-snapshot.json`을 생성하는 CLI |
 | `data/development-snapshot.json`, `data/investment-snapshot.json` | 생성된 Evidence Snapshot(커밋 대상 — `unified-dashboard`의 `output/`·`frontend/public/data/` 선례와 동일) |
-| `serve_dashboard.py` | 로컬 실행 편의 스크립트 — 클릭 한 번으로 열어볼 수 있게 서버를 띄우고 접속 URL을 출력한다. `POST /api/command`만 예외로, `projects/command-contract/resolver.py`의 `parse_command()`/`resolve()`를 그대로 호출해 중계한다(로직 복제 없음) |
+| `serve_dashboard.py` | 로컬 실행 편의 스크립트 — 클릭 한 번으로 열어볼 수 있게 서버를 띄우고 접속 URL을 출력한다. `POST /api/command`(정규식 기반 `parse_command()`/`resolve()` 중계)와 `POST /api/llm-command`(실제 `claude` CLI로 분류 후 같은 `resolve()` 호출) 두 경로만 예외다 — 둘 다 로직 복제 없음 |
 
 ## Development/Investment HQ Evidence 연결 (실험)
 
@@ -115,42 +115,80 @@ raw fetch("data/investment-snapshot.json")
   Mock이다. Chat은 아래 "Chat → Command Resolution 연결" 절 범위에서
   예외다(LLM/Engine은 여전히 미연결).
 
-## Chat → Command Resolution 연결 (실험)
+## Chat → 실제 Claude → Command Resolution 연결 (실험)
 
-Dashboard Chat에 입력한 문장은 그대로 기존 `projects/command-
-contract/` Prototype의 `resolver.py`로 전달된다 — 새 Command Layer를
+Dashboard Chat에 입력한 자연어 문장은 실제 Claude 호출(순수 분류
+전용) → 기존 `projects/command-contract/` Prototype의 `resolver.py`
+→ 실제 HQ Snapshot까지 그대로 이어진다. 새 Command Layer/Contract를
 만들지 않았다:
 
 ```
 Chat 입력(raw_input)
-  → fetch("/api/command")                              [js/data.js: runCommand]
-  → serve_dashboard.py의 POST /api/command 핸들러       [로직 없음, 그대로 중계]
-  → projects/command-contract/resolver.py
-      parse_command(raw_input) → Command(intent, target_hq)
-      resolve(command) → CommandResult
+  → fetch("/api/llm-command")                          [js/data.js: runLLMCommand]
+  → serve_dashboard.py의 POST /api/llm-command 핸들러
+      _interpret_with_claude(raw_input)                 [실제 `claude` CLI 1회 호출]
+        → Command(raw_input, intent, target_hq)          ← Claude의 분류 결과
+      resolve(command)                                   [projects/command-contract/resolver.py, 무수정]
         ← projects/unified-dashboard/snapshot.py의
           build_dev_hq_snapshot() / build_investment_hq_snapshot()
-  → Chat에 intent/target_hq/status/hq_identity/detail 그대로 표시
+  → Chat에 "LLM 해석"(intent/target_hq)과 "실행 결과"(status/hq_identity/
+    detail)를 별도 메시지로 구분해 표시
 ```
 
-- `command.py`/`resolver.py`/`task_case.py`는 전혀 수정하지 않았다 —
-  이미 검증된 Case A(Command → HQ Target → Snapshot, Task 없음) 경로를
-  그대로 재사용한다. `serve_dashboard.py`는 이 두 함수를 호출만 하고
-  로직을 복제하지 않는다.
+이전 절의 `POST /api/command`(정규식 기반 `parse_command()`)는
+그대로 남아 있다 — 삭제하지 않았고 계속 동작한다. Chat이 실제로
+쓰는 것은 새 `/api/llm-command`뿐이다.
+
+### Credential
+
+- `serve_dashboard.py`는 API Key/OAuth Token을 코드 어디에도 갖고
+  있지 않다 — `subprocess.run(["claude", "-p", ...])`로 이 머신에
+  이미 로그인된 `claude` CLI(Claude Code 자신의 기존 인증)를 그대로
+  실행할 뿐이다. 새 Credential 저장/관리 코드를 추가하지 않았다.
+- 이 서버 코드는 Key/Token 값을 읽거나 로그에 남기지 않는다 —
+  애초에 그 값을 다룰 코드 경로 자체가 없다.
+
+### Claude 호출 범위(안전장치)
+
+- `--tools ""`로 Bash/Read/Agent 등 모든 Tool을 비활성화한다 — Claude가
+  직접 파일을 읽거나 명령을 실행하거나 Subagent를 낳을 수 없다(순수
+  텍스트 분류 1회 호출). 실제 HQ 상태 조회는 이 호출과 무관하게 여전히
+  기존 `resolve()`/Snapshot Builder가 전담한다.
+- `--restricted`로 이 저장소의 CLAUDE.md/project 설정을 불러오지
+  않는다 — 분류와 무관한 컨텍스트를 배제해 비용/응답을 줄인다.
+- Claude가 출력하는 것은 `{"intent": ..., "target_hq": ...}` — 이미
+  존재하는 `command.py`의 `Command` 필드와 정확히 같은 스키마다. 새
+  Contract를 만들지 않았다.
+
+### 비용/응답 시간(투명하게 기록)
+
+- 실측(이번 검증 기준): 호출 1회당 API 응답 시간 약 1.5~3초(왕복
+  포함 약 2~4초), 비용 약 $0.004~$0.04(직전 호출의 Prompt Cache
+  적중 여부에 따라 편차가 큼 — 매 `claude -p` 실행이 새 프로세스라
+  이전 호출의 Cache를 보장받지 못한다). Chat 메시지 하나당 실제
+  과금이 발생한다는 뜻이다 — 트래픽이 늘면 이 비용은 선형으로
+  늘어난다.
+
+### Boundary/실패 처리
+
 - Trading은 Command 대상이 아니다 — `resolver.py`의 `_HQ_KEYWORDS`/
-  `_SNAPSHOT_BUILDERS`에 Trading이 없으므로 "Trading HQ 상태를
-  보여줘" 같은 입력은 `status=invalid reason=unknown_hq`로 그대로
-  실패 표시된다(새로 막은 것이 아니라 기존 resolver의 동작 그대로).
-- Command Resolution이 실패하면(서버 미기동, JSON 손상, `/api/command`
-  네트워크 오류) Mock 응답으로 대체하지 않는다 — Chat에 "Command
-  Resolution 실패 — Mock으로 대체하지 않음"과 실제 에러 메시지가
-  그대로 표시된다.
-- `python3 -m http.server`로 띄운 경우 `POST /api/command`가 `501`을
-  반환한다 — 이때도 Mock 응답이 아니라 실패가 그대로 드러난다(다만
-  이 경우 위 실험 목적대로 쓰려면 `serve_dashboard.py`가 필요하다).
-- 이번 단계에서 연결하지 않은 것: 실제 LLM Provider, Engine 호출,
+  `_SNAPSHOT_BUILDERS`에 Trading이 없으므로, Claude가 "Trading HQ
+  상태를 보여줘"를 `target_hq="trading"`으로 분류해도 `resolve()`가
+  `status=invalid reason=unknown_hq`로 그대로 거부한다 — resolver
+  자체는 수정하지 않았고, LLM의 분류가 실행 단계의 Boundary를
+  우회하지 못함을 보여준다.
+- Claude 호출/파싱이 실패하면(CLI 없음, 타임아웃 45초, 0이 아닌
+  exit code, JSON 스키마를 안 지킨 응답) Mock으로 대체하지 않는다 —
+  Chat에 "Claude 호출/파싱 실패 — Mock으로 대체하지 않음"과 실제
+  에러 메시지가 그대로 표시된다(HTTP 502).
+- `python3 -m http.server`로 띄운 경우 `POST /api/llm-command`가
+  `501`을 반환한다 — 이 실험을 쓰려면 `serve_dashboard.py`가
+  필요하다.
+- 이번 단계에서 연결하지 않은 것: Engine/Workflow 실제 실행,
   Task/Conversation Layer(ADC-0018 Defer 상태 그대로 유지, 새 Kernel
-  Component를 만들지 않았다).
+  Component를 만들지 않았다). Claude는 오직 intent/target_hq 분류만
+  하고, HQ 상태를 스스로 조회하거나 답을 지어내지 않는다(Tool 자체가
+  없다).
 
 ## Responsive
 
@@ -183,22 +221,25 @@ Team 표만 내용이 넓어질 가능성에 대비해 `.table-scroll`로 개별
   않는다 — 이 Prototype에 그런 개념 자체가 없다.
 - Trading HQ는 실제로 구현된 HQ가 아니므로 데이터 없이 "PLANNED"
   상태로만 표시하고, Command 대상에도 포함되지 않는다(위 "Chat →
-  Command Resolution 연결" 참조). Investment HQ의 Portfolio/Risk/
+  실제 Claude → Command Resolution 연결" 참조 — Claude가 Trading을
+  가리켜도 `resolve()`가 거부한다). Investment HQ의 Portfolio/Risk/
   Execution은 Freeze 범위 밖이므로 "Deferred"로 명시 분리한다(이제
   Mock이 아니라 `build_investment_hq_snapshot()`이 실제로 반환하는
   값이다).
-- Chat은 로컬 메시지 상태 관리 + Command Resolution 호출까지만
-  한다 — 어떤 LLM도 호출하지 않는다(`serve_dashboard.py`/
-  `resolver.py` 모두 Engine/Agent 호출 코드가 없다).
-- `serve_dashboard.py`의 `/api/command` 핸들러는 `hqs/`·`core/`를
-  직접 import하지 않는다 — `resolver.py`/`snapshot.py`를 그대로
-  호출할 뿐이다.
+- Chat은 이제 실제 Claude를 호출한다 — 단, `--tools ""`로 Tool이
+  전부 비활성화된 순수 분류 1회 호출뿐이다. Engine/Workflow 실행,
+  Agent 호출, Task/Conversation Layer는 이번에도 만들지 않았다.
+- `serve_dashboard.py`의 `/api/command`·`/api/llm-command` 핸들러
+  모두 `hqs/`·`core/`를 직접 import하지 않는다 — `resolver.py`/
+  `snapshot.py`를 그대로 호출할 뿐이다.
 
 ## Next Step 후보 (우선순위 미확정)
 
 - Investment HQ Team Status 표의 "(Deferred)" 중복 표현 정리
   (`js/render.js`의 접미사 vs Evidence 값 자체의 문구 겹침).
-- 실제 LLM Provider 연결 — 단, Command가 비동기·장시간 Engine 호출을
-  대상으로 하게 되는 순간 `command-contract`의 "Task NOT REQUIRED"
-  결론(read-only 동기 명령 범위 한정)을 재검증해야 한다(Architecture/
-  Contract 변경 가능성 있음, 별도 보고 대상).
+- Claude 분류 호출의 Prompt Cache 재사용(현재는 매 호출이 새
+  프로세스라 Cache 적중률이 낮음) — 비용/응답 시간 개선 여지.
+- Command가 비동기·장시간 Engine 호출을 대상으로 하게 되는 순간
+  `command-contract`의 "Task NOT REQUIRED" 결론(read-only 동기 명령
+  범위 한정)을 재검증해야 한다(Architecture/Contract 변경 가능성
+  있음, 별도 보고 대상 — 이번에도 구현하지 않았다).
