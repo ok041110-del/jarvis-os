@@ -1177,6 +1177,22 @@ E5(`projects/workflow-adapter-nonlanggraph-lineage-v1/` — worklist
 승격 중 무엇도 열지 않는다(`ADC-0021` §8 조건 1·4 미충족, `ADC-0024`
 §D-B3).
 
+2번째 비-LangGraph 독립 계보 관찰이 이후 E6(`projects/workflow-adapter-recursive-lineage-v1/`
+— 재귀 조합자 L-B, IN-1′~IN-6′ 31 PASS)로 추가됐다(`ADC-0025`). E6의
+독립성 검증(자료구조 부재 — 인터프리터 인스턴스·큐 없음; 실행 메커니즘
+계측 — 자기 재귀 호출의 정적 검출과 실측 최대 콜스택 깊이 14)은 위 E5
+문단의 독립성 검증(정적 import 목록)보다 엄밀하다. 독립 관찰은 4건
+(E1·E2·E5·E6), 비-LangGraph 계보는 **2개**로 강화됐다. 그러나 v2
+프로덕션·실엔진 맥락 관찰은 여전히 **0건**이고 두 비-LangGraph 계보
+모두 동일 프로세스·언어(Python)·데이터 모델(`graph_spec`)을 소비하므로,
+Conditional 성격은 **2차 부분 완화**에 그친다(`ADC-0025` §D-C2). 완전
+완화에 이르는 실질적 경로는 비-LangGraph 계보의 추가 반복이 아니라 v2
+프로덕션 맥락의 조건부 분기·Loop 실행 관찰로 사실상 수렴한다고 판단됐다
+(`ADC-0025` §D-C3). 이 2차 부분 완화는 위 잔여 한계 (i)·(iii)나 Gate
+(C) 자체를 해소하지 않으며, LangGraph 평가 ADC·Production 구현 착수·
+§14 승격 중 무엇도 열지 않는다(`ADC-0021` §8 조건 1·4 미충족, `ADC-0025`
+§D-C4).
+
 **v2 공백의 현재 상태 (Conditional)**: v1 `ADR-0007` 결정 **2(Core 소유
 Lifecycle 소비)·5(Team/Division 경계)·11(State Model)은 `ADC-0022`로,
 9(`IWorkflowEngine` Port 존재 지위 / 입력 시그니처 / `WorkflowResult`
@@ -1194,13 +1210,14 @@ Lifecycle"·"A-IN(a) 공유 State가 담는 정보" 문단, `ADC-0022`
 절차 — §14 scope의 Context→Execution 확장(별도 RFC → ADC → ADR) — 를
 거쳐야 한다**(`ADC-0019` §Q7·§Decision 조건 5, `ADC-0023` §D-9a);
 결정 9 해소는 그 승격의 선행조건 하나를 충족한 것이다. Production 구현
-착수는 `ADC-0019` 재검토 조건 (c)(형식 요건 충족 / 견고성 조건 잔존 —
-`ADC-0021` §8 Gate (B), `ADC-0024`) + Reversibility 필수 불변조건의 v2
-완전 검증(위 "부분 충족(E4)" 문단, `ADC-0021` §8 Gate (C)) +
-`hqs/development/IMPLEMENTATION_RULES.md`로 **계속 차단된다** — 결정
-2·5·9·11의 해소는 이 중 어느 것도 해제하지 않는다. `ADC-0021` §8 Gate
-(A)는 이 반영 이후 **"해소(결정 2·5·9·11 전부 Resolved)"**로 읽히며,
-그것이 여는 것은 `ADC-0021` §8 진입 순서의 "(A)" 항목뿐이다.
+착수는 `ADC-0019` 재검토 조건 (c)(형식 요건 충족(강화) / 견고성 조건
+잔존 — `ADC-0021` §8 Gate (B), `ADC-0024`·`ADC-0025`) + Reversibility
+필수 불변조건의 v2 완전 검증(위 "부분 충족(E4)" 문단, `ADC-0021` §8
+Gate (C)) + `hqs/development/IMPLEMENTATION_RULES.md`로 **계속
+차단된다** — 결정 2·5·9·11의 해소는 이 중 어느 것도 해제하지 않는다.
+`ADC-0021` §8 Gate (A)는 이 반영 이후 **"해소(결정 2·5·9·11 전부
+Resolved)"**로 읽히며, 그것이 여는 것은 `ADC-0021` §8 진입 순서의
+"(A)" 항목뿐이다.
 
 **Workflow Module Defer(§16.7)와의 구분**: 이 절의 "Scoped Workflow
 Graph Execution"은 §16.7 미결 항목이 Defer 상태로 기록한 Workflow
@@ -1316,7 +1333,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | 항목 | 내용 |
 |---|---|
-| Version | v1.17 |
+| Version | v1.18 |
 | Status | Active |
 | Architecture State | Frozen |
 
@@ -1324,6 +1341,7 @@ Workflow, Memory, Event Bus는 Kernel Module 후보로 검토됐으나
 
 | Version | 내용 |
 |---|---|
+| v1.18 | §16.6 "Reversibility v2 통합 테스트 재현 — 부분 충족 (E4)" 문단에 이어 Gate (B) 2차 부분 완화 반영(`ADC-0025`) — `ADC-0024` §D-B4(i)("2번째 비-LangGraph 독립 계보")가 E6(`projects/workflow-adapter-recursive-lineage-v1/` 재귀 조합자 L-B, IN-1′~IN-6′ 31 PASS)로 충족됨을 명시. 독립 관찰 4건(비-LangGraph 계보 2개)으로 강화됐으나 v2 프로덕션·실엔진 관찰은 여전히 0건이므로 Conditional 성격은 **2차 부분 완화**에 그침 — 완전 완화는 v2 프로덕션 맥락 관찰 이후 재판정(`ADC-0025` §D-C3). "v2 공백의 현재 상태" 문단의 Gate (B) cross-reference 괄호 설명 정정(`ADC-0025` 추가 인용). `ADC-0021` §8 조건 1(미충족)·4(부분 충족)로 LangGraph 평가 ADC·Production 구현·§14 승격은 열리지 않음 — 전부 유지. Gate (C)("부분 충족") 무변경, E6이 해소하지 않음. §5·§6·§7·§11·§14·§14.1 표·§16.1~§16.5·§16.7·§6 Concept Model 표·Reversibility 필수 불변조건 문단·Adapter Contract (a)(b)(c)(d) bullet·"실행 단위"·"실행 단위 Lifecycle" 문단·잔여 한계 (i)~(iii) 서술 무변경. `GLOSSARY.md` "Workflow Adapter (Reference)" 절 주석에 1문장 추가. 근거: `docs/architecture/core/ADR-0014-gate-b-second-lineage-partial-relaxation-baseline.md` |
 | v1.17 | §16.6 "Reversibility v2 통합 테스트 재현 — 부분 충족 (E4)" 문단에 Gate (B) 판정 반영(`ADC-0024`) — `ADC-0019` 재검토 조건 (c)(= `ADC-0021` §8 Gate (B))의 형식 요건(독립 관찰 3건, 다른 계보 1건)이 E5(`projects/workflow-adapter-nonlanggraph-lineage-v1/` worklist 인터프리터 L-A, IN-1~IN-6 25 PASS)로 충족됨을 명시. Conditional 성격은 **부분 완화**(3건 전부 stub/PoC, v2 프로덕션·실엔진 관찰 0, 비-LangGraph 계보 1개) — 완전 완화는 2번째 비-LangGraph 계보 또는 v2 프로덕션 관찰 이후 재판정. "v2 공백의 현재 상태" 문단의 Gate (B) cross-reference 괄호 설명 정정. `ADC-0021` §8 조건 1(미충족)·4(부분 충족)로 LangGraph 평가 ADC·Production 구현·§14 승격은 열리지 않음 — 전부 유지. §5·§6·§7·§11·§14·§14.1 표·§16.1~§16.5·§16.7·§6 Concept Model 표·Reversibility 필수 불변조건 문단·Adapter Contract (a)(b)(c)(d) bullet·"실행 단위"·"실행 단위 Lifecycle" 문단·잔여 한계 (i)~(iii) 서술 무변경. `GLOSSARY.md` "Workflow Adapter (Reference)" 절 주석 1문장 정정. 근거: `docs/architecture/core/ADR-0013-gate-b-partial-relaxation-baseline.md` |
 | v1.16 | §16.6에 Gate (A) 결정 9 Resolution 반영(`ADC-0023` → `ADR-0012`; 결정 2·5·11은 v1.15 `ADR-0011`). D-9b: v1 `IWorkflowEngine`의 "Engine"(Workflow 그래프 실행)과 §16.2 Engine Adapter / §14.1 #3 "Engine 호출 책임"(Model/LLM 호출)은 **별개 seam** — 결정 9는 §14.1 #1 "Task 전달 책임" 트랙 하나. D-9a: 교체 가능 seam의 §14 지위 = **비-§14**(§16.6 Adapter Contract) — §14 승격은 §14 scope의 Context→Execution 확장 별도 절차, 이 반영은 §14 항목 무추가. D-9c: 입력 시그니처 = **Kernel 미규정**(실행 단위 절반 = 불투명 HQ 입력, 나머지 = HQ별 진입 시그니처). D-9d: 결과 반환 타입 = **Kernel 미정의**(caller-owned 최종 State 값 + HQ 도메인 타입, `WorkflowResult` 대응 미도입 — `ADC-0022` §D-11 계승). D-9e: §7 "표준 인터페이스 제공"(책임 소재) ↔ §14.1 "계약 범위 밖"(Public Guarantee 결정 여부)은 층위 차이 — `ADC-0010`(Engine Caller 위치 Not Accepted) 유지. **`ADC-0021` §8 Gate (A) = "해소"(결정 2·5·9·11 전부 Resolved)** — 여는 것은 §8 진입 순서 "(A)" 항목뿐. Gate (B)(재검토 조건 (c))·Gate (C)(Reversibility 완전 검증)·§14 승격·`IMPLEMENTATION_RULES.md` line 9/13/14/15/16/19·Production 구현 차단 유지. §5·§6·§7·§11·§14·§14.1 표·§16.1~§16.5·§16.7·§6 Concept Model 표·§16.2·§16.6 Reversibility 2문단·Adapter Contract (a)(b)(c)(d) bullet·"실행 단위"·"실행 단위 Lifecycle" 문단 무변경. `GLOSSARY.md` "Workflow Adapter (Reference)" 절 주석 2문장 정정(결정 9 = `ADC-0023` Resolved). 근거: `docs/architecture/core/ADR-0012-gate-a-decision-9-contract-surface-resolution-baseline.md` |
 | v1.15 | §16.6에 Gate (A) 결정 2·5·11 Resolution 반영(`ADC-0022` → `ADR-0011`) — "실행 단위(Execution Unit)"를 §16.6 A-IN 입력 경계 설명 용어로 명시(§6 Concept Model 미등재, 새 Kernel Domain·Layer·Component 아님, D-0). D-2: Adapter 개입 구간에 소비할 Kernel 소유 실행 단위 생명주기 전이 부재 + HQ Lifecycle State(§6/§7) 2층 분리 무변경 + A-OUT 금지의 긍정형 조건형 불변조건("현재 트리거 없음"). D-5: 결정 5 = §16.6 A-IN/A-OUT+§7로 대체, 입력은 HQ 내부 조직 구조 비의존(확인용 서술 — 새 입력 계약 의무 아님, 구체 시그니처는 §14.1 트랙). D-11: Kernel `WorkflowStatus` enum·`WorkflowResult` 타입 미도입, A-IN(a) State가 담는 정보를 진행 정보/종료 disposition으로 **서술**(종료 disposition 내용·어휘 = HQ 도메인, Kernel은 축의 존재를 요구하지 않음). D-11c: (c) 병렬 State 동시 쓰기 규약의 **배치 = HQ State 스키마** — 계약화 여부·HQ 구속 강화는 `ADC-0020` §Q-D·`ADR-0009` §3 그대로, 규범 효력 없음, 독립 Decision 아님. **결정 9(`IWorkflowEngine` Port/결과 반환 타입/시그니처)는 §14.1 "Task 전달 책임" 트랙 pending — Gate (A) 부분 해소.** Gate (B)(재검토 조건 (c))·Gate (C)(Reversibility 완전 검증)·§14 승격·`IMPLEMENTATION_RULES.md` line 9/13/14/19 차단 유지. §5·§6·§7·§14·§16.1~§16.5·§16.7·§6 Concept Model 표·Adapter Contract (a)(b)(d) 문언·Reversibility 2문단 무변경. `GLOSSARY.md` "Workflow Adapter (Reference)" 절에 "실행 단위" 행 추가 + 결정 참조번호(2/5/9/11 → 9) 정정. 근거: `docs/architecture/core/ADR-0011-gate-a-decisions-2-5-11-resolution-baseline.md` |
