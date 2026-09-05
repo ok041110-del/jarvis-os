@@ -16,6 +16,11 @@
  * Evidence fetch가 실패하면(파일 없음/서버 미기동/JSON 손상) Mock으로
  * 조용히 대체하지 않는다 — Promise를 reject해 app.js가 실패 사실을
  * 그대로 화면에 드러내게 한다.
+ *
+ * `runCommand(rawInput)`도 실제 연결이다 — `serve_dashboard.py`의
+ * `POST /api/command`(projects/command-contract/resolver.py의
+ * `parse_command()`/`resolve()`를 그대로 호출)를 fetch()한다. 이
+ * 함수도 Mock으로 조용히 대체하지 않는다 — 실패하면 reject한다.
  */
 
 var MockData = (function () {
@@ -92,6 +97,25 @@ var MockData = (function () {
     return state[hqId] || null;
   }
 
+  // ---- Command Resolution (기존 command-contract Prototype 재사용) ----
+
+  function runCommand(rawInput) {
+    return fetch("/api/command", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ raw_input: rawInput })
+    }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) {
+          throw new Error(
+            (body && body.error) || ("Command Resolution 응답 실패: HTTP " + res.status)
+          );
+        }
+        return body;
+      });
+    });
+  }
+
   // ---- Mock 갱신 시뮬레이션 (Mock Data 변경 → UI 재렌더링 검증용) ----
 
   function simulateUpdate() {
@@ -107,6 +131,7 @@ var MockData = (function () {
     getAIBudget: getAIBudget,
     getHQList: getHQList,
     getHQSnapshot: getHQSnapshot,
+    runCommand: runCommand,
     simulateUpdate: simulateUpdate
   };
 

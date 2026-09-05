@@ -6,19 +6,78 @@ HTTP 서버가 필요하다. 이 스크립트는 그 서버를 표준 라이브�
 (`http.server`)만으로 띄우고, 접속 URL을 곧바로 출력한다.
 
 이 파일은 실행 편의용이며 Dashboard 코드(`index.html`/`css`/`js`/
-`generate_development_snapshot.py`)를 전혀 건드리지 않는다.
+`generate_*_snapshot.py`)를 전혀 건드리지 않는다.
+
+`POST /api/command`만 예외다 — Dashboard Chat이 raw_input을 보내면
+`projects/command-contract/resolver.py`의 `parse_command()`/
+`resolve()`를 그대로 호출한다(같은 로직을 여기 복제하지 않는다).
+이 서버는 `hqs/`·`core/`를 직접 호출하지 않는다 — resolver 자체가
+이미 그 Boundary를 지킨다(Command Resolution 책임만 이 서버가
+중계한다).
 """
 
 from __future__ import annotations
 
 import http.server
+import json
 import socket
 import sys
+from functools import partial
 from pathlib import Path
 
 DASHBOARD_DIR = Path(__file__).resolve().parent
+COMMAND_CONTRACT_DIR = DASHBOARD_DIR.parent / "command-contract"
+sys.path.insert(0, str(COMMAND_CONTRACT_DIR))
+
+from resolver import parse_command, resolve  # noqa: E402
+
 DEFAULT_PORT = 8765
 MAX_PORT_ATTEMPTS = 20
+
+
+class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
+    """정적 파일 서빙(기존과 동일) + `/api/command` 한 경로만 추가."""
+
+    def do_POST(self):
+        if self.path != "/api/command":
+            self._send_json(http.HTTPStatus.NOT_FOUND, {"error": "알 수 없는 경로: " + self.path})
+            return
+
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length) or b"{}")
+            raw_input = body["raw_input"]
+            if not isinstance(raw_input, str):
+                raise TypeError("raw_input은 문자열이어야 함")
+        except (ValueError, KeyError, TypeError) as exc:
+            self._send_json(
+                http.HTTPStatus.BAD_REQUEST,
+                {"error": "잘못된 요청 본문 — raw_input(string) 필드가 필요함: " + str(exc)},
+            )
+            return
+
+        command = parse_command(raw_input)
+        result = resolve(command)
+        self._send_json(
+            http.HTTPStatus.OK,
+            {
+                "raw_input": command.raw_input,
+                "intent": command.intent,
+                "target_hq": command.target_hq,
+                "status": result.status,
+                "reason": result.reason,
+                "hq_identity": result.hq_identity,
+                "detail": result.detail,
+            },
+        )
+
+    def _send_json(self, status: int, payload: dict) -> None:
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
 
 def _port_is_free(port: int) -> bool:
@@ -55,9 +114,7 @@ def main() -> None:
     print("브라우저에서 위 주소를 열면 Dashboard Shell MVP가 표시됩니다.", flush=True)
     print("종료하려면 Ctrl+C를 누르세요.", flush=True)
 
-    handler = lambda *args, **kwargs: http.server.SimpleHTTPRequestHandler(  # noqa: E731
-        *args, directory=str(DASHBOARD_DIR), **kwargs
-    )
+    handler = partial(DashboardRequestHandler, directory=str(DASHBOARD_DIR))
     with http.server.ThreadingHTTPServer(("127.0.0.1", port), handler) as httpd:
         try:
             httpd.serve_forever()

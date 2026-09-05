@@ -72,6 +72,22 @@
       });
   }
 
+  function scrollChatToBottom() {
+    var messagesEl = document.getElementById("chat-messages");
+    if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function formatCommandResult(result) {
+    var header = "intent=" + (result.intent || "null") +
+      " target_hq=" + (result.target_hq || "null") +
+      " status=" + result.status;
+    if (result.status !== "ok") {
+      return header + " reason=" + result.reason;
+    }
+    var detailText = (result.detail || []).map(function (d) { return "- " + d; }).join("\n");
+    return header + " hq_identity=" + result.hq_identity + (detailText ? "\n" + detailText : "");
+  }
+
   function renderChat() {
     el.chat.innerHTML = Render.chat(state.messages);
     var form = document.getElementById("chat-form");
@@ -81,9 +97,27 @@
       var text = input.value.trim();
       if (!text) return;
       state.messages.push({ role: "user", text: text });
+      input.value = "";
       renderChat();
-      var messagesEl = document.getElementById("chat-messages");
-      messagesEl.scrollTop = messagesEl.scrollHeight;
+      scrollChatToBottom();
+
+      // Chat 입력을 기존 Command Resolution(projects/command-contract/)에
+      // 그대로 전달한다 — 실패해도 Mock으로 대체하지 않고 그대로 드러낸다.
+      MockData.runCommand(text)
+        .then(function (result) {
+          state.messages.push({ role: "command", text: formatCommandResult(result) });
+          renderChat();
+          scrollChatToBottom();
+        })
+        .catch(function (err) {
+          state.messages.push({
+            role: "error",
+            text: "Command Resolution 실패 — Mock으로 대체하지 않음: " +
+              (err && err.message ? err.message : String(err))
+          });
+          renderChat();
+          scrollChatToBottom();
+        });
     });
   }
 
