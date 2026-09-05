@@ -155,9 +155,10 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 > 테스트(E4 `projects/workflow-adapter-reversibility-v2/EVIDENCE.md`,
 > IN-1~IN-5 22 PASS)로 v2 맥락에서 **부분 충족**으로 재현됐다 —
 > 결정론적 stub·LangGraph 단일 계보·실엔진 미검증이라는 잔여 한계가
-> 있어 완전 discharge는 아니며, `ADC-0019` 재검토 조건 (c)는 그대로
-> 미충족이다(v1 `ADR-0007` 결정 9는 `ADC-0023`으로, 결정 2·5·11은
-> `ADC-0022`로 해소; `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md`).
+> 있어 완전 discharge는 아니며, `ADC-0019` 재검토 조건 (c)는 형식 요건
+> 충족·견고성 조건 잔존이다(`ADC-0024`; v1 `ADR-0007` 결정 9는
+> `ADC-0023`으로, 결정 2·5·11은 `ADC-0022`로 해소;
+> `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md`).
 
 ## 핵심 원칙 (Reference)
 
