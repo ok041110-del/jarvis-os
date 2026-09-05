@@ -158,7 +158,7 @@ var Render = (function () {
       "</div>";
     }).join("");
     return (
-      '<div class="chat-header"><h3>Chat</h3><span class="badge badge-planned">LOCAL ONLY — LLM 미연결</span></div>' +
+      '<div class="chat-header"><h3>Chat</h3><span class="badge badge-planned">Claude 연결(해석 전용) — Engine 미호출</span></div>' +
       '<div class="chat-messages" id="chat-messages">' + list + "</div>" +
       '<form class="chat-input-row" id="chat-form">' +
         '<input type="text" id="chat-input" placeholder="메시지 입력..." autocomplete="off">' +

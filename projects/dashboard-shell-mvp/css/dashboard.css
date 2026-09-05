@@ -323,6 +323,7 @@ html, body {
 
 .chat-user .chat-role { color: var(--accent); }
 .chat-error .chat-role { color: var(--danger); }
+.chat-llm .chat-role { color: var(--warn); }
 
 /* Command Result의 detail 목록(줄바꿈으로 구분)을 그대로 살려서 보여준다 —
    기존 한 줄 메시지는 줄바꿈이 없어 영향받지 않는다. */
