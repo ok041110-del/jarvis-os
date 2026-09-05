@@ -159,6 +159,10 @@ Kernel 전체가 아니라 **Context 영역에 한정**된다.
 > 충족·견고성 조건 잔존이다(`ADC-0024`; v1 `ADR-0007` 결정 9는
 > `ADC-0023`으로, 결정 2·5·11은 `ADC-0022`로 해소;
 > `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md`).
+> 비-LangGraph 독립 계보는 이후 2개(E5 worklist L-A, E6 재귀 조합자
+> L-B)로 강화됐으나 완전 완화는 아니다 — v2 프로덕션·실엔진 관찰이
+> 여전히 0건이다
+> (`docs/architecture/core/ADC-0025-gate-b-second-lineage-partial-relaxation.md`).
 
 ## 핵심 원칙 (Reference)
 
