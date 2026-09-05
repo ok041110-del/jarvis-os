@@ -19,13 +19,32 @@ Development HQ 한 경로만 예외다 — 아래 "Development HQ Evidence
 
 ## 실행
 
+가장 간단한 방법:
+
+```
+python3 projects/dashboard-shell-mvp/serve_dashboard.py
+```
+
+실행하면 접속할 Dashboard URL(기본 `http://localhost:8765/index.html`)을
+바로 출력한다 — 그 주소를 브라우저에서 열면 된다. 8765번 포트가 이미
+사용 중이면 자동으로 다음 포트를 찾아 알려준다. 표준 라이브러리
+(`http.server`)만 쓰고, 실행 자체가 Dashboard 코드(`index.html`/
+`css`/`js`)를 건드리지 않는다 — 개발 편의용 실행 스크립트일 뿐이다.
+
+Evidence Snapshot을 먼저 최신화하려면(선택):
+
 ```
 python3 projects/dashboard-shell-mvp/generate_development_snapshot.py
+```
+
+수동으로 직접 서버를 띄우고 싶다면 기존 방식도 그대로 동작한다:
+
+```
 cd projects/dashboard-shell-mvp
 python3 -m http.server 8765
 ```
 
-브라우저에서 `http://localhost:8765` 접속. **`index.html`을 직접
+두 방법 모두 `http://localhost:8765` 접속. **`index.html`을 직접
 더블클릭해서 여는 방식은 더 이상 완전히 동작하지 않는다** — Development
 탭이 `fetch()`로 `data/development-snapshot.json`을 읽는데, `file://`
 프로토콜에서는 이 요청이 CORS로 차단된다(Investment/Trading/Header/
@@ -44,6 +63,7 @@ Chat은 여전히 순수 Mock이라 더블클릭으로도 동작). 이 경우에
 | `js/app.js` | 상태(activeHQ/messages) 보관 + 이벤트 처리 + 부분 렌더링 오케스트레이션. Navigation 선택을 `location.hash`와 동기화(새로고침/뒤로가기·앞으로가기에서도 선택된 HQ 유지). `renderMain()`은 동기 Mock 반환값과 fetch Promise를 모두 처리한다 |
 | `generate_development_snapshot.py` | `projects/unified-dashboard/snapshot.py`의 `build_dev_hq_snapshot()`을 재사용해 `data/development-snapshot.json`을 생성하는 CLI |
 | `data/development-snapshot.json` | 생성된 Development HQ Evidence Snapshot(커밋 대상 — `unified-dashboard`의 `output/`·`frontend/public/data/` 선례와 동일) |
+| `serve_dashboard.py` | 로컬 실행 편의 스크립트 — 클릭 한 번으로 열어볼 수 있게 서버를 띄우고 접속 URL을 출력한다. Dashboard 코드 자체는 건드리지 않는다 |
 
 ## Development HQ Evidence 연결 (실험)
 
