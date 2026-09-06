@@ -45,12 +45,20 @@ Need 진입 흐름, ADC 채택 기준). 새로운 실험은 수행하지 않는�
 HQ)를 다음 이유로 Not Accepted로 남겼다 — *"Development HQ는 후보
 검토 대상이 아니라 명시적으로 배제된 대상이다... Freeze 목록 자체를
 재론하지 않는 한 재검토 근거가 생기지 않는다 — Phase 1 종료 후 불변
-원칙과 충돌한다."* 이 문장의 "충돌"은 **Development HQ RFC-0005 문서
-자체를 다시 여는 경로**가 Phase 1 종료 후 불변 원칙과 부딪힌다는
-뜻이지, `CONSTITUTION.md`의 Architecture Freeze 목록 자체가 Architecture
-Governance 절차(RFC → ADC → ADR, `docs/00_governance/ARCHITECTURE_GOVERNANCE.md`)로
-재검토될 수 없다는 뜻이 아니다 — Development HQ 경로가 막혀 있을 뿐,
-Architecture Governance 경로는 애초에 이 RFC가 쓰는 바로 그 경로다.
+원칙과 충돌한다."* `GOVERNANCE-REVIEW-0003`은 C4를 동일한 사유("Freeze 목록 자체를
+재론해야 함 — Phase 1 종료 후 불변 원칙과 충돌")로 재확인했고,
+`GOVERNANCE-REVIEW-0004`는 이를 "사실상 Governance 경로가 막혀
+있다"고 서술한다 — 다만 두 문서 모두 이 서술을 C4(Development HQ가
+caller가 되는 경로) 판단의 맥락 안에서만 남겼을 뿐, "Architecture Governance 절차(RFC → ADC → ADR)로
+Freeze 목록 자체를 직접 재검토하는 경로"까지 막혀 있다고 명시적으로
+말한 적은 없다. **이 RFC의 해석으로는**, 이 문장의 "충돌"은
+**Development HQ RFC-0005 문서 자체를 다시 여는 경로**가 Phase 1
+종료 후 불변 원칙과 부딪힌다는 뜻이며, `CONSTITUTION.md`의 Architecture
+Freeze 목록 자체가 `docs/00_governance/ARCHITECTURE_GOVERNANCE.md`의
+Architecture Governance 절차로 재검토되는 것까지 막는다고 확정적으로
+읽을 근거는 원문에 없다 — 그러나 이 해석 자체가 기존 문서에 명시된
+사실은 아니며, 이 RFC가 스스로 내린 절차적 판단이다. 이 해석의
+타당성 자체를 §9 Required Decision 항목으로 남긴다.
 
 별도로, `docs/governance/adc/ADC-0003.md` 판단 4는 Execution Layer의
 Multi-Model 지원을 Development HQ ADC의 권한 밖(Out of Authority)으로
@@ -82,7 +90,7 @@ Architecture Governance 절차 위에서 공식적으로 묻는 것이다.
 
 | 근거 문서 | 동결 내용 | 현재 상태 |
 |---|---|---|
-| `CONSTITUTION.md` "Architecture Freeze" | Engine Adapter, Model Routing (Multi-Agent Runtime 등 6개 항목과 함께) | 동결 유지 — 이 RFC 시점까지 변경 없음 |
+| `CONSTITUTION.md` "Architecture Freeze" | Engine Adapter, Model Routing (Multi-Agent Runtime 등 7개 항목과 함께 — Runtime, Pipeline Generalization, Task Dispatcher Generalization, Stage Runner, Event Bus, Scheduler, Multi-Agent Runtime) | 동결 유지 — 이 RFC 시점까지 변경 없음 |
 | `IMPLEMENTATION_RULES.md` 금지 표 | Engine Gateway(Port/Adapter 추상화) 구현 금지, Engine Routing 구현 금지, Multi Engine 지원 코드 작성 금지 | 동결 유지 |
 | `BASELINE.md` §14.1 | Kernel 책임 후보 3번 "Engine 호출 책임" = 미결, 계약 범위 밖 | 미결 유지 |
 | `BASELINE.md` §16.2 | Execution Layer는 Accept됐으나 내부 구조(Model 선택, Multi-Model Routing)는 Open — ADC-01(Model↔Component 대응)·ADC-02(Runtime 존폐)·`ADC-0003` 판단 4가 각각 미해소 | Open 유지 |
@@ -134,15 +142,22 @@ Recommendation·§9 Required Decision의 선행조건으로 다룬다.
 
 ### 3.3 결과 해석 — PASS/FAIL/UNVERIFIED가 각각 뒷받침하는 것과 뒷받침하지 않는 것
 
-- **PASS 4건(Provider Exclusion, API Key Scope, Egress Audit,
-  Auto-Routing)**이 보고대로라면, OmniRoute가 (a) 지정된 Provider를
-  실제로 배제할 수 있고, (b) API Key의 사용 범위를 스코프대로
-  제한하며, (c) 외부로 나가는 트래픽이 감사 가능하고, (d) 여러
-  Provider/Model 사이의 자동 선택·내부 fallback이 실제로 동작한다는
-  것을 시사한다 — 이는 §2 표의 "Engine 수 ≥ 2" Trigger가 기술적으로
-  충족 **가능하다는 정황**과 닿아 있다(그러나 이 Evidence 자체가
-  `call_engine()` 호출 지점을 실제로 2개 Engine 대상으로 바꾼 것은
-  아니다 — Trigger는 여전히 미충족, §2).
+- **PASS 4건은 성격이 서로 다르며, 뭉뚱그려 하나의 근거로 다루지
+  않는다.**
+  - **접근 통제·감사 3건(Provider Exclusion, API Key Scope, Egress
+    Audit)**이 보고대로라면, OmniRoute가 (a) 지정된 Provider를 실제로
+    배제할 수 있고, (b) API Key의 사용 범위를 스코프대로 제한하며,
+    (c) 외부로 나가는 트래픽이 감사 가능하다는 것을 시사한다 — 이
+    3건은 OmniRoute의 **거버넌스적 통제 속성**을 보여줄 뿐, 실제로
+    2개 이상의 서로 다른 Engine이 호출됐다는 근거는 아니다.
+  - **라우팅 실행 1건(Auto-Routing/내부 fallback 실행)**만이 여러
+    Provider/Model 사이의 자동 선택·내부 fallback이 실제로 동작함을
+    시사한다 — 이 1건이 §2 표의 "Engine 수 ≥ 2" Trigger가 기술적으로
+    충족 **가능하다는 정황**과 닿아 있는 유일한 항목이다(그러나 이
+    Evidence 자체가 `call_engine()` 호출 지점을 실제로 2개 Engine
+    대상으로 바꾼 것은 아니다 — Trigger는 여전히 미충족, §2).
+  - 즉 "PASS 4건"을 한 덩어리로 "Engine 수 ≥ 2 정황"의 근거로 인용하는
+    것은 부정확하다 — 그 정황은 라우팅 실행 1건에서만 나온다.
 - **FAIL 3건(`priority`, `domain_fallback_chains`, `routing_decisions`)**은
   OmniRoute가 **문서화·설정한 대로 동작하지 않는 영역이 실제로
   존재함**을 보여준다 — 이는 OmniRoute를 그대로 신뢰할 수 있는
@@ -308,6 +323,13 @@ Recommendation·§9 Required Decision의 선행조건으로 다룬다.
    요구를 판단할 절차가 지정되지 않음")에 대해, 이 RFC를 그 절차의
    시작으로 인정할지, 아니면 별도 Jarvis OS 수준 RFC가 다시 필요하다고
    볼지.
+5. **절차적 해석의 타당성**: §0이 제시한 해석 — "`ADC-0010`의
+   'Phase 1 종료 후 불변 원칙과 충돌한다'는 판단과 `GOVERNANCE-REVIEW-0004`의
+   '사실상 Governance 경로가 막혀 있다'는 서술은 모두 C4(Development
+   HQ) 판단 맥락에 한정되며, Architecture Governance 절차로 Freeze
+   목록을 직접 재검토하는 이 RFC의 경로 자체를 막지 않는다" — 가
+   타당한지, 아니면 이 RFC가 이미 절차적으로 열려서는 안 될 것을 연
+   것인지.
 
 이 RFC 자체는 그 판단을 내리지 않는다.
 
