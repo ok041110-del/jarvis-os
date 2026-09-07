@@ -239,6 +239,19 @@ Implementation
 
 개발하지 않는다.
 
+**Scoped 예외(`ADR-0016`)**: `Engine Adapter`·`Model Routing` 두
+항목은, OmniRoute를 Thin Engine Caller(단일 함수 호출, Jarvis 코드에
+Provider/Model 선택·Routing·Policy 판정 로직을 두지 않는 형태 —
+`docs/architecture/core/ADC-0031-omniroute-thin-engine-caller-boundary.md`
+§Q1 두 조건)로 사용하는 범위에 한해 Conditional Scoped 해제한다
+(`docs/architecture/core/ADC-0027-omniroute-model-routing-engine-adapter-conditional-adoption.md`
+Accept, Conditional·Scoped 방향 근거). 이 범위를 벗어나는 구현
+(Engine Gateway, Jarvis 자체 Routing/Policy 로직, Multi-Engine 지원
+등)은 이 Freeze 아래 계속 동결 상태다. 이 예외만으로 Production
+구현이 승인되지 않는다 — 실제 caller 구현·Integration Validation·
+Final Adoption Review가 별도로 필요하다(`ADR-0016` §9). 나머지 7개
+항목은 이 예외의 영향을 받지 않는다.
+
 ---
 
 # Dogfooding Policy

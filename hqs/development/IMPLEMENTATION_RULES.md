@@ -21,6 +21,36 @@
 | Multi Engine 지원 코드 작성 금지 | 단일 Engine 호출로 충분하다 |
 | Architecture Baseline 및 Development HQ Baseline 수정 금지 | 두 Baseline은 Frozen 상태다. Architecture 수준 문제 발견 시 아래 "Architecture 문제 발견 시 절차"를 따른다 |
 
+## OmniRoute Thin Engine Caller 범위 확인 (Scoped, ADC-0031)
+
+`docs/architecture/core/ADC-0031-omniroute-thin-engine-caller-boundary.md`가
+확인한 대로, 위 금지 표의 15행(Engine Gateway)·16행(Engine Routing)·
+17행(Policy)·21행(Multi Engine)은 Jarvis 코드가 **단일 OmniRoute
+endpoint를 호출하는 함수 하나**만 갖고, Provider/Model 선택·Routing·
+Policy 판정 로직을 Jarvis 코드 자체에 두지 않는 형태(Thin Engine
+Caller)를 금지하지 않는다. **이 절은 위 금지 표의 문구를 완화하지
+않는다** — 이미 허용된 범위를 확인할 뿐이며, 아래 조건이 깨지면 이
+확인은 적용되지 않고 해당 구현은 다시 위 금지 표 대상이 된다.
+
+- 허용(Thin Engine Caller 범위 안): 단일 OmniRoute endpoint 호출
+  함수, request/response 변환, Adapter 수준 lifecycle handling
+  (`ADC-0031` §Decision "허용" 목록).
+- 금지(위 표 그대로 유지, 완화 아님): Jarvis 내부 provider
+  selection·model scoring·routing·fallback engine·multi-provider
+  orchestration·multi-engine selection·Engine Gateway abstraction·
+  `provider_connections.priority` 직접 적용·OmniRoute 후보 재평가
+  로직(`ADC-0031` §Decision "금지" 목록).
+- Case A의 조건(`ADC-0031` §Q1): (a) Jarvis의 Engine Adapter가
+  일반화된 Port/Adapter 인터페이스가 아니라 단일 함수 형태를
+  유지하고, (b) Routing Policy·Cost/Budget Policy·Audit Policy·API
+  Key Scope(정책 결정)에 해당하는 판정 로직을 Jarvis 코드 자체에
+  두지 않을 때에만 이 확인이 적용된다. 하나라도 깨지면 Case B/C로
+  전환되어 위 금지 표가 그대로 적용된다.
+- 이 절은 `hqs/development/CONSTITUTION.md` Architecture Freeze의
+  Scoped 예외(`ADR-0016`)와 동일 범위를 가리키며, 그 범위를 넓히지
+  않는다. Engine Adapter Contract(§14, `BASELINE.md`)는 이 절로
+  확정되지 않는다.
+
 ## Execution Host 구현 허용 범위 (Scoped, ADC-0015)
 
 `docs/architecture/core/ADC-0015-execution-host-implementation-strategy.md`

@@ -383,7 +383,7 @@ Component를 설계하지 않는다(KP-1).
 |---|---|
 | 1. Task 전달 책임 | **미결** — 이 계약의 범위 밖 |
 | 2. Capability 탐색 책임 | **미결** — 이 계약의 범위 밖 |
-| 3. Engine 호출 책임 | **미결** — 이 계약의 범위 밖 |
+| 3. Engine 호출 책임 | **부분 진전**(`docs/architecture/core/ADC-0027`~`ADC-0031`, `ADR-0015`~`ADR-0017`) — OmniRoute를 Thin Engine Caller(Case A) 형태의 Implementation Engine으로 Production Adoption(`ADR-0017`). 함수 시그니처·Port 인터페이스 등 이 계약(§14) 자체는 여전히 미확정 — 이 계약의 범위 밖 유지 |
 | 4. Context 전달 책임 | 결정됨 (§13) |
 | 5. Stable Prefix 책임 | 후보. 형태는 Defer(§13.6) |
 | 6. Context Boundary 책임 | 후보. 형태는 Defer(§13.6) |
@@ -821,6 +821,16 @@ Authority)가 여전히 Open으로 남긴 영역이다
 Layer의 설계가 결정되었다'는 의미로 확장 해석하면 안 된다"). 이 두
 Open Decision은 각각 `ADC-0008-runtime-existence-boundary.md`(ADC-02,
 Not Accepted)로 한 차례 대조됐으나 여전히 미해소다.
+
+이 내부 구조 중 Model Routing/Engine Adapter 한 갈래는
+`docs/architecture/core/ADC-0027`~`ADC-0031`·`ADR-0015`~`ADR-0017`로
+부분 진전됐다 — OmniRoute가 Thin Engine Caller(Case A) 형태의
+Implementation Engine으로 Production Adoption됐다(`ADR-0017`).
+이는 "Model↔Component 대응"·"Runtime 존폐"·"Multi-Model" 질문
+자체에 답한 것이 아니라, 그 내부 구조의 한 후보(OmniRoute)를 좁은
+경계(단일 함수 호출, Jarvis 코드에 Policy 판정 로직 없음) 안에서
+채택한 것뿐이다 — ADC-01·ADC-02·`ADC-0003` 판단4는 이 갱신 이후에도
+여전히 Open이다.
 
 ### 16.3 Execution Host — 단일 실행 단위 Dispatch·격리 (Accept, Scoped)
 

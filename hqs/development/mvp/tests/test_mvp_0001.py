@@ -2,12 +2,51 @@
 
 MVP.md Exit Criteria: 입력 코드가 주어지면, 수동 개입 없이 Code Review 결과와
 Test Case 제안이 순서대로 반환되어야 한다.
+
+## 실제 Engine 호출 opt-in Gate(`RUN_REAL_ENGINE_TESTS`, 2026-09-07 도입)
+
+아래 두 테스트는 `call_engine()`을 mock하지 않거나(첫 번째) 원본을
+그대로 감싸는 spy만 쓴다(두 번째) — 즉 **실제로 `call_engine()`의
+현재 backend를 호출한다.**
+`docs/architecture/core/EVIDENCE-0007-omniroute-call-site-conversion-hold.md`
+§3.1이 이 사실을 OmniRoute Call-Site Conversion의 차단 사유로
+기록했다 — `call_engine()`의 backend가 무엇이든 기본 `pytest`
+실행에서 게이트 없이 실제 Engine을 호출하면, backend가 실제 외부
+provider egress를 일으킬 수 있는 것으로 바뀌었을 때 그 위험을
+그대로 물려받는다.
+
+`docs/architecture/core/EVIDENCE-0008-test-mvp-0001-real-engine-gate.md`
+가 이 위험을 해소한 재설계다 — 이 두 테스트는 이제 기본적으로
+**SKIP**되며, `RUN_REAL_ENGINE_TESTS=1`을 명시적으로 설정해야
+실제 Engine을 호출한다.
+
+    RUN_REAL_ENGINE_TESTS=1 pytest hqs/development/mvp/tests/test_mvp_0001.py -v
+
+이 Gate는 `call_engine()`이 무엇을 호출하는지 판단·분기하지
+않는다 — 단순히 "실제 Engine을 호출할지 말지"만 결정하는 단일
+환경변수 스위치이며, Routing/Fallback/Budget/Policy 로직을 전혀
+포함하지 않는다.
+
+## Backend 변경(`docs/architecture/core/EVIDENCE-0013-call-site-conversion-governance-final-review.md`, Call-Site Conversion)
+
+`agents/backend.py`·`agents/qa.py`가 `call_engine_via_omniroute`로
+전환됨에 따라, Gate 활성화 시 이 두 테스트는 이제 **실제 OmniRoute
+인스턴스**(`OMNIROUTE_BASE_URL`, 기본값 `http://127.0.0.1:20128`)를
+호출한다 — 이전(`claude` CLI subprocess)과 다르다. `claude` CLI는
+이 저장소가 항상 신뢰해 온 로컬 대상이라 Gate 활성화만으로
+안전했지만, 이제는 Gate를 활성화하는 시점에 실제로 안전하게
+구성된(`blockedProviders`/`REQUIRE_API_KEY`) OmniRoute 인스턴스가
+떠 있어야 한다 — 그렇지 않으면 connection-refused로 FAIL한다
+(egress 없는 안전한 실패, `EVIDENCE-0007` §3.1 예측대로).
 """
 
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
+import pytest
 
 from mvp.agents import AGENT_CAPABILITY_MAP, backend, qa
 from mvp.workflow import run_mvp_0001
@@ -20,7 +59,17 @@ def add(a, b=[]):
         pass
 """
 
+RUN_REAL_ENGINE_FLAG = "RUN_REAL_ENGINE_TESTS"
+_skip_unless_real_engine_gate = pytest.mark.skipif(
+    os.environ.get(RUN_REAL_ENGINE_FLAG) != "1",
+    reason=(
+        f"실제 Engine 호출(현재 backend: OmniRoute, `EVIDENCE-0013`) — "
+        f"opt-in 전용, {RUN_REAL_ENGINE_FLAG}=1 로 명시적으로 실행해야 한다"
+    ),
+)
 
+
+@_skip_unless_real_engine_gate
 def test_returns_review_then_test_cases_without_manual_intervention():
     result = run_mvp_0001(SAMPLE_CODE)
 
@@ -29,6 +78,7 @@ def test_returns_review_then_test_cases_without_manual_intervention():
     assert result["test_execution"]
 
 
+@_skip_unless_real_engine_gate
 def test_review_content_reaches_test_execution_as_context(monkeypatch):
     """`workflow.py`의 context 전달(`review` → `payload`) 메커니즘만 검증한다 —
     Engine 출력 문구에 대한 exact-substring assertion은 쓰지 않는다.

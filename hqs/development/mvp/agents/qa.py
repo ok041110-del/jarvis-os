@@ -1,7 +1,7 @@
 """QA Agent — test_execution Capability(Agent Package Refactoring,
 `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2)."""
 
-from ..engine import call_engine
+from ..omniroute_engine import call_engine_via_omniroute as call_engine
 
 
 def qa_agent_test_execution(code: str, review: str) -> str:
