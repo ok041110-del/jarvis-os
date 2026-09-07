@@ -11,6 +11,7 @@
 | [`integrations/task-observer.md`](integrations/task-observer.md) | Task Observer 스킬 설치 근거 |
 | [`integrations/claude-mem.md`](integrations/claude-mem.md) | Claude-Mem 설치·연결 검증 |
 | [`integrations/omniroute.md`](integrations/omniroute.md) | OmniRoute 설치·연결 검증 |
+| [`integrations/tooling-finalization-review-2026-09.md`](integrations/tooling-finalization-review-2026-09.md) | Claude-Mem/Token Optimizer/Context Handoff 최종 채택 판정 |
 | [`SMOKE_TEST-2026-08-08.md`](SMOKE_TEST-2026-08-08.md) | 실행환경 구성요소 Smoke Test 결과 |
 
 `.claude/skills/*/SKILL.md` 각각의 목적/trigger/동작은 여기서 중복 기술하지 않는다 — 해당 SKILL.md가 유일한 출처다.
