@@ -13,7 +13,7 @@
   var state = {
     activeHQ: DEFAULT_HQ,
     messages: [
-      { role: "system", text: "Chat UI 상태 관리만 동작한다 — LLM/Engine에 연결되어 있지 않다." }
+      { role: "system", text: "메시지는 실제 Claude로 해석된 뒤 기존 Command Resolution을 거쳐 실행된다 — Engine/Workflow 호출은 없다(읽기 전용 상태 조회만)." }
     ]
   };
 
@@ -88,6 +88,11 @@
     return header + " hq_identity=" + result.hq_identity + (detailText ? "\n" + detailText : "");
   }
 
+  function formatLLMInterpretation(result) {
+    return "Claude 해석: intent=" + (result.llm_intent || "null") +
+      " target_hq=" + (result.llm_target_hq || "null");
+  }
+
   function renderChat() {
     el.chat.innerHTML = Render.chat(state.messages);
     var form = document.getElementById("chat-form");
@@ -101,18 +106,28 @@
       renderChat();
       scrollChatToBottom();
 
-      // Chat 입력을 기존 Command Resolution(projects/command-contract/)에
-      // 그대로 전달한다 — 실패해도 Mock으로 대체하지 않고 그대로 드러낸다.
-      MockData.runCommand(text)
+      // Chat 입력을 실제 Claude(분류 전용) -> 기존 Command Resolution 순서로
+      // 전달한다. LLM 해석 결과와 실행 결과를 별도 메시지로 구분해 표시한다 —
+      // 실패해도(Claude 호출/파싱 실패 포함) Mock으로 대체하지 않고 그대로
+      // 드러낸다.
+      MockData.runLLMCommand(text)
         .then(function (result) {
-          state.messages.push({ role: "command", text: formatCommandResult(result) });
+          state.messages.push({ role: "llm", text: formatLLMInterpretation(result) });
+          state.messages.push({ role: "command", text: formatCommandResult({
+            intent: result.llm_intent,
+            target_hq: result.llm_target_hq,
+            status: result.status,
+            reason: result.reason,
+            hq_identity: result.hq_identity,
+            detail: result.detail
+          }) });
           renderChat();
           scrollChatToBottom();
         })
         .catch(function (err) {
           state.messages.push({
             role: "error",
-            text: "Command Resolution 실패 — Mock으로 대체하지 않음: " +
+            text: "Claude 호출/파싱 실패 — Mock으로 대체하지 않음: " +
               (err && err.message ? err.message : String(err))
           });
           renderChat();
