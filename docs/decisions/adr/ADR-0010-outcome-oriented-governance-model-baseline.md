@@ -1,10 +1,10 @@
-# ADR-0010: Outcome-Oriented Governance Model — Baseline 반영 결정 (승인 대기)
+# ADR-0010: Outcome-Oriented Governance Model — Baseline 반영 결정
 
 | 필드 | 내용 |
 |---|---|
 | ID | ADR-0010 |
-| 제목 | RFC-0010(Boundary Question) → ADC-0008(Q-1/Q-2/Q-3 Final Judgment)의 판단을 실제 Baseline 반영 결정으로 확정한다 — 단 반영 실행은 사용자 승인 이후로 미룬다 |
-| 상태 | **Proposed — 사용자 승인 대기.** 이 ADR이 승인되기 전까지 `docs/governance/README.md`를 포함한 어떤 Governance 문서도 이 ADR로 수정하지 않는다. 승인 이후 §5의 변경 내용만 별도 커밋으로 적용한다. |
+| 제목 | RFC-0010(Boundary Question) → ADC-0008(Q-1/Q-2/Q-3 Final Judgment)의 판단을 실제 Baseline 반영 결정으로 확정한다 |
+| 상태 | **Accepted.** 사용자 승인 후 §5의 신설 절 텍스트를 `docs/governance/README.md`에 그대로 등재했다(§4 실제 반영 범위 참고). |
 | Context | `docs/decisions/rfc/RFC-0010-outcome-oriented-governance-model.md`(Q-1/Q-2/Q-3 Boundary Question) + `docs/governance/adc/ADC-0008.md`(Q-1 Accept, Q-2/Q-3 Scoped Accept·소급 미적용) |
 | 관련 RFC | `docs/decisions/rfc/RFC-0010-outcome-oriented-governance-model.md` |
 | 관련 ADC | `docs/governance/adc/ADC-0008.md` |
@@ -12,10 +12,10 @@
 
 이 ADR은 ADC-0008이 이미 내린 Q-1/Q-2/Q-3 Final Judgment를 다시
 논의하지 않는다. 이 ADR이 하는 일은 그 판단을 **실제 문서에 무엇을,
-어디에, 어떤 문구로 반영할 것인지**로 구체화하는 것뿐이다. 승인
-전에는 어떤 반영도 실행하지 않는다 — 이는 CLAUDE.md Frozen
-Architecture 규칙("Architecture/Baseline은 직접 수정하지 않는다")과
-사용자 지시 6번을 그대로 따른 것이다.
+어디에, 어떤 문구로 반영할 것인지**로 구체화하고, 사용자 승인을 받은
+뒤 그 반영을 실행하는 것이다 — 승인 전 어떤 반영도 실행하지 않는다는
+CLAUDE.md Frozen Architecture 규칙("Architecture/Baseline은 직접
+수정하지 않는다")을 그대로 따랐고, 승인 이후 §4의 반영을 완료했다.
 
 ## Out of Scope (이 ADR이 다루지 않는 것)
 
@@ -82,12 +82,13 @@ Governance Model"**을 공식 명칭으로 한다. "Governance v2"라는 명칭�
 > 목록은 "후속 재평가 대상"이라는 표시일 뿐, 재평가를 지금 지시하지
 > 않는다.
 
-### 4. 실제 반영 범위 (승인 후 적용 — 이 ADR 자체는 실행하지 않음)
+### 4. 실제 반영 범위 (승인 후 적용 완료)
 
-| 대상 파일 | 반영 내용 | 실행 시점 |
+| 대상 파일 | 반영 내용 | 실행 상태 |
 |---|---|---|
-| `docs/governance/README.md` | "Governance v2" 절 다음에 "Outcome-Oriented Governance Model" 신설 절 추가 — §5 초안 텍스트를 그대로 등재 | 이 ADR 승인 후, 별도 커밋 |
-| `docs/decisions/rfc/README.md` | RFC-0010 등록 행의 "후속 ADR" 칸을 `ADR-0010`로 갱신 | 이 ADR 승인 후 (등록 표 자체의 최신화는 이번 커밋에서 상태 연결만 선반영, §7 참고) |
+| `docs/governance/README.md` | "Governance v2 흐름" 절 다음에 "Outcome-Oriented Governance Model" 신설 절 추가 — §5 초안 텍스트를 그대로 등재 | 적용 완료 |
+| `docs/decisions/rfc/README.md` | RFC-0010 등록 행의 "후속 ADR" 칸과 상태를 `ADR-0010`(Accepted)로 갱신 | 적용 완료 |
+| `docs/decisions/adr/README.md` | ADR-0010 행 상태를 Accepted로 갱신 | 적용 완료 |
 | 그 외 | 없음 — 코드·Architecture·Contract 문서는 대상이 아니다 | — |
 
 ### 5. 신설 절 초안 (승인 시 `docs/governance/README.md`에 그대로 등재할 텍스트)
@@ -116,9 +117,9 @@ Governance Model"**을 공식 명칭으로 한다. "Governance v2"라는 명칭�
 > 판단에 적용한다. 기존 Freeze 문서와 이미 Resolved/Not Accepted된
 > RFC/ADC/ADR에는 소급 적용하지 않는다(`ADR-0010` §3 참고).
 
-이 초안은 **이 ADR이 승인된 이후에만** `docs/governance/README.md`에
-실제로 등재한다. 이번 커밋에서는 이 문서(ADR-0010) 자체만 추가하고
-`docs/governance/README.md` 본문은 수정하지 않는다.
+이 초안은 사용자 승인 이후 `docs/governance/README.md`의 "Governance
+v2 흐름" 절 다음에 그대로 등재되었다. 등재된 문구는 위 초안과 문구
+단위로 동일하다.
 
 ## 6. Architecture/Contract 불변 확인
 
@@ -147,18 +148,18 @@ Governance Model"**을 공식 명칭으로 한다. "Governance v2"라는 명칭�
 
 ## Consequences
 
-- **승인 시**: `docs/governance/README.md`에 "Outcome-Oriented
-  Governance Model" 절이 신설되어, "RFC가 언제 필수인가", "Freeze를
-  언제 쓰는가", "Deferred가 영구 금지가 아니라는 것"이 명시적으로
-  문서화된다. 이후 새로운 Governance 판단에서 이 세 가지를 판단
-  기준으로 인용할 수 있게 된다.
-- **승인 전(현재 상태)**: 이 ADR은 결정 내용을 기록만 하고, 어떤
-  Governance 문서도 아직 변경되지 않는다. `docs/governance/README.md`
-  는 "Governance v2"(Observation 계층) 서술만 유지한 상태로 남는다.
+- `docs/governance/README.md`에 "Outcome-Oriented Governance Model"
+  절이 신설되어, "RFC가 언제 필수인가", "Freeze를 언제 쓰는가",
+  "Deferred가 영구 금지가 아니라는 것"이 명시적으로 문서화됐다.
+  이후 새로운 Governance 판단에서 이 세 가지를 판단 기준으로 인용할
+  수 있다.
+- `docs/governance/README.md`의 기존 "Governance v2"(Observation
+  계층) 서술은 한 글자도 바뀌지 않았다 — 신설 절은 그 다음에
+  추가됐을 뿐이다.
 - 기존 Freeze 문서·기존 Resolved/Not Accepted RFC/ADC/ADR은 이
-  ADR로 인해 어떤 상태 변화도 겪지 않는다 — 재평가가 필요하면 이후
+  ADR로 인해 어떤 상태 변화도 겪지 않았다 — 재평가가 필요하면 이후
   각 문서 단위로 별도 RFC/RT 절차가 열려야 한다(이 ADR이 그 절차를
   대신하거나 생략하지 않는다).
-- 남는 절차 부채: §5 초안 텍스트를 실제로 `docs/governance/README.md`
-  에 등재하는 커밋은 이 ADR의 승인 이후 별도로 수행해야 한다 — 이
-  ADR 자체가 그 실행을 포함하지 않는다.
+- 절차 부채 해소됨: §5 초안 텍스트를 `docs/governance/README.md`에
+  등재하는 반영과 Registry(§4) 갱신을 이 ADR의 Accepted 전환과 같은
+  작업 단위로 완료했다.
