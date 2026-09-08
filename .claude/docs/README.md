@@ -13,6 +13,7 @@
 | [`integrations/omniroute.md`](integrations/omniroute.md) | OmniRoute 설치·연결 검증 |
 | [`integrations/tooling-finalization-review-2026-09.md`](integrations/tooling-finalization-review-2026-09.md) | Claude-Mem/Token Optimizer/Context Handoff 최종 채택 판정 |
 | [`integrations/token-optimizer-hold-resolution-2026-09.md`](integrations/token-optimizer-hold-resolution-2026-09.md) | Token Optimizer HOLD Resolution PoC — assist 기본 모드 재검증 |
+| [`integrations/llm-wiki-candidate-002-resolution-poc.md`](integrations/llm-wiki-candidate-002-resolution-poc.md) | LLM Wiki 후보 #2 P0/P1 Open Issue Resolution PoC — blocker 해소 가능 실증, 판정 CONDITIONAL PASS 유지 |
 | [`SMOKE_TEST-2026-08-08.md`](SMOKE_TEST-2026-08-08.md) | 실행환경 구성요소 Smoke Test 결과 |
 
 `.claude/skills/*/SKILL.md` 각각의 목적/trigger/동작은 여기서 중복 기술하지 않는다 — 해당 SKILL.md가 유일한 출처다.
