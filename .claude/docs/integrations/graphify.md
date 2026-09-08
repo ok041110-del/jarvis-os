@@ -61,3 +61,14 @@ rm -rf graphify-out  # 저장소에 남아있다면
 ## 도입 판단
 
 CLI 기능(graph 생성 + query/path/explain)은 이 세션에서 실사용 검증 완료(PASS). 단, Claude Code 정식 연결(`graphify claude install`)은 CLAUDE.md 자동 수정을 동반하므로 **이 문서로 절차만 기록하고 실제 연결은 보류** — 필요 시 별도 승인 하에 진행한다.
+
+> **2026-09-08 갱신**: 위 판단(2026-08-30 시점)은 그대로 보존한다.
+> 이후 `docs/architecture/core/ADR-0020-graphify-implementation-technology-adoption.md`가
+> `RFC-0032` → `ADC-0035` 절차로 별개 질문("현재 사용처가 없어도
+> 향후 Graph 기반 Memory/Knowledge/Relationship 요구를 대비해 승인된
+> 비강제 구현 후보로 미리 확정할 수 있는가")에 Accept로 답했다 —
+> Claude Code 정식 연결·즉시 Production 적용은 여전히 미승인이며,
+> Memory Kernel Module(`ADC-0001` Module 3, Defer)도 무변경이다.
+> `BASELINE.md`는 이 Adoption으로 전혀 수정되지 않았다(대응하는
+> Accepted Kernel 책임이 없기 때문 — LangGraph/`ADR-0019` 사례와의
+> 차이).
