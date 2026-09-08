@@ -1,10 +1,10 @@
-# ADR-0011: "Implementation Freedom" 원칙 — Baseline 반영 결정 (승인 대기)
+# ADR-0011: "Implementation Freedom" 원칙 — Baseline 반영 결정
 
 | 필드 | 내용 |
 |---|---|
 | ID | ADR-0011 |
-| 제목 | RFC-0011(Boundary Question) → ADC-0009(Q-1/Q-2 Final Judgment)의 판단을 실제 Baseline 반영 결정으로 확정한다 — 반영 실행은 사용자 승인 이후로 미룬다 |
-| 상태 | **Proposed — 사용자 승인 대기.** 이 ADR이 승인되기 전까지 `docs/governance/README.md`를 포함한 어떤 Governance 문서도 이 ADR로 수정하지 않는다. |
+| 제목 | RFC-0011(Boundary Question) → ADC-0009(Q-1/Q-2 Final Judgment)의 판단을 실제 Baseline 반영 결정으로 확정한다 |
+| 상태 | **Accepted.** 사용자 승인 후 §1의 두 원칙을 `docs/governance/README.md`에 그대로 등재했다(§3 실제 반영 범위 참고). |
 | Context | `docs/decisions/rfc/RFC-0011-implementation-freedom-principle.md`(Q-1/Q-2 Boundary Question) + `docs/governance/adc/ADC-0009.md`(Q-1 Scoped Accept, Q-2 Scoped Accept·개정 없음) |
 | 관련 RFC | `docs/decisions/rfc/RFC-0011-implementation-freedom-principle.md` |
 | 관련 ADC | `docs/governance/adc/ADC-0009.md` |
@@ -71,13 +71,13 @@ Evidence 기반 조건부 해제가 가능함이 실증됨)는 **Architecture �
 > 표현으로 정정할지 검토할 수 있다 — 단, 이는 이 ADR의 결정이
 > 아니며 별도 RFC → ADC → ADR을 거쳐야 한다.
 
-### 3. 실제 반영 범위 (승인 후 적용 — 이 ADR 자체는 실행하지 않음)
+### 3. 실제 반영 범위 (승인 후 적용 완료)
 
-| 대상 파일 | 반영 내용 | 실행 시점 |
+| 대상 파일 | 반영 내용 | 실행 상태 |
 |---|---|---|
-| `docs/governance/README.md` | "Outcome-Oriented Governance Model" 절 말미에 §1의 두 원칙 추가 | 이 ADR 승인 후, 별도 커밋 |
-| `docs/decisions/rfc/README.md` | RFC-0011 등록 행 추가, 후속 ADC/ADR 연결 | 이 ADR 승인 후(상태 연결은 이번 커밋에서 선반영 가능) |
-| `docs/decisions/adr/README.md` | ADR-0011 행 추가(Proposed) | 이 ADR 승인 후 Accepted로 갱신 |
+| `docs/governance/README.md` | "Outcome-Oriented Governance Model" 절 말미에 §1의 두 원칙 추가 | 적용 완료 |
+| `docs/decisions/rfc/README.md` | RFC-0011 등록 행과 후속 ADC/ADR 연결·상태를 Accepted로 갱신 | 적용 완료 |
+| `docs/decisions/adr/README.md` | ADR-0011 행 상태를 Accepted로 갱신 | 적용 완료 |
 | `hqs/development/CONSTITUTION.md` | 없음 | 이 ADR의 범위 밖 — §2의 보고용 후보만 기록 |
 | 그 외 | 없음 — 코드·Architecture·Contract 문서는 대상이 아니다 | — |
 
@@ -108,17 +108,21 @@ Evidence 기반 조건부 해제가 가능함이 실증됨)는 **Architecture �
 
 ## Consequences
 
-- **승인 시**: `docs/governance/README.md`에 "Implementation Freedom"과
+- `docs/governance/README.md`에 "Implementation Freedom"과
   "Freeze/Governance는 선호가 아니라 Invariant를 통제한다"는 두
-  원칙이 명시적으로 문서화되어, 향후 특정 구현 기술(LangGraph 포함
+  원칙이 명시적으로 문서화됐다 — 향후 특정 구현 기술(LangGraph 포함
   임의의 기술)에 대한 판단에서 "Evidence가 아직 부족하다"는 사실만으로
-  자동으로 그 기술의 시도 자체를 금지하지 않는다는 점이 재확인
-  가능해진다.
-- **승인 전(현재 상태)**: 이 ADR은 결정 내용을 기록만 하고, 어떤
-  Governance 문서도 아직 변경되지 않는다.
+  자동으로 그 기술의 시도 자체를 금지하지 않는다는 점을 이제 인용할
+  수 있다.
+- `docs/governance/README.md`의 기존 "Governance v2"(Observation
+  계층) 서술과 "Deferred/Not Accepted는 영구 금지와 다르다..."
+  문구(명제 4)는 한 글자도 바뀌지 않았다 — 신설 두 원칙은 그 다음에
+  추가됐을 뿐이다.
 - `CONSTITUTION.md`의 Architecture Freeze 목록, LangGraph/Graphify의
   기존 Deferred/Not Adopted 판정은 이 ADR로 인해 어떤 상태 변화도
-  겪지 않는다.
+  겪지 않았다.
+- 절차 부채 해소됨: §1의 원칙 반영과 Registry(§3) 갱신을 이 ADR의
+  Accepted 전환과 같은 작업 단위로 완료했다.
 - 남는 절차 부채: `CONSTITUTION.md` 문면 정정 후보(§2)는 별도
   Development HQ 수준 RFC가 열릴 때만 다뤄진다 — 이 ADR이 그 절차를
   대신하지 않는다.
