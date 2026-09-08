@@ -330,8 +330,8 @@ LLM Wiki를 Architecture/Governance Source of Truth로 취급하지 않는다 �
 | 이 branch diff | `.claude/docs/integrations/llm-wiki-candidate-002-poc.md` (신규, `projects/…/REPORT.md`에서 이동), `.claude/docs/README.md` (인덱스 1행 추가) |
 | main repo 영향 | 없음 — main worktree(`/Users/chan/Developer/jarvis-os`)는 `main` @ `0de386c` clean 유지. 실수로 생성됐던 동명 branch는 삭제(`git branch -D`, 커밋 없었음) |
 | Candidate #1 branch | `claude/llm-wiki-poc-001` @ `9628b7d` — 그대로 둠(Candidate #1 evidence 보존) |
-| PR | `claude/llm-wiki-poc-002 → main` Governance evidence PR. URL은 생성 직후 후속 커밋으로 이 표에 기록. merge는 사용자 승인 대기이며 **Production Adoption 승격 아님** |
-| Evidence 원격 보존 | branch를 `github.com/ok041110-del/jarvis-os`에 push → PoC worktree/HOME/temp 정리 후에도 evidence는 원격 branch + PR로 보존됨 |
+| PR | [#161](https://github.com/ok041110-del/jarvis-os/pull/161) `claude/llm-wiki-poc-002 → main` Governance evidence PR. merge는 사용자 승인 대기이며 **Production Adoption 승격 아님** — merge는 채택 결정이 아니라 evidence 기록 |
+| Evidence 원격 보존 | branch `claude/llm-wiki-poc-002` @ `e54a799` (초기; 이 표 갱신 후 후속 커밋)를 `github.com/ok041110-del/jarvis-os`에 push 완료 → PoC worktree/HOME/temp 정리 후에도 evidence는 원격 branch + PR #161로 보존됨 |
 
 ## Candidate #1 (nvk/llm-wiki) vs Candidate #2 (Pratiyush/llm-wiki)
 
