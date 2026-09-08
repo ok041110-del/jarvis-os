@@ -4,7 +4,7 @@
 |---|---|
 | ID | `docs/architecture/core/ADR-0018` |
 | 제목 | Phase A~F(`RFC-0024`~`RFC-0030`, `ADC-0032`~`ADC-0033`, Phase E/F Evidence PoC)를 종합해 "LangGraph를 지금 Production에 도입할 근거가 있는가"에 최종 답한다 |
-| 상태 | **Accepted — LangGraph는 Deferred / Not Adopted로 종결한다(§16.6 기존 지위 무변경, 새 Accept 없음)** — 판정 근거는 §5 Gate 표 참조 |
+| 상태 | **Accepted — LangGraph는 Deferred / Not Adopted로 종결한다(§16.6 기존 지위 무변경, 새 Accept 없음)** — 판정 근거는 §5 Gate 표 참조. **2026-09-08, `ADR-0019`가 이 판정을 Supersede함** — Production 구현 미승인이라는 결론은 무변경으로 유지되나, "LangGraph를 승인된 비강제 구현 후보로 사전 확정할 수 있는가"라는 별개 질문에 `ADR-0019`가 새 Evidence(`projects/langgraph-conditional-routing-poc-v1/`, 실제 프로덕션 Capability + 실제 Engine 기반 Prototype)를 근거로 답했다. 이 문서의 판정·근거·Gate 표는 이 Supersede로 재작성되지 않는다 — 아래 본문은 작성 시점(2026-09-02 이전 Evidence 기준) 그대로 보존한다. |
 | Context | `RFC-0019`~`RFC-0022` → `ADC-0019`~`ADC-0026` → `ADR-0008`~`ADR-0014`(Workflow Adapter Gate A/B/C 트랙) + `RFC-0024`~`RFC-0030` → `ADC-0032`~`ADC-0033`(Agent Domain/Lifecycle/Multi-Agent 트랙, Phase A~F) |
 | 관련 RFC | `RFC-0019`, `RFC-0020`, `RFC-0021`, `RFC-0022`, `RFC-0024`, `RFC-0025`, `RFC-0026`, `RFC-0027`, `RFC-0028`, `RFC-0029`, `RFC-0030` |
 | 관련 ADC | `ADC-0019`, `ADC-0020`, `ADC-0021`, `ADC-0022`, `ADC-0023`, `ADC-0024`, `ADC-0025`, `ADC-0026`, `ADC-0032`, `ADC-0033` |
