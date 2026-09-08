@@ -1,6 +1,8 @@
 # RFC-0010: Outcome-Oriented Governance Model 도입 여부
 
-**Status**: Proposed
+**Status**: Resolved — `docs/governance/adc/ADC-0008.md`로 종결됨(Scoped
+Accept, 후속 ADR 대기). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차
+진행 상태만 반영한다.
 **Author**: Claude Code (사용자 제공 "Jarvis OS Governance v2 Design
 Principles" 문서에 대한 Governance 절차 적용)
 **대상**: Jarvis OS Governance 자체(문서 원문의 표현으로는 P17,
@@ -137,6 +139,12 @@ RFC는 Question/Evidence/Options만 제시한다.
 
 ## Decision
 
-**보류(Open)** — 이 RFC는 §2의 Boundary Question(Q-1/Q-2/Q-3)만
-제기한다. 사용자 제공 Governance 철학 문서를 저장소에 어떤 형태로
-반영할지, 반영 여부 자체를 포함해 모든 판단은 후속 ADC로 넘긴다.
+**Scoped Accept — `docs/governance/adc/ADC-0008.md` 판정을 그대로
+따른다.** Q-1은 별도 명칭("Outcome-Oriented Governance Model") 채택으로
+Accept, Q-2(RFC/ADC/ADR 역할 참조)와 Q-3(Tier/Freeze/Deferred 원칙의
+향후 적용, 소급 미적용)은 Scoped Accept로 판정되었다. 기존 Freeze
+문서와 기존 Not Accepted/Resolved RFC의 소급 재평가는 이 RFC·ADC
+어느 쪽도 수행하지 않으며, ADC-0008 "판단 3"이 나열한 문서들은 각자의
+절차(RT Trigger, OBS 누적, 개별 RFC 재개설)를 통해서만 재평가 대상이
+된다. 실제 Baseline 문서 반영(`docs/governance/README.md` 등)은 이
+RFC·ADC 어느 것도 수행하지 않으며 후속 ADR 대상으로 남긴다.
