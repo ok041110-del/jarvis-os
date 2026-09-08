@@ -25,8 +25,8 @@ v1.4 → v1.6으로 갱신).
 
 작성된 ADR은 최소 10건이다(ADR-0006/0007은 이전 세션에서 추가됐으나
 이 표에 반영되지 않았던 것을 이번에 함께 갱신함 — D-9류 색인 부채,
-ADR-0009는 여전히 이 표에 없음 — 이번 갱신 범위 밖). ADR-0010을
-제외한 전부 Accepted다.
+ADR-0009는 여전히 이 표에 없음 — 이번 갱신 범위 밖). 이 표에 등재된
+항목은 전부 Accepted다.
 
 | ID | 제목 | 종결시킨 ADC | 상태 |
 |---|---|---|---|
@@ -38,7 +38,7 @@ ADR-0009는 여전히 이 표에 없음 — 이번 갱신 범위 밖). ADR-0010�
 | ADR-0006 | `hqs/`, `core/execution/` 재배치 및 `docs/` Taxonomy 정리 Migration Decision 확정 | `docs/decisions/adc/ADC-0005-structure-v1-migration-decisions.md` | Accepted |
 | ADR-0007 | Architecture Baseline 문서의 Structure v1.0 위치 확정 | `docs/decisions/adc/ADC-0006-baseline-relocation-decision.md` | Accepted |
 | ADR-0008 | Stage 폴더의 문서+실행 코드 공존 허용(ADR-0001 §2/§6 Supersede) — Architecture Owner 직접 지시, ADC 경유 없음 | 없음(직접 지시) | Accepted |
-| ADR-0010 | Outcome-Oriented Governance Model 명칭·RFC-ADC-ADR 역할·Tier/Freeze/Deferred 원칙의 Baseline 반영 결정(실행은 승인 후) | `docs/governance/adc/ADC-0008.md` | **Proposed(사용자 승인 대기)** — 승인 전까지 `docs/governance/README.md` 미수정 |
+| ADR-0010 | Outcome-Oriented Governance Model 명칭·RFC-ADC-ADR 역할·Tier/Freeze/Deferred 원칙의 Baseline 반영 결정 | `docs/governance/adc/ADC-0008.md` | Accepted — `docs/governance/README.md`에 신설 절 등재 완료 |
 
 ADR-0002 ~ ADR-0005가 `docs/01_architecture/BASELINE.md`를 v1.0 → v1.4로 갱신했다.
 
