@@ -1,27 +1,52 @@
 # LLM Wiki Candidate #2 — Adoption Policy & Live Smoke 준비
 
 작성일: 2026-09-08
+개정: 2026-09-08 — 사용자 부분 승인 반영 (§0.1)
 대상: `Pratiyush/llm-wiki` v1.3.82 (@ `b1088890`) — 현재 Preferred Candidate
 근거 Evidence: PR [#161](https://github.com/ok041110-del/jarvis-os/pull/161) · [#162](https://github.com/ok041110-del/jarvis-os/pull/162) · [#163](https://github.com/ok041110-del/jarvis-os/pull/163) · [#165](https://github.com/ok041110-del/jarvis-os/pull/165) · [#166](https://github.com/ok041110-del/jarvis-os/pull/166) (전부 open, 미merge)
 
-이 문서는 Candidate #2의 **Adoption Policy 초안을 확정 형태로 정리**하고, Production Adoption 직전에
-**사용자가 로그인된 Claude Code에서 직접 수행할 Live Smoke 절차**를 준비한다.
-정책 텍스트는 이 문서로 내부 정합성까지 완성되나, **정책의 발효(ratify)와 Production Adoption은
-사용자의 Live Smoke PASS 이후에만** 다음 단계로 넘어간다. `.claude/docs/` 규정대로 실행환경 검증
-evidence이며 RFC/ADC/ADR/BASELINE의 source of truth가 아니다.
+이 문서는 Candidate #2의 **Adoption Policy**와, Production Adoption 직전에
+**사용자가 로그인된 Claude Code에서 직접 수행할 Live Smoke 절차**를 담는다.
+2026-09-08 사용자가 유지 전략(§1)·계층 경계(§2)·Wiki 비권위 규칙(§3 R5)을 승인했다(§0.1).
+**나머지 운영 규칙(R1–R4) 승인과 Production Adoption 선언은 Live Smoke B2 PASS 이후**로 남는다.
+`.claude/docs/` 규정대로 실행환경 검증 evidence이며 RFC/ADC/ADR/BASELINE의 source of truth가 아니다.
 
 ## 0. 현재 상태 (요구사항 1)
 
 | 항목 | 값 |
 |---|---|
 | Preferred Candidate | `Pratiyush/llm-wiki` |
-| 상태 | **CONDITIONAL PASS** |
+| 상태 | **CONDITIONAL PASS** (Live Smoke B2 PASS 전까지 유지) |
+| 정책 승인 | **부분 승인됨** — §1 유지 전략 · §2 계층 경계 · §3 R5(비권위) (§0.1) |
 | Production Adoption | **아직 하지 않는다** — 이 문서로 상향하지 않음 |
 | Fallback | `nvk/llm-wiki` (무패치 shipped plugin이 필수이고 session-capture 계층 비활성 조건, PR #165 §최종판단) |
+
+## 0.1 정책 승인 상태 (2026-09-08 사용자 승인)
+
+사용자가 아래 3개 항목을 **승인**했다. 이 승인으로 해당 정책 조항은 Jarvis 운영 기준으로 **발효**한다
+(단 Architecture/Governance/Public Contract는 불변 — §7).
+
+| # | 승인 항목 | 문서 위치 | 상태 |
+|---|---|---|---|
+| A1 | **MCP-first Hybrid 유지 전략** — full plugin 3파일 patch 의존 제거, 유지 항목은 M1(MCP 등록)·M2(hook 한 줄)·M3(머신-로컬 config)·M4(버전 pin) | §1 | **APPROVED** → BLOCKING 게이트 **B1 CLOSED** |
+| A2 | **계층 경계** — Canonical SoT(RFC/ADC/ADR/BASELINE/Evidence) / Claude-Mem(Session·Operational, push) / LLM Wiki(Project Knowledge·Derived Recall, pull) | §2 | **APPROVED** |
+| A3 | **Wiki 비권위(Non-authoritative) 규칙 R5** — wiki 페이지는 RFC/ADC/ADR/BASELINE/Evidence의 입력 근거로만, 결정·규범·SoT 인용 근거로 승격 불가 | §3 R5 | **APPROVED** → BLOCKING 게이트 **B4 CLOSED** (A2 + R5) |
+
+**승인 범위에 포함되지 않은 것 (여전히 대기)**:
+
+| 항목 | 상태 |
+|---|---|
+| 운영 규칙 R1(redaction)·R2(permission `0644`)·R3(ingest scope)·R4(truncation) 승인 | **PENDING** → BLOCKING 게이트 **B3 OPEN** |
+| Live Smoke B2 (사용자 직접 수행) | **PENDING** → BLOCKING 게이트 **B2 OPEN** |
+| Production Adoption 선언 | **하지 않음** — B2·B3 충족 후 별도 Adoption 문서로 |
+
+이 개정은 PR #167 branch에서 정책 상태만 갱신하며 main에 직접 커밋하지 않는다. Candidate #2 = **CONDITIONAL PASS 유지**.
 
 ---
 
 ## 1. 유지 전략 — MCP-first Hybrid 확정 검토 (요구사항 2)
+
+> **상태: APPROVED (§0.1 A1) — 2026-09-08 사용자 승인. BLOCKING 게이트 B1 CLOSED.**
 
 ### 1.1 full plugin 3파일 patch 의존 제거 가능 여부 — 최종 확인
 
@@ -65,6 +90,8 @@ Architecture/Public Contract/RFC/ADC/ADR 산출물은 **없다** (§7 참조).
 
 ## 2. 계층 경계 고정 (요구사항 3)
 
+> **상태: APPROVED (§0.1 A2) — 2026-09-08 사용자 승인.**
+
 | 계층 | 정의 | 소비 방식 | 보존성 | 이 계층이 **아닌** 것 |
 |---|---|---|---|---|
 | **Canonical SoT** | `docs/architecture/baseline/BASELINE.md` + `docs/decisions/{rfc,adc,adr}/` + `.claude/docs/integrations/` Evidence | Governance 절차(RFC→ADC→ADR)로만 생성·변경 | 영속·권위 | — |
@@ -79,6 +106,8 @@ Architecture/Public Contract/RFC/ADC/ADR 산출물은 **없다** (§7 참조).
 ---
 
 ## 3. 최소 운영 정책 R1–R4 + Wiki 비권위 규칙 (요구사항 4·6)
+
+> **상태: R5(Wiki 비권위) = APPROVED (§0.1 A3, B4 CLOSED). R1–R4 = PENDING (B3 OPEN — Live Smoke B2 이후 승인).**
 
 새 개발 없이 **설정·절차·문서**만으로 성립. Adoption 발효 시 이 절이 운영 규칙 본문이 된다.
 
@@ -138,7 +167,7 @@ Architecture/Public Contract/RFC/ADC/ADR 산출물은 **없다** (§7 참조).
 - **R4-b**: wiki에서 governance 문서를 인용할 때는 항상 원본 경로/커밋을 병기한다 (`sources:` 규약이 이미 강제).
 - **운영상 허용 범위**: 93% 축소는 **설계 특성으로 허용**한다. 단 wiki를 evidence 아카이브로 사용하지 않는다는 것이 전제다.
 
-### R5 — Wiki 비권위 (Non-authoritative) 규칙 (요구사항 3·4)
+### R5 — Wiki 비권위 (Non-authoritative) 규칙 (요구사항 3·4) — **APPROVED (§0.1 A3)**
 
 - **R5-a**: `wiki/concepts/*.md`·`wiki/sources/*.md`를 포함한 모든 wiki 페이지는 **RFC/ADC/ADR/BASELINE/Evidence의
   입력 근거(reference)로만** 사용한다. **결정 자체·규범·SoT 인용 근거로 승격할 수 없다.**
@@ -288,12 +317,13 @@ chmod 700 ~/.local/share/llm-wiki-hub           # R2-a
 
 | 항목 | 상태 |
 |---|---|
-| 유지 전략 | **MCP-first Hybrid로 확정 검토 완료.** full plugin 3파일 patch 의존 = **제거 가능(코드/매니페스트 패치 0건)**. 남는 것은 Jarvis 측 설정(M1·M2) + 머신-로컬 설정 데이터(M3) + 버전 pin(M4) |
-| 계층 경계 | **고정** — SoT(RFC/ADC/ADR/BASELINE/Evidence) / Claude-Mem(Session·Operational, push) / LLM Wiki(Project Knowledge·Derived Recall, pull·비권위) |
-| 운영 규칙 | **R1–R5 초안 완성.** 각 항목의 "운영상 허용 범위"를 Evidence 범위 내에서 명시(초과 주장 없음) |
-| `include_projects=jarvis-os` scoping / 무-scope 금지 | **명시 완료** (R3-a·R3-b) |
-| Architecture/Public Contract | **변경 없음 (확인)** |
-| 정책 발효(ratify) | **사용자 승인 대기.** 이 문서는 정책 텍스트를 확정 형태로 완성했으나 스스로 발효하지 않는다 |
+| 유지 전략 (§1) | **APPROVED (2026-09-08).** MCP-first Hybrid — full plugin 3파일 patch 의존 제거(코드/매니페스트 패치 0건), 유지 항목 M1·M2·M3·M4. **B1 CLOSED** |
+| 계층 경계 (§2) | **APPROVED (2026-09-08).** SoT(RFC/ADC/ADR/BASELINE/Evidence) / Claude-Mem(Session·Operational, push) / LLM Wiki(Project Knowledge·Derived Recall, pull·비권위) |
+| Wiki 비권위 규칙 R5 (§3) | **APPROVED (2026-09-08).** wiki 페이지 = RFC/ADC/ADR/BASELINE/Evidence 입력 근거로만. **B4 CLOSED** (A2 + R5) |
+| 운영 규칙 R1–R4 (redaction/permission/ingest scope/truncation) | **PENDING.** 초안 완성, "운영상 허용 범위"를 Evidence 범위 내에서 명시(초과 주장 없음). Live Smoke B2 이후 승인 → **B3 OPEN** |
+| `include_projects=jarvis-os` scoping / 무-scope 금지 | **명시 완료** (R3-a·R3-b). R3 자체 승인은 B3에 포함(PENDING) |
+| Architecture/Public Contract/Governance | **변경 없음 (확인).** 승인은 `.claude/docs/integrations/` 등급 운영 정책 발효일 뿐 SoT 불변 |
+| 정책 발효(ratify) | **부분 발효.** §1·§2·R5 발효(위). R1–R4 및 Production Adoption은 미발효 |
 
 ### 8.2 Live Smoke 준비 상태
 
@@ -306,17 +336,17 @@ chmod 700 ~/.local/share/llm-wiki-hub           # R2-a
 
 ### 8.3 Production Adoption
 
-**진행하지 않는다.** PR #166이 정의한 BLOCKING 게이트 상태:
+**진행하지 않는다.** PR #166이 정의한 BLOCKING 게이트 상태 (2026-09-08 부분 승인 반영):
 
 | 게이트 | 상태 |
 |---|---|
-| B1 패치 유지 전략 결정 + 소유자 | 이 문서가 **MCP-first Hybrid 기준안 + 근거** 제시 → **사용자 승인 시 충족** |
-| B2 로그인 대화형 Live Smoke (사용자) | §6 체크리스트 준비됨 → **사용자 수행 + PASS 시 충족** |
-| B3 운영 규칙 R1–R5 승인 | 이 문서가 초안 완성 → **사용자 승인 시 충족** |
-| B4 wiki 비권위 규칙 고정 | R5 = 초안 완성 → **사용자 승인 시 충족** |
+| B1 패치 유지 전략 결정 + 소유자 | **CLOSED** — 사용자가 MCP-first Hybrid 승인 (§0.1 A1) |
+| B2 로그인 대화형 Live Smoke (사용자) | **OPEN** — §6 체크리스트 준비됨, 사용자 수행 + PASS 필요 |
+| B3 운영 규칙 R1–R4 승인 | **OPEN** — 초안 완성, Live Smoke 결과 반영 후 승인 |
+| B4 wiki 비권위 규칙(R5) + 계층 경계 고정 | **CLOSED** — 사용자가 §2·R5 승인 (§0.1 A2·A3) |
 
-**다음 단계**: 사용자가 (1) 이 정책(§1·§3·§8.1)을 승인하고 (2) §6 Live Smoke를 직접 수행해 B2가 PASS하면,
-`.claude/docs/integrations/llm-wiki-candidate-002-adoption.md`를 작성하고 Production Adopt로 상향한다.
+**남은 단계**: (1) 사용자가 §6 Live Smoke를 직접 수행해 **B2 PASS** → (2) Smoke 결과를 반영해 **B3(R1–R4) 승인** →
+(3) `.claude/docs/integrations/llm-wiki-candidate-002-adoption.md`를 작성하고 Production Adopt로 상향.
 **그 전까지 Candidate #2 = CONDITIONAL PASS 유지.**
 
 ---
@@ -325,8 +355,8 @@ chmod 700 ~/.local/share/llm-wiki-hub           # R2-a
 
 | | |
 |---|---|
-| branch | `claude/llm-wiki-002-adoption-policy` @ base `origin/main` `0de386c` |
-| diff | `.claude/docs/integrations/llm-wiki-candidate-002-adoption-policy.md` (신규) + `.claude/docs/README.md` (인덱스 1행) |
+| branch | `claude/llm-wiki-002-adoption-policy` @ base `origin/main` `0de386c` (PR [#167](https://github.com/ok041110-del/jarvis-os/pull/167)) |
+| diff | `.claude/docs/integrations/llm-wiki-candidate-002-adoption-policy.md` (신규 + 2026-09-08 부분 승인 개정) + `.claude/docs/README.md` (인덱스 1행) |
 | 선행 Evidence | PR #161 / #162 / #163 / #165 / #166 — 전부 open, 미merge, 보존 |
-| PR | 생성, **merge 안 함** |
-| cleanup | 이 정책 작성용 worktree 제거. 실제 `~/.claude` / `~/.omniroute` / `~/.claude-mem` 미접촉 — 이 작업은 정책 문서 작성만, 어떤 hook/MCP/sync도 실행하지 않음 |
+| PR | #167 유지, **merge 안 함**. main 직접 커밋 없음 |
+| cleanup | 정책 개정용 worktree 제거. 실제 `~/.claude` / `~/.omniroute` / `~/.claude-mem` 미접촉 — 이 작업은 정책 상태 문서 갱신만, 어떤 hook/MCP/sync도 실행하지 않음 |
