@@ -54,7 +54,7 @@ Context Research(T06~T16) 종료 후 추가됨).
 | RFC-0007 | `docs/decisions/rfc/` | AST 기반 Context 자동 추출의 Production Build Capability 통합 | Resolved(Decision: A. INTEGRATION JUSTIFIED, 조건부 범위로 한정 — 선행조건 2건 모두 Evidence로 해소, `DEV-HQ-V2.0-RFC-0007-REVALIDATION-0001.md` 참고) | `docs/governance/adc/ADC-0005.md`(4개 판단 전부 Accept, 전부 No ADR Required) | 없음(불필요) |
 | RFC-0008 | `docs/decisions/rfc/` | AST Context Module Discovery — Dotted Package Path 지원 확장 여부 | Resolved(Decision: B, Conditional Accept) | `docs/governance/adc/ADC-0006.md` | 없음(불필요 — 확장 자체는 MVP Implementation 범위, Conditions 이행은 후속 구현 Task) |
 | RFC-0010 | `docs/decisions/rfc/` | Outcome-Oriented Governance Model 도입 여부 (사용자 제공 Governance 철학 문서, 기존 "Governance v2" Observation 계층과 명칭 충돌 여부 포함) | Resolved(Decision: Scoped Accept — Q-1/Q-2/Q-3 전부 Accept 또는 Scoped Accept, 소급 미적용) | `docs/governance/adc/ADC-0008.md` | `ADR-0010-outcome-oriented-governance-model-baseline.md`(**Accepted** — `docs/governance/README.md`에 반영 완료) |
-| RFC-0011 | `docs/decisions/rfc/` | "Implementation Freedom" 원칙 도입 여부 (Evidence 부재가 구현 기술 선택의 사전 금지 조건이 아니라는 원칙, `CONSTITUTION.md` Architecture Freeze 목록과의 문면상 긴장 관계 검토 포함) | Resolved(Decision: Scoped Accept — Q-1/Q-2 전부 Scoped Accept) | `docs/governance/adc/ADC-0009.md` | `ADR-0011-implementation-freedom-principle-baseline.md`(**Proposed** — 사용자 승인 대기, Baseline 미반영) |
+| RFC-0011 | `docs/decisions/rfc/` | "Implementation Freedom" 원칙 도입 여부 (Evidence 부재가 구현 기술 선택의 사전 금지 조건이 아니라는 원칙, `CONSTITUTION.md` Architecture Freeze 목록과의 문면상 긴장 관계 검토 포함) | Resolved(Decision: Scoped Accept — Q-1/Q-2 전부 Scoped Accept) | `docs/governance/adc/ADC-0009.md` | `ADR-0011-implementation-freedom-principle-baseline.md`(**Accepted** — `docs/governance/README.md`에 반영 완료) |
 | RFC-0001 | `docs/architecture/core/` | Jarvis OS Kernel Baseline | Resolved | `ADC-0001-core-baseline.md` | 없음(불필요) |
 | RFC-0002 | `docs/architecture/core/` | Kernel Definition — Responsibility, Not Component | Resolved | `ADC-0002-kernel-definition.md` | `ADR-0002`(RFC 헤더 원문 인용 — 저장소에 동일 번호 ADR-0002가 두 곳 존재해 대상 특정 불가, `Undetermined` — 아래 §Open Issues) |
 | RFC-0003 | `docs/architecture/core/` | Kernel Context Model — Context, Builder, Assembly, Prompt Projection | Resolved | `ADC-0003-kernel-context-model.md` | `docs/decisions/adr/ADR-0003-kernel-context-model-baseline.md` |
@@ -98,9 +98,10 @@ Scoped Accept, 소급 미적용)가 작성되어 Resolved로 전환됐다 — �
 확정되어 `docs/governance/README.md`에 "Outcome-Oriented Governance
 Model" 절 반영을 완료했다. Development HQ 수준 RFC-0011("Implementation
 Freedom" 원칙 도입 여부)도 후속 ADC(`ADC-0009`, Q-1/Q-2 전부 Scoped
-Accept)가 작성되어 Resolved로 전환됐다 — 후속 `ADR-0011`은 **Proposed
-(사용자 승인 대기)**이며, 승인 전까지 `docs/governance/README.md`
-추가 반영은 이루어지지 않는다. Kernel 영역도 Development HQ Phase
+Accept)가 작성되어 Resolved로 전환됐다 — 후속 `ADR-0011`도 **Accepted**로
+확정되어 `docs/governance/README.md`에 "Implementation Freedom"·
+"Freeze/Governance는 선호가 아니라 Invariant를 통제한다" 두 원칙
+반영을 완료했다. Kernel 영역도 Development HQ Phase
 1(종료됨)도 이 RFC들에 의존하지 않는다(`STABILITY-0001` §1.3,
 Development HQ RFC-0005에 한해 확인됨 — Execution Layer RFC-0005의
 동일 여부는 이번 확인 범위 밖).

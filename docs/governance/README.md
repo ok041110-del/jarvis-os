@@ -115,6 +115,26 @@ ADR (Accept/Promote인 경우만)
 판단에 적용한다. 기존 Freeze 문서와 이미 Resolved/Not Accepted된
 RFC/ADC/ADR에는 소급 적용하지 않는다(`ADR-0010` §3 참고).
 
+- **Implementation Freedom** — Evidence의 부재 자체는 구현 기술
+  선택을 금지하는 사전 허가 조건이 아니다. Goal과 Invariant를
+  만족하는 범위에서 개발자·사용자·AI는 구현 기술을 자유롭게 선택할
+  수 있으며, Evidence는 그 선택을 사전에 승인하는 관문이 아니라
+  구현 결과를 평가하고 Architecture Evolution 여부를 판단하는
+  근거로 쓰인다.
+- **Freeze/Governance는 선호가 아니라 Invariant를 통제한다** —
+  위 "Freeze는 실제 Invariant에만 사용한다" 원칙을 Freeze 판단
+  하나에 한정하지 않고, RFC 개설·ADC 판단을 포함한 Governance
+  전반에 일반화한다: Governance는 구현 방식에 대한 선호 자체를
+  통제하지 않으며, 실제 Invariant·Contract·Boundary·위험만 통제
+  대상으로 삼는다.
+
+**적용 범위**: 위 두 원칙도 이후 새로 작성되는 판단에만 적용하며,
+기존 Freeze 문서(`CONSTITUTION.md`의 Architecture Freeze 목록
+포함)와 이미 Resolved/Not Accepted/Deferred로 판정된 기존 RFC/
+ADC/ADR에는 소급 적용하지 않는다 — 그 상태들은 각자의 재검토
+절차(RT Trigger, OBS 누적, 개별 RFC 재개설)를 통해서만 재평가
+대상이 된다(`ADR-0011` 참고).
+
 ## Document Numbering
 
 - `RFC-xxxx` — Boundary Question (`docs/02_rfc/`, 현재 RFC-0001~0005)

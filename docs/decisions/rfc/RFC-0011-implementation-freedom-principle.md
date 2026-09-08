@@ -2,8 +2,7 @@
 
 **Status**: Resolved — `docs/governance/adc/ADC-0009.md`로 종결됨(Scoped
 Accept). 후속 `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md`는
-Proposed(사용자 승인 대기) — `docs/governance/README.md`는 아직
-수정되지 않았다.
+**Accepted** — `docs/governance/README.md`에 반영 완료.
 **Author**: Claude Code (사용자 제공 "Governance constrains outcomes and
 invariants, not implementation preference" 원칙에 대한 Governance
 절차 적용)
@@ -149,5 +148,5 @@ Model" 절)의 대응 문구 | 포함 여부 |
 수행하지 않으며 후속 ADR 대상으로 남긴다.
 
 후속 ADR은 `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md`로
-작성되었다 — **Status: Proposed(사용자 승인 대기)**. ADR-0011이
-승인되기 전까지 `docs/governance/README.md`는 수정되지 않는다.
+작성되었다 — **Status: Accepted**. 사용자 승인 후 `docs/governance/
+README.md`에 ADR-0011 §1의 두 원칙을 등재했다.
