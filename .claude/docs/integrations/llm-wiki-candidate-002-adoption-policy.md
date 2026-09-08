@@ -1,7 +1,7 @@
 # LLM Wiki Candidate #2 — Adoption Policy & Live Smoke 준비
 
 작성일: 2026-09-08
-개정: 2026-09-08 — 사용자 부분 승인 반영 (§0.1)
+개정: 2026-09-08 — 사용자 부분 승인 반영 (§0.1); Ingest scope 정정 — `sessions_config.json`의 `include_projects`가 현재 후보에서 no-op임을 확인하고 R3-a~d를 `sync --project jarvis-os` 기준으로 재작성 (§5.2 · §5.4 · §6.1 S3 · R3)
 대상: `Pratiyush/llm-wiki` v1.3.82 (@ `b1088890`) — 현재 Preferred Candidate
 근거 Evidence: PR [#161](https://github.com/ok041110-del/jarvis-os/pull/161) · [#162](https://github.com/ok041110-del/jarvis-os/pull/162) · [#163](https://github.com/ok041110-del/jarvis-os/pull/163) · [#165](https://github.com/ok041110-del/jarvis-os/pull/165) · [#166](https://github.com/ok041110-del/jarvis-os/pull/166) (전부 open, 미merge)
 
@@ -66,8 +66,8 @@ PR #163 §Patch 유지성이 남긴 "3파일 vendored patch(재-clone 시 소실
 | # | 항목 | 성격 | 재-clone 시 |
 |---|---|---|---|
 | M1 | MCP server 등록 (`python3 -m llmwiki.mcp`) | **Jarvis 측 설정** (`.mcp.json` 또는 `claude mcp add`) — upstream 파일 아님 | 영향 없음 (Jarvis repo/설정에 존재) |
-| M2 | SessionStart hook 한 줄 (`… python3 -m llmwiki sync …`, scoped) | **Jarvis 측 설정** (프로젝트 `.claude/settings.json`) — upstream 파일 아님 | 영향 없음 |
-| M3 | `examples/sessions_config.json` redaction 튜닝 (`include_projects` + identity `extra_patterns`) | **머신-로컬 설정 데이터** (코드 패치 아님, 커밋 금지 — R1) | 재적용 필요. 스니펫을 이 문서 §5에 고정. 미적용 시 key-shaped provider redaction은 그대로 동작, identity extra_patterns만 소실 → R1이 커버 |
+| M2 | SessionStart hook 한 줄 (`… python3 -m llmwiki sync --project jarvis-os …`) | **Jarvis 측 설정** (프로젝트 `.claude/settings.json`) — upstream 파일 아님 | 영향 없음 |
+| M3 | `examples/sessions_config.json` redaction 튜닝 (identity `extra_patterns`; `include_projects`는 현재 후보에서 no-op) | **머신-로컬 설정 데이터** (코드 패치 아님, 커밋 금지 — R1) | 재적용 필요. 스니펫을 이 문서 §5에 고정. 미적용 시 key-shaped provider redaction은 그대로 동작, identity extra_patterns만 소실 → R1이 커버. Ingest scope는 M2 hook의 `--project jarvis-os`가 담당(R3-a) |
 | M4 | 후보 checkout 버전 pin | 문서화된 커밋/태그 (`b1088890` / `v1.3.82`) | 동일 커밋 재clone |
 
 - **결과**: PR #163/#166이 지목한 최대 Open Issue("vendored fork 유지 부담")가 **사실상 소멸**한다.
@@ -148,15 +148,39 @@ Architecture/Public Contract/RFC/ADC/ADR 산출물은 **없다** (§7 참조).
 
 ### R3 — Ingest scope (요구사항 5)
 
-**현재 Evidence 상태**: SessionStart hook을 실제 `~/.claude` HOME에서 무-scope 실행 시 **claude_code 79 + codex_cli 53 = 129 세션 전량 변환** (PR #163 실측).
+**현재 Evidence 상태**:
+- SessionStart hook을 실제 `~/.claude` HOME에서 무-scope 실행 시 **claude_code 79 + codex_cli 53 = 129 세션 전량 변환** (PR #163 실측).
+- **2026-09-08 정정**: `examples/sessions_config.json`의 `include_projects` 키는 pin된 후보(`b1088890` / v1.3.82,
+  검증 checkout `c4f9bc9` 동일)의 `convert_all()`이 **소비하지 않는다**. `convert_all`은 `filters.drop_record_types`·
+  `live_session_minutes`만 읽고, `include_projects`/`exclude_projects`는 `DEFAULT_CONFIG` 선언(`convert.py:32-33`)에만
+  존재한다. 이 후보에서 실제로 동작하는 유일한 scope 수단은 CLI 서브스트링 필터
+  **`python3 -m llmwiki sync --project jarvis-os`** 다 (`cli.py:704` → `convert_all(project=…)` →
+  `convert.py:1478` `if project and project not in project_slug: filtered += 1`).
+- dry-run 실측 (2026-09-08, 2회 동일, in-process `convert_all(dry_run=True, force=True)`, socket tripwire, 무-write):
+  무-scope(정책 §5.4 hook 경로) = **N=131** (`0 filtered`; #163 시점 129 → 시간 경과분 +2) → **정지 조건 발동**;
+  `--project jarvis-os` = **N=71** (`60 filtered` — 비-jarvis-os 세션이 `convert.py:1478` 게이트에서 실제로 제거됨).
+  131 = 71 + 60 으로 정합.
 
 **운영 규칙 (명시)**:
-- **R3-a**: SessionStart hook 및 모든 수동 sync는 `examples/sessions_config.json`에 **`include_projects: ["jarvis-os"]`** 를 설정하여 scoping한다.
-- **R3-b**: **무-scope ingest 금지.** `include_projects` 미설정 상태 또는 격리 HOME 미병행 상태에서의
-  `python3 -m llmwiki sync` 실행을 금지한다.
-- **R3-c**: 최초 1회 백필은 scoped 상태에서 수행하고, 결과 세션 수를 jarvis-os 세션 수 기대치와 대조 확인한다
-  (100건 이상이면 scope leak으로 간주하고 중단).
-- **R3-d**: 채택 문서에 정확한 `include_projects` 값과 hook 커맨드 전문을 명시한다 (§5 스니펫).
+- **R3-a**: SessionStart hook(§5.4) 및 **모든 실제 sync**(수동 CLI, `/wiki-sync` 대체 포함)는
+  **`python3 -m llmwiki sync --project jarvis-os`** 형태로 `--project jarvis-os` 인자를 반드시 포함한다.
+  이 인자가 현재 후보에서 유효한 유일한 scope enforcement다.
+- **R3-b**: **무-scope ingest 금지.** `--project jarvis-os`(또는 격리 HOME) 없이 `python3 -m llmwiki sync`를
+  실행하지 않는다. MCP `wiki_sync` 툴은 `--project`를 하위 커맨드에 전달하지 않으므로
+  (`mcp/server.py` `tool_wiki_sync`), MCP 경유 sync는 **dry-run 확인용으로만** 쓰고 실제 백필·주기 sync는
+  CLI/hook 경로(`--project jarvis-os`)로 한다.
+- **R3-c**: 최초 1회 백필은 `--project jarvis-os` 상태에서 수행하고, 결과 세션 수 N을 jarvis-os 세션 수
+  기대치와 대조 확인한다. **N ≥ 100이면 scope leak으로 간주하고 즉시 중단**한다 (§6.3 정지 조건 유지).
+- **R3-d**: 채택 문서에 정확한 `--project` 값(`jarvis-os`)과 hook 커맨드 전문을 명시한다 (§5.4).
+  `include_projects` 키는 §5.2 스니펫에 **no-op 주석과 함께** 남겨 두되 scope 근거로 인용하지 않는다.
+- **R3-e (잔여 한계)**: `--project`는 프로젝트 슬러그에 대한 **서브스트링** 매치이므로 슬러그에 `jarvis-os`를
+  포함하는 다른 프로젝트도 통과한다. 단일 사용자·알려진 프로젝트명 조건에서 허용하며, 정확 매치가 필요해지면
+  아래 upstream 옵션을 연다.
+
+**upstream 옵션 (선택 — Adoption 전제조건 아님)**: `Pratiyush/llm-wiki`에 `filters.include_projects` /
+`exclude_projects` 소비를 `convert_all()`에 구현하는 패치(정확 매치 리스트 필터)를 커뮤니티 기여로 제출할 수 있다.
+§1.2의 marketplace 스키마 upstream PR과 동일하게 **Jarvis Adoption의 전제조건으로 걸지 않는다**. 병합되면 `--project`
+대신 config 기반 scoping으로 전환을 별도 검토한다. 그 전까지 `--project jarvis-os`가 정본 scope 수단이다.
 
 ### R4 — Truncation (93% 축소) (요구사항 6)
 
@@ -215,7 +239,7 @@ chmod 700 ~/.local/share/llm-wiki-hub           # R2-a
 
 ```jsonc
 {
-  "include_projects": ["jarvis-os"],            // R3-a: scoping. 이 키 없이 sync 금지 (R3-b)
+  "include_projects": ["jarvis-os"],            // NO-OP (v1.3.82 / b1088890): convert_all()이 읽지 않음. Ingest scope는 §5.4 hook의 `--project jarvis-os`가 강제 (R3-a). upstream 구현 대비 forward-compat 표식일 뿐 (R3-d)
   "redaction": {
     "real_username": "<본인 OS username>",       // R1-a
     "extra_patterns": [
@@ -243,12 +267,13 @@ chmod 700 ~/.local/share/llm-wiki-hub           # R2-a
 
 ```json
 { "hooks": { "SessionStart": [ { "hooks": [ { "type": "command",
-  "command": "umask 077; cd /Users/<you>/tools/llm-wiki && (python3 -m llmwiki sync > \"${TMPDIR:-/tmp}/llmwiki-sync.log\" 2>&1 &) ; exit 0"
+  "command": "umask 077; cd /Users/<you>/tools/llm-wiki && (python3 -m llmwiki sync --project jarvis-os > \"${TMPDIR:-/tmp}/llmwiki-sync.log\" 2>&1 &) ; exit 0"
 } ] } ] } }
 ```
 
 - `umask 077` → R2-b. `( … &) ; exit 0` → 완전 백그라운드·non-blocking·stdout 없음(자동 주입 0).
-- `include_projects` scoping은 §5.2가 담당 → R3-a.
+- `--project jarvis-os` → R3-a. 이 인자가 현재 후보에서 유효한 유일한 scope enforcement다
+  (`convert.py:1478` 서브스트링 게이트). §5.2의 `include_projects`는 no-op이므로 scope를 그것에 의존하지 않는다.
 
 ---
 
@@ -264,7 +289,7 @@ chmod 700 ~/.local/share/llm-wiki-hub           # R2-a
 |---|---|---|---|---|
 | S1 | MCP 연결 | 새 세션에서 `/mcp` | `llmwiki` 서버 `connected`, tool 12개 노출 (`wiki_query`, `wiki_search`, …) | 서버 목록에 없음 / `failed` |
 | S2 | MCP 로그인·네트워크 불요 확인 | S1 상태에서 `env | grep -i anthropic_api_key` (없어야 정상) | MCP가 키 없이 동작 | 키 요구 오류 |
-| S3 | scoped sync (`/wiki-sync` 대체) | 터미널: `cd ~/tools/llm-wiki && umask 077 && python3 -m llmwiki sync` | `N converted, 0 errors`, **N이 jarvis-os 세션 수 기대치와 근사** | **N ≥ 100** (scope leak → 중단, §5.2 `include_projects` 재확인) |
+| S3 | scoped sync (`/wiki-sync` 대체) | 터미널: `cd ~/tools/llm-wiki && umask 077 && python3 -m llmwiki sync --project jarvis-os` | `N converted, 0 errors`, **N이 jarvis-os 세션 수 기대치와 근사** (dry-run 기준 N≈71) | **N ≥ 100** (scope leak → `--project jarvis-os` 인자 누락 여부 재확인, §5.4 · R3-a) |
 | S4 | 생성물 권한 | `ls -l ~/tools/llm-wiki/raw/sessions/ | head` + `ls -ld ~/.local/share/llm-wiki-hub` | 파일 `-rw-------` (umask 경로) **또는** hub 부모 `drwx------` | 파일 `0644` **이고** 부모도 `0755` (R2-a 미충족) |
 | S5 | SessionStart hook 발화 | jarvis-os에서 **새** Claude Code 세션 시작 → `cat "${TMPDIR:-/tmp}/llmwiki-sync.log"` | 로그 timestamp 갱신, `… converted … 0 errors`, 세션 즉시 응답(지연 체감 없음) | 세션 시작이 수 초 지연 / 로그 미갱신 / 에러 |
 | S6 | 자동 주입 0 확인 | S5 세션 첫 응답에서 "이전 세션/ wiki 내용이 주입됐는지" 관찰 + `/context` 로 컨텍스트 확인 | wiki `raw/`·`wiki/` 내용이 컨텍스트에 **없음** | 세션이 sync 내용/이전 세션 요약을 자동으로 알고 시작 |
@@ -321,7 +346,7 @@ chmod 700 ~/.local/share/llm-wiki-hub           # R2-a
 | 계층 경계 (§2) | **APPROVED (2026-09-08).** SoT(RFC/ADC/ADR/BASELINE/Evidence) / Claude-Mem(Session·Operational, push) / LLM Wiki(Project Knowledge·Derived Recall, pull·비권위) |
 | Wiki 비권위 규칙 R5 (§3) | **APPROVED (2026-09-08).** wiki 페이지 = RFC/ADC/ADR/BASELINE/Evidence 입력 근거로만. **B4 CLOSED** (A2 + R5) |
 | 운영 규칙 R1–R4 (redaction/permission/ingest scope/truncation) | **PENDING.** 초안 완성, "운영상 허용 범위"를 Evidence 범위 내에서 명시(초과 주장 없음). Live Smoke B2 이후 승인 → **B3 OPEN** |
-| `include_projects=jarvis-os` scoping / 무-scope 금지 | **명시 완료** (R3-a·R3-b). R3 자체 승인은 B3에 포함(PENDING) |
+| Ingest scope = `sync --project jarvis-os` (hook·수동 공통) / 무-scope 금지 | **명시 완료** (R3-a·R3-b; 2026-09-08 `include_projects` no-op 정정 반영, R3-e 잔여 한계 명시). R3 자체 승인은 B3에 포함(PENDING) |
 | Architecture/Public Contract/Governance | **변경 없음 (확인).** 승인은 `.claude/docs/integrations/` 등급 운영 정책 발효일 뿐 SoT 불변 |
 | 정책 발효(ratify) | **부분 발효.** §1·§2·R5 발효(위). R1–R4 및 Production Adoption은 미발효 |
 
