@@ -231,4 +231,4 @@ PR 내용 확인 후 제거 (evidence는 원격 branch + PR로 보존):
 | branch | `claude/llm-wiki-poc-002-live` @ base `0de386c` |
 | diff | `.claude/docs/integrations/llm-wiki-candidate-002-live-validation.md` (신규) + `.claude/docs/README.md` (1행) |
 | 선행 evidence | PR #161(PoC), PR #162(Resolution) — 보존 |
-| PR | 생성 후 URL 이 표에 후속 커밋 기록. **merge 안 함.** |
+| PR | [#163](https://github.com/ok041110-del/jarvis-os/pull/163) `claude/llm-wiki-poc-002-live → main`. **merge 안 함.** |
