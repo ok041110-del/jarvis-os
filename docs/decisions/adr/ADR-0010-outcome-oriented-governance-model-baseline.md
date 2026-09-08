@@ -48,14 +48,14 @@ Governance Model"**을 공식 명칭으로 한다. "Governance v2"라는 명칭�
 
 - RFC/ADC/ADR은 미래 구현을 사전에 통제하는 문서가 아니라, 결정
   시점의 Decision과 그 근거(Evidence)를 기록하는 문서다.
-- **RFC는 모든 변경의 필수 관문(mandatory gateway)이 아니다.** RFC가
-  필요한 대상은 Public Contract 변경·Architecture Boundary 변경 등
-  이미 저장소가 명시한 범위(`hqs/development/IMPLEMENTATION_RULES.md`
-  "Stage Data Contract" 절, `ADR-0004`)로 한정하며, 일반 구현·
-  Refactoring·명확한 Bug Fix·이미 승인된 Architecture 내부 구현
-  변경은 RFC 없이 진행할 수 있다는 기존 실무를 그대로 확인한다. 이
-  원칙은 **기존에 이미 RFC 대상으로 확정된 범위를 넓히거나 좁히지
-  않는다.**
+- **RFC는 모든 변경의 필수 관문(mandatory gateway)이 아니다.** 다만
+  RFC가 정확히 어떤 범위에서 필요한지는 이 ADR이 새로 정의하지
+  않는다 — 그 범위는 저장소가 이미 정의한 대로 따른다(`docs/
+  decisions/rfc/README.md`의 RFC 정의, `hqs/development/
+  IMPLEMENTATION_RULES.md`가 개별적으로 명시한 RFC 대상 조항들,
+  `ADR-0004` 등 관련 ADR). 이 원칙은 **기존에 이미 RFC 대상으로
+  확정된 범위를 넓히거나 좁히지 않으며, 이 ADR의 다른 어떤 조항도
+  그 범위를 재정의하는 것으로 해석하지 않는다.**
 
 ### 3. Tier / Freeze / Deferred 원칙 (ADC-0008 Q-3 Final Judgment 반영, 소급 미적용)
 
@@ -100,10 +100,10 @@ Governance Model"**을 공식 명칭으로 한다. "Governance v2"라는 명칭�
 >
 > - RFC/ADC/ADR은 미래 구현을 통제하지 않고, 결정 시점의 Decision과
 >   근거를 기록한다.
-> - RFC는 모든 변경의 필수 관문이 아니다 — Public Contract/Architecture
->   Boundary 변경에만 필요하며, 일반 구현·Refactoring·명확한 Bug
->   Fix는 RFC 없이 진행한다(기존 `IMPLEMENTATION_RULES.md`·`ADR-0004`
->   범위를 그대로 따름, 확대하지 않음).
+> - RFC는 모든 변경의 필수 관문이 아니다 — 다만 RFC가 정확히 어떤
+>   범위에서 필요한지는 이 문서가 새로 정의하지 않으며, 저장소가
+>   이미 정의한 범위(`docs/decisions/rfc/README.md`, `hqs/development/
+>   IMPLEMENTATION_RULES.md`, 관련 ADR)를 그대로 따른다.
 > - Governance 절차 강도는 변경의 위험/영향 범위에 따라 다르게
 >   적용한다.
 > - Freeze는 실제 불변(Invariant: Security/Data Integrity/Contract
@@ -131,9 +131,10 @@ Governance Model"**을 공식 명칭으로 한다. "Governance v2"라는 명칭�
 
 - **`docs/governance/README.md`(Governance v2, Observation 계층)**:
   충돌 없음 — 새 절을 추가할 뿐 기존 절을 재정의하지 않는다(§4).
-- **`hqs/development/IMPLEMENTATION_RULES.md`, `ADR-0004`**: 충돌
-  없음 — §2의 RFC 범위 원칙은 이미 그 문서들이 규정한 "Public 변경만
-  RFC 필수"를 그대로 확인할 뿐, 범위를 넓히거나 좁히지 않는다.
+- **`docs/decisions/rfc/README.md`, `hqs/development/
+  IMPLEMENTATION_RULES.md`, `ADR-0004` 등 관련 ADR**: 충돌 없음 —
+  §2는 이 문서들이 이미 정의한 RFC 적용 범위를 그대로 따른다고만
+  선언할 뿐, 그 범위를 스스로 재정의하지 않는다.
 - **`DEVELOPMENT-HQ-V1.0/V2.0-FREEZE-0001.md`**: 충돌 없음 — §3의
   소급 미적용 명시로 기존 Freeze 선언의 근거·효력을 그대로 유지한다.
 - **`ADR-0018`(LangGraph Deferred/Not Adopted)**: 충돌 없음 — 이
