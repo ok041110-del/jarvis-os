@@ -1,6 +1,7 @@
 """Stage 01 Context Analysis — Multi-Agent 기반 실행 진입점(RFC-0033/
-ADC-0036/ADR-0021). 기존 `stage_01.py`(결정적, Engine 미호출)는 변경하지
-않고 그대로 유지한다 — 이 모듈이 신규 진입점이다.
+ADC-0036/ADR-0021, PRD Synthesis는 RFC-0034/ADC-0037/ADR-0022). 기존
+`stage_01.py`(결정적, Engine 미호출)는 변경하지 않고 그대로 유지한다 —
+이 모듈이 신규 진입점이다.
 
 흐름(사용자 지시 순서 그대로, 재정렬하지 않음):
 
@@ -10,10 +11,13 @@ ADC-0036/ADR-0021). 기존 `stage_01.py`(결정적, Engine 미호출)는 변경�
         -> GitHub Repository Adapter -> RepositorySnapshot(Tree만)
         -> Code Analysis(Structure/RelevantDiscovery/ASTCandidate, 병렬)
         -> Dependency Analysis(target이 있을 때만, 조건부)
-        -> Context Aggregator -> Stage 01 Output(기존 5-key Contract)
+        -> PRD/Specification Synthesis(Structured Understanding + Repository
+           Context 종합, 기존 Requirement Agent 1회 재사용)
+        -> Context Aggregator -> Stage 01 Output(6-key Contract, `prd` 포함)
 
 LLM Reasoning과 Code Analysis는 병렬화하지 않는다 — Reasoning 전체가
-끝나야 Code Analysis를 시작한다."""
+끝나야 Code Analysis를 시작한다. PRD Synthesis는 둘 다 끝난 뒤에만
+실행한다(Structured Understanding과 Repository Context 둘 다 필요)."""
 
 import sys
 from pathlib import Path
@@ -22,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import code_analysis  # noqa: E402
+import prd_synthesis  # noqa: E402
 import reasoning  # noqa: E402
 from mvp.github_adapter import GitHubRepositoryAdapter  # noqa: E402
 from mvp.parallel_runner import ParallelRunner, ParallelTask, RetryPolicy  # noqa: E402
@@ -88,10 +93,10 @@ def run_stage_01_multi_agent(
     adapter: GitHubRepositoryAdapter | None = None,
     runner: ParallelRunner | None = None,
 ) -> dict:
-    """Stage 01 Multi-Agent 진입점. 기존 `run_stage_01()`과 동일한 5-key
-    출력(Contract 무변경, `stages/contracts.py::ContextAnalysisResult`)을
-    반환한다. `adapter`/`runner`는 테스트에서 대체 가능하도록 주입 지점으로
-    남긴다(GitHub API/스레드풀을 직접 강제하지 않음)."""
+    """Stage 01 Multi-Agent 진입점. `stages/contracts.py::
+    ContextAnalysisResult`의 6-key 출력(`prd` 포함, RFC-0034/ADC-0037/
+    ADR-0022)을 반환한다. `adapter`/`runner`는 테스트에서 대체 가능하도록
+    주입 지점으로 남긴다(GitHub API/스레드풀을 직접 강제하지 않음)."""
     from mvp.parallel_runner import TaskStatus  # 지연 import — 순환 의존 회피
 
     runner = runner or ParallelRunner(max_workers=4)
@@ -136,11 +141,22 @@ def run_stage_01_multi_agent(
     # 4) Dependency Analysis — target이 명확히 주어졌을 때만(조건부, §8)
     dependency_closure = code_analysis.dependency_analysis(target) if target is not None else None
 
-    # 5) Context Aggregator -> 기존 Stage 01 Output Contract
+    # 5) PRD/Specification Synthesis — Reasoning과 Code Analysis가 둘 다
+    #    끝난 뒤에만 실행(둘 다 입력으로 필요, RFC-0034)
+    prd = prd_synthesis.synthesize_prd(
+        issue=issue,
+        structured_understanding=structured_understanding,
+        context_bundle=context_bundle,
+        directory_structure=directory_structure,
+        candidate_index=candidate_index,
+    )
+
+    # 6) Context Aggregator -> Stage 01 Output Contract(6-key, `prd` 포함)
     return code_analysis.aggregate_context(
         directory_structure=directory_structure,
         context_bundle=context_bundle,
         candidate_index=candidate_index,
         target=target,
         dependency_closure=dependency_closure,
+        prd=prd,
     )

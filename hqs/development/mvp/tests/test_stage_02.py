@@ -1,10 +1,10 @@
 """Stage 02(Planning & Specification) `run_stage_02()` 검증 (ADR-0008,
 `stages/02_planning_specification/VALIDATION.md`).
 
-`requirements_agent_requirement_analysis`는 재구현하지 않았으므로 여기서는
-(a) Skeleton 추출이 Stage 01 Context를 정확히 반영하는지, (b) Skeleton이
-반영된 Issue가 실제로 Engine에 전달되는지, (c) 기존 오류 포맷 유지 여부만
-mock으로 검증한다.
+PRD/Specification 생성 책임은 Stage 01로 이동했다(RFC-0034/ADC-0037/
+ADR-0022) — 여기서는 Stage 02가 Stage 01의 `prd`를 재생성 없이 그대로
+전달(passthrough)하는지만 검증한다. Synthesis 자체의 검증은
+`test_stage01_prd_synthesis.py` 참조.
 """
 
 import importlib.util
@@ -21,6 +21,16 @@ _spec.loader.exec_module(stage_02)
 
 SAMPLE_ISSUE = {"title": "Sample Issue", "description": "Do the thing.", "status": "Open"}
 
+SAMPLE_PRD = {
+    "skeleton": {
+        "problem_definition": "Sample Issue: Do the thing.",
+        "constraints": ["docs/governance/rt/RT-0001.md"],
+        "risks": ["docs/governance/rt/RT-0001.md: 미해결 항목"],
+        "scope_candidates": ["hqs/development/mvp/agents.py"],
+    },
+    "specification": "SPECIFICATION TEXT",
+}
+
 SAMPLE_STAGE_01_CONTEXT = {
     "directory_structure": ["hqs/development/mvp/"],
     "context_bundle": {
@@ -36,80 +46,29 @@ SAMPLE_STAGE_01_CONTEXT = {
     "candidate_index": "FILE: hqs/development/mvp/agents.py\nFUNCTION: ...",
     "target": None,
     "dependency_closure": None,
-}
-
-EMPTY_CONTEXT_BUNDLE = {
-    "issue": SAMPLE_ISSUE,
-    "goal": "Sample Issue",
-    "relevant_documents": [],
-    "relevant_code": [],
-    "relevant_observations": [],
-    "relevant_decisions": [],
-    "known_constraints": [],
-    "open_questions": [],
+    "prd": SAMPLE_PRD,
 }
 
 
-# --- Skeleton 추출(Capability 1) --------------------------------------------
-
-
-def test_skeleton_reflects_stage_01_context():
-    skeleton = stage_02._structure_from_context(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
-
-    assert skeleton["problem_definition"] == "Sample Issue: Do the thing."
-    assert skeleton["constraints"] == ["docs/governance/rt/RT-0001.md"]
-    assert skeleton["risks"] == ["docs/governance/rt/RT-0001.md: 미해결 항목"]
-    assert skeleton["scope_candidates"] == ["hqs/development/mvp/agents.py"]
-
-
-def test_skeleton_handles_empty_context_bundle():
-    empty_stage_01_context = {**SAMPLE_STAGE_01_CONTEXT, "context_bundle": EMPTY_CONTEXT_BUNDLE}
-
-    skeleton = stage_02._structure_from_context(SAMPLE_ISSUE, empty_stage_01_context)
-
-    assert skeleton["constraints"] == []
-    assert skeleton["risks"] == []
-    assert skeleton["scope_candidates"] == []
-
-
-# --- run_stage_02(Capability 1 + 2 통합) ------------------------------------
-
-
-def test_run_stage_02_happy_path_returns_skeleton_and_specification(monkeypatch):
-    monkeypatch.setattr(
-        stage_02, "requirements_agent_requirement_analysis", lambda issue: "SPECIFICATION"
-    )
-
+def test_run_stage_02_passes_through_stage_01_prd_unchanged():
     result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
 
-    assert result["specification"] == "SPECIFICATION"
-    assert result["skeleton"]["constraints"] == ["docs/governance/rt/RT-0001.md"]
+    assert result == SAMPLE_PRD
 
 
-def test_engine_receives_issue_enriched_with_skeleton(monkeypatch):
-    seen = {}
-
-    def fake_requirement(issue):
-        seen["input"] = issue
-        return "SPECIFICATION"
-
-    monkeypatch.setattr(stage_02, "requirements_agent_requirement_analysis", fake_requirement)
-
-    stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
-
-    description = seen["input"]["description"]
-    assert "[Specification Skeleton]" in description
-    assert "docs/governance/rt/RT-0001.md" in description
-    assert "hqs/development/mvp/agents.py" in description
-
-
-def test_engine_failure_preserves_skeleton_and_fills_error_string(monkeypatch):
-    def raising_requirement(issue):
-        raise RuntimeError("boom")
-
-    monkeypatch.setattr(stage_02, "requirements_agent_requirement_analysis", raising_requirement)
+def test_run_stage_02_does_not_mutate_input_prd():
+    original = dict(SAMPLE_PRD)
 
     result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
+    result["specification"] = "MUTATED"
 
-    assert result["specification"] == "Engine call failed: boom"
-    assert result["skeleton"]["constraints"] == ["docs/governance/rt/RT-0001.md"]
+    assert SAMPLE_STAGE_01_CONTEXT["prd"] == original
+
+
+def test_run_stage_02_output_keeps_specification_result_contract_shape():
+    result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
+
+    assert set(result.keys()) == {"skeleton", "specification"}
+    assert set(result["skeleton"].keys()) == {
+        "problem_definition", "constraints", "risks", "scope_candidates",
+    }

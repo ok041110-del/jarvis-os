@@ -44,21 +44,27 @@ def require_keys(data: dict, keys: tuple, contract_name: str) -> None:
         raise ContractViolation(f"{contract_name} contract violated — missing keys: {missing}")
 
 
+class SpecificationResult(TypedDict):
+    """PRD/Specification 산출 형태 — Producer: Stage 01(`prd` 키,
+    RFC-0034/ADC-0037/ADR-0022), Stage 02 Output(`SPECIFICATION.md`)에도
+    동일 형태로 재사용된다(Stage 02는 이제 Stage 01의 `prd`를 그대로
+    전달할 뿐 재생성하지 않는다)."""
+
+    skeleton: dict
+    specification: str
+
+
 class ContextAnalysisResult(TypedDict):
-    """Stage 01 Output(CONTEXT.md) — Producer: Stage 01."""
+    """Stage 01 Output(CONTEXT.md) — Producer: Stage 01. `prd`는
+    RFC-0034/ADC-0037/ADR-0022로 추가된 PRD/Specification Synthesis
+    결과(`SpecificationResult`와 동일 형태)다."""
 
     directory_structure: object
     context_bundle: dict
     candidate_index: CandidateIndex
     target: object
     dependency_closure: object
-
-
-class SpecificationResult(TypedDict):
-    """Stage 02 Output(SPECIFICATION.md) — Producer: Stage 02."""
-
-    skeleton: dict
-    specification: str
+    prd: SpecificationResult
 
 
 class DesignResult(TypedDict):
@@ -112,6 +118,7 @@ CONTEXT_ANALYSIS_REQUIRED_KEYS = (
     "candidate_index",
     "target",
     "dependency_closure",
+    "prd",
 )
 SPECIFICATION_REQUIRED_KEYS = ("skeleton", "specification")
 DESIGN_REQUIRED_KEYS = ("skeleton", "design")

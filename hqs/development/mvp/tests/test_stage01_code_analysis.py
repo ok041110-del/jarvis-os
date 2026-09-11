@@ -118,13 +118,14 @@ def test_dependency_analysis_reuses_local_build_dependency_closure():
     assert "def _strip_code_fence(text: str) -> str:" in result
 
 
-def test_aggregate_context_produces_contract_shape_unchanged():
+def test_aggregate_context_produces_contract_shape_with_prd():
+    prd = {"skeleton": {}, "specification": "SPEC"}
     result = code_analysis.aggregate_context(
         directory_structure=["a"], context_bundle={"issue": {}}, candidate_index="IDX",
-        target=None, dependency_closure=None,
+        target=None, dependency_closure=None, prd=prd,
     )
 
     assert result == {
         "directory_structure": ["a"], "context_bundle": {"issue": {}}, "candidate_index": "IDX",
-        "target": None, "dependency_closure": None,
+        "target": None, "dependency_closure": None, "prd": prd,
     }

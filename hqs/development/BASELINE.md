@@ -54,7 +54,12 @@ ADR`)가 관리한다.
 
 - 5개 Stage Contract(`ContextAnalysisResult`/`SpecificationResult`/
   `DesignResult`/`ImplementationResult`/`VerificationResult`)의
-  필수 키 집합
+  필수 키 집합. `ContextAnalysisResult`는 RFC-0034/ADC-0037/ADR-0022로
+  `prd`(PRD/Specification Synthesis 결과, `SpecificationResult`와 동일
+  형태)가 추가되어 6개 키다 — PRD/Specification 생성 책임이 Stage 02에서
+  Stage 01로 이동했으나, `SpecificationResult`의 키 집합 자체는
+  무변경이다(Stage 02는 이제 Stage 01의 `prd`를 재생성 없이 그대로
+  전달한다).
 - `KNOWN_CHECK_NAMES` = `("structural", "specification_scope",
   "design_scope", "test_execution")` — 이 4개로 고정. 이름 추가·삭제
   (Security/Data-API 등 새 검사 종류 포함)는 이 목록의 확장이므로

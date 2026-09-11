@@ -1,9 +1,13 @@
 # Stage 02: Specification 산출물 스키마
 
-`run_stage_02(issue, stage_01_context)`이 반환하는 `dict`의 키 2개.
-Stage 01처럼 기존 Capability의 반환 형태를 그대로 재노출하며, 이
-형태는 `ADR-0009`가 정의하는 Stage Data Contract의 Public
-Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
+**RFC-0034/ADC-0037/ADR-0022로 PRD/Specification 생성 책임이 Stage
+01로 이동했다.** `run_stage_02(issue, stage_01_context)`는 이제
+`stage_01_context["prd"]`를 재생성 없이 그대로 반환한다 — 아래 표는
+여전히 유효하다(Output Contract 키/타입 무변경), 다만 "생성 Capability"
+열이 가리키는 실제 위치가 Stage 01의 `prd_synthesis.py`로 바뀌었다.
+
+`dict`의 키 2개. 이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의
+Public Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
 
 | 키 | 타입 | 생성 Capability | 항상 채워지는가 |
 |---|---|---|---|

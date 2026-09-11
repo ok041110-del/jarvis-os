@@ -27,6 +27,7 @@ STAGE_01_OUTPUT = {
     "candidate_index": "INDEX",
     "target": None,
     "dependency_closure": None,
+    "prd": {"skeleton": {}, "specification": "SPEC"},
 }
 STAGE_02_OUTPUT = {"skeleton": {}, "specification": "SPEC"}
 STAGE_03_OUTPUT = {"skeleton": {}, "design": "DESIGN"}
