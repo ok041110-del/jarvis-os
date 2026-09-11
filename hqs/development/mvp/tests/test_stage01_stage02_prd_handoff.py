@@ -23,6 +23,12 @@ reasoning = _load("reasoning", _STAGE_DIR / "01_context_analysis" / "reasoning.p
 code_analysis = _load("code_analysis", _STAGE_DIR / "01_context_analysis" / "code_analysis.py")
 prd_synthesis = _load("prd_synthesis", _STAGE_DIR / "01_context_analysis" / "prd_synthesis.py")
 stage_01_multi_agent = _load("stage_01_multi_agent", _STAGE_DIR / "01_context_analysis" / "stage_01_multi_agent.py")
+task_dependency_agent = _load(
+    "task_dependency_agent", _STAGE_DIR / "02_planning_specification" / "task_dependency_agent.py"
+)
+planning_pipeline = _load(
+    "planning_pipeline", _STAGE_DIR / "02_planning_specification" / "planning_pipeline.py"
+)
 stage_02 = _load("stage_02", _STAGE_DIR / "02_planning_specification" / "stage_02.py")
 contracts = _load("contracts", _STAGE_DIR / "contracts.py")
 
@@ -67,13 +73,23 @@ def test_stage_01_prd_flows_unchanged_through_stage_02_into_contract_shape(monke
     for task_id in reasoning.AGENT_TASK_IDS:
         monkeypatch.setitem(reasoning.AGENT_FUNCTIONS, task_id, _fake_agent(task_id))
     monkeypatch.setattr(prd_synthesis, "requirements_agent_requirement_analysis", lambda issue: "REAL PRD PROSE")
+    monkeypatch.setattr(
+        task_dependency_agent,
+        "decompose_tasks_and_dependencies",
+        lambda specification: {"tasks": [], "dependencies": []},
+    )
 
     stage_01_output = stage_01_multi_agent.run_stage_01_multi_agent(SAMPLE_ISSUE, adapter=_FakeAdapter())
     contracts.validate_context_analysis_result(stage_01_output)  # Stage 01 Contract(6-key) 통과
 
     stage_02_output = stage_02.run_stage_02(SAMPLE_ISSUE, stage_01_output)
-    contracts.validate_specification_result(stage_02_output)  # Stage 02 Contract(2-key) 통과
+    contracts.validate_specification_result(stage_02_output)  # Stage 02 Contract(5-key) 통과
 
-    # 핵심 주장: Stage 02는 Stage 01의 PRD를 재생성하지 않고 그대로 전달한다.
-    assert stage_02_output == stage_01_output["prd"]
+    # 핵심 주장: Stage 02는 Stage 01의 PRD(skeleton/specification)를
+    # 재생성하지 않고 그대로 전달하며, tasks/dependencies/plan만 새로 만든다.
+    assert stage_02_output["skeleton"] == stage_01_output["prd"]["skeleton"]
+    assert stage_02_output["specification"] == stage_01_output["prd"]["specification"]
     assert stage_02_output["specification"] == "REAL PRD PROSE"
+    assert stage_02_output["tasks"] == []
+    assert stage_02_output["dependencies"] == []
+    assert stage_02_output["plan"] == {"execution_order": []}

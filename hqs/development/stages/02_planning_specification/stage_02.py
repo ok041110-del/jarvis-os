@@ -1,16 +1,45 @@
-"""Stage 02: Planning & Specification 실행 진입점(ADR-0008 §4).
+"""Stage 02: Planning & Specification 실행 진입점(ADR-0008 §4, ADR-0023).
 
-PRD/Specification 생성 책임은 Stage 01로 이동했다(RFC-0034/ADC-0037/
-ADR-0022) — Stage 01이 Multi-Agent Reasoning(Structured Understanding)과
-Repository Context를 종합해 이미 `stage_01_context["prd"]`를 만들어
-Handover한다. Stage 02는 이제 자체 Engine 호출 없이 이를 그대로
-전달(passthrough)한다 — `SpecificationResult` Output Contract(`skeleton`/
-`specification` 2키)는 무변경이라 Stage 03/05는 수정 없이 그대로
-동작한다."""
+Stage 01이 생성한 PRD(`skeleton`/`specification`)는 그대로 통과시키고
+(ADR-0022 유지, 재생성하지 않음), Task & Dependency Agent(LLM 1회) +
+Deterministic Layer(Schema/Graph Validation, Cycle Detection, Topological
+Ordering, Plan Assembly)로 `tasks`/`dependencies`/`plan`을 새로 산출한다
+(RFC-0035/ADC-0038/ADR-0023)."""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import planning_pipeline  # noqa: E402
+import task_dependency_agent  # noqa: E402
 
 
 def run_stage_02(issue: dict, stage_01_context: dict) -> dict:
-    """Stage 01의 PRD/Specification Synthesis 결과를 그대로 전달한다
-    (재생성하지 않음, ADR-0022). `stage_01_context["prd"]`가 이미
-    `{skeleton, specification}` 형태(`SpecificationResult`와 동일)다."""
-    return dict(stage_01_context["prd"])
+    """`skeleton`/`specification`은 Stage 01의 `prd`를 그대로 전달받는다
+    (재생성 없음, ADR-0022). Task & Dependency Agent 호출 또는 Deterministic
+    Layer 검증이 실패해도 `skeleton`/`specification`은 영향받지 않고,
+    `tasks`/`dependencies`/`plan`만 안전한 빈 값으로 채워 Contract의 5-key를
+    항상 만족시킨다."""
+    prd = stage_01_context["prd"]
+    skeleton = prd["skeleton"]
+    specification = prd["specification"]
+
+    try:
+        agent_output = task_dependency_agent.decompose_tasks_and_dependencies(specification)
+        planning_result = planning_pipeline.run_planning_pipeline(agent_output)
+        tasks = planning_result["tasks"]
+        dependencies = planning_result["dependencies"]
+        plan = planning_result["plan"]
+    except Exception:
+        tasks = []
+        dependencies = []
+        plan = {"execution_order": []}
+
+    return {
+        "skeleton": skeleton,
+        "specification": specification,
+        "tasks": tasks,
+        "dependencies": dependencies,
+        "plan": plan,
+    }
