@@ -1,18 +1,30 @@
 # Stage 02: Specification 산출물 스키마
 
-**RFC-0034/ADC-0037/ADR-0022로 PRD/Specification 생성 책임이 Stage
-01로 이동했다.** `run_stage_02(issue, stage_01_context)`는 이제
-`stage_01_context["prd"]`를 재생성 없이 그대로 반환한다 — 아래 표는
-여전히 유효하다(Output Contract 키/타입 무변경), 다만 "생성 Capability"
-열이 가리키는 실제 위치가 Stage 01의 `prd_synthesis.py`로 바뀌었다.
+**RFC-0035/ADC-0038/ADR-0023으로 `SpecificationResult`가 5-key로
+확장됐다.** `skeleton`/`specification`은 Stage 01의 `prd`를 재생성 없이
+그대로 반환하고(ADR-0022 유지), `tasks`/`dependencies`/`plan`은 Stage
+02의 Task & Dependency Agent + Deterministic Layer가 새로 산출한다.
 
-`dict`의 키 2개. 이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의
-Public Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
+`dict`의 키 5개. 이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의
+Public Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절,
+`stages/contracts.py::SPECIFICATION_REQUIRED_KEYS`).
 
 | 키 | 타입 | 생성 Capability | 항상 채워지는가 |
 |---|---|---|---|
-| `skeleton` | `dict`(4개 키: `problem_definition`, `constraints`, `risks`, `scope_candidates`) | Specification Skeleton 추출 | 예(Stage 01 Context가 비어 있어도 빈 값으로 채워짐) |
-| `specification` | `str` | Requirement & Specification 생성 | 예(Engine 실패 시에도 `_engine_failure_message()` 문자열로 채워짐 — Stage 01의 5개 필드와 달리 이 Stage는 Engine을 호출하므로 실패 가능성이 있다) |
+| `skeleton` | `dict`(4개 키: `problem_definition`, `constraints`, `risks`, `scope_candidates`) | Stage 01 PRD Synthesis(Passthrough) | 예 |
+| `specification` | `str` | Stage 01 PRD Synthesis(Passthrough) | 예 |
+| `tasks` | `list[dict]`(각 `id`/`title`/`description`) | Task & Dependency Agent + Deterministic Layer | 예(Agent/Deterministic Layer 실패 시 빈 리스트) |
+| `dependencies` | `list[dict]`(각 `task`/`depends_on`) | Task & Dependency Agent + Deterministic Layer | 예(실패 시 빈 리스트) |
+| `plan` | `dict`(`execution_order`: `list[str]`, Task id를 실행 순서대로 나열) | Deterministic Layer(Topological Ordering + Implementation Plan Assembly) | 예(실패 시 `{"execution_order": []}`) |
+
+## Task/Dependency 구조
+
+- `tasks`의 각 항목: `{"id": str, "title": str, "description": str}` —
+  `id`는 `dependencies` 참조에 쓰이는 고유 식별자다.
+- `dependencies`의 각 항목: `{"task": str, "depends_on": str}` — `task`
+  (후행)가 `depends_on`(선행)의 완료를 전제로 한다는 의미다.
+- `plan.execution_order`: Topological Ordering(Kahn's algorithm) 결과로,
+  선행 Task가 항상 후행 Task보다 먼저 나온다.
 
 ## 7개 관점이 어디서 채워지는가
 
@@ -22,18 +34,17 @@ Public Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
 | Constraints | `skeleton["constraints"]`(결정적) + `specification`에 반영 |
 | Risk | `skeleton["risks"]`(결정적) + `specification`에 반영 |
 | Implementation Scope | `skeleton["scope_candidates"]`(결정적) + `specification`에 반영 |
-| Requirement Analysis | `specification` 전체(기존 Requirement Analysis Capability의 본래 책임) |
-| Task Decomposition | `specification` 내(지시문으로 요청, Engine 산출 — 결정적 골격 없음) |
-| Acceptance Criteria | `specification` 내(지시문으로 요청, Engine 산출 — 결정적 골격 없음) |
+| Requirement Analysis | `specification` 전체(Stage 01에서 이미 생성) |
+| Task Decomposition | `tasks`(Task & Dependency Agent 산출, 구조화됨) |
+| Dependency Judgment | `dependencies`(Task & Dependency Agent 산출, 구조화됨) |
+| Dependency Ordering | `plan.execution_order`(Deterministic, Topological Sort) |
+| Acceptance Criteria | `specification` 내(Stage 01 PRD Synthesis 지시문으로 이미 포함, 재생성하지 않음 — Decision 4) |
 
-Task Decomposition/Acceptance Criteria는 Requirement 해석에 의존해
-Stage 01 Context만으로 결정적 도출이 불가능하다 — 골격에 넣지 않고
-Engine 지시문으로만 요청한다("새 Capability 금지" 제약 내 가능한 범위,
-Stage 03 이후 더 정교화 가능, Open Issue: `VALIDATION.md`).
+## 실패 시 값
 
-## 왜 `context_bundle`만 쓰는가
-
-`run_stage_01()`의 나머지 키(`directory_structure`, `candidate_index`,
-`target`, `dependency_closure`)는 AST/파일 구조 정보로 "어떻게
-구현할지"(Stage 03 Design)에 더 적합하다 — Specification("무엇을
-만들지")에는 `context_bundle`(Requirement Analysis용 8개 필드)만 쓴다.
+Task & Dependency Agent 호출 실패(`AgentOutputError` 등) 또는
+Deterministic Layer 검증 실패(`PlanningPipelineError` — 참조 무결성 위반,
+Cycle 등)가 발생하면 `tasks=[]`, `dependencies=[]`,
+`plan={"execution_order": []}`로 안전하게 채워진다. `skeleton`/
+`specification`은 Stage 01 값을 그대로 전달하는 별개 경로이므로 이 실패의
+영향을 받지 않는다.

@@ -29,7 +29,13 @@ STAGE_01_OUTPUT = {
     "dependency_closure": None,
     "prd": {"skeleton": {}, "specification": "SPEC"},
 }
-STAGE_02_OUTPUT = {"skeleton": {}, "specification": "SPEC"}
+STAGE_02_OUTPUT = {
+    "skeleton": {},
+    "specification": "SPEC",
+    "tasks": [],
+    "dependencies": [],
+    "plan": {"execution_order": []},
+}
 STAGE_03_OUTPUT = {"skeleton": {}, "design": "DESIGN"}
 STAGE_04_OUTPUT = {"target": None, "implementation": "CODE", "expose_target": False}
 STAGE_05_OUTPUT = {

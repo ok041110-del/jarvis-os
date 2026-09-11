@@ -18,7 +18,13 @@ sys.modules["contracts"] = contracts
 _spec.loader.exec_module(contracts)
 
 
-VALID_SPECIFICATION_RESULT = {"skeleton": {}, "specification": "SPEC"}
+VALID_SPECIFICATION_RESULT = {
+    "skeleton": {},
+    "specification": "SPEC",
+    "tasks": [],
+    "dependencies": [],
+    "plan": {"execution_order": []},
+}
 VALID_CONTEXT_ANALYSIS_RESULT = {
     "directory_structure": "...",
     "context_bundle": {},

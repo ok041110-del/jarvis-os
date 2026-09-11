@@ -44,27 +44,67 @@ def require_keys(data: dict, keys: tuple, contract_name: str) -> None:
         raise ContractViolation(f"{contract_name} contract violated — missing keys: {missing}")
 
 
-class SpecificationResult(TypedDict):
-    """PRD/Specification 산출 형태 — Producer: Stage 01(`prd` 키,
-    RFC-0034/ADC-0037/ADR-0022), Stage 02 Output(`SPECIFICATION.md`)에도
-    동일 형태로 재사용된다(Stage 02는 이제 Stage 01의 `prd`를 그대로
-    전달할 뿐 재생성하지 않는다)."""
+class PrdResult(TypedDict):
+    """Stage 01 PRD/Specification Synthesis 산출 형태 — Producer: Stage 01
+    (`prd` 키, RFC-0034/ADC-0037/ADR-0022). Stage 02는 이 값을 그대로
+    통과시킬 뿐 재생성하지 않는다(ADR-0022)."""
 
     skeleton: dict
     specification: str
 
 
+class TaskItem(TypedDict):
+    """Task & Dependency Agent가 산출하는 Task 1건 — Stage 02 Output
+    (RFC-0035/ADC-0038/ADR-0023)."""
+
+    id: str
+    title: str
+    description: str
+
+
+class DependencyEdge(TypedDict):
+    """Task 간 의존 관계 1건 — `task`(후행)가 `depends_on`(선행)의 완료를
+    전제로 한다(RFC-0035/ADC-0038/ADR-0023)."""
+
+    task: str
+    depends_on: str
+
+
+class ImplementationPlan(TypedDict):
+    """Dependency Ordering + Implementation Plan Assembly(Deterministic)
+    산출 형태 — Task id를 실행 가능한 순서로 나열한다(RFC-0035 §4)."""
+
+    execution_order: list
+
+
+class SpecificationResult(TypedDict):
+    """Stage 02 Output(`SPECIFICATION.md`) — Producer: Stage 02.
+    `skeleton`/`specification`은 Stage 01의 `prd`를 그대로 통과시킨
+    값이고(`PrdResult`와 동일 형태), `tasks`/`dependencies`/`plan`은
+    Stage 02의 Task & Dependency Agent + Deterministic Layer가 새로
+    산출한다(RFC-0035/ADC-0038/ADR-0023)."""
+
+    skeleton: dict
+    specification: str
+    tasks: list          # list[TaskItem]
+    dependencies: list    # list[DependencyEdge]
+    plan: ImplementationPlan
+
+
 class ContextAnalysisResult(TypedDict):
     """Stage 01 Output(CONTEXT.md) — Producer: Stage 01. `prd`는
     RFC-0034/ADC-0037/ADR-0022로 추가된 PRD/Specification Synthesis
-    결과(`SpecificationResult`와 동일 형태)다."""
+    결과(`PrdResult`, `skeleton`/`specification` 2-key)다 — Stage 02가
+    Task & Dependency Agent + Deterministic Layer로 3개 키를 더 채운
+    `SpecificationResult`(5-key)와는 다른 형태다(RFC-0035/ADC-0038/
+    ADR-0023)."""
 
     directory_structure: object
     context_bundle: dict
     candidate_index: CandidateIndex
     target: object
     dependency_closure: object
-    prd: SpecificationResult
+    prd: PrdResult
 
 
 class DesignResult(TypedDict):
@@ -120,7 +160,7 @@ CONTEXT_ANALYSIS_REQUIRED_KEYS = (
     "dependency_closure",
     "prd",
 )
-SPECIFICATION_REQUIRED_KEYS = ("skeleton", "specification")
+SPECIFICATION_REQUIRED_KEYS = ("skeleton", "specification", "tasks", "dependencies", "plan")
 DESIGN_REQUIRED_KEYS = ("skeleton", "design")
 IMPLEMENTATION_REQUIRED_KEYS = ("target", "implementation", "expose_target")
 VERIFICATION_REQUIRED_KEYS = ("required_checks", "check_results", "verdict")
