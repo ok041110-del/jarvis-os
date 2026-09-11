@@ -18,11 +18,20 @@
 - AST 폐쇄 시작점(target module/function) 자동 식별 — Design 산출물이
   필요해 Stage 03 이후에만 가능(`workflow_ast_context.identify_target`
   이미 구현). Stage 01은 시작점이 **주어졌을 때**만 폐쇄를 계산한다.
-- Engine 호출 — 5개 Capability 전부 순수 정적 분석/파일 탐색이며
-  Engine을 호출하지 않는다(결정적 Input→Output의 근거).
+- Engine 호출의 routing·provider 선택·policy 판정 — Stage 01은 Multi-Agent
+  Reasoning(Intent/Goal/Requirement/Ambiguity Agent)을 orchestrate하지만,
+  각 Agent의 실제 LLM 실행은 다른 Stage의 Agent와 동일하게 기존 Engine
+  Adapter 경계(`mvp/omniroute_engine.py::call_engine_via_omniroute`)를
+  그대로 따른다 — 새 Engine Gateway/Routing/Policy를 두지 않는다
+  (`RFC-0033`/`ADC-0036`/`ADR-0021`). Repository Structure/Relevant
+  Discovery/AST Candidate Index/Dependency Closure 4개 Code Analysis
+  Capability는 계속 Engine을 호출하지 않는 결정적 분석으로 남는다.
 
 ## Kernel/Architecture 경계
 
 Development HQ MVP Implementation 범위 — Kernel Architecture/Baseline
-변경 없음(ADC-0005 Architecture Impact: NONE 그대로 적용, 5개 Capability
-모두 ADC-0005 Accept 범위 + 기존 MVP-0005 재배치).
+변경 없음. Multi-Agent Reasoning 도입(`RFC-0033`/`ADC-0036`/`ADR-0021`)은
+Development HQ 내부 Scoped 결정이며, Kernel Public Contract·Development
+HQ Baseline v1.0(Stage Data Contract)을 변경하지 않는다. `ADC-0005`의
+"Architecture Impact: NONE"은 4개 결정적 Code Analysis Capability에는
+그대로 적용되고, Reasoning 단계는 위 3개 문서가 별도로 판단했다.

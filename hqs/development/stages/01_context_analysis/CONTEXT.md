@@ -25,3 +25,12 @@ Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
 시작점 식별(`identify_target`)은 Design(Stage 03 산출물)을 입력으로
 요구해 Stage 01 시점엔 존재하지 않는다 — `dependency_closure`가 항상
 optional인 이유(`RESPONSIBILITY.md`).
+
+## Multi-Agent Reasoning과 Public Contract의 관계
+
+`RFC-0033`/`ADC-0036`/`ADR-0021`로 Stage 01 내부에 Multi-Agent
+Reasoning(Intent/Goal/Requirement/Ambiguity Agent → Structured
+Understanding)이 추가됐다. Structured Understanding은 **내부 중간
+산출물**이며, 이 표가 정의하는 5개 키(Public Contract, `ADR-0009` Stage
+Data Contract Scope)는 그대로 유지된다 — Stage 02 이후는 여전히 이
+5개 키만 Input으로 받는다.

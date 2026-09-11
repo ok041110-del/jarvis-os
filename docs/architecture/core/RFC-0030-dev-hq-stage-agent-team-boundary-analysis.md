@@ -1,6 +1,9 @@
 # RFC-0030: Dev HQ Stage 01~05 Agent Team Boundary Analysis (Phase F-2)
 
-**Status**: Proposed (분석 결과 기록, Baseline 결정 아님)
+**Status**: Proposed (분석 결과 기록, Baseline 결정 아님). **§3 Stage 01
+항의 "추가 Agent 후보 없음" 결론은 `ADC-0036`으로 superseded됨** — Stage
+01 Multi-Agent Reasoning 도입 결정은 `RFC-0033`/`ADC-0036`/`ADR-0021`
+참조. 이 문서 본문은 원 분석 기록 보존을 위해 무수정.
 **Author**: Claude Code
 **대상**: `hqs/development/CONSTITUTION.md`·`BASELINE.md`·`IMPLEMENTATION_RULES.md`,
 `hqs/development/workflow.py`, `hqs/development/stages/01~05/stage_0N.py`,
