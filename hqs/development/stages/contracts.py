@@ -94,14 +94,17 @@ class SpecificationResult(TypedDict):
 class ContextAnalysisResult(TypedDict):
     """Stage 01 Output(CONTEXT.md) — Producer: Stage 01. `prd`는
     RFC-0034/ADC-0037/ADR-0022로 추가된 PRD/Specification Synthesis
-    결과(`SpecificationResult`와 동일 형태)다."""
+    결과(`PrdResult`, `skeleton`/`specification` 2-key)다 — Stage 02가
+    Task & Dependency Agent + Deterministic Layer로 3개 키를 더 채운
+    `SpecificationResult`(5-key)와는 다른 형태다(RFC-0035/ADC-0038/
+    ADR-0023)."""
 
     directory_structure: object
     context_bundle: dict
     candidate_index: CandidateIndex
     target: object
     dependency_closure: object
-    prd: SpecificationResult
+    prd: PrdResult
 
 
 class DesignResult(TypedDict):
