@@ -1,6 +1,13 @@
 # Stage 02: Validation
 
-## 검증 원칙
+**RFC-0034/ADC-0037/ADR-0022로 PRD/Specification 생성이 Stage 01로
+이동해, 이 Stage는 이제 Engine을 호출하지 않는 passthrough다.** 아래
+"검증 원칙"/real Engine E2E 절은 이동 이전 형태의 역사적 기록이다 —
+현재 검증은 `test_stage_02.py`(passthrough 단위 테스트)와
+`test_stage01_prd_synthesis.py`/`test_stage01_stage02_prd_handoff.py`
+(PRD 생성 자체와 Stage 01→02 Handoff)로 옮겨졌다.
+
+## 검증 원칙(이동 이전 기록)
 
 Capability 1(Skeleton 추출)은 순수 함수라 mock 없이 결정적으로 단위
 테스트한다. Capability 2는 기존 `requirements_agent_requirement_

@@ -1,11 +1,13 @@
 # Stage 01: Context 산출물 스키마
 
-`run_stage_01(issue, target=None)`이 반환하는 `dict`의 키 5개.
-후속 Stage(특히 02 Planning & Specification)는 이 구조를 그대로
-입력으로 사용할 수 있다 — 기존 `build_context_bundle()`/
-`build_function_candidate_index()`의 반환 형태를 그대로 재노출하며,
-이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의 Public
-Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
+Production 경로(`teams/context/team.py` → `stage_01_multi_agent.py`)가
+반환하는 `dict`의 키 6개(RFC-0034/ADC-0037/ADR-0022로 `prd` 추가). 후속
+Stage(특히 02 Planning & Specification)는 이 구조를 그대로 입력으로
+사용할 수 있다 — 이 형태는 `ADR-0009`가 정의하는 Stage Data Contract의
+Public Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
+Legacy 결정적 `stage_01.py`(ADR-0021 보존 대상)는 여전히 `prd` 없는
+5키만 반환한다 — Production 경로가 아니므로 이 표는 6키 형태를
+기준으로 한다.
 
 | 키 | 타입 | 생성 Capability | 항상 채워지는가 |
 |---|---|---|---|
@@ -14,6 +16,17 @@ Scope다(`hqs/development/BASELINE.md` "Stage Data Contract" 절).
 | `candidate_index` | `str` | AST Function Candidate Index | 예(저장소 고정 경로 기반, `issue`와 무관) |
 | `target` | `tuple[str, str] \| None` | 호출자가 전달한 시작점을 그대로 echo | 호출자가 `target`을 넘겼을 때만 |
 | `dependency_closure` | `str \| None` | AST Dependency Closure | `target`이 주어졌을 때만, 없으면 `None` |
+| `prd` | `dict`(`skeleton`/`specification` 2개 키, `SpecificationResult`와 동일 형태) | PRD/Specification Synthesis(`prd_synthesis.py`) | 예(Structured Understanding + Repository Context 종합, Engine 실패 시에도 오류 포맷으로 채워짐) |
+
+## PRD/Specification Synthesis (RFC-0034/ADC-0037/ADR-0022)
+
+`prd`는 Structured Understanding(Reasoning Aggregator 결과, 재추론
+없이 직렬화)과 Repository Context(`context_bundle`/`candidate_index`/
+`directory_structure`)를 종합해 기존 Requirement Agent
+(`requirements_agent_requirement_analysis`)를 정확히 1회 호출한 결과다
+— 새 Agent/Capability가 아니라 기존 Stage 02 Capability의 호출 위치
+이동이다. Stage 02는 이제 이 값을 재생성 없이 그대로 전달한다
+(`stage_02.py`).
 
 `build_context_bundle()`이 `directory_structure` 키를 버리므로,
 `run_stage_01()`은 이를 얻기 위해 `collect_relevant_context()`를 한 번

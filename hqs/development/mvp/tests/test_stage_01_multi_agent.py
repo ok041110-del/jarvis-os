@@ -23,11 +23,18 @@ def _load(name, filename):
 
 reasoning = _load("reasoning", "reasoning.py")
 code_analysis = _load("code_analysis", "code_analysis.py")
+prd_synthesis = _load("prd_synthesis", "prd_synthesis.py")
 stage_01_multi_agent = _load("stage_01_multi_agent", "stage_01_multi_agent.py")
 
 from mvp.github_adapter import RepositoryEntry, RepositoryFile, RepositorySnapshot  # noqa: E402
 
 SAMPLE_ISSUE = {"title": "Add caching", "description": "Cache expensive lookups."}
+
+
+def _patch_prd_synthesis_engine_call(monkeypatch, response="PRD SPEC TEXT"):
+    """PRD Synthesis도 Engine을 1회 호출하므로(RFC-0034), 실제 네트워크
+    호출 없이 검증하려면 이 함수도 별도로 mock해야 한다."""
+    monkeypatch.setattr(prd_synthesis, "requirements_agent_requirement_analysis", lambda issue: response)
 
 
 class _FakeAdapter:
@@ -77,16 +84,21 @@ def _patch_agents(monkeypatch, event_log, delay=0.05):
 def test_full_flow_returns_existing_stage_01_contract_shape(monkeypatch):
     event_log = []
     _patch_agents(monkeypatch, event_log, delay=0.01)
+    _patch_prd_synthesis_engine_call(monkeypatch)
     adapter = _FakeAdapter(event_log)
 
     result = stage_01_multi_agent.run_stage_01_multi_agent(SAMPLE_ISSUE, adapter=adapter)
 
     assert set(result.keys()) == {
-        "directory_structure", "context_bundle", "candidate_index", "target", "dependency_closure",
+        "directory_structure", "context_bundle", "candidate_index", "target", "dependency_closure", "prd",
     }
     assert result["target"] is None
     assert result["dependency_closure"] is None
     assert "hqs/development/mvp/engine.py" in result["directory_structure"]
+    assert result["prd"]["specification"] == "PRD SPEC TEXT"
+    assert set(result["prd"]["skeleton"].keys()) == {
+        "problem_definition", "constraints", "risks", "scope_candidates",
+    }
 
 
 def test_reasoning_fully_completes_before_code_analysis_starts(monkeypatch):
@@ -95,6 +107,7 @@ def test_reasoning_fully_completes_before_code_analysis_starts(monkeypatch):
     앞서야 한다."""
     event_log = []
     _patch_agents(monkeypatch, event_log, delay=0.05)
+    _patch_prd_synthesis_engine_call(monkeypatch)
     adapter = _FakeAdapter(event_log)
 
     stage_01_multi_agent.run_stage_01_multi_agent(SAMPLE_ISSUE, adapter=adapter)
@@ -108,6 +121,7 @@ def test_reasoning_fully_completes_before_code_analysis_starts(monkeypatch):
 def test_target_given_computes_dependency_closure_conditionally(monkeypatch):
     event_log = []
     _patch_agents(monkeypatch, event_log, delay=0.0)
+    _patch_prd_synthesis_engine_call(monkeypatch)
     adapter = _FakeAdapter(event_log)
 
     result = stage_01_multi_agent.run_stage_01_multi_agent(
@@ -129,12 +143,14 @@ def test_all_agents_timeout_still_produces_output_not_a_crash(monkeypatch):
 
     event_log = []
     adapter = _FakeAdapter(event_log)
+    _patch_prd_synthesis_engine_call(monkeypatch)
     monkeypatch.setattr(stage_01_multi_agent, "_AGENT_TIMEOUT_SECONDS", 0.05)
 
     result = stage_01_multi_agent.run_stage_01_multi_agent(SAMPLE_ISSUE, adapter=adapter)
 
-    # Reasoning이 전부 INSUFFICIENT여도 Code Analysis는 계속 진행되어
-    # 기존 Contract 5-key를 채운 dict를 반환한다(크래시하지 않음).
+    # Reasoning이 전부 INSUFFICIENT여도 Code Analysis/PRD Synthesis는 계속
+    # 진행되어 기존 Contract 6-key(`prd` 포함)를 채운 dict를 반환한다
+    # (크래시하지 않음).
     assert set(result.keys()) == {
-        "directory_structure", "context_bundle", "candidate_index", "target", "dependency_closure",
+        "directory_structure", "context_bundle", "candidate_index", "target", "dependency_closure", "prd",
     }

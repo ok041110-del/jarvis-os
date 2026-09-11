@@ -171,13 +171,15 @@ def dependency_analysis(target) -> str:
     return build_dependency_closure(module, function)
 
 
-def aggregate_context(directory_structure: list, context_bundle: dict, candidate_index: str, target, dependency_closure) -> dict:
-    """Context Aggregator — 기존 `ContextAnalysisResult` Public Contract
-    5개 키(`stages/contracts.py`)를 그대로 채운다. 재해석 없이 조립만 한다."""
+def aggregate_context(directory_structure: list, context_bundle: dict, candidate_index: str, target, dependency_closure, prd: dict) -> dict:
+    """Context Aggregator — `ContextAnalysisResult` Public Contract
+    6개 키(`stages/contracts.py`, `prd`는 RFC-0034/ADC-0037/ADR-0022로
+    추가)를 그대로 채운다. 재해석 없이 조립만 한다."""
     return {
         "directory_structure": directory_structure,
         "context_bundle": context_bundle,
         "candidate_index": candidate_index,
         "target": target,
         "dependency_closure": dependency_closure,
+        "prd": prd,
     }

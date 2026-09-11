@@ -8,11 +8,18 @@
 - 저장소 함수 후보를 이름+시그니처+docstring 첫 줄로 색인화(AST Function
   Candidate Index)
 - 특정 함수의 직접·간접 의존성만 추출(AST Dependency Closure)
+- PRD/Specification 생성 — Structured Understanding(Multi-Agent
+  Reasoning 결과)과 Repository Context(Code Analysis 결과)를 종합해
+  기존 Requirement Agent를 재사용, PRD/Specification을 산출한다
+  (`prd_synthesis.py`, RFC-0034/ADC-0037/ADR-0022 — 이전에는 Stage 02
+  책임이었다)
 
 ## 책임지지 않는다
 
-- Requirement 분석, Design 산출(→ Stage 02 Planning & Specification,
-  Stage 03 Architecture & Design)
+- Design 산출(→ Stage 03 Architecture & Design)
+- Task Decomposition/Dependency Ordering/Acceptance Criteria 정교화/
+  Implementation Planning(→ Stage 02 Planning — PRD/Specification
+  생성만 Stage 01로 이동했고, 이 책임들은 여전히 Stage 02 소관이다)
 - 코드 생성/수정(→ Stage 04 Implementation)
 - 코드 리뷰/테스트 실행(→ Stage 05 Validation)
 - AST 폐쇄 시작점(target module/function) 자동 식별 — Design 산출물이
