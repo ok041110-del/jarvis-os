@@ -44,7 +44,10 @@ def run_all(engine_call, cases: list = CASES) -> list:
     for case in cases:
         for variant_name, runner in _VARIANT_RUNNERS.items():
             result, _code = runner(
-                case["case_id"], case["build_input"], engine_call, case["allowed_function_names"]
+                case["case_id"], case["build_input"], engine_call, case["allowed_function_names"],
+                required_function_names=case.get("required_function_names"),
+                target=case.get("target"),
+                expose_target=case.get("expose_target", False),
             )
             results.append(result)
     return results

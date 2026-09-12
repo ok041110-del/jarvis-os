@@ -114,6 +114,22 @@ def find_comments_and_docstrings(code: str) -> list:
     return entries
 
 
+def check_design_coverage(code: str, required_function_names: tuple) -> CheckResult:
+    """§7 "Design requirement coverage" — Design이 요구한 함수가 실제로
+    전부 정의됐는지 확인한다. `check_scope`(허용 범위를 벗어나지 않는지)
+    와 반대 방향 검사다 — 이 둘을 함께 써야 "정확히 요구된 것만" 검증된다."""
+    try:
+        tree = ast.parse(code)
+    except SyntaxError as exc:
+        return CheckResult(False, f"SyntaxError: {exc}")
+
+    defined = {node.name for node in ast.walk(tree) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    missing = [name for name in required_function_names if name not in defined]
+    if missing:
+        return CheckResult(False, f"missing required definitions: {missing}")
+    return CheckResult(True)
+
+
 def check_comment_docstring_policy(code: str) -> CheckResult:
     """Jarvis Ponytail Comment/Docstring 정책(§9) — 2줄 초과 항목이 있으면
     FAIL. 압축(text compression)은 이 Harness가 자동 수행하지 않는다 —
@@ -126,14 +142,26 @@ def check_comment_docstring_policy(code: str) -> CheckResult:
     return CheckResult(True)
 
 
-def run_deterministic_gate(candidate_code: str, *, required_keys: tuple, allowed_function_names: tuple) -> dict:
-    """§10 Deterministic Gate — syntax/contract/scope/AST/comment-docstring
-    순서로 검사하고 각 결과를 담은 dict를 반환한다. `passed`는 전부 PASS일
-    때만 True다."""
+def run_deterministic_gate(
+    candidate_code: str,
+    *,
+    required_keys: tuple,
+    allowed_function_names: tuple,
+    required_function_names: tuple = None,
+) -> dict:
+    """§10 Deterministic Gate — syntax/contract/scope/design-coverage/AST/
+    comment-docstring 순서로 검사하고 각 결과를 담은 dict를 반환한다.
+    `passed`는 전부 PASS일 때만 True다. `required_function_names`을
+    생략하면 `allowed_function_names`과 동일하게 취급한다(허용 범위 ==
+    요구 범위인 기존 호출부와 하위 호환)."""
+    if required_function_names is None:
+        required_function_names = allowed_function_names
+
     checks = {
         "syntax": check_syntax(candidate_code),
         "ast": check_ast_structural_validity(candidate_code),
         "scope": check_scope(candidate_code, allowed_function_names),
+        "design_coverage": check_design_coverage(candidate_code, required_function_names),
         "comment_docstring": check_comment_docstring_policy(candidate_code),
     }
     return {

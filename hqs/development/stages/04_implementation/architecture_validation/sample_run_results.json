@@ -7,22 +7,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.19865000001573208,
-      "generation": 0.015344000019013038,
-      "validation": 0.18330599999671904,
+      "total": 0.22370900001078553,
+      "generation": 0.011721000191755593,
+      "validation": 0.21198799981902994,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -40,22 +40,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.3048330000297028,
-      "generation": 0.0043070000401712605,
-      "validation": 0.30052599998953156,
+      "total": 0.3842170001462364,
+      "generation": 0.005373000021791086,
+      "validation": 0.3788440001244453,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -73,22 +73,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.25331800003414173,
-      "generation": 0.004827000054774544,
-      "validation": 0.24486000000933927,
-      "ponytail": 0.003630999970027915
+      "total": 0.41997600010290626,
+      "generation": 0.0071740000748832244,
+      "validation": 0.40792499999042775,
+      "ponytail": 0.0048770000375952804
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -106,22 +106,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.08693599994558099,
-      "generation": 0.0026579999712339486,
-      "validation": 0.08427799997434704,
+      "total": 0.13321500023266708,
+      "generation": 0.0061890000324638095,
+      "validation": 0.12702600020020327,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -139,22 +139,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.22473600006378547,
-      "generation": 0.0038410000229305297,
-      "validation": 0.22089500004085494,
+      "total": 0.3447130000040488,
+      "generation": 0.00467499990008946,
+      "validation": 0.34003800010395935,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -172,22 +172,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.2226010000754286,
-      "generation": 0.0036370000771057676,
-      "validation": 0.216206000004604,
-      "ponytail": 0.0027579999937188404
+      "total": 0.2915609998126456,
+      "generation": 0.00486999988424941,
+      "validation": 0.2833779999491526,
+      "ponytail": 0.0033129999792436138
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -205,22 +205,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.07631199997604199,
-      "generation": 0.0017379999803779356,
-      "validation": 0.07457399999566405,
+      "total": 0.09659699981057202,
+      "generation": 0.0020829997993132565,
+      "validation": 0.09451400001125876,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -238,22 +238,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.268407999953979,
-      "generation": 0.0031729999818708166,
-      "validation": 0.2652349999721082,
+      "total": 0.3283969999756664,
+      "generation": 0.003415000037421123,
+      "validation": 0.3249819999382453,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -271,22 +271,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.2190560000485675,
-      "generation": 0.004115000024285109,
-      "validation": 0.21239599999489656,
-      "ponytail": 0.0025450000293858466
+      "total": 0.29045200039945485,
+      "generation": 0.00497900009577279,
+      "validation": 0.281962000144631,
+      "ponytail": 0.0035110001590510365
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -304,22 +304,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.07535800000368909,
-      "generation": 0.0016500000015184924,
-      "validation": 0.07370800000217059,
+      "total": 0.11901200014108326,
+      "generation": 0.003868000021611806,
+      "validation": 0.11514400011947146,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -337,22 +337,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.21317899995665357,
-      "generation": 0.0032919999739533523,
-      "validation": 0.20988699998270022,
+      "total": 0.28657700022449717,
+      "generation": 0.0035920002119382843,
+      "validation": 0.2829850000125589,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -370,22 +370,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.25173900002073424,
-      "generation": 0.0033510000321257394,
-      "validation": 0.24443399996698645,
-      "ponytail": 0.0039540000216220506
+      "total": 0.31901600004857755,
+      "generation": 0.0036559999898599926,
+      "validation": 0.31050200004756334,
+      "ponytail": 0.004858000011154218
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -403,22 +403,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.09341800006268386,
-      "generation": 0.0021040000319771934,
-      "validation": 0.09131400003070667,
+      "total": 0.10283200003868842,
+      "generation": 0.0027200001113669714,
+      "validation": 0.10011199992732145,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -436,22 +436,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.21721799998886127,
-      "generation": 0.003501999970012548,
-      "validation": 0.21371600001884872,
+      "total": 0.2833450002981408,
+      "generation": 0.003726000159076648,
+      "validation": 0.27961900013906416,
       "ponytail": 0.0
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
@@ -469,22 +469,22 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.3566359999922497,
-      "generation": 0.0033549999898241367,
-      "validation": 0.30902899999318834,
-      "ponytail": 0.044252000009237236
+      "total": 0.3447969997978362,
+      "generation": 0.003797999852395151,
+      "validation": 0.3375960000084888,
+      "ponytail": 0.0034029999369522557
     },
     "correctness": {
       "syntax": true,
-      "contract": null,
+      "contract": true,
       "scope": true,
       "pytest": null
     },
     "quality": {
       "readability": null,
-      "explicitness": null,
+      "explicitness": 0,
       "cognitive_load": null,
-      "simplicity": null
+      "simplicity": 0
     },
     "comments": {
       "count": 0,
