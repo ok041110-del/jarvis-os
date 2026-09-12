@@ -35,6 +35,24 @@ _VALIDATED_DOCSTRING_AND_GUARD = (
     '        raise ValueError("code must be a non-empty string.")\n'
 )
 
+# Stage 03 Design — 이 Fixture가 흉내 내는 요구사항(입력 검증 추가)에 대한
+# 고정 Design 텍스트. 실제 Stage 03 Engine을 호출하지 않는다 — 이전 세션
+# (`OPENROUTER-STAGE-MODEL-SELECTION-0001.md` §3.3)이 동일 시나리오로
+# 실제 Design Agent를 호출해 검증한 것과 같은 요구사항을 고정 텍스트로 재사용.
+FIXED_DESIGN_CONTEXT = (
+    "Design: Add input validation to backend_agent_code_review.\n\n"
+    "Approach: at the top of the function body, check that `code` is a "
+    "non-empty string (after stripping whitespace) and raise `ValueError` "
+    "with a clear, non-leaky message before calling the Engine. Keep the "
+    "existing review instruction and Engine delegation unchanged otherwise.\n\n"
+    "Constraints: must not change the function's external contract "
+    "(str -> str), must not add filesystem/network access, must not modify "
+    "call_engine_review's signature, must not touch any other function in "
+    "this file.\n\n"
+    "Risks: overly strict validation could reject valid code containing only "
+    "whitespace/comments; the error message must not leak internal details."
+)
+
 
 @dataclass
 class Stage04ImplementationFixture:
@@ -73,4 +91,5 @@ def build_validation_context(fixture: Stage04ImplementationFixture):
         original_source_snapshot=fixture.original_source,
         scope_candidates=fixture.scope_candidates,
         original_import_lines=_import_lines(fixture.original_source),
+        design_context=FIXED_DESIGN_CONTEXT,
     )

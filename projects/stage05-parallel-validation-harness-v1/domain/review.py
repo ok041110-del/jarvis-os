@@ -67,21 +67,55 @@ def _run_deterministic(ctx: ValidationContext) -> dict:
     return {"mode": "deterministic", "findings": findings, "finding_count": len(findings)}
 
 
+def _build_llm_review_prompt(ctx: ValidationContext) -> str:
+    """Review Input 경계(사용자 지시)를 그대로 구현한다 — Stage 03
+    Design / Stage 04 Implementation / Contract / Scope Context / Immutable
+    Source Snapshot **만** 포함한다. Structure/Scope/AST/Dependency/Test의
+    ValidatorResult는 이 함수의 인자로 존재하지 않으므로(시그니처가
+    `ctx: ValidationContext` 하나뿐) 애초에 여기 들어올 수 없다 — Review
+    독립성은 우연이 아니라 함수 시그니처로 구조적으로 강제된다."""
+    instruction = (
+        "You are the Review capability of a validation pipeline. Review the "
+        "following code and describe issues in prose (bugs, risks, style) — "
+        "do not rewrite or restate the code as your answer. A real issue is "
+        "a concrete defect that would cause wrong output, a crash, or a "
+        "violation of the function's own stated behavior — improvement "
+        "ideas (add more validation, add tests, add docs, style "
+        "preferences) are not real issues by themselves. Respond with a "
+        "short list of findings; if you find no real issues, say so "
+        "explicitly."
+    )
+    contract_description = (
+        "External Contract: the reviewed function must remain "
+        "`str -> str` (single argument in, string out), with failures "
+        "surfaced as a single exception type — the same contract every "
+        "other capability in this pipeline already assumes."
+    )
+    scope_description = (
+        "Scope Context (files this change is allowed to touch): "
+        f"{', '.join(ctx.scope_candidates) or '(none declared)'}"
+    )
+    return (
+        f"{instruction}\n\n"
+        f"---STAGE 03 DESIGN---\n{ctx.design_context or '(no design context provided)'}\n\n"
+        f"---CONTRACT---\n{contract_description}\n\n"
+        f"---SCOPE CONTEXT---\n{scope_description}\n\n"
+        f"---IMMUTABLE SOURCE SNAPSHOT (target file, before this change)---\n"
+        f"{ctx.original_source_snapshot}\n\n"
+        f"---STAGE 04 IMPLEMENTATION (the proposed change to review)---\n"
+        f"{ctx.implementation}"
+    )
+
+
 def _run_llm(ctx: ValidationContext, engine_call: Optional[Callable[[str], str]]) -> dict:
     if engine_call is None:
         raise ReviewEngineNotConfigured(
             "Review mode='llm'이지만 engine_call이 주입되지 않았다 — "
             "이 Harness는 임의의 Engine을 대신 선택하지 않는다(실험 설계 원칙)"
         )
-    instruction = (
-        "Review the following code and describe issues in prose "
-        "(bugs, risks, style) — do not rewrite or restate the code as your answer. "
-        "A real issue is a concrete defect that would cause wrong output, a "
-        "crash, or a violation of the function's own stated behavior — "
-        "improvement ideas are not real issues by themselves."
-    )
-    raw = engine_call(f"CODE_REVIEW:{instruction}\n\n{ctx.implementation}")
-    return {"mode": "llm", "raw_response": raw}
+    prompt = _build_llm_review_prompt(ctx)
+    raw = engine_call(prompt)
+    return {"mode": "llm", "raw_response": raw, "prompt_char_count": len(prompt)}
 
 
 def review_validator(ctx: ValidationContext, config: ReviewConfig) -> ValidatorResult:

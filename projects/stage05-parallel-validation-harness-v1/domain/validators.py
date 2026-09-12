@@ -26,6 +26,7 @@ class ValidationContext:
     original_source_snapshot: str  # AST/Review가 쓰는 읽기 전용 원본(Test Workspace와는 별개 자원, RFC-0039 §5)
     scope_candidates: Sequence[str]
     original_import_lines: frozenset[str]  # Dependency Context — Implementation 이전 시점에 이미 확정된 값
+    design_context: str = ""  # Stage 03 Design — Review Input 경계(RFC-0039 §9)의 일부, 다른 4개 결정적 Validator는 사용하지 않음
 
 
 def _timed(fn):

@@ -415,3 +415,87 @@ def test_deselect_args_target_exactly_the_three_known_slow_tests():
     assert any("test_github_adapter_real.py" in d for d in deselected)
     assert any("test_chatgpt_engine.py::test_timeout_raises_runtime_error" in d for d in deselected)
     assert any("test_omniroute_engine.py::test_timeout_raises_runtime_error" in d for d in deselected)
+
+
+# ---- 9. Review LLM Input Boundary(실제 네트워크 호출 없이 프롬프트 구조만 검증) ----
+
+
+def test_llm_review_prompt_contains_only_the_allowed_input_boundary():
+    """Review Input = Stage 03 Design / Stage 04 Implementation / Contract /
+    Scope Context / Immutable Source Snapshot — 이 5가지만 포함해야 한다."""
+    from domain.review import _build_llm_review_prompt
+
+    ctx = _make_ctx()
+    ctx.design_context = "Design: add input validation to target_fn."
+    prompt = _build_llm_review_prompt(ctx)
+
+    assert "STAGE 03 DESIGN" in prompt
+    assert ctx.design_context in prompt
+    assert "CONTRACT" in prompt
+    assert "SCOPE CONTEXT" in prompt
+    assert ctx.scope_candidates[0] in prompt
+    assert "IMMUTABLE SOURCE SNAPSHOT" in prompt
+    assert ctx.original_source_snapshot in prompt
+    assert "STAGE 04 IMPLEMENTATION" in prompt
+    assert ctx.implementation in prompt
+
+
+def test_llm_review_prompt_never_contains_other_validator_result_fields():
+    """Structure/Scope/AST/Dependency/Test의 ValidatorResult는 함수 시그니처
+    자체에 존재하지 않으므로(= ctx만 받음) 프롬프트에 들어갈 수 없다 — 이를
+    문자열 검사로도 재확인한다(결과 관련 필드 이름이 우연히도 섞여 들어가지
+    않았는지)."""
+    from domain.review import _build_llm_review_prompt
+
+    ctx = _make_ctx()
+    prompt = _build_llm_review_prompt(ctx)
+    forbidden_markers = ("validator_id", "blocking", "verdict", "PASS", "FAIL", "ERROR", "SKIPPED")
+    for marker in forbidden_markers:
+        assert marker not in prompt, f"Review 프롬프트에 다른 Validator의 결과 관련 문구가 섞여 있다: {marker!r}"
+
+
+def test_llm_review_prompt_builder_signature_only_accepts_context():
+    import inspect
+
+    from domain.review import _build_llm_review_prompt
+
+    assert list(inspect.signature(_build_llm_review_prompt).parameters) == ["ctx"]
+
+
+def test_openrouter_adapter_wraps_connection_failure_as_single_exception_type():
+    """실제 네트워크를 쓰지 않고, 연결 자체가 불가능한 상황(존재하지 않는
+    프록시 설정)에서 단일 예외 타입(`OpenRouterCallError`)만 노출되는지
+    확인한다 — 기존 Engine Adapter Contract(단일 예외)와 동일 패턴."""
+    import urllib.error
+
+    from domain.openrouter_experimental_adapter import OpenRouterCallError, make_openrouter_engine_call
+
+    def _broken_opener(*args, **kwargs):
+        raise urllib.error.URLError("simulated connection failure")
+
+    original_build_opener = __import__("urllib.request", fromlist=["build_opener"]).build_opener
+    import urllib.request as urllib_request_module
+
+    urllib_request_module.build_opener = _broken_opener
+    try:
+        call = make_openrouter_engine_call("some/model:free", timeout=1)
+        with pytest.raises(OpenRouterCallError):
+            call("test prompt")
+    finally:
+        urllib_request_module.build_opener = original_build_opener
+
+
+def test_review_llm_result_never_participates_in_deterministic_verdict_even_when_error():
+    """Review LLM 호출이 완전히 실패(ERROR)해도 Aggregator의 blocking
+    집계에는 전혀 반영되지 않는다 — Test 등 5개가 전부 PASS면 Verdict는
+    PASS로 유지돼야 한다."""
+    results = [
+        ValidatorResult("structure", "PASS", 1.0),
+        ValidatorResult("scope", "PASS", 1.0),
+        ValidatorResult("ast", "PASS", 1.0),
+        ValidatorResult("dependency", "PASS", 1.0),
+        ValidatorResult("test", "PASS", 1.0),
+        ValidatorResult("review", "ERROR", 1.0, {"mode": "llm"}, error="OpenRouter call failed"),
+    ]
+    agg = aggregate(results)
+    assert agg.verdict == "PASS"
