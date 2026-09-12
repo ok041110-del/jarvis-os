@@ -8,7 +8,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from trader import TraderOutputError, parse_decision, split_report_decision  # noqa: E402
+from checkpoint import Checkpointer  # noqa: E402
+from trader import (  # noqa: E402
+    TraderOutputError,
+    parse_decision,
+    run_trader_decision,
+    split_report_decision,
+)
 
 # 실제 Engine 산출물(aapl_trader_expanded.md)에서 그대로 가져온 형태.
 REAL_TRADER_OUTPUT = """## REPORT
@@ -79,3 +85,70 @@ def test_parse_decision_partial_fields():
     assert parsed["rationale"] == "balanced evidence on both sides."
     assert parsed["reassessment_trigger"] is None
     assert parsed["warnings"] == ["reassessment_trigger missing"]
+
+
+def test_parse_decision_ambiguous_direction_is_deterministic():
+    """Direction 텍스트에 방향 단어가 둘 이상 섞여도(모호한 Engine 응답)
+    `_VALID_ACTIONS` 우선순위(BUY > SELL > HOLD)로 항상 동일한 값을 고른다
+    — set 순회였을 때는 프로세스 문자열 해시 랜덤화에 따라 달라질 수 있었다."""
+    text = "- Direction: BUY leaning SELL or HOLD\n- Rationale: r.\n- Reassess when: q."
+    for _ in range(20):
+        assert parse_decision(text)["action"] == "BUY"
+
+
+def test_run_trader_decision_saves_only_after_validation(tmp_path):
+    """형식이 올바른 출력은 검증 후 정상 저장된다."""
+    cp = Checkpointer(tmp_path)
+
+    def fn(bull_case, bear_case):
+        return REAL_TRADER_OUTPUT
+
+    result = run_trader_decision(cp, fn, "bull", "bear")
+
+    assert result == REAL_TRADER_OUTPUT
+    assert cp.has("trader_decision") is True
+
+
+def test_run_trader_decision_malformed_output_is_not_checkpointed(tmp_path):
+    """REPORT/DECISION 헤더가 없는 malformed 출력은 checkpoint 저장 전에
+    `TraderOutputError`가 발생해야 한다 — 저장 후에 발생하면 다음 실행에서
+    같은 malformed 텍스트를 그대로 다시 읽어 영구적으로 동일하게 실패한다."""
+    cp = Checkpointer(tmp_path)
+
+    def fn(bull_case, bear_case):
+        return "no headers here at all"
+
+    with pytest.raises(TraderOutputError):
+        run_trader_decision(cp, fn, "bull", "bear")
+
+    assert cp.has("trader_decision") is False
+    assert not (tmp_path / "checkpoints" / "trader_decision.md").exists()
+
+
+def test_run_trader_decision_retries_after_malformed_output(tmp_path):
+    """malformed 출력 이후 재실행하면(같은 issue_dir에서 새 Checkpointer로
+    재개) `trader_decision_fn`이 다시 호출돼 정상 출력으로 회복된다 —
+    이 회복이 새 재시도 로직이 아니라 checkpoint의 기존 Resume 동작만으로
+    성립한다는 것을 확인한다."""
+    cp = Checkpointer(tmp_path)
+    calls = {"n": 0}
+
+    def failing_fn(bull_case, bear_case):
+        calls["n"] += 1
+        return "no headers here at all"
+
+    with pytest.raises(TraderOutputError):
+        run_trader_decision(cp, failing_fn, "bull", "bear")
+    assert calls["n"] == 1
+
+    cp2 = Checkpointer(tmp_path)
+
+    def recovered_fn(bull_case, bear_case):
+        calls["n"] += 1
+        return REAL_TRADER_OUTPUT
+
+    result = run_trader_decision(cp2, recovered_fn, "bull", "bear")
+
+    assert result == REAL_TRADER_OUTPUT
+    assert calls["n"] == 2
+    assert cp2.has("trader_decision") is True
