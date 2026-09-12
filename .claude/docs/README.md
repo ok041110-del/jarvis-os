@@ -13,6 +13,7 @@
 | [`integrations/omniroute.md`](integrations/omniroute.md) | OmniRoute 설치·연결 검증 |
 | [`integrations/tooling-finalization-review-2026-09.md`](integrations/tooling-finalization-review-2026-09.md) | Claude-Mem/Token Optimizer/Context Handoff 최종 채택 판정 |
 | [`integrations/token-optimizer-hold-resolution-2026-09.md`](integrations/token-optimizer-hold-resolution-2026-09.md) | Token Optimizer HOLD Resolution PoC — assist 기본 모드 재검증 |
+| [`integrations/llm-wiki-candidate-001-resolution-poc.md`](integrations/llm-wiki-candidate-001-resolution-poc.md) | LLM Wiki Candidate #1 (nvk) P0 redaction / P1 promote lint Resolution PoC |
 | [`integrations/llm-wiki-candidate-002-poc.md`](integrations/llm-wiki-candidate-002-poc.md) | LLM Wiki 후보 #2 (`Pratiyush/llm-wiki`) 독립 PoC — 판정 CONDITIONAL PASS (Production Adoption 아님) |
 | [`integrations/llm-wiki-candidate-002-resolution-poc.md`](integrations/llm-wiki-candidate-002-resolution-poc.md) | LLM Wiki 후보 #2 P0/P1 Open Issue Resolution PoC — blocker 해소 가능 실증, 판정 CONDITIONAL PASS 유지 |
 | [`integrations/llm-wiki-candidate-002-live-validation.md`](integrations/llm-wiki-candidate-002-live-validation.md) | LLM Wiki 후보 #2 Live Validation (로그인 Claude Code) — 판정 CONDITIONAL PASS 유지, Adoption 상향 조건 미충족 |
