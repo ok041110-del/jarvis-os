@@ -1,67 +1,45 @@
-"""Stage 02: Planning & Specification 실행 진입점(ADR-0008 §4) — Stage 01
-Output을 Input으로 받고, 기존 Requirement Analysis Capability를 재사용한다(CAPABILITIES.md)."""
+"""Stage 02: Planning & Specification 실행 진입점(ADR-0008 §4, ADR-0023).
+
+Stage 01이 생성한 PRD(`skeleton`/`specification`)는 그대로 통과시키고
+(ADR-0022 유지, 재생성하지 않음), Task & Dependency Agent(LLM 1회) +
+Deterministic Layer(Schema/Graph Validation, Cycle Detection, Topological
+Ordering, Plan Assembly)로 `tasks`/`dependencies`/`plan`을 새로 산출한다
+(RFC-0035/ADC-0038/ADR-0023)."""
 
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from mvp.agents import requirements_agent_requirement_analysis
-from mvp.workflow import _engine_failure_message
-
-_SPECIFICATION_INSTRUCTION = (
-    "아래는 이 작업의 Specification 골격입니다(Problem Definition/"
-    "Constraints/Risks/Implementation Scope Candidates). 이 골격의 "
-    "내용을 반영하면서, Task Decomposition(구현 단계를 나눈 목록)과 "
-    "Acceptance Criteria(완료 판단 기준 목록)를 추가로 포함해 "
-    "Specification을 작성해 주십시오."
-)
-
-
-def _structure_from_context(issue: dict, stage_01_context: dict) -> dict:
-    """Stage 01 Context에서 결정적으로(Engine 미호출) Specification 골격을
-    재배치한다(새 탐색/분석 없음)."""
-    context_bundle = stage_01_context["context_bundle"]
-    return {
-        "problem_definition": f"{issue['title']}: {issue['description']}",
-        "constraints": context_bundle["known_constraints"],
-        "risks": context_bundle["open_questions"],
-        "scope_candidates": context_bundle["relevant_code"],
-    }
-
-
-def _skeleton_to_text(skeleton: dict) -> str:
-    lines = [
-        f"[Problem Definition]\n{skeleton['problem_definition']}",
-        f"[Constraints]\n{', '.join(skeleton['constraints']) or '(없음)'}",
-        f"[Risks]\n{', '.join(skeleton['risks']) or '(없음)'}",
-        f"[Implementation Scope Candidates]\n{', '.join(skeleton['scope_candidates']) or '(없음)'}",
-    ]
-    return "\n\n".join(lines)
-
-
-def _enrich_issue_with_skeleton(issue: dict, skeleton_text: str) -> dict:
-    enriched_issue = dict(issue)
-    enriched_issue["description"] = (
-        f"{issue['description']}\n\n[Specification Skeleton]\n"
-        f"{_SPECIFICATION_INSTRUCTION}\n\n{skeleton_text}"
-    )
-    return enriched_issue
+import planning_pipeline  # noqa: E402
+import task_dependency_agent  # noqa: E402
 
 
 def run_stage_02(issue: dict, stage_01_context: dict) -> dict:
-    """Skeleton 추출 -> Requirement Analysis Capability 재사용 -> Specification.
-    Engine 실패 시에도 `specification`은 오류 포맷으로 채워진다(SPECIFICATION.md)."""
-    skeleton = _structure_from_context(issue, stage_01_context)
-    skeleton_text = _skeleton_to_text(skeleton)
-    enriched_issue = _enrich_issue_with_skeleton(issue, skeleton_text)
+    """`skeleton`/`specification`은 Stage 01의 `prd`를 그대로 전달받는다
+    (재생성 없음, ADR-0022). Task & Dependency Agent 호출 또는 Deterministic
+    Layer 검증이 실패해도 `skeleton`/`specification`은 영향받지 않고,
+    `tasks`/`dependencies`/`plan`만 안전한 빈 값으로 채워 Contract의 5-key를
+    항상 만족시킨다."""
+    prd = stage_01_context["prd"]
+    skeleton = prd["skeleton"]
+    specification = prd["specification"]
 
     try:
-        specification = requirements_agent_requirement_analysis(enriched_issue)
-    except Exception as exc:
-        specification = _engine_failure_message(exc)
+        agent_output = task_dependency_agent.decompose_tasks_and_dependencies(specification)
+        planning_result = planning_pipeline.run_planning_pipeline(agent_output)
+        tasks = planning_result["tasks"]
+        dependencies = planning_result["dependencies"]
+        plan = planning_result["plan"]
+    except Exception:
+        tasks = []
+        dependencies = []
+        plan = {"execution_order": []}
 
     return {
         "skeleton": skeleton,
         "specification": specification,
+        "tasks": tasks,
+        "dependencies": dependencies,
+        "plan": plan,
     }
