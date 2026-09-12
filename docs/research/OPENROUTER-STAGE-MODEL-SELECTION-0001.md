@@ -2,6 +2,12 @@
 
 ## Summary
 
+- **[Session 3 갱신] Stage 01 대체 후보(`nvidia/nemotron-3-super-120b-a12b:free`)
+  검증 결과(§9) — 3/3 반복 성공(100%), Contract 3/3 PASS, upstream
+  오류 0건. `google/gemma-4-31b-it:free`(§8.1, 성공률 33%)와 비교해
+  가용성이 압도적으로 우수해 **Stage 01 최종 Production 후보로
+  `nvidia/nemotron-3-super-120b-a12b:free`를 선정**한다(§9.5). 상세는
+  §9 참조.**
 - **[Session 2 갱신] 반복 재현성 Validation 결과(§8) — Stage 02/03/04는
   3/3 반복 성공 + 매번 동일한 Contract/Validation PASS로 재현성 확인
   (PASS). Stage 01(`google/gemma-4-31b-it:free`)은 응답 품질 자체는
@@ -410,3 +416,148 @@ Stage 01에 한해 ① 같은 모델을 유지하되 재시도/대체 provider �
   제한된다.
 - §7(Architecture/Governance 경계, ADR-0024와의 충돌·RFC 필요성)의
   결론은 이 §8로 번복되지 않는다.
+
+---
+
+## 9. Session 3 — Stage 01 대체 후보 검증 및 최종 선정(`nvidia/nemotron-3-super-120b-a12b:free`)
+
+**목적**: §8.1이 확인한 `google/gemma-4-31b-it:free`의 낮은 가용성
+(2/6 = 33%)을 근거로, Session 1 §5의 Stage 01 2순위 후보
+`nvidia/nemotron-3-super-120b-a12b:free`를 **동일 prompt/입력/Contract**로
+3회 반복 검증해 Stage 01 Production 후보를 최종 선정한다.
+
+**방법**: §1~§8과 완전히 동일한 `stage01_prompt.txt`(Requirement Agent
+실제 instruction, issue: "Add input validation to code review agent")와
+production 검증 함수(`reasoning.py::parse_structured_output`,
+`REQUIREMENT_REQUIRED_KEYS`)를 그대로 재사용했다 — 새 입력이나 새 검증
+로직을 만들지 않았다.
+
+### 9.1 3회 시도 결과
+
+| 시도 | 결과 | HTTP | latency | Contract | FR/NFR 개수 | confidence | upstream 오류 |
+|---|---|---|---|---|---|---|---|
+| 1 | 성공 | 200 | 28.73s | PASS(필수 키 5개 전부) | FR 4 / NFR 4 | 0.92 | 없음 |
+| 2 | 성공 | 200 | 10.08s | PASS(필수 키 5개 전부) | FR 4 / NFR 5 | 0.92 | 없음 |
+| 3 | 성공 | 200 | 7.69s | PASS(필수 키 5개 전부) | FR 5 / NFR 5 | 0.92 | 없음 |
+
+3회 모두 **1차 시도로 즉시 성공**했다 — 재시도가 필요했던 경우가 한
+번도 없었고, 429/502 등 upstream capacity 오류도 전혀 관찰되지
+않았다(§9.4에서 Gemma의 반복적 429와 명시적으로 대조).
+
+### 9.2 성공률
+
+**3/3 = 100%**(3회 호출, 3회 전부 응답 성공). §8.1의
+`google/gemma-4-31b-it:free` 2/6 = 33%(같은 5분 내외 시간대, 동일 재시도
+전략)와 직접 대조된다.
+
+### 9.3 평균/범위 latency
+
+- 평균: **15.50s**((28.73+10.08+7.69)/3)
+- 범위: **7.69s ~ 28.73s**
+- 1차 시도가 가장 느리고(28.73s) 이후 점점 빨라지는 경향(10.08s →
+  7.69s)이 관찰됐다 — Session 1의 단일 관측치(18.72s)도 이 범위 안에
+  있다. Gemma(평균 6.00s, 범위 5.82~6.19s)보다 **평균 약 2.6배 느리고
+  변동폭도 크다** — 순수 latency만 보면 Gemma가 우수하다.
+
+### 9.4 품질/Contract 결과
+
+- 3회 전부 `reasoning.py::parse_structured_output`(재구현 없이 실제
+  production 함수 그대로 사용) 검증을 통과했고, 필수 키
+  (`functional_requirements`/`non_functional_requirements`/
+  `constraints`/`scope_candidates`/`confidence`) 5개가 매번 전부
+  존재했다 — **Contract 준수율 3/3 = 100%**.
+- `confidence`가 3회 모두 정확히 `0.92`로 동일 — 응답의 안정성을
+  보여주는 부가 신호.
+- 내용 품질은 Session 1 §3.1 관찰과 일치 — functional/non-functional
+  requirement를 상세히 도출하지만, "latency ≤10ms", "localization",
+  "high test coverage" 등 원 issue 설명에 명시되지 않은 항목까지
+  추가로 만들어내는 **확장 경향(과확장 소지)** 이 3회 모두
+  재확인됐다. 이는 Contract 위반은 아니며(요구된 키 구조를 준수하는
+  한 내용의 상세도는 Agent 자유도 범위), 오히려 Requirement Agent가
+  더 폭넓게 위험/비기능 요구를 짚어내는 것으로 볼 수도 있다 — 이
+  문서는 "장점"과 "단점" 어느 한쪽으로 단정하지 않고 있는 그대로
+  기록한다(§9.6 표에도 반영).
+
+### 9.5 upstream 오류 여부
+
+**없음.** 3회 전부 HTTP 200으로 즉시 응답했고, `429`(rate limit)나
+`502`(provider capacity) 등 upstream 오류가 한 번도 발생하지 않았다.
+이는 §8.1에서 Google AI Studio가 같은 세션 시간대에 반복적으로 429를
+반환한 것과 명확히 대조된다 — Nvidia 계열 provider(이 모델의 upstream)
+가 이번 검증 시간대에는 더 넉넉한 여유 capacity를 갖고 있었던 것으로
+판단한다(다른 시간대에도 동일한지는 이 문서가 보장하지 않는다, §9.7).
+
+### 9.6 Gemma 4 31B 대비 비교
+
+| 기준 | `google/gemma-4-31b-it:free`(§8.1) | `nvidia/nemotron-3-super-120b-a12b:free`(§9.1~9.5) |
+|---|---|---|
+| 성공률(응답 성공/시도) | 2/6 = 33% | **3/3 = 100%** |
+| 평균 latency(성공 호출만) | **6.00s**(빠름) | 15.50s(약 2.6배 느림) |
+| latency 범위 | 5.82~6.19s(안정적) | 7.69~28.73s(변동폭 큼) |
+| Contract 준수(성공 호출 중) | 2/2 = 100% | 3/3 = 100% |
+| upstream 오류 | 429 4회(같은 시간대 반복, 최대 3분 대기에도 지속) | 0회 |
+| 무료 사용 여부 | `cost:0`/`is_byok:false`(성공 2건 확인) | `cost:0`/`is_byok:false`(3건 전부 확인) |
+| 응답 내용 특성 | 간결, 요구된 범위에 근접 | 더 상세하나 과확장 소지(§9.4) |
+
+**핵심 Trade-off**: Gemma는 "성공하면" 더 빠르고 간결하지만 **3번 중 2번은
+아예 응답을 받지 못했다**. Nemotron Super는 매번 응답은 받지만 느리고
+변동폭이 크다. Stage 01은 Stage 02~05로 이어지는 파이프라인의 첫
+단계이므로, **호출 자체가 실패하면 이후 Stage 전체가 진행되지 못한다**
+— 이 파이프라인 특성상 "빠르지만 3번에 2번 막히는 모델"보다 "느리지만
+매번 응답하는 모델"이 구조적으로 더 안전하다.
+
+### 9.7 Stage 01 최종 추천
+
+**`nvidia/nemotron-3-super-120b-a12b:free`를 Stage 01 Production 후보로
+최종 추천한다.** 근거:
+
+1. 이번 3회 전부 100% 성공, upstream 오류 0건 — §9.1~9.5의 직접 Evidence.
+2. Session 1(§3.1, 1회 성공)까지 합산하면 이 모델은 **이 대화 전체에서
+   4/4 = 100% 성공**, upstream 오류 관측 0건이다.
+3. Gemma는 이 대화 전체에서 **3/7 ≈ 43% 성공**(Session 1 1/1, Session 2
+   §8.1 2/6)이며, 실패 원인이 매번 동일(`upstream_provider_shared_pool`)
+   해 **일회성이 아니라 반복되는 패턴**으로 판단된다(§8.7에서 이미
+   지적).
+4. Contract 준수는 두 모델 모두 응답이 성공했을 때는 100%로 동일 —
+   즉 품질 차이가 아니라 **가용성 차이**가 결정적 구분 기준이다.
+
+**NOT DETERMINED로 판단하지 않는 이유**: Nemotron Super는 3/3 100%
+성공 + upstream 오류 0건이라는 충분한 Evidence를 확보했다 — 가용성이
+불충분한 쪽은 오히려 Gemma다. 두 모델을 직접 비교할 근거가 이미
+확보되어 있으므로 "판단 불가" 상태가 아니다.
+
+**남기는 한계**: 이번 검증도 특정 시간대(이 세션의 실행 시점) 1회
+관측이며, §8.1의 Gemma 실패도 같은 시간대 관측이다 — 두 모델의
+가용성이 항상 이 비율로 유지된다고 일반화하지 않는다. 다만 Gemma는
+Session 1과 Session 2 두 개의 서로 다른 시점에서 모두 실패 패턴이
+나타났고, Nemotron Super는 Session 1과 Session 3 두 시점 모두
+100% 성공했다는 점에서 **단일 관측보다는 근거가 두텁다**.
+
+### 9.8 Production 전환 여부
+
+**Stage 01 모델 선정 자체는 이 문서로 확정하지만, 이것이 Stage 01의
+실제 Engine 호출부를 OpenRouter로 전환해도 된다는 뜻은 아니다.**
+`OPENROUTER-VALIDATION-0001.md` §7 및 이 문서 §7이 이미 정리한 대로:
+
+- `ADR-0024`의 2-Engine(ChatGPT/Claude Code) Stage Mapping과 Option
+  C(Central Router 배제) 결정은 이 검증으로 바뀌지 않는다.
+- OpenRouter를 Stage 01(또는 다른 Stage)의 실제 Engine 호출 경로로
+  쓰려면 여전히 RFC → ADC → ADR 절차가 필요하다.
+- 이 문서(§1~§9 전체)는 "OpenRouter 무료 모델 중 Stage 01에 가장 적합한
+  것은 무엇인가"라는 **후보 선정 질문에만** 답한다 — "Stage 01을
+  OpenRouter로 전환해도 되는가"라는 Governance 질문에는 답하지 않는다.
+
+**Production 코드/Architecture/Contract/Governance는 이번 검증에서도
+변경하지 않았다.** 변경 범위는 이 문서(기존 파일 수정, §9 추가) 1건으로
+제한된다 — `git status --short`/`git diff --stat` 확인 결과 코드 변경
+없음(이번 검증은 API 호출·응답 검증만 수행해 대상 코드 적용 자체가
+없었음).
+
+### 9.9 최종 Model Mapping (Session 3 반영)
+
+```
+Stage 01 → nvidia/nemotron-3-super-120b-a12b:free   (PASS, 3/3 성공, Gemma 대비 가용성 우수 — Session 2의 PARTIAL을 대체)
+Stage 02 → nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free   (§8, PASS)
+Stage 03 → nvidia/nemotron-3-ultra-550b-a55b:free   (§8, PASS, latency 변동성 큼)
+Stage 04 → nex-agi/nex-n2.5-mini:free   (§8, PASS, 가장 안정적)
+```
