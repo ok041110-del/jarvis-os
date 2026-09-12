@@ -82,14 +82,14 @@ def _first_doc_line(node) -> str:
     return doc.strip().splitlines()[0] if doc else ""
 
 
-def _candidate_entries(path: Path):
-    """`path` 하나의 함수/클래스 후보 목록을 추출한다(본문 없음). 파싱 불가 시
-    `None`(`build_function_candidate_index()`의 기존 `try/except continue`와
-    동일 의미, ADC-0006 additive extension — 평면/패키지 양쪽에서 재사용)."""
+def _candidate_entries_from_source(source: str, filename: str = "<source>"):
+    """`source` 문자열 하나의 함수/클래스 후보 목록을 추출한다(본문 없음).
+    파싱 불가 시 `None`. `_candidate_entries()`가 로컬 파일용으로 감싸는
+    핵심 로직 — Snapshot 기반(GitHub) 입력도 이 함수를 그대로 재사용한다
+    (Stage 01 Multi-Agent Code Analysis, RFC-0033 §9 최소 수정 원칙)."""
     try:
-        source = path.read_text(encoding="utf-8")
-        tree = ast.parse(source, filename=str(path))
-    except (OSError, SyntaxError):
+        tree = ast.parse(source, filename=filename)
+    except SyntaxError:
         return None
     entries = []
     for node in tree.body:
@@ -100,6 +100,17 @@ def _candidate_entries(path: Path):
             doc = _first_doc_line(node)
             entries.append(f"CLASS: {node.name}" + (f" -- {doc}" if doc else ""))
     return entries
+
+
+def _candidate_entries(path: Path):
+    """`path` 하나의 함수/클래스 후보 목록을 추출한다(본문 없음). 파일을 읽지
+    못하면(`OSError`) `None` — 기존 `build_function_candidate_index()`의
+    동작과 완전히 동일(ADC-0006 additive extension 유지)."""
+    try:
+        source = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    return _candidate_entries_from_source(source, filename=str(path))
 
 
 def build_function_candidate_index() -> str:

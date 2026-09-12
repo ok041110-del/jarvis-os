@@ -2,30 +2,33 @@
 
 ## 요약
 
-Stage 01(Context Analysis)이 만든 Context와 원본 Issue를 입력으로 받아,
-Stage 03(Architecture & Design)이 바로 쓸 수 있는 **Specification**을
-생성한다. Problem Definition / Requirement Analysis / Task Decomposition /
-Constraints / Risk / Acceptance Criteria / Implementation Scope 7개
-관점을 하나의 Specification 텍스트에 구조화한다.
+Stage 01(Context Analysis)이 만든 PRD(`skeleton`/`specification`)를
+입력으로 받아, Task & Dependency Agent(Engine 1회 호출)로 Task를
+구조화하고 Task 간 Dependency를 판단한 뒤, Deterministic Layer로
+검증·정렬·조립해 Stage 03(Architecture & Design)이 바로 쓸 수 있는
+**Specification**(`SpecificationResult`, 5-key)을 만든다(RFC-0035/
+ADC-0038/ADR-0023).
 
-진입점: [`stage_02.py`](./stage_02.py)의 `run_stage_02()`. 신규
-Agent/Capability 없이 기존 `agents.requirements_agent_requirement_
-analysis()`(MVP-0004)를 재사용한다 — Problem Definition/Constraints/
-Risk/Implementation Scope는 Stage 01 Context에서 결정적으로 뽑고, 그
-골격을 Issue에 덧붙여 같은 Engine 호출 1회로 Task Decomposition/
-Acceptance Criteria까지 포함한 Specification을 만든다(근거:
-`CAPABILITIES.md`).
+진입점: [`stage_02.py`](./stage_02.py)의 `run_stage_02()`.
+`skeleton`/`specification`은 Stage 01의 `prd`를 재생성 없이 그대로
+전달하고(ADR-0022 유지), `tasks`/`dependencies`/`plan`은
+[`task_dependency_agent.py`](./task_dependency_agent.py)(Engine 1회
+호출) + [`planning_pipeline.py`](./planning_pipeline.py)(Schema
+Validation → Dependency Graph Validation → Cycle Detection →
+Topological Ordering → Implementation Plan Assembly, LLM 호출 없음)로
+새로 산출한다(근거: `CAPABILITIES.md`).
 
 ## 문서 구성
 
 - [`RESPONSIBILITY.md`](./RESPONSIBILITY.md) — 이 Stage가 책임지는 것과
   책임지지 않는 것
-- [`CAPABILITIES.md`](./CAPABILITIES.md) — 2개 Capability의
+- [`CAPABILITIES.md`](./CAPABILITIES.md) — 3개 Capability(PRD
+  Passthrough, Task & Dependency Agent, Deterministic Layer)의
   Input → Analysis → Output → Validation
 - [`SPECIFICATION.md`](./SPECIFICATION.md) — `run_stage_02()`이 반환하는
-  Specification 스키마와 7개 관점이 어디서 채워지는지
-- [`VALIDATION.md`](./VALIDATION.md) — 검증 방법(mock 기반 + real Engine
-  E2E 1건)과 현재 커버리지
+  `SpecificationResult`(5-key) 스키마와 7개 관점이 어디서 채워지는지
+- [`VALIDATION.md`](./VALIDATION.md) — 검증 방법(단위 테스트 + mock 기반
+  통합 테스트)과 현재 커버리지
 
 ## 근거 문서
 

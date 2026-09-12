@@ -27,8 +27,15 @@ STAGE_01_OUTPUT = {
     "candidate_index": "INDEX",
     "target": None,
     "dependency_closure": None,
+    "prd": {"skeleton": {}, "specification": "SPEC"},
 }
-STAGE_02_OUTPUT = {"skeleton": {}, "specification": "SPEC"}
+STAGE_02_OUTPUT = {
+    "skeleton": {},
+    "specification": "SPEC",
+    "tasks": [],
+    "dependencies": [],
+    "plan": {"execution_order": []},
+}
 STAGE_03_OUTPUT = {"skeleton": {}, "design": "DESIGN"}
 STAGE_04_OUTPUT = {"target": None, "implementation": "CODE", "expose_target": False}
 STAGE_05_OUTPUT = {
@@ -61,7 +68,7 @@ def _stub_happy_path(monkeypatch):
         calls.append(("stage_05", stage_02_output, stage_04_output))
         return dict(STAGE_05_OUTPUT)
 
-    monkeypatch.setattr(workflow.stage_01, "run_stage_01", fake_stage_01)
+    monkeypatch.setattr(workflow.context_team, "run_context_team", fake_stage_01)
     monkeypatch.setattr(workflow.stage_02, "run_stage_02", fake_stage_02)
     monkeypatch.setattr(workflow.stage_03, "run_stage_03", fake_stage_03)
     monkeypatch.setattr(workflow.stage_04, "run_stage_04", fake_stage_04)
@@ -137,7 +144,7 @@ def test_stage_output_missing_required_key_fails_explicitly_not_silently(monkeyp
     incomplete_stage_01_output = dict(STAGE_01_OUTPUT)
     del incomplete_stage_01_output["candidate_index"]
 
-    monkeypatch.setattr(workflow.stage_01, "run_stage_01", lambda issue: incomplete_stage_01_output)
+    monkeypatch.setattr(workflow.context_team, "run_context_team", lambda issue: incomplete_stage_01_output)
     monkeypatch.setattr(workflow.stage_02, "run_stage_02", _fail_if_called("stage_02"))
     monkeypatch.setattr(workflow.stage_03, "run_stage_03", _fail_if_called("stage_03"))
     monkeypatch.setattr(workflow.stage_04, "run_stage_04", _fail_if_called("stage_04"))
@@ -160,7 +167,7 @@ def _fail_if_called(name):
 
 
 def test_stage_01_failure_stops_before_any_later_stage(monkeypatch):
-    monkeypatch.setattr(workflow.stage_01, "run_stage_01", lambda issue: (_ for _ in ()).throw(RuntimeError("boom")))
+    monkeypatch.setattr(workflow.context_team, "run_context_team", lambda issue: (_ for _ in ()).throw(RuntimeError("boom")))
     monkeypatch.setattr(workflow.stage_02, "run_stage_02", _fail_if_called("stage_02"))
     monkeypatch.setattr(workflow.stage_03, "run_stage_03", _fail_if_called("stage_03"))
     monkeypatch.setattr(workflow.stage_04, "run_stage_04", _fail_if_called("stage_04"))
@@ -175,7 +182,7 @@ def test_stage_01_failure_stops_before_any_later_stage(monkeypatch):
 
 
 def test_stage_03_failure_stops_before_stage_04_and_05(monkeypatch):
-    monkeypatch.setattr(workflow.stage_01, "run_stage_01", lambda issue: dict(STAGE_01_OUTPUT))
+    monkeypatch.setattr(workflow.context_team, "run_context_team", lambda issue: dict(STAGE_01_OUTPUT))
     monkeypatch.setattr(workflow.stage_02, "run_stage_02", lambda issue, s1: dict(STAGE_02_OUTPUT))
     monkeypatch.setattr(
         workflow.stage_03,

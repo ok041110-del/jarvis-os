@@ -1,25 +1,46 @@
-"""Stage 02(Planning & Specification) `run_stage_02()` 검증 (ADR-0008,
-`stages/02_planning_specification/VALIDATION.md`).
+"""Stage 02(Planning & Specification) `run_stage_02()` 검증(ADR-0008,
+RFC-0035/ADC-0038/ADR-0023, `stages/02_planning_specification/VALIDATION.md`).
 
-`requirements_agent_requirement_analysis`는 재구현하지 않았으므로 여기서는
-(a) Skeleton 추출이 Stage 01 Context를 정확히 반영하는지, (b) Skeleton이
-반영된 Issue가 실제로 Engine에 전달되는지, (c) 기존 오류 포맷 유지 여부만
-mock으로 검증한다.
-"""
+Stage 01의 PRD(`skeleton`/`specification`)는 재생성 없이 그대로 전달되고
+(ADR-0022 유지), Task & Dependency Agent(mock) + Deterministic Layer가
+`tasks`/`dependencies`/`plan`을 새로 산출하는지 확인한다. PRD Synthesis
+자체의 검증은 `test_stage01_prd_synthesis.py` 참조."""
 
 import importlib.util
 import sys
 from pathlib import Path
 
-_STAGE_02_PATH = (
-    Path(__file__).resolve().parents[2] / "stages" / "02_planning_specification" / "stage_02.py"
+_STAGE_DIR = Path(__file__).resolve().parents[2] / "stages"
+
+
+def _load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+reasoning = _load("reasoning", _STAGE_DIR / "01_context_analysis" / "reasoning.py")
+task_dependency_agent = _load(
+    "task_dependency_agent", _STAGE_DIR / "02_planning_specification" / "task_dependency_agent.py"
 )
-_spec = importlib.util.spec_from_file_location("stage_02", _STAGE_02_PATH)
-stage_02 = importlib.util.module_from_spec(_spec)
-sys.modules["stage_02"] = stage_02
-_spec.loader.exec_module(stage_02)
+planning_pipeline = _load(
+    "planning_pipeline", _STAGE_DIR / "02_planning_specification" / "planning_pipeline.py"
+)
+stage_02 = _load("stage_02", _STAGE_DIR / "02_planning_specification" / "stage_02.py")
 
 SAMPLE_ISSUE = {"title": "Sample Issue", "description": "Do the thing.", "status": "Open"}
+
+SAMPLE_PRD = {
+    "skeleton": {
+        "problem_definition": "Sample Issue: Do the thing.",
+        "constraints": ["docs/governance/rt/RT-0001.md"],
+        "risks": ["docs/governance/rt/RT-0001.md: 미해결 항목"],
+        "scope_candidates": ["hqs/development/mvp/agents.py"],
+    },
+    "specification": "SPECIFICATION TEXT",
+}
 
 SAMPLE_STAGE_01_CONTEXT = {
     "directory_structure": ["hqs/development/mvp/"],
@@ -36,80 +57,84 @@ SAMPLE_STAGE_01_CONTEXT = {
     "candidate_index": "FILE: hqs/development/mvp/agents.py\nFUNCTION: ...",
     "target": None,
     "dependency_closure": None,
-}
-
-EMPTY_CONTEXT_BUNDLE = {
-    "issue": SAMPLE_ISSUE,
-    "goal": "Sample Issue",
-    "relevant_documents": [],
-    "relevant_code": [],
-    "relevant_observations": [],
-    "relevant_decisions": [],
-    "known_constraints": [],
-    "open_questions": [],
+    "prd": SAMPLE_PRD,
 }
 
 
-# --- Skeleton 추출(Capability 1) --------------------------------------------
-
-
-def test_skeleton_reflects_stage_01_context():
-    skeleton = stage_02._structure_from_context(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
-
-    assert skeleton["problem_definition"] == "Sample Issue: Do the thing."
-    assert skeleton["constraints"] == ["docs/governance/rt/RT-0001.md"]
-    assert skeleton["risks"] == ["docs/governance/rt/RT-0001.md: 미해결 항목"]
-    assert skeleton["scope_candidates"] == ["hqs/development/mvp/agents.py"]
-
-
-def test_skeleton_handles_empty_context_bundle():
-    empty_stage_01_context = {**SAMPLE_STAGE_01_CONTEXT, "context_bundle": EMPTY_CONTEXT_BUNDLE}
-
-    skeleton = stage_02._structure_from_context(SAMPLE_ISSUE, empty_stage_01_context)
-
-    assert skeleton["constraints"] == []
-    assert skeleton["risks"] == []
-    assert skeleton["scope_candidates"] == []
-
-
-# --- run_stage_02(Capability 1 + 2 통합) ------------------------------------
-
-
-def test_run_stage_02_happy_path_returns_skeleton_and_specification(monkeypatch):
+def _mock_agent_output(monkeypatch, tasks=None, dependencies=None):
+    output = {"tasks": tasks if tasks is not None else [], "dependencies": dependencies if dependencies is not None else []}
     monkeypatch.setattr(
-        stage_02, "requirements_agent_requirement_analysis", lambda issue: "SPECIFICATION"
+        task_dependency_agent, "decompose_tasks_and_dependencies", lambda specification: output
     )
 
-    result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
 
-    assert result["specification"] == "SPECIFICATION"
-    assert result["skeleton"]["constraints"] == ["docs/governance/rt/RT-0001.md"]
-
-
-def test_engine_receives_issue_enriched_with_skeleton(monkeypatch):
-    seen = {}
-
-    def fake_requirement(issue):
-        seen["input"] = issue
-        return "SPECIFICATION"
-
-    monkeypatch.setattr(stage_02, "requirements_agent_requirement_analysis", fake_requirement)
-
-    stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
-
-    description = seen["input"]["description"]
-    assert "[Specification Skeleton]" in description
-    assert "docs/governance/rt/RT-0001.md" in description
-    assert "hqs/development/mvp/agents.py" in description
-
-
-def test_engine_failure_preserves_skeleton_and_fills_error_string(monkeypatch):
-    def raising_requirement(issue):
-        raise RuntimeError("boom")
-
-    monkeypatch.setattr(stage_02, "requirements_agent_requirement_analysis", raising_requirement)
+def test_run_stage_02_passes_through_stage_01_prd_unchanged(monkeypatch):
+    _mock_agent_output(monkeypatch)
 
     result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
 
-    assert result["specification"] == "Engine call failed: boom"
-    assert result["skeleton"]["constraints"] == ["docs/governance/rt/RT-0001.md"]
+    assert result["skeleton"] == SAMPLE_PRD["skeleton"]
+    assert result["specification"] == SAMPLE_PRD["specification"]
+
+
+def test_run_stage_02_does_not_mutate_input_prd(monkeypatch):
+    _mock_agent_output(monkeypatch)
+    original = dict(SAMPLE_PRD)
+
+    result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
+    result["specification"] = "MUTATED"
+
+    assert SAMPLE_STAGE_01_CONTEXT["prd"] == original
+
+
+def test_run_stage_02_output_matches_specification_result_contract_shape(monkeypatch):
+    _mock_agent_output(monkeypatch)
+
+    result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
+
+    assert set(result.keys()) == {"skeleton", "specification", "tasks", "dependencies", "plan"}
+    assert set(result["skeleton"].keys()) == {
+        "problem_definition", "constraints", "risks", "scope_candidates",
+    }
+
+
+def test_run_stage_02_runs_deterministic_layer_on_agent_output(monkeypatch):
+    tasks = [
+        {"id": "a", "title": "A", "description": "do a"},
+        {"id": "b", "title": "B", "description": "do b"},
+    ]
+    dependencies = [{"task": "b", "depends_on": "a"}]
+    _mock_agent_output(monkeypatch, tasks=tasks, dependencies=dependencies)
+
+    result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
+
+    assert result["tasks"] == tasks
+    assert result["dependencies"] == dependencies
+    assert result["plan"] == {"execution_order": ["a", "b"]}
+
+
+def test_run_stage_02_falls_back_to_empty_planning_on_agent_failure(monkeypatch):
+    def _raise(specification):
+        raise task_dependency_agent.AgentOutputError("boom")
+
+    monkeypatch.setattr(task_dependency_agent, "decompose_tasks_and_dependencies", _raise)
+
+    result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
+
+    assert result["skeleton"] == SAMPLE_PRD["skeleton"]
+    assert result["specification"] == SAMPLE_PRD["specification"]
+    assert result["tasks"] == []
+    assert result["dependencies"] == []
+    assert result["plan"] == {"execution_order": []}
+
+
+def test_run_stage_02_falls_back_to_empty_planning_on_cycle(monkeypatch):
+    tasks = [{"id": "a", "title": "A", "description": "do a"}, {"id": "b", "title": "B", "description": "do b"}]
+    dependencies = [{"task": "a", "depends_on": "b"}, {"task": "b", "depends_on": "a"}]
+    _mock_agent_output(monkeypatch, tasks=tasks, dependencies=dependencies)
+
+    result = stage_02.run_stage_02(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT)
+
+    assert result["tasks"] == []
+    assert result["dependencies"] == []
+    assert result["plan"] == {"execution_order": []}
