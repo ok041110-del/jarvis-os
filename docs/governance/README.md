@@ -91,10 +91,54 @@ ADR (Accept/Promote인 경우만)
 그대로이며, "RFC를 언제 여는가"의 판단 근거만 MVP 하나의 단일 관찰에서
 누적된 OBS 문서로 바뀐다.
 
+## Outcome-Oriented Governance Model (Governance v2와 별개 명칭)
+
+`RFC-0010` → `docs/governance/adc/ADC-0008.md` → `ADR-0010` 경로로
+채택된 원칙이며, 위의 "Governance v2"(Observation 계층)와는 다른
+별개의 서술이다.
+
+- RFC/ADC/ADR은 미래 구현을 통제하지 않고, 결정 시점의 Decision과
+  근거를 기록한다.
+- RFC는 모든 변경의 필수 관문이 아니다 — 다만 RFC가 정확히 어떤
+  범위에서 필요한지는 이 문서가 새로 정의하지 않으며, 저장소가
+  이미 정의한 범위(`docs/decisions/rfc/README.md`, `hqs/development/
+  IMPLEMENTATION_RULES.md`, 관련 ADR)를 그대로 따른다.
+- Governance 절차 강도는 변경의 위험/영향 범위에 따라 다르게
+  적용한다.
+- Freeze는 실제 불변(Invariant: Security/Data Integrity/Contract
+  호환성/되돌릴 수 없는 파괴적 동작/Compliance)에만 사용한다.
+- Deferred/Not Accepted는 영구 금지와 다르다 — 새 Evidence가 있으면
+  재평가될 수 있으나, 재평가는 해당 절차(RT Trigger, OBS 누적, 개별
+  RFC 재개설)를 통해서만 열린다.
+
+**적용 범위**: 이 원칙은 이후 새로 작성되는 RFC/ADC/ADR/Freeze
+판단에 적용한다. 기존 Freeze 문서와 이미 Resolved/Not Accepted된
+RFC/ADC/ADR에는 소급 적용하지 않는다(`ADR-0010` §3 참고).
+
+- **Implementation Freedom** — Evidence의 부재 자체는 구현 기술
+  선택을 금지하는 사전 허가 조건이 아니다. Goal과 Invariant를
+  만족하는 범위에서 개발자·사용자·AI는 구현 기술을 자유롭게 선택할
+  수 있으며, Evidence는 그 선택을 사전에 승인하는 관문이 아니라
+  구현 결과를 평가하고 Architecture Evolution 여부를 판단하는
+  근거로 쓰인다.
+- **Freeze/Governance는 선호가 아니라 Invariant를 통제한다** —
+  위 "Freeze는 실제 Invariant에만 사용한다" 원칙을 Freeze 판단
+  하나에 한정하지 않고, RFC 개설·ADC 판단을 포함한 Governance
+  전반에 일반화한다: Governance는 구현 방식에 대한 선호 자체를
+  통제하지 않으며, 실제 Invariant·Contract·Boundary·위험만 통제
+  대상으로 삼는다.
+
+**적용 범위**: 위 두 원칙도 이후 새로 작성되는 판단에만 적용하며,
+기존 Freeze 문서(`CONSTITUTION.md`의 Architecture Freeze 목록
+포함)와 이미 Resolved/Not Accepted/Deferred로 판정된 기존 RFC/
+ADC/ADR에는 소급 적용하지 않는다 — 그 상태들은 각자의 재검토
+절차(RT Trigger, OBS 누적, 개별 RFC 재개설)를 통해서만 재평가
+대상이 된다(`ADR-0011` 참고).
+
 ## Document Numbering
 
 - `RFC-xxxx` — Boundary Question (`docs/02_rfc/`, 현재 RFC-0001~0005)
-- `ADC-xxxx` — Architecture Decision Candidate (`docs/governance/adc/`, 현재 ADC-0001~0006)
+- `ADC-xxxx` — Architecture Decision Candidate (`docs/governance/adc/`, 현재 ADC-0001~0008)
 - `RT-xxxx` — Re-evaluation Trigger (`docs/governance/rt/`, 현재 RT-0001)
 - `ADR-xxxx` — Architecture Decision Record (`docs/04_adr/`, 현재 ADR-0001~0005)
 - `OBS-xxxx` — Observation, Governance v2 (`docs/governance/observations/`, 현재 OBS-0001~0006)
