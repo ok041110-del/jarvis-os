@@ -17,6 +17,7 @@
 | [`integrations/llm-wiki-candidate-002-poc.md`](integrations/llm-wiki-candidate-002-poc.md) | LLM Wiki 후보 #2 (`Pratiyush/llm-wiki`) 독립 PoC — 판정 CONDITIONAL PASS (Production Adoption 아님) |
 | [`integrations/llm-wiki-candidate-002-resolution-poc.md`](integrations/llm-wiki-candidate-002-resolution-poc.md) | LLM Wiki 후보 #2 P0/P1 Open Issue Resolution PoC — blocker 해소 가능 실증, 판정 CONDITIONAL PASS 유지 |
 | [`integrations/llm-wiki-candidate-002-live-validation.md`](integrations/llm-wiki-candidate-002-live-validation.md) | LLM Wiki 후보 #2 Live Validation (로그인 Claude Code) — 판정 CONDITIONAL PASS 유지, Adoption 상향 조건 미충족 |
+| [`integrations/llm-wiki-candidate-final-comparison.md`](integrations/llm-wiki-candidate-final-comparison.md) | LLM Wiki Candidate #1 vs #2 최종 비교 — 둘 다 Conditional, 추진 대상 #2 |
 | [`integrations/llm-wiki-candidate-002-adoption-policy.md`](integrations/llm-wiki-candidate-002-adoption-policy.md) | LLM Wiki Candidate #2 Adoption Policy — 유지 전략·계층 경계·운영 규칙 R1–R5·Live Smoke 절차 |
 | [`integrations/llm-wiki-candidate-002-adoption.md`](integrations/llm-wiki-candidate-002-adoption.md) | LLM Wiki Candidate #2 Production Adoption — 게이트 B1–B4 CLOSED, Derived Recall / non-authoritative 계층으로 채택(2026-09-08) |
 | [`SMOKE_TEST-2026-08-08.md`](SMOKE_TEST-2026-08-08.md) | 실행환경 구성요소 Smoke Test 결과 |
