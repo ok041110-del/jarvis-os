@@ -1,7 +1,19 @@
 """Backend Agent — code_review/code_generation Capability(Agent Package
-Refactoring, `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2)."""
+Refactoring, `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2).
 
-from ..omniroute_engine import call_engine_via_omniroute as call_engine
+Multi-Engine Architecture(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`
+Stage Mapping) 이후 두 Capability가 서로 다른 Engine을 쓴다 —
+`code_review`는 Review 목적이라 ChatGPT Engine, `code_generation`은
+Implementation 목적이라 Claude Code Engine을 쓴다. 이전 Audit
+(`RFC-0036` §1.4)이 지적한 대로 이 파일이 module-level `call_engine`
+이름 하나를 공유하면 Agent-level 경계와 맞지 않아, 두 함수 이름
+(`call_engine_review`/`call_engine_generation`)으로 분리했다 — Stage/
+Agent 코드에는 여전히 `call_chatgpt`/`call_claude_code` 같은
+Provider-specific 이름을 노출하지 않는다(각 Engine 모듈 자신의 공개
+함수 이름만 다를 뿐, 이 파일 내부에서는 `call_engine_*`로 통일)."""
+
+from ..chatgpt_engine import call_engine_via_chatgpt as call_engine_review
+from ..engine import call_engine as call_engine_generation
 
 NO_ISSUES_MARKER = "NO_ISSUES_FOUND"
 
@@ -27,7 +39,7 @@ def backend_agent_code_review(code: str) -> str:
         f"If and only if you find no real issues by that definition, end "
         f"your response with the exact line: {NO_ISSUES_MARKER}"
     )
-    return call_engine(f"CODE_REVIEW:{instruction}\n\n{code}")
+    return call_engine_review(f"CODE_REVIEW:{instruction}\n\n{code}")
 
 
 def _strip_code_fence(text: str) -> str:
@@ -46,5 +58,5 @@ def backend_agent_code_generation(design: str) -> str:
         "Based on the following design, write the implementation code. "
         "Return only the code, with no surrounding commentary."
     )
-    code = call_engine(f"CODE_GENERATION:{instruction}\n\n{design}")
+    code = call_engine_generation(f"CODE_GENERATION:{instruction}\n\n{design}")
     return _strip_code_fence(code)

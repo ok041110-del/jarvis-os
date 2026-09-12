@@ -8,7 +8,7 @@ from .agents.backend import backend_agent_code_generation
 from .agents.design import design_agent_design
 from .agents.requirements import requirements_agent_requirement_analysis
 from .ast_context import build_dependency_closure, build_function_candidate_index, module_source_path
-from .omniroute_engine import call_engine_via_omniroute as call_engine
+from .chatgpt_engine import call_engine_via_chatgpt as call_engine
 from .project_intelligence import collect_relevant_context
 from .workflow import _engine_failure_message
 from .workflow_project_intelligence import _enrich_issue

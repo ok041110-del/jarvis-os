@@ -1,7 +1,7 @@
 """Design Agent — design Capability(Agent Package Refactoring,
 `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2)."""
 
-from ..omniroute_engine import call_engine_via_omniroute as call_engine
+from ..chatgpt_engine import call_engine_via_chatgpt as call_engine
 
 
 def design_agent_design(issue: dict, requirement: str) -> str:

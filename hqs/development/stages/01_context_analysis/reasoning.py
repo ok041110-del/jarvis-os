@@ -1,8 +1,8 @@
 """Stage 01 Multi-Agent Reasoning — Intent/Goal/Requirement/Ambiguity Agent +
 Reasoning Aggregator(RFC-0033/ADC-0036/ADR-0021). 각 Agent는 독립적인
-reasoning 책임만 가지며 repository의 파일/함수를 직접 선택하지 않는다. 실제
-LLM 실행은 다른 Stage의 Agent와 동일하게 기존 Engine Adapter 경계
-(`mvp/omniroute_engine.py::call_engine_via_omniroute`)만 사용한다 — 이
+reasoning 책임만 가지며 repository의 파일/함수를 직접 선택하지 않는다.
+Multi-Engine Architecture(`ADR-0024`) 이후 Reasoning 목적 호출은 ChatGPT
+Engine(`mvp/chatgpt_engine.py::call_engine_via_chatgpt`)을 사용한다 — 이
 모듈은 Engine routing/provider 선택/policy를 소유하지 않는다."""
 
 import json
@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from mvp.omniroute_engine import call_engine_via_omniroute as call_engine  # noqa: E402
+from mvp.chatgpt_engine import call_engine_via_chatgpt as call_engine  # noqa: E402
 
 AGENT_TASK_IDS = ("intent", "goal", "requirement", "ambiguity")
 

@@ -1,6 +1,14 @@
 # RFC-0036: ChatGPT Engine / Claude Code Engine 분리 — Freeze 경계 확인 (구현 아님)
 
-**Status**: Proposed (검토 대상, 결정 아님 — 아래 §6이 이 RFC의 핵심 결론이다)
+**Status**: ~~Proposed~~ → **Resolved** — 이 RFC가 조사한 내용을 근거로
+`docs/architecture/core/ADC-0039-multi-engine-re-evaluation.md`(Amendment,
+TRANSITION)와 `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`가
+Multi-Engine Architecture(ChatGPT/Claude Code 2-Engine) 채택을 확정했다.
+이 RFC 본문(조사·Evidence·§4~§6 결론)은 삭제·수정하지 않고 그대로
+보존한다 — 아래 §6 "구현하지 않음" 문장은 **이 RFC 작성 시점** 기준의
+사실이며, 그 이후 별도 ADC/ADR 절차로 구현이 승인됐다는 뜻이다.
+
+**Status(원본, 이 RFC 작성 시점)**: Proposed (검토 대상, 결정 아님 — 아래 §6이 이 RFC의 핵심 결론이다)
 **Author**: Claude Code (사용자 요청에 따른 Architecture Audit 결과)
 **대상**: `hqs/development/mvp/engine.py`, `hqs/development/mvp/omniroute_engine.py`,
 `hqs/development/mvp/agents/*.py`, `hqs/development/stages/01_context_analysis/reasoning.py`,

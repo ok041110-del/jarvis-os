@@ -1,5 +1,58 @@
 # ADC-0039: Multi-Engine Architecture 전환 재평가 (RFC-0036 후속, RT-0001 Candidate 2)
 
+## Amendment (후속 세션) — Decision: RE-EVALUATE → TRANSITION
+
+**이 Amendment는 아래 원본 문서를 삭제·수정하지 않는다.** 원본이 무엇을
+근거로 RE-EVALUATE를 판정했는지는 그대로 역사적 기록으로 남기고, 이
+Amendment는 그 이후 실제로 바뀐 사실 관계만 추가한다.
+
+**바뀐 사실**: 사용자가 "현재 환경에서는 OmniRoute 운영 대안(원격
+호스팅)을 사용할 수 없다는 제약이 확정되었다"고 명시했다. 이는 원본
+§Validation Requirements 1번("운영 대안 배제 확인")이 요구한 조건이
+충족되었다는 뜻이다.
+
+**충족되지 않은 조건**: 원본 §Validation Requirements 2번("반복
+관찰")은 이 시점에도 별도의 반복 관찰 Evidence로 채워지지 않았다.
+이 Amendment는 그 사실을 숨기지 않는다 — TRANSITION 판정은 1번
+조건만으로 내려진다.
+
+**왜 1번 조건만으로 TRANSITION이 정당화되는가**: 원본 §Trade-offs가
+이미 보인 대로, Multi-Engine 전환이 실제로 값어치를 갖는 유일한 경로는
+"휴대폰(또는 유사 제약 환경)에서 Jarvis가 동작해야 한다"는 요구다 —
+2번 조건("목적별 품질 차이")은 그 값어치와 별개로, Engine 선택
+**방식**(Agent-level 정적 선택)이 온당한지를 뒷받침하는 조건이었지
+Multi-Engine **채택 여부** 자체의 전제조건은 아니었다. 운영 대안이
+배제된 이상, Single Engine 유지(Option 1)는 더 이상 실행 가능한
+대안이 아니다 — Jarvis가 그 환경에서 아예 동작하지 않기 때문이다.
+따라서 §Decision 판정 근거 1번(휴대폰 제약 단독으로는 부족)의 전제
+자체가 무효화된다 — "운영 변경으로 해결 가능하다"는 대안이 이제
+실제로 배제되었으므로, 남은 §Decision 판정 근거 2번(반복 관찰 부재)
+만으로는 Single Engine 유지를 정당화할 수 없다(Single Engine 유지가
+곧 "동작 불가"를 뜻하게 되었기 때문).
+
+**Case B 전환이 승인되는 이유(요약)**:
+1. Option 1(Single Engine 유지 + 운영 변경)의 실행 가능성이
+   사라졌다 — 유일한 대안이 이제 배제됨.
+2. Contract 변경은 이미 불필요함이 확정되어 있었다(원본
+   §Engine Contract 재검토) — 전환 비용이 낮다는 원본의 판단이
+   그대로 유효하다.
+3. Option 4(Central Router)는 여전히 배제한다(15행 위반 확정적,
+   원본 판정 근거 4 유지) — TRANSITION은 Option 2/3 혼합 범위로만
+   승인된다.
+
+**Decision (Amended): TRANSITION.** 실행 형태(Stage Mapping, Engine
+모듈 경계, 구현)는 `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`가
+확정한다. 아래 원본 §Decision·§Validation Requirements·§Open
+Questions는 삭제하지 않고 그대로 유지하되, 이 Amendment가 우선한다.
+
+**ADR 여부(갱신)**: TRANSITION이므로 사용자 지시 §11에 따라 후속 ADR이
+필요하다 — `ADR-0024`가 그 ADR이다(원본 §ADR 여부의 "RE-EVALUATE라서
+작성하지 않는다"는 더 이상 적용되지 않는다).
+
+---
+
+## 원본 (RE-EVALUATE 판정 당시 그대로 보존)
+
 ## 목적
 
 `RFC-0036-chatgpt-claude-code-dual-engine-boundary.md`가 조사만 하고 멈춘
