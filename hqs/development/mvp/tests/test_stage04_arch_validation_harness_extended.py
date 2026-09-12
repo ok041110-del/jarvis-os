@@ -30,6 +30,37 @@ deterministic_checks = _load("arch_val_deterministic_checks_ext", _HARNESS_DIR /
 quality_heuristics = _load("arch_val_quality_heuristics", _HARNESS_DIR / "quality_heuristics.py")
 ponytail_policy = _load("arch_val_ponytail_policy", _HARNESS_DIR / "ponytail_policy.py")
 cost_instrumentation = _load("arch_val_cost_instrumentation", _HARNESS_DIR / "cost_instrumentation.py")
+variants = _load("arch_val_variants_ext", _HARNESS_DIR / "variants.py")
+
+
+# --- check_dependency_validity -------------------------------------------
+
+
+def test_check_dependency_validity_allows_ordinary_builtin_calls():
+    """회귀 테스트: `dir(__builtins__)`가 모듈로 import된 상태에서는 dict가
+    되어 `len`/`print` 같은 평범한 builtin 호출까지 "unresolved call
+    target"으로 오판했던 결함(`import builtins`로 수정)."""
+    code = "def f(xs):\n    return len(xs)\n"
+    result = deterministic_checks.check_dependency_validity(code, ())
+    assert bool(result) is True
+
+
+def test_check_dependency_validity_allows_known_names():
+    code = "def f(text):\n    return _truncate(text, 80)\n"
+    result = deterministic_checks.check_dependency_validity(code, ("_truncate",))
+    assert bool(result) is True
+
+
+def test_check_dependency_validity_flags_unknown_call_targets():
+    code = "def f(text):\n    return _mystery_helper(text)\n"
+    result = deterministic_checks.check_dependency_validity(code, ("_truncate",))
+    assert bool(result) is False
+    assert "_mystery_helper" in result.detail
+
+
+def test_check_dependency_validity_flags_syntax_error():
+    result = deterministic_checks.check_dependency_validity("def f(:\n", ())
+    assert bool(result) is False
 
 
 # --- check_design_coverage / run_deterministic_gate extension ----------
@@ -213,3 +244,68 @@ def test_usage_to_result_fields_maps_openai_keys():
 def test_usage_to_result_fields_stays_none_when_usage_missing():
     fields = cost_instrumentation.usage_to_result_fields(None)
     assert fields == {"input_tokens": None, "output_tokens": None, "total_tokens": None}
+
+
+# --- Failure Policy: 3/3, 2/3, 1/3, 0/3 (variants.py) ---------------------
+
+
+def _engine_call_with_pass_count(pass_count: int):
+    """`implementation`/`consistency`/`minimality` 중 앞에서부터 정확히
+    `pass_count`개만 통과시키고 나머지는 SyntaxError 코드를 반환한다."""
+    passing_ids = set(("implementation", "consistency", "minimality")[:pass_count])
+
+    def _call(prompt):
+        for agent_id in ("implementation", "consistency", "minimality"):
+            if f"[{agent_id}]" in prompt:
+                if agent_id in passing_ids:
+                    return "def target():\n    return 1\n"
+                return "def target(:\n"  # SyntaxError — FAIL
+        raise AssertionError("unknown agent id in prompt")
+
+    return _call
+
+
+@pytest.mark.parametrize("runner", [variants.run_variant_b, variants.run_variant_c])
+def test_failure_policy_3_of_3_proceeds_normally(runner):
+    result, code = runner("case_x", "Design", _engine_call_with_pass_count(3), ("target",))
+    assert code is not None
+
+
+@pytest.mark.parametrize("runner", [variants.run_variant_b, variants.run_variant_c])
+def test_failure_policy_2_of_3_proceeds_normally(runner):
+    result, code = runner("case_x", "Design", _engine_call_with_pass_count(2), ("target",))
+    assert code is not None
+
+
+@pytest.mark.parametrize("runner", [variants.run_variant_b, variants.run_variant_c])
+def test_failure_policy_1_of_3_proceeds_with_limited_result(runner):
+    """1/3만 통과해도 "제한적 진행"으로 그 1개를 최종 후보로 채택한다 —
+    실패로 취급해 `None`을 반환하지 않는다."""
+    result, code = runner("case_x", "Design", _engine_call_with_pass_count(1), ("target",))
+    assert code is not None
+
+
+@pytest.mark.parametrize("runner", [variants.run_variant_b, variants.run_variant_c])
+def test_failure_policy_0_of_3_fails(runner):
+    result, code = runner("case_x", "Design", _engine_call_with_pass_count(0), ("target",))
+    assert code is None
+
+
+def test_variant_b_and_c_generate_identical_candidate_pool_from_same_engine_call():
+    """A/B/C 공정성 재검증 — B와 C는 동일한 engine_call이 주어지면
+    정확히 동일한 3개 후보(코드 내용까지)를 만들어야 한다. C가 Ponytail
+    Adapter를 추가하는 것 외에 다른 변수를 바꾸지 않는지 확인한다."""
+    def deterministic_engine_call(prompt):
+        for agent_id in ("implementation", "consistency", "minimality"):
+            if f"[{agent_id}]" in prompt:
+                return f"def target():\n    return '{agent_id}'\n"
+        raise AssertionError("unknown agent id")
+
+    candidates_b, _, _ = variants._generate_and_gate_candidates(
+        "Design", deterministic_engine_call, ("target",), ("target",)
+    )
+    candidates_c, _, _ = variants._generate_and_gate_candidates(
+        "Design", deterministic_engine_call, ("target",), ("target",)
+    )
+    assert [c["code"] for c in candidates_b] == [c["code"] for c in candidates_c]
+    assert [c["id"] for c in candidates_b] == [c["id"] for c in candidates_c]

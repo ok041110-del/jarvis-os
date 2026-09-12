@@ -7,9 +7,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.22370900001078553,
-      "generation": 0.011721000191755593,
-      "validation": 0.21198799981902994,
+      "total": 0.2326449998690805,
+      "generation": 0.012642999990930548,
+      "validation": 0.22000199987814995,
       "ponytail": 0.0
     },
     "correctness": {
@@ -40,9 +40,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.3842170001462364,
-      "generation": 0.005373000021791086,
-      "validation": 0.3788440001244453,
+      "total": 0.32376600029238034,
+      "generation": 0.00541400049769436,
+      "validation": 0.318351999794686,
       "ponytail": 0.0
     },
     "correctness": {
@@ -73,10 +73,10 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.41997600010290626,
-      "generation": 0.0071740000748832244,
-      "validation": 0.40792499999042775,
-      "ponytail": 0.0048770000375952804
+      "total": 0.301716000194574,
+      "generation": 0.005073000011179829,
+      "validation": 0.2926420002040686,
+      "ponytail": 0.00400099997932557
     },
     "correctness": {
       "syntax": true,
@@ -106,9 +106,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.13321500023266708,
-      "generation": 0.0061890000324638095,
-      "validation": 0.12702600020020327,
+      "total": 0.11550599992915522,
+      "generation": 0.003850000211969018,
+      "validation": 0.1116559997171862,
       "ponytail": 0.0
     },
     "correctness": {
@@ -139,9 +139,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.3447130000040488,
-      "generation": 0.00467499990008946,
-      "validation": 0.34003800010395935,
+      "total": 0.30147100005706307,
+      "generation": 0.004943000021739863,
+      "validation": 0.2965280000353232,
       "ponytail": 0.0
     },
     "correctness": {
@@ -172,10 +172,10 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.2915609998126456,
-      "generation": 0.00486999988424941,
-      "validation": 0.2833779999491526,
-      "ponytail": 0.0033129999792436138
+      "total": 0.28356299981169286,
+      "generation": 0.003920999461115571,
+      "validation": 0.27651600021272316,
+      "ponytail": 0.0031260001378541347
     },
     "correctness": {
       "syntax": true,
@@ -205,9 +205,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.09659699981057202,
-      "generation": 0.0020829997993132565,
-      "validation": 0.09451400001125876,
+      "total": 0.13639700000567245,
+      "generation": 0.001889000031951582,
+      "validation": 0.13450799997372087,
       "ponytail": 0.0
     },
     "correctness": {
@@ -238,9 +238,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.3283969999756664,
-      "generation": 0.003415000037421123,
-      "validation": 0.3249819999382453,
+      "total": 0.2894169997489371,
+      "generation": 0.0038279999898804817,
+      "validation": 0.2855889997590566,
       "ponytail": 0.0
     },
     "correctness": {
@@ -271,10 +271,10 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.29045200039945485,
-      "generation": 0.00497900009577279,
-      "validation": 0.281962000144631,
-      "ponytail": 0.0035110001590510365
+      "total": 0.2997620003952761,
+      "generation": 0.003929000286007067,
+      "validation": 0.29241499987620045,
+      "ponytail": 0.0034180002330685966
     },
     "correctness": {
       "syntax": true,
@@ -304,9 +304,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.11901200014108326,
-      "generation": 0.003868000021611806,
-      "validation": 0.11514400011947146,
+      "total": 0.10358600002291496,
+      "generation": 0.0032220000321103726,
+      "validation": 0.10036399999080459,
       "ponytail": 0.0
     },
     "correctness": {
@@ -337,9 +337,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.28657700022449717,
-      "generation": 0.0035920002119382843,
-      "validation": 0.2829850000125589,
+      "total": 0.28567699973791605,
+      "generation": 0.0034589997994771693,
+      "validation": 0.2822179999384389,
       "ponytail": 0.0
     },
     "correctness": {
@@ -370,10 +370,10 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.31901600004857755,
-      "generation": 0.0036559999898599926,
-      "validation": 0.31050200004756334,
-      "ponytail": 0.004858000011154218
+      "total": 0.3266779999648861,
+      "generation": 0.003600000127335079,
+      "validation": 0.31918100012262585,
+      "ponytail": 0.0038969997149251867
     },
     "correctness": {
       "syntax": true,
@@ -403,9 +403,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.10283200003868842,
-      "generation": 0.0027200001113669714,
-      "validation": 0.10011199992732145,
+      "total": 0.09899799988488667,
+      "generation": 0.002337999831070192,
+      "validation": 0.09666000005381647,
       "ponytail": 0.0
     },
     "correctness": {
@@ -436,9 +436,9 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.2833450002981408,
-      "generation": 0.003726000159076648,
-      "validation": 0.27961900013906416,
+      "total": 0.3507609999360284,
+      "generation": 0.003673000264825532,
+      "validation": 0.34708799967120285,
       "ponytail": 0.0
     },
     "correctness": {
@@ -469,10 +469,10 @@
     "output_tokens": null,
     "total_tokens": null,
     "latency_ms": {
-      "total": 0.3447969997978362,
-      "generation": 0.003797999852395151,
-      "validation": 0.3375960000084888,
-      "ponytail": 0.0034029999369522557
+      "total": 0.2992160002577293,
+      "generation": 0.005102999693917809,
+      "validation": 0.29096800017214264,
+      "ponytail": 0.003145000391668873
     },
     "correctness": {
       "syntax": true,

@@ -3,6 +3,7 @@ LLM 호출 없이 코드로만 후보를 검사한다. Ponytail(§11)보다 먼�
 여기서 FAIL한 후보는 Ponytail에 전달하지 않는다."""
 
 import ast
+import builtins
 
 
 class CheckResult:
@@ -79,7 +80,7 @@ def check_dependency_validity(code: str, known_names: tuple) -> CheckResult:
         for node in ast.walk(tree)
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
     }
-    builtins_and_known = called_names - set(known_names) - set(dir(__builtins__))
+    builtins_and_known = called_names - set(known_names) - set(dir(builtins))
     if builtins_and_known:
         return CheckResult(False, f"unresolved call targets: {sorted(builtins_and_known)}")
     return CheckResult(True)
