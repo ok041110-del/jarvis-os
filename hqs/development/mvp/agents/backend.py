@@ -2,18 +2,19 @@
 Refactoring, `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2).
 
 Multi-Engine Architecture(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`
-Stage Mapping) 이후 두 Capability가 서로 다른 Engine을 쓴다 —
-`code_review`는 Review 목적이라 ChatGPT Engine, `code_generation`은
-Implementation 목적이라 Claude Code Engine을 쓴다. 이전 Audit
+Stage Mapping) 이후 두 Capability가 서로 다른 Engine을 쓸 수 있었으나,
+`docs/architecture/core/ADR-0027-openrouter-production-engine-migration-adoption.md`
+Migration으로 두 Capability 모두 3번째 Engine인 OpenRouter Free Model
+Selection을 사용하도록 연결했다(§Migration Boundary — 어떤 free 모델이
+실제로 쓰이는지는 OpenRouter가 결정, 이 파일은 모른다). 이전 Audit
 (`RFC-0036` §1.4)이 지적한 대로 이 파일이 module-level `call_engine`
 이름 하나를 공유하면 Agent-level 경계와 맞지 않아, 두 함수 이름
-(`call_engine_review`/`call_engine_generation`)으로 분리했다 — Stage/
-Agent 코드에는 여전히 `call_chatgpt`/`call_claude_code` 같은
-Provider-specific 이름을 노출하지 않는다(각 Engine 모듈 자신의 공개
-함수 이름만 다를 뿐, 이 파일 내부에서는 `call_engine_*`로 통일)."""
+(`call_engine_review`/`call_engine_generation`)으로 분리한 구조는
+그대로 유지한다 — Stage/Agent 코드에는 여전히 Provider-specific 이름을
+노출하지 않는다(이 파일 내부에서는 `call_engine_*`로 통일)."""
 
-from ..chatgpt_engine import call_engine_via_chatgpt as call_engine_review
-from ..engine import call_engine as call_engine_generation
+from ..openrouter_engine import call_engine_via_openrouter as call_engine_review
+from ..openrouter_engine import call_engine_via_openrouter as call_engine_generation
 
 NO_ISSUES_MARKER = "NO_ISSUES_FOUND"
 

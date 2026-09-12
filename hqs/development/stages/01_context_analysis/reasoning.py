@@ -1,9 +1,11 @@
 """Stage 01 Multi-Agent Reasoning — Intent/Goal/Requirement/Ambiguity Agent +
 Reasoning Aggregator(RFC-0033/ADC-0036/ADR-0021). 각 Agent는 독립적인
 reasoning 책임만 가지며 repository의 파일/함수를 직접 선택하지 않는다.
-Multi-Engine Architecture(`ADR-0024`) 이후 Reasoning 목적 호출은 ChatGPT
-Engine(`mvp/chatgpt_engine.py::call_engine_via_chatgpt`)을 사용한다 — 이
-모듈은 Engine routing/provider 선택/policy를 소유하지 않는다."""
+Multi-Engine Architecture(`ADR-0024`) 이후 Reasoning 목적 호출은 3번째
+Engine인 OpenRouter Free Model Selection(`ADR-0027`,
+`mvp/openrouter_engine.py::call_engine_via_openrouter`)을 사용한다 — 이
+모듈은 Engine routing/provider 선택/policy를 소유하지 않는다(어떤 free
+모델이 실제로 쓰이는지 이 모듈은 모른다)."""
 
 import json
 import re
@@ -12,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from mvp.chatgpt_engine import call_engine_via_chatgpt as call_engine  # noqa: E402
+from mvp.openrouter_engine import call_engine_via_openrouter as call_engine  # noqa: E402
 
 AGENT_TASK_IDS = ("intent", "goal", "requirement", "ambiguity")
 
