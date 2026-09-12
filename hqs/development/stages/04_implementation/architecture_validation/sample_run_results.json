@@ -1,0 +1,497 @@
+[
+  {
+    "case_id": "case_a_simple_function",
+    "variant": "single",
+    "llm_calls": 1,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.2326449998690805,
+      "generation": 0.012642999990930548,
+      "validation": 0.22000199987814995,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_a_simple_function",
+    "variant": "multi",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.32376600029238034,
+      "generation": 0.00541400049769436,
+      "validation": 0.318351999794686,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_a_simple_function",
+    "variant": "multi_ponytail",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.301716000194574,
+      "generation": 0.005073000011179829,
+      "validation": 0.2926420002040686,
+      "ponytail": 0.00400099997932557
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_b_moderate_modification",
+    "variant": "single",
+    "llm_calls": 1,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.11550599992915522,
+      "generation": 0.003850000211969018,
+      "validation": 0.1116559997171862,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_b_moderate_modification",
+    "variant": "multi",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.30147100005706307,
+      "generation": 0.004943000021739863,
+      "validation": 0.2965280000353232,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_b_moderate_modification",
+    "variant": "multi_ponytail",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.28356299981169286,
+      "generation": 0.003920999461115571,
+      "validation": 0.27651600021272316,
+      "ponytail": 0.0031260001378541347
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_c_helper_reuse",
+    "variant": "single",
+    "llm_calls": 1,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.13639700000567245,
+      "generation": 0.001889000031951582,
+      "validation": 0.13450799997372087,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_c_helper_reuse",
+    "variant": "multi",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.2894169997489371,
+      "generation": 0.0038279999898804817,
+      "validation": 0.2855889997590566,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_c_helper_reuse",
+    "variant": "multi_ponytail",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.2997620003952761,
+      "generation": 0.003929000286007067,
+      "validation": 0.29241499987620045,
+      "ponytail": 0.0034180002330685966
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_d_overcompression_risk",
+    "variant": "single",
+    "llm_calls": 1,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.10358600002291496,
+      "generation": 0.0032220000321103726,
+      "validation": 0.10036399999080459,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_d_overcompression_risk",
+    "variant": "multi",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.28567699973791605,
+      "generation": 0.0034589997994771693,
+      "validation": 0.2822179999384389,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_d_overcompression_risk",
+    "variant": "multi_ponytail",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.3266779999648861,
+      "generation": 0.003600000127335079,
+      "validation": 0.31918100012262585,
+      "ponytail": 0.0038969997149251867
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_e_comment_prone",
+    "variant": "single",
+    "llm_calls": 1,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.09899799988488667,
+      "generation": 0.002337999831070192,
+      "validation": 0.09666000005381647,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_e_comment_prone",
+    "variant": "multi",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.3507609999360284,
+      "generation": 0.003673000264825532,
+      "validation": 0.34708799967120285,
+      "ponytail": 0.0
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  },
+  {
+    "case_id": "case_e_comment_prone",
+    "variant": "multi_ponytail",
+    "llm_calls": 3,
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "latency_ms": {
+      "total": 0.2992160002577293,
+      "generation": 0.005102999693917809,
+      "validation": 0.29096800017214264,
+      "ponytail": 0.003145000391668873
+    },
+    "correctness": {
+      "syntax": true,
+      "contract": true,
+      "scope": true,
+      "pytest": null
+    },
+    "quality": {
+      "readability": null,
+      "explicitness": 0,
+      "cognitive_load": null,
+      "simplicity": 0
+    },
+    "comments": {
+      "count": 0,
+      "docstring_count": 0,
+      "over_two_lines": 0,
+      "compressed": 0,
+      "code_changed_for_comment": false
+    }
+  }
+]
