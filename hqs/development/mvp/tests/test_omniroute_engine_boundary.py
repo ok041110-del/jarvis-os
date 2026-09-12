@@ -118,6 +118,10 @@ def test_production_call_site_import_count_matches_synchronized_conversion():
         # 전환 후 실제 의존 관계를 검증하는 테스트(문자열로 "omniroute_engine"을
         # 언급) — production 참조가 아니라 그 참조를 검증하는 테스트 자체다.
         "test_ast_context.py",
+        # Stage 01~04 OmniRoute 통합 Call Boundary Verification — 5개
+        # 호출부 + Stage 01/02 신규 모듈(reasoning.py/task_dependency_agent.py)
+        # 전부가 실제로 이 모듈을 가리키는지 identity로 검사하는 테스트.
+        "test_stage01_04_omniroute_call_boundary.py",
     }
     matches = [
         line for line in result.stdout.splitlines()
