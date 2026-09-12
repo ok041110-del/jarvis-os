@@ -27,17 +27,15 @@ provider egress를 일으킬 수 있는 것으로 바뀌었을 때 그 위험을
 환경변수 스위치이며, Routing/Fallback/Budget/Policy 로직을 전혀
 포함하지 않는다.
 
-## Backend 변경(`docs/architecture/core/EVIDENCE-0013-call-site-conversion-governance-final-review.md`, Call-Site Conversion)
+## Backend 변경(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`, Multi-Engine Architecture)
 
-`agents/backend.py`·`agents/qa.py`가 `call_engine_via_omniroute`로
-전환됨에 따라, Gate 활성화 시 이 두 테스트는 이제 **실제 OmniRoute
-인스턴스**(`OMNIROUTE_BASE_URL`, 기본값 `http://127.0.0.1:20128`)를
-호출한다 — 이전(`claude` CLI subprocess)과 다르다. `claude` CLI는
-이 저장소가 항상 신뢰해 온 로컬 대상이라 Gate 활성화만으로
-안전했지만, 이제는 Gate를 활성화하는 시점에 실제로 안전하게
-구성된(`blockedProviders`/`REQUIRE_API_KEY`) OmniRoute 인스턴스가
-떠 있어야 한다 — 그렇지 않으면 connection-refused로 FAIL한다
-(egress 없는 안전한 실패, `EVIDENCE-0007` §3.1 예측대로).
+`ADR-0024` Stage Mapping 이후 `agents/backend.py::backend_agent_code_review`는
+ChatGPT Engine(`OPENAI_API_KEY`/`CHATGPT_BASE_URL` 필요)을,
+`agents/qa.py::qa_agent_test_execution`은 Claude Code Engine(`claude`
+CLI subprocess, 로컬 실행)을 호출한다 — 두 Engine이 서로 다르므로 Gate
+활성화 시 각 호출이 실패하는 조건도 서로 다르다: ChatGPT 쪽은
+`OPENAI_API_KEY` 미설정/네트워크 불가 시, Claude Code 쪽은 `claude`
+CLI 부재 시 각각 안전하게(egress 확산 없이) FAIL한다.
 """
 
 import os
@@ -63,7 +61,7 @@ RUN_REAL_ENGINE_FLAG = "RUN_REAL_ENGINE_TESTS"
 _skip_unless_real_engine_gate = pytest.mark.skipif(
     os.environ.get(RUN_REAL_ENGINE_FLAG) != "1",
     reason=(
-        f"실제 Engine 호출(현재 backend: OmniRoute, `EVIDENCE-0013`) — "
+        f"실제 Engine 호출(현재 backend: ChatGPT+Claude Code, `ADR-0024`) — "
         f"opt-in 전용, {RUN_REAL_ENGINE_FLAG}=1 로 명시적으로 실행해야 한다"
     ),
 )
@@ -88,9 +86,15 @@ def test_review_content_reaches_test_execution_as_context(monkeypatch):
     분리 이후 각 Agent 모듈이 자신만의 `call_engine` local reference를
     가지므로(`agents/backend.py`, `agents/qa.py`), 실제로 호출되는 두 지점을
     각각 patch해야 한다(ADC-0006 Condition 6 — 실제 module boundary 변경에
-    따른 필연적 테스트 조정, monkeypatch target 변경일 뿐 검증 의도는 동일)."""
+    따른 필연적 테스트 조정, monkeypatch target 변경일 뿐 검증 의도는 동일).
+
+    Multi-Engine Architecture(`ADR-0024`) 이후 `backend.py`는 `code_review`용
+    `call_engine_review`(ChatGPT Engine)와 `code_generation`용
+    `call_engine_generation`(Claude Code Engine) 두 이름으로 분리됐다 —
+    `run_mvp_0001()`이 실제로 호출하는 것은 `backend_agent_code_review`
+    (→ `call_engine_review`)뿐이므로 이 테스트는 그 이름만 patch한다."""
     engine_prompts = []
-    original_backend_call_engine = backend.call_engine
+    original_backend_call_engine = backend.call_engine_review
     original_qa_call_engine = qa.call_engine
 
     def spy_backend_call_engine(prompt):
@@ -101,7 +105,7 @@ def test_review_content_reaches_test_execution_as_context(monkeypatch):
         engine_prompts.append(prompt)
         return original_qa_call_engine(prompt)
 
-    monkeypatch.setattr(backend, "call_engine", spy_backend_call_engine)
+    monkeypatch.setattr(backend, "call_engine_review", spy_backend_call_engine)
     monkeypatch.setattr(qa, "call_engine", spy_qa_call_engine)
 
     result = run_mvp_0001(SAMPLE_CODE)

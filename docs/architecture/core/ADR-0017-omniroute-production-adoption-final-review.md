@@ -1,5 +1,35 @@
 # ADR-0017: OmniRoute Production Adoption — Final Adoption Review, Responsibility Boundary 확정, Baseline 갱신
 
+## Amendment (후속 세션) — §6.2 "Case A 밖으로의 전환을 승인하지 않는다" 범위 명확화
+
+**이 Amendment는 아래 원본을 삭제·수정하지 않는다.**
+`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`가
+ChatGPT/Claude Code 2-Engine Multi-Engine Architecture를 별도의 독립된
+RFC → ADC → ADR 절차로 승인했다. 이 Amendment는 그 승인이 아래 §6.2·
+§9의 어떤 문장과도 실제로 충돌하지 않음을 명시한다.
+
+- §6.2 "Case A 밖(Case B/C)으로의 전환을 승인하지 않는다"는 **OmniRoute
+  Thin Engine Caller 트랙 자신**(이 ADR이 다루는 대상)에 대한 문장이다
+  — OmniRoute 호출 방식이 Case A(단일 함수, Jarvis 코드에 Policy
+  판정 로직 없음)를 벗어나 Case B/C로 전이하는 것을 이 ADR이 승인하지
+  않는다는 뜻이었다. `ADR-0024`는 OmniRoute의 호출 방식을 전혀
+  바꾸지 않았다 — `omniroute_engine.py`는 무수정이며 여전히 Case A
+  그대로다. 따라서 이 문장은 여전히 유효하고, `ADR-0024`와 충돌하지
+  않는다.
+- `ADR-0024`가 실제로 발동시킨 것은 이 ADR의 대상이 아니라
+  `RT-0001` Candidate 2(Engine Gateway, "Engine 수 ≥ 2")다 — 이는
+  §4 표가 "충돌 없음"으로 판정했던 **당시 상태**(Engine 수=1)에 대한
+  판정이었지, "Engine 수가 앞으로 영원히 1이어야 한다"는 별도의
+  독립적 금지를 이 ADR이 선언한 것이 아니다. `RT-0001` 자신의 문서
+  구조(Trigger 충족 시 재검토)가 애초에 그 가능성을 열어 두고 있었다.
+- 결론: 이 ADR의 OmniRoute Adoption 결정(§6.1)과 Responsibility
+  Boundary 확정(§2)은 **무변경으로 유효**하다. `ADR-0024`는 이 ADR을
+  뒤집지 않고, `RT-0001` Candidate 2의 재검토를 별도로 수행했을 뿐이다.
+
+---
+
+## 원본
+
 | 필드 | 내용 |
 |---|---|
 | ID | `docs/architecture/core/ADR-0017` |

@@ -2,14 +2,16 @@
 Dependency를 판단하는 단일 Engine 호출(RFC-0035/ADC-0038/ADR-0023 Decision 2).
 Task Decomposition과 Dependency Judgment를 별도 Agent로 쪼개지 않는다. 이
 모듈은 Engine 호출과 JSON 추출만 담당하고, tasks/dependencies의 스키마·구조
-검증은 `planning_pipeline.py`(Deterministic Layer)가 별도로 수행한다."""
+검증은 `planning_pipeline.py`(Deterministic Layer)가 별도로 수행한다.
+Multi-Engine Architecture(`ADR-0024`) 이후 이 Reasoning 목적 호출은
+ChatGPT Engine을 사용한다."""
 
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from mvp.omniroute_engine import call_engine_via_omniroute as call_engine  # noqa: E402
+from mvp.chatgpt_engine import call_engine_via_chatgpt as call_engine  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "01_context_analysis"))
 

@@ -51,6 +51,40 @@ Caller)를 금지하지 않는다. **이 절은 위 금지 표의 문구를 완�
   않는다. Engine Adapter Contract(§14, `BASELINE.md`)는 이 절로
   확정되지 않는다.
 
+## Multi-Engine Architecture 허용 범위 (Scoped, ADR-0024)
+
+`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`가
+승인한 대로, 위 금지 표의 16행(Engine Routing)·21행(Multi Engine)은
+Jarvis 코드가 **정확히 2개의 Engine(ChatGPT/Claude Code)을, 각
+호출부가 컴파일타임 import로 정적 고정된 형태로만** 참조하는 것을
+금지하지 않는다. **이 절은 위 금지 표의 문구를 완화하지 않는다** —
+이미 승인된 범위를 확인할 뿐이며, 아래 조건이 깨지면 이 확인은
+적용되지 않고 해당 구현은 다시 위 금지 표 대상이 된다.
+
+- 허용(Multi-Engine 허용 범위 안): 호출부 파일이 `from ..chatgpt_engine
+  import call_engine_via_chatgpt as call_engine` 또는 `from ..engine
+  import call_engine`처럼 정확히 하나의 Engine 모듈을 import 시점에
+  정적으로 선택하는 것(`ADR-0024` §Stage Mapping). 각 Engine 모듈이
+  단일 함수(`str -> str`, 단일 `RuntimeError`) 형태를 유지하는 것.
+- 금지(위 표 그대로 유지, 완화 아님): 런타임 `if/else`·설정값·환경
+  조건으로 Engine을 선택하는 로직, Central Engine Router/Gateway
+  (일반화된 Port/Adapter 인터페이스), 두 Engine 중 하나가 실패했을
+  때 다른 Engine으로 자동 전환하는 Fallback 로직, `call_chatgpt(...)`/
+  `call_claude_code(...)`처럼 Provider-specific 함수를 Stage/Agent
+  코드에 노출하는 것, 3번째 이상의 Engine 추가(이 절은 정확히 2개
+  까지만 확인한다 — 3번째 Engine은 별도 RFC → ADC → ADR 대상).
+- 이 절이 적용되는 조건: (a) 각 호출부가 정확히 하나의 Engine
+  모듈만 참조하고, (b) 그 선택이 파일의 import 시점에 고정되어
+  런타임에 바뀌지 않으며, (c) 어떤 Engine 모듈도 다른 Engine 모듈을
+  import하지 않을 때(Reversibility, `ADR-0024` §Rollback)에만 이
+  확인이 적용된다. 하나라도 깨지면 Central Router/Dynamic Routing이
+  실질적으로 재도입된 것으로 간주해 위 금지 표가 그대로 적용된다.
+- `docs/governance/rt/RT-0001.md` Candidate 2 Trigger("Engine 수 ≥ 2")는
+  이 절의 승인으로 실제 발동했다 — 이 절은 그 발동을 전제로 한
+  Scoped 예외이지, Trigger 미발동을 주장하지 않는다(`OmniRoute Thin
+  Engine Caller` 절이 Trigger 비발동을 근거로 삼았던 것과 다른
+  구조임에 유의).
+
 ## Execution Host 구현 허용 범위 (Scoped, ADC-0015)
 
 `docs/architecture/core/ADC-0015-execution-host-implementation-strategy.md`
