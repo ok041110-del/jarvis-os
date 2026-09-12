@@ -112,3 +112,47 @@ def test_engine_failure_preserves_skeleton_and_fills_error_string(monkeypatch):
 
     assert result["design"] == "Engine call failed: boom"
     assert result["skeleton"]["scope_candidates"] == ["hqs/development/mvp/agents.py"]
+
+
+def test_run_stage_03_calls_design_agent_exactly_once(monkeypatch):
+    calls = []
+
+    def fake_design(issue, requirement):
+        calls.append((issue, requirement))
+        return "DESIGN"
+
+    monkeypatch.setattr(stage_03, "design_agent_design", fake_design)
+
+    stage_03.run_stage_03(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_02_OUTPUT)
+
+    assert len(calls) == 1
+
+
+def test_run_stage_03_output_matches_design_result_contract_shape(monkeypatch):
+    monkeypatch.setattr(stage_03, "design_agent_design", lambda issue, requirement: "DESIGN")
+
+    result = stage_03.run_stage_03(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_02_OUTPUT)
+
+    assert set(result.keys()) == {"skeleton", "design"}
+    assert set(result["skeleton"].keys()) == {
+        "component_candidates", "scope_candidates", "constraints", "risks",
+    }
+
+
+def test_engine_receives_design_instruction_for_nine_perspectives(monkeypatch):
+    seen = {}
+
+    def fake_design(issue, requirement):
+        seen["requirement"] = requirement
+        return "DESIGN"
+
+    monkeypatch.setattr(stage_03, "design_agent_design", fake_design)
+
+    stage_03.run_stage_03(SAMPLE_ISSUE, SAMPLE_STAGE_01_CONTEXT, SAMPLE_STAGE_02_OUTPUT)
+
+    requirement = seen["requirement"]
+    for perspective in (
+        "Architecture Definition", "Component Identification", "Responsibility Allocation",
+        "Interface", "Data Flow", "Implementation Strategy",
+    ):
+        assert perspective in requirement
