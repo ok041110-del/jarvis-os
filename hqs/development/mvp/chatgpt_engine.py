@@ -12,11 +12,11 @@ Reasoning/Review 측 Engine(`docs/architecture/core/ADR-0024-multi-engine-archit
 API Key는 `OPENAI_API_KEY` 환경변수에서만 읽는다 — 코드에 하드코딩하지
 않는다."""
 
-import http.client
 import json
 import os
 import socket
-import urllib.parse
+import urllib.error
+import urllib.request
 
 CHATGPT_DEFAULT_BASE_URL = "https://api.openai.com"
 CHATGPT_DEFAULT_MODEL = "gpt-4o"
@@ -61,34 +61,38 @@ def call_engine_via_chatgpt(prompt: str) -> str:
     """단일 ChatGPT 호출 지점(ENGINE-CONNECT-CHATGPT-0001). `call_engine()`/
     `call_engine_via_omniroute()`와 동일한 외부 계약(`str -> str`, 실패 시
     `RuntimeError`)을 따른다 — 호출부가 이미 `except Exception`으로 잡아
-    `Engine call failed: {exc}`로 구조화하므로 여기서 실패를 삼키지 않는다."""
+    `Engine call failed: {exc}`로 구조화하므로 여기서 실패를 삼키지 않는다.
+
+    `urllib.request`를 사용한다 — Claude Environment의 `HTTPS_PROXY`를
+    자동으로 경유하기 위함이다(`http.client.HTTPSConnection`은 이
+    환경변수를 읽지 않아 Agent Egress Proxy를 우회해 버린다)."""
     base_url, api_key, model, timeout = _resolve_config()
-    parsed_url = urllib.parse.urlparse(base_url)
-    conn_cls = (
-        http.client.HTTPSConnection
-        if parsed_url.scheme == "https"
-        else http.client.HTTPConnection
-    )
-    conn = conn_cls(parsed_url.hostname, parsed_url.port, timeout=timeout)
+    body = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+    }).encode("utf-8")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+    }
+    url = base_url.rstrip("/") + CHATGPT_CHAT_COMPLETIONS_PATH
+    request = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    # 매 호출마다 opener를 새로 만든다 — urlopen()의 전역 opener는 최초
+    # 호출 시 ProxyHandler()가 그 시점의 getproxies()를 한 번만 캐싱해
+    # 버려서, 이후 HTTPS_PROXY 변경이 반영되지 않기 때문이다.
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler())
     try:
-        body = json.dumps({
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-        }).encode("utf-8")
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
-        }
-        path = (parsed_url.path.rstrip("/") or "") + CHATGPT_CHAT_COMPLETIONS_PATH
-        conn.request("POST", path, body=body, headers=headers)
-        response = conn.getresponse()
-        response_body = response.read()
-        return _parse_response(response.status, response_body)
+        with opener.open(request, timeout=timeout) as response:
+            return _parse_response(response.status, response.read())
     except RuntimeError:
         raise
+    except urllib.error.HTTPError as exc:
+        return _parse_response(exc.code, exc.read())
     except socket.timeout as exc:
         raise RuntimeError(f"ChatGPT call timed out after {timeout}s: {exc}") from exc
+    except urllib.error.URLError as exc:
+        if isinstance(exc.reason, socket.timeout):
+            raise RuntimeError(f"ChatGPT call timed out after {timeout}s: {exc.reason}") from exc
+        raise RuntimeError(f"ChatGPT connection failed: {exc.reason}") from exc
     except OSError as exc:
         raise RuntimeError(f"ChatGPT connection failed: {exc}") from exc
-    finally:
-        conn.close()
