@@ -1,45 +1,53 @@
 # Stage 02: Validation
 
+**RFC-0035/ADC-0038/ADR-0023으로 Stage 02는 PRD Passthrough + Task &
+Dependency Agent(Engine 1회) + Deterministic Layer로 구성된다.** 검증은
+관심사별로 세 위치에 나뉜다.
+
 ## 검증 원칙
 
-Capability 1(Skeleton 추출)은 순수 함수라 mock 없이 결정적으로 단위
-테스트한다. Capability 2는 기존 `requirements_agent_requirement_
-analysis()`를 재사용하므로 그 자체 동작은 기존 테스트가 이미 검증했다
-— 여기서는 (a) 골격이 반영된 Issue가 실제로 전달되는지, (b) Engine
-실패 시 기존 오류 포맷을 유지하는지 mock으로 추가 확인하고, (c) 실제
-Engine 호출 1건으로 Stage 01 Context가 Specification에 반영되는지
-확인한다.
+- PRD Passthrough(`skeleton`/`specification`)는 순수 dict 통과이므로
+  mock 없이 결정적으로 단위 테스트한다.
+- Task & Dependency Agent는 Engine 호출을 mock해 JSON 추출/파싱 동작만
+  검증한다 — `tasks`/`dependencies`의 구조 검증은 검사하지 않는다(Schema
+  Validation은 Deterministic Layer 책임).
+- Deterministic Layer(Schema/Graph Validation, Cycle Detection,
+  Topological Ordering, Plan Assembly)는 LLM 호출이 없으므로 순수 Python
+  데이터로 각 단계를 독립적으로 단위 테스트한다.
+- `run_stage_02()` 통합 테스트는 Task & Dependency Agent만 mock하고,
+  Deterministic Layer는 실제로 실행해 전체 DAG의 배선을 확인한다.
 
 ## 테스트 위치
 
-`hqs/development/mvp/tests/test_stage_02.py` — Stage 01과 동일하게
-Stage 폴더 하위가 아닌 기존 공통 `tests/` 위치를 쓴다(ADR-0008 §1).
+| 파일 | 대상 |
+|---|---|
+| `hqs/development/mvp/tests/test_stage_02.py` | `run_stage_02()` 통합 — PRD passthrough, 정상 Task/Dependency 처리, Agent 실패/Cycle 발견 시 fallback |
+| `hqs/development/mvp/tests/test_task_dependency_agent.py` | Task & Dependency Agent — JSON 파싱, markdown fence 제거, 파싱 실패 시 `AgentOutputError` |
+| `hqs/development/mvp/tests/test_planning_pipeline.py` | Deterministic Layer 각 단계 — Schema Validation, 참조 무결성, self-dependency, 직접/간접 Cycle Detection, Topological Ordering, Plan Assembly, 전체 파이프라인 |
+| `hqs/development/mvp/tests/test_stage_contracts.py` | `SpecificationResult` 5-key Contract(`SPECIFICATION_REQUIRED_KEYS`) |
+| `hqs/development/mvp/tests/test_stage01_stage02_prd_handoff.py` | Stage 01→02 E2E(mock) — PRD가 재생성 없이 그대로 전달되고 Contract를 통과하는지 |
 
 ## 검증 항목
 
 | 항목 | 방법 |
 |---|---|
-| Skeleton 4개 키가 Stage 01 Context를 정확히 반영 | `context_bundle`의 `known_constraints`/`open_questions`/`relevant_code`가 각각 `constraints`/`risks`/`scope_candidates`로 그대로 옮겨지는지 단위 테스트 |
-| Skeleton이 비어 있어도 예외 없이 빈 값 처리 | `context_bundle`의 해당 필드가 빈 리스트일 때 `skeleton`도 빈 값인지 확인 |
-| Engine이 골격이 반영된 Issue를 실제로 받는지 | `requirements_agent_requirement_analysis`를 mock해 전달된 `issue["description"]`에 골격 텍스트(예: Constraints 항목)가 포함됐는지 확인 |
-| Engine 실패 시 오류 포맷 유지 | mock이 예외를 던질 때 `specification`이 `_engine_failure_message()` 형식인지 확인 |
-| Stage 01 Context가 실제 Specification에 반영(real Engine) | 아래 "real Engine E2E" 참고 |
+| `skeleton`/`specification`이 Stage 01 PRD와 동일하게 전달 | `test_stage_02.py` passthrough 테스트 |
+| 원본 PRD가 변형되지 않음 | `test_stage_02.py` mutate 테스트 |
+| Task & Dependency Agent 출력이 정상 파싱됨 | `test_task_dependency_agent.py` |
+| 잘못된 참조(존재하지 않는 task id) 거부 | `test_planning_pipeline.py::test_validate_dependency_graph_rejects_unknown_reference` |
+| Self-dependency 거부 | `test_planning_pipeline.py::test_validate_dependency_graph_rejects_self_dependency` |
+| 직접/간접 Cycle 탐지 | `test_planning_pipeline.py::test_detect_cycles_raises_on_*` |
+| Topological Ordering이 선행 Task를 먼저 배치 | `test_planning_pipeline.py::test_topological_order_places_prerequisites_first` |
+| Cycle/Agent 실패 시 안전한 빈 값으로 fallback | `test_stage_02.py::test_run_stage_02_falls_back_to_empty_planning_on_*` |
+| `SpecificationResult` 5-key Contract | `test_stage_contracts.py` |
 
 ## real Engine E2E
 
-Stage 02는 Engine을 1회 호출하므로(Capability 2), 핵심 요구사항 —
-"Stage 01 Context가 실제로 Specification 생성에 활용되는가" — 는
-mock만으로 증명되지 않는다. 실제 `call_engine()`으로 1건을 실행해:
-
-1. Stage 01 Context에 특정 신호(예: 알려진 `known_constraints`/
-   `relevant_code` 경로)가 존재하는 실제 Issue로 `run_stage_02()`를
-   실행한다.
-2. 반환된 `specification` 텍스트가 그 신호(파일 경로, Constraint
-   문서명 등)를 실제로 언급하는지 확인한다.
-3. 결과와 판정(PASS/PARTIAL/FAIL)을 이 Stage의 최종 보고(세션 기록)에
-   남긴다 — 이 문서는 방법론만 고정하고 특정 시점의 결과를 반복
-   기록하지 않는다.
-
-Stage 04(Implementation)와 달리, 이 E2E는 실제 코드 파일을 수정하지
-않는다 — Specification은 텍스트 산출물이므로 backup/apply/revert
-절차가 필요 없다.
+Task & Dependency Agent는 Engine을 1회 호출하므로, "PRD가 실제로 Task/
+Dependency 판단에 활용되는가"는 mock만으로 완전히 증명되지 않는다.
+`test_omniroute_engine_real.py`와 동일한 opt-in 이중 게이팅
+(`RUN_REAL_OMNIROUTE_TESTS=1 I_UNDERSTAND_REAL_EGRESS_RISK=1`) + 격리된
+로컬 OmniRoute 서버로 실행하는 방법론을 그대로 따를 수 있다. 이번
+구현에서는 실행 환경에 OmniRoute 패키지가 없어 real Engine E2E를 실제로
+수행하지 못했다 — 방법론만 기록하고, Evidence는 남기지 않는다(가능한
+환경에서 후속으로 수행).
