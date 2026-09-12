@@ -1,24 +1,43 @@
 # Stage 02: Capabilities
 
-2개 Capability로 7개 관점(Problem Definition/Requirement Analysis/Task
-Decomposition/Constraints/Risk/Acceptance Criteria/Implementation Scope)을
-모두 다룬다 — 신규 Capability나 신규 Engine 호출을 추가하지 않는다
+**RFC-0035/ADC-0038/ADR-0023으로 Stage 02는 PRD Passthrough에 더해 Task &
+Dependency Agent + Deterministic Layer를 실행한다.** 신규 Capability는
+정확히 1개(Task & Dependency Agent, Engine 1회 호출)만 추가됐다 — 별도
+Task Agent/Dependency Agent/Acceptance Criteria Agent는 만들지 않는다
 (`RESPONSIBILITY.md` 참고).
 
-## 1. Specification Skeleton 추출 (Engine 미호출)
+## 1. PRD/Specification Passthrough (Engine 미호출)
 
 | 항목 | 내용 |
 |---|---|
-| Input | `issue: dict`, Stage 01 Output(`run_stage_01()` 반환 dict, 특히 `context_bundle`) |
-| Analysis | `stage_02._structure_from_context()` — `context_bundle["known_constraints"]`를 Constraints로, `context_bundle["open_questions"]`를 Risk로, `context_bundle["relevant_code"]`를 Implementation Scope 후보로, `issue`를 Problem Definition으로 그대로 재배치한다. 새 파일 탐색/AST 분석을 하지 않는다 — Stage 01이 이미 만든 결과만 재배치 |
-| Output | `dict`(`problem_definition`, `constraints`, `risks`, `scope_candidates` 4개 키) |
-| Validation | 순수 함수 — `test_stage_02.py`에서 결정적 입출력을 직접 단위 테스트 |
+| Input | Stage 01 Output(`stage_01_context["prd"]`, `{skeleton, specification}` 형태) |
+| Analysis | `stage_02.run_stage_02()` — `prd["skeleton"]`/`prd["specification"]`을 재해석·재생성 없이 그대로 반환한다 |
+| Output | `skeleton`(`dict`), `specification`(`str`) — Stage 01의 `prd`와 동일 값 |
+| Validation | `test_stage_02.py`에서 passthrough 동작(입력 변형 없음, 원본 불변)을 직접 단위 테스트 |
 
-## 2. Requirement & Specification 생성 (Engine 재사용)
+## 2. Task & Dependency Agent (Engine 1회 호출)
 
 | 항목 | 내용 |
 |---|---|
-| Input | `issue: dict`, Capability 1의 골격 `dict` |
-| Analysis | 골격을 텍스트로 직렬화(`_skeleton_to_text`)해 Issue `description`에 덧붙이고(`workflow_project_intelligence._enrich_issue`와 동일한 "Issue description에 concatenate" 패턴), Task Decomposition/Acceptance Criteria를 추가로 서술하라는 지시문을 함께 붙여 **기존** `agents.requirements.requirements_agent_requirement_analysis(issue)`를 그대로 호출한다. Capability 자체나 그 내부 지시문(`agents/requirements.py`)은 수정하지 않는다 |
-| Output | `str`(Problem Definition/Constraints/Risk/Implementation Scope 골격을 반영하고 Task Decomposition/Acceptance Criteria를 포함한 Specification 프로즈) |
-| Validation | 기존 패턴(`workflow_project_intelligence.py`)과 동일하게 mock 기반 단위 테스트로 (a) 골격이 Issue description에 실제로 포함되는지, (b) Engine 실패 시 기존 오류 포맷(`_engine_failure_message`)을 유지하는지 확인. 추가로 real Engine E2E 1건으로 Stage 01 Context가 실제로 Specification에 반영되는지 확인(`VALIDATION.md`) |
+| Input | `prd["specification"]`(prose) |
+| Analysis | `task_dependency_agent.decompose_tasks_and_dependencies()` — 단일 Engine 호출로 Task Decomposition과 Dependency Judgment를 함께 수행. `reasoning.py`의 `parse_structured_output()`/`AgentOutputError` 패턴을 재사용해 JSON 추출만 담당하고, 키/타입 검증은 하지 않는다(Deterministic Layer 책임) |
+| Output | `{"tasks": [...], "dependencies": [...]}` 형태의 raw dict(구조 미검증) |
+| Validation | `test_task_dependency_agent.py` — Engine 호출을 mock해 JSON 파싱/markdown fence 제거/파싱 실패 시 `AgentOutputError`를 확인 |
+
+## 3. Deterministic Layer (LLM 호출 없음)
+
+| 항목 | 내용 |
+|---|---|
+| Input | Task & Dependency Agent의 raw 출력(`{tasks, dependencies}`) |
+| Analysis | `planning_pipeline.run_planning_pipeline()` — Schema Validation → Dependency Graph Validation(참조 무결성/self-dependency) → Cycle Detection(DFS white/gray/black) → Topological Ordering(Kahn's algorithm) → Implementation Plan Assembly → Final Aggregation을 순서대로 실행. 전 구간 순수 코드, Engine 호출 없음 |
+| Output | `{"tasks": [...], "dependencies": [...], "plan": {"execution_order": [...]}}` |
+| Validation | `test_planning_pipeline.py` — 정상 Task/Dependency, 잘못된 참조, self-dependency, 직접/간접 Cycle, Topological Ordering, 전체 파이프라인 통합을 순수 Python 데이터로 단위 테스트(mock 불필요) |
+| 한계 | Cycle Detection은 구조적 무결성만 보장하며, 순환이 아닌 의미적으로 잘못된 의존관계는 걸러내지 못한다(ADR-0023, 의도적으로 받아들인 위험) |
+
+## 실패 처리
+
+`run_stage_02()`는 Task & Dependency Agent 호출 또는 Deterministic Layer
+검증(예: Cycle 발견) 중 어느 단계에서 실패하더라도 `skeleton`/
+`specification`은 영향받지 않고, `tasks=[]`/`dependencies=[]`/
+`plan={"execution_order": []}`로 안전하게 채워 Contract의 5-key를 항상
+만족시킨다(`test_stage_02.py`의 fallback 테스트 참고).

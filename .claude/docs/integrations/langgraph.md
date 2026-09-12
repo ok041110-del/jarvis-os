@@ -181,6 +181,18 @@ Requires: langchain-core, langgraph-checkpoint, langgraph-prebuilt, langgraph-sd
 - **재검토 조건**: (1) ADC-02(Runtime 존폐)가 Accept로 판정되고, (2) 실제 Multi-Task/Workflow orchestration 구현 근거(Implementation Stop Trigger 또는 Kernel Extraction Candidate)가 발생하면, 그때 RFC → ADC → ADR 절차로 LangGraph를 Workflow Engine 구현 후보 중 하나로 정식 평가한다 — v1 ADR-0007과 이 문서가 그 시작점이 된다.
 - 이번 세션은 Kernel/Architecture/MVP 코드를 변경하지 않았다(`git status --short` 클린 확인) — PoC는 저장소 밖 임시 디렉터리에서만 수행했다.
 
+> **2026-09-08 갱신**: 위 판단(2026-08-30 시점)은 그대로 보존한다.
+> 이후 `docs/architecture/core/ADR-0019-langgraph-implementation-technology-adoption-baseline.md`가
+> `RFC-0031` → `ADC-0034` 절차로 별개 질문("LangGraph를 승인된
+> 비강제 구현 전략 후보로 사전 확정할 수 있는가")에 Accept로
+> 답했다 — Production 구현 착수는 여전히 미승인이며
+> `IMPLEMENTATION_RULES.md` 금지 조항도 무변경이다. 즉 "지금 배선할
+> 자리가 없다"는 위 판단과 "구현 전략 후보 목록에는 이제 있다"는
+> `ADR-0019` 판단은 서로 다른 층위의 질문이라 충돌하지 않는다.
+> 새 Evidence는 `projects/langgraph-conditional-routing-poc-v1/`
+> (PR #173, 실제 프로덕션 Capability + 실제 Engine 호출 기반
+> Conditional Routing Prototype)이다.
+
 ## 부록 A. 복구된 PoC 원본 (`poc.py`)
 
 **출처.** 이 스크립트는 최초 커밋 `a7fd7c5`(브랜치 `claude/context7-graphify-validation-g3raoe`)에 포함되지 않았다. PoC를 수행하고 `a7fd7c5`를 커밋한 세션의 transcript(`~/.claude/projects/-Users-chan-Developer-jarvis-os/16490bb3-7c0f-4794-abd8-1108d9074ede.jsonl`)에 남은 파일 생성·수정·실행 기록에서 전체를 복구했다. 원본 실행 환경은 별도 Linux 임시 디렉터리의 venv(Python 3.11, `langgraph==1.2.11`)였다.
