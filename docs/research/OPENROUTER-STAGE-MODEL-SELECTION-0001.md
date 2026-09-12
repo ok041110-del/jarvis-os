@@ -2,6 +2,16 @@
 
 ## Summary
 
+- **[Session 2 갱신] 반복 재현성 Validation 결과(§8) — Stage 02/03/04는
+  3/3 반복 성공 + 매번 동일한 Contract/Validation PASS로 재현성 확인
+  (PASS). Stage 01(`google/gemma-4-31b-it:free`)은 응답 품질 자체는
+  2/2 성공 시도 모두 동일하게 PASS했지만, 6회 시도 중 4회가 upstream
+  provider(Google AI Studio) shared pool 429로 실패해 **호출
+  가용성이 33%(2/6)에 불과했다** — 품질 재현성은 확인됐으나 가용성
+  재현성이 불충분해 **PARTIAL**로 판정한다(NOT DETERMINED는 아님 —
+  성공한 2회의 데이터 자체는 존재하고 일관됨). 최종 Model Mapping은
+  §8.6 참조.**
+- (이하는 §8 이전, 최초 선별 세션의 원래 Summary — 그대로 보존)
 - 이 세션에서 OpenRouter가 실제로 연결·인증됨을 전제로(`OPENROUTER-VALIDATION-0001.md`
   §8), Stage 01~04 각 역할에 실제 Jarvis 프롬프트/Contract를 그대로 사용해
   `:free` 모델 후보를 최소 2개씩 실제 호출·비교했다(`openrouter/free` 자동
@@ -244,3 +254,159 @@ def _first_doc_line(node) -> str:
 
 이 결과는 §5 최종 순위 산정에는 반영하지 않았다(실제 Stage 04 프롬프트
 스타일이 아니므로) — 참고 목적으로만 남긴다.
+
+---
+
+## 8. Session 2 — 반복 재현성 Validation
+
+**목적**: §1~§7(Session 1)이 각 Stage 1회 시도만으로 내린 1순위 판단이
+우연이 아니었는지, 선정된 4개 모델(Stage 01~04 각 1순위)을 동일 조건으로
+**최소 3회** 반복 호출해 확인한다. §1~§7의 판단을 뒤집을 근거가 나오면
+그대로 반영한다.
+
+**대상**(Session 1 §6 최종 1순위 그대로):
+
+```
+Stage 01 → google/gemma-4-31b-it:free
+Stage 02 → nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+Stage 03 → nvidia/nemotron-3-ultra-550b-a55b:free
+Stage 04 → nex-agi/nex-n2.5-mini:free
+```
+
+**방법**: Session 1과 완전히 동일한 프롬프트 파일(`stage01_prompt.txt`~
+`stage04_prompt.txt`, `call_or.py`, `stage04_harness.py`)을 그대로
+재사용했다 — 입력·Contract·검증 로직을 Session 1과 다르게 만들지 않았다.
+매 시도의 `cost`/`is_byok`를 확인해 무료 호출임을 재확인했다(§8.5).
+
+### 8.1 Stage 01 — `google/gemma-4-31b-it:free` (3회 시도 목표, 실제 6회 시도)
+
+| 시도 | 결과 | HTTP | latency | Contract(`parse_structured_output` 실제 함수로 검증) | 원인 구분 |
+|---|---|---|---|---|---|
+| 1 | 성공 | 200 | 6.19s | PASS(필수 키 5개 전부 존재) | - |
+| 2(최초) | 실패 | 429 | 0.24s | - | `upstream_provider_shared_pool`(Google AI Studio) — rate limit, 모델 결함 아님 |
+| 2(재시도 1, +20s 대기) | 실패 | 429 | 1.41s | - | 위와 동일 |
+| 2(재시도 2, +30s 대기) | 실패 | 429 | 0.58s | - | 위와 동일 |
+| 2(재시도 3, +45s 대기) | 실패 | 429 | 0.73s | - | 위와 동일 |
+| 2(재시도 4, +90s 대기) | 실패 | 429 | 0.60s | - | 위와 동일(누적 대기 약 3분, 계속 동일 원인) |
+| 3 | 성공 | 200 | 5.82s | PASS(필수 키 5개 전부 존재) | - |
+
+**요약**: 실제로 응답을 받은 2회(원래 1·3번째 시도)는 **둘 다 Contract를
+완전히 준수**했고 내용도 Session 1과 동일한 수준이었다(functional/
+non-functional/scope_candidates 명확). 그러나 같은 5분 남짓한 시간
+동안 같은 모델에 대한 **호출 자체의 성공률이 2/6 = 33%**였다 — 이는
+Session 1 §2가 이미 관찰한 "google/gemma-4-31b-it:free 1회 429" 패턴이
+우연한 1회성이 아니라 **이 모델(Google AI Studio 무료 공유 pool)의
+반복되는 특성**임을 이번 재검증이 확정했다는 뜻이다. `raw` 메시지가
+매번 정확히 "temporarily rate-limited upstream ... upstream_provider_shared_pool"
+로 동일해 **rate limit이지 모델 자체 결함(품질 저하, 응답 변질)이
+아님**을 명확히 구분할 수 있었다.
+
+### 8.2 Stage 02 — `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` (3/3 성공, 1회 재시도 포함)
+
+| 시도 | 결과 | HTTP | latency | Contract | tasks/dependencies |
+|---|---|---|---|---|---|
+| 1(최초) | 실패 | 502 | 0.36s | - | `Upstream error from Nvidia: ResourceExhausted: Worker local total request limit reached (16/16)` — provider capacity, 모델 결함 아님 |
+| 1(재시도, +10s) | 성공 | 200 | 20.90s | PASS | tasks=3, dependencies=2 |
+| 2 | 성공 | 200 | 17.56s | PASS | tasks=3, dependencies=2 |
+| 3 | 성공 | 200 | 13.83s | PASS | tasks=3, dependencies=2 |
+
+**요약**: 성공한 3회 전부 **tasks 3개·dependencies 2개로 완전히 동일한
+구조**를 산출했다 — Session 1의 "테스트/문서화 Task가 구현 Task에
+의존한다"는 판단이 우연이 아니라 **일관된 reasoning 패턴**임을
+확인했다. 1회의 502는 Stage 04 Session 1에서도 관찰된 것과 동일한
+Nvidia provider capacity 문제로, 10초 재시도로 즉시 해소됐다(Google
+AI Studio 사례와 달리 지속되지 않음).
+
+### 8.3 Stage 03 — `nvidia/nemotron-3-ultra-550b-a55b:free` (3/3 성공, 1차 시도로 전부 성공)
+
+| 시도 | 결과 | HTTP | latency | finish_reason | 6개 항목 커버리지 |
+|---|---|---|---|---|---|
+| 1 | 성공 | 200 | 33.90s | `stop` | 6/6 |
+| 2 | 성공 | 200 | 52.93s | `stop` | 6/6 |
+| 3 | 성공 | 200 | 71.70s | `stop` | 6/6 |
+
+**요약**: 3회 전부 자연 종료(`stop`)로 6개 필수 항목을 전부 포함했다 —
+Session 1의 "완결성" 결과가 재현됐다. 다만 **latency가 33.9s → 52.9s →
+71.7s로 시도마다 뚜렷이 증가**했다 — 이 세션 내에서 시간이 지날수록
+느려지는 추세가 관찰됐다(원인은 이 문서가 규명하지 않음 — provider
+부하 증가 추정, 반복 관찰 필요). Session 1의 65.6s 단일 관측치가
+"이 모델 특유의 높은 latency"라는 판단 자체는 재확인됐고, 오히려
+변동폭이 더 크다는 사실이 추가로 드러났다.
+
+### 8.4 Stage 04 — `nex-agi/nex-n2.5-mini:free` (3/3 성공, Stage 05 실제 검증 3회 전부 PASS)
+
+동일한 실제 대상(`backend_agent_code_review`)·동일한 Exposure Policy
+프롬프트·동일한 `stage_05.py` 실제 검증 함수(재구현 없음, import 그대로
+실행)를 사용했다. 매 회 검증 후 `backend.py`를 즉시 원본으로 복원했다.
+
+| 시도 | 결과 | HTTP | latency | `structural` | `design_scope` | `test_execution`(pytest) | Verdict |
+|---|---|---|---|---|---|---|---|
+| 1 | 성공 | 200 | 7.61s | PASS | PASS(`changed_names: []`) | PASS(`returncode=0`) | **PASS** |
+| 2 | 성공 | 200 | 10.67s | PASS | PASS(`changed_names: []`) | PASS(`returncode=0`) | **PASS** |
+| 3 | 성공 | 200 | 8.65s | PASS | PASS(`changed_names: []`) | PASS(`returncode=0`) | **PASS** |
+
+**요약**: 3회 전부 Session 1과 동일하게 **대상 함수만 정확히 수정**했고,
+매번 전체 pytest suite가 그대로 통과했다(324 passed, 6 skipped 유지,
+추가 실패 없음). Session 1의 PASS가 우연이 아니라 **일관된 정확한
+동작**임을 확인했다 — 4개 Stage 중 가장 확실하게 재현된 결과다.
+
+### 8.5 무료 호출 확인 (전체 재검증 대상)
+
+성공한 모든 호출(Stage 01 2건, Stage 02 3건 + 재시도 1건, Stage 03 3건,
+Stage 04 3건)에서 `usage.cost`를 확인한 결과 전부 `0`, `usage.is_byok`
+전부 `false`였다 — 이번 반복 검증도 예외 없이 순수 무료 티어 호출이었다.
+
+### 8.6 종합 — Stage별 재현성 판단
+
+| Stage | 모델 | 반복 성공률(응답 성공/시도) | 평균/범위 latency(성공한 호출만) | Validation 통과율(성공한 호출 중) | 재현성 판단 |
+|---|---|---|---|---|---|
+| 01 | `google/gemma-4-31b-it:free` | 2/6 = 33%(동일 원인의 429 반복) | 평균 6.00s, 범위 5.82~6.19s | 2/2 = 100% | **PARTIAL** — 응답 품질은 완전히 재현되나 호출 가용성 자체가 낮고 반복적으로 실패 |
+| 02 | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3/4 = 75%(1회 502는 provider 일시 문제, 즉시 재시도로 해소) | 평균 17.43s, 범위 13.83~20.90s | 3/3 = 100% | **PASS** — 성공 시 결과 구조(tasks=3, deps=2)까지 완전히 동일 |
+| 03 | `nvidia/nemotron-3-ultra-550b-a55b:free` | 3/3 = 100% | 평균 52.85s, 범위 33.90~71.70s(변동폭 큼) | 3/3 = 100% | **PASS** — 내용 재현성은 확실하나 latency 변동성은 운영 시 고려 필요 |
+| 04 | `nex-agi/nex-n2.5-mini:free` | 3/3 = 100% | 평균 8.98s, 범위 7.61~10.67s | 3/3 = 100%(Stage05 Verdict 전부 PASS) | **PASS** — 가장 안정적, latency도 가장 짧고 변동 적음 |
+
+### 8.7 Session 1과의 충돌 여부 분석
+
+- Stage 02/03/04는 Session 1의 1회 PASS 결과와 **충돌 없음** — 오히려
+  반복으로 더 강하게 뒷받침됐다.
+- Stage 01만 잠재적 충돌 소지가 있다 — Session 1은 1회 성공만 관찰해
+  "빠르고 정확"으로 1순위 판정했지만(§Stage별 실제 호출 결과 §3.1),
+  이번 §8.1이 **같은 모델의 반복 가용성 문제**를 추가로 드러냈다. 이는
+  Session 1의 판단이 "틀렸다"는 뜻이 아니라(성공했을 때의 품질 판단은
+  그대로 유효), **Session 1이 관찰하지 못했던 새로운 차원(가용성)의
+  Evidence가 이번에 추가된 것**이다 — 정직하게 원인을 분석하면 Google AI
+  Studio 무료 공유 pool 자체의 용량 문제이지, `google/gemma-4-31b-it`
+  모델의 추론 품질 문제가 아니다.
+
+### 8.8 최종 Model Mapping (Session 2, 재현성 검증 반영)
+
+```
+Stage 01 → google/gemma-4-31b-it:free   (PARTIAL — 응답 시 품질은 재현되나 가용성 33%, §8.1 참조)
+Stage 02 → nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free   (PASS)
+Stage 03 → nvidia/nemotron-3-ultra-550b-a55b:free   (PASS, latency 변동성 큼)
+Stage 04 → nex-agi/nex-n2.5-mini:free   (PASS, 가장 안정적)
+```
+
+Stage 01은 `NOT DETERMINED`로 표시하지 않는다 — 성공한 2회의 실제
+Evidence가 존재하고 서로 완전히 일치하기 때문이다. 다만 **PARTIAL**로
+명확히 구분해, Production 전환을 실제로 검토하는 단계(RFC 이후)에서는
+Stage 01에 한해 ① 같은 모델을 유지하되 재시도/대체 provider 전략을
+같이 설계하거나, ② 대체 후보(Session 1 §5의 2순위
+`nvidia/nemotron-3-super-120b-a12b:free`)의 반복 재현성도 별도로
+검증할 것을 권고한다 — 이 권고 자체는 Governance 판단이 아니라 다음
+검증 세션을 위한 메모이며, 이 문서가 RFC를 대신하지 않는다(§7 경계
+재확인, 무변경).
+
+### 8.9 Production/Architecture/Governance 영향 및 변경 범위
+
+- Stage 04 검증 3회 동안 `hqs/development/mvp/agents/backend.py`를 임시로
+  덮어썼으나 매 회 즉시 원본으로 복원했고, 이 섹션 작성 시점 기준
+  `git status --short`/`git diff --stat` 모두 출력 없음(무변경)을
+  확인했다.
+- API Key/Credential 값은 이번 재검증에서도 어디에도 출력·저장하지
+  않았다(§8.5는 `cost`/`is_byok` boolean만 기록).
+- Production 코드, Architecture/Contract/Governance 문서는 이 재검증에서
+  변경하지 않았다. 변경 범위는 이 문서(기존 파일 수정, §8 추가)로
+  제한된다.
+- §7(Architecture/Governance 경계, ADR-0024와의 충돌·RFC 필요성)의
+  결론은 이 §8로 번복되지 않는다.
