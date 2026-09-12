@@ -38,12 +38,20 @@ Production 최종 채택이 목적이 아니다. 상세 Evidence:
   전부(0/1/2/3/>3)를 재현하는 경계 조건 실험(OpenRouter 호출 없음,
   quota 미소모).
 - `tests/test_architecture_experiment.py` — offline 테스트 14개.
+- `domain/stage05_actual_implementation_fixture.py`,
+  `domain/stage05_deterministic_comparison.py`,
+  `domain/_sibling_import_stage05_harness.py`,
+  `run_stage05_revalidation.py`,
+  `tests/test_stage05_revalidation.py` — Stage 05 Actual Implementation
+  Revalidation(placeholder 결함 제거 재검증, 상세:
+  `docs/research/STAGE05-ACTUAL-IMPLEMENTATION-REVALIDATION-0001.md`).
 
 ## 실행
 
 ```
-python3 run_experiment.py           # Stage 01~05 x 3회, 실제 OpenRouter 호출 포함(quota 소모)
-python3 boundary_case_experiment.py # 5개 Case 재현, OpenRouter 호출 없음(quota 미소모)
+python3 run_experiment.py               # Stage 01~05 x 3회, 실제 OpenRouter 호출 포함(quota 소모)
+python3 boundary_case_experiment.py     # 5개 Case 재현, OpenRouter 호출 없음(quota 미소모)
+python3 run_stage05_revalidation.py     # Stage 05만, 실제 Stage04 Implementation으로 재검증(quota 소모)
 pytest tests/ -q
 ```
 
