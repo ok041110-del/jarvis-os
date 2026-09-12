@@ -389,3 +389,29 @@ def test_real_fixture_single_and_parallel_agree_and_repository_untouched():
 
     after = _tracked_source_diff()
     assert before == after == ""
+
+
+# ---- 8. Latency experiment repeatability (통계 계산 자체의 정확성) -------
+
+
+def test_compute_stats_is_deterministic_and_correct():
+    from latency_budget_repeatability_experiment import compute_stats
+
+    values = [100.0, 200.0, 300.0]
+    stats = compute_stats(values)
+    assert stats["mean_ms"] == 200.0
+    assert stats["p50_ms"] == 200.0
+    assert stats["min_ms"] == 100.0
+    assert stats["max_ms"] == 300.0
+    # 같은 입력에 대해 반복 호출해도 항상 동일한 값(비결정성 없음).
+    assert compute_stats(values) == stats
+
+
+def test_deselect_args_target_exactly_the_three_known_slow_tests():
+    from latency_budget_repeatability_experiment import _SLOW_DESELECT
+
+    deselected = [arg for arg in _SLOW_DESELECT if arg != "--deselect"]
+    assert len(deselected) == 3
+    assert any("test_github_adapter_real.py" in d for d in deselected)
+    assert any("test_chatgpt_engine.py::test_timeout_raises_runtime_error" in d for d in deselected)
+    assert any("test_omniroute_engine.py::test_timeout_raises_runtime_error" in d for d in deselected)
