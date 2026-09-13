@@ -1,6 +1,3 @@
-"""Stage 01: Context Analysis 실행 진입점(ADR-0008) — 기존 `mvp/` 함수를
-호출만 한다(CAPABILITIES.md, ADR-0001 §5)."""
-
 import sys
 from pathlib import Path
 
@@ -11,8 +8,8 @@ from mvp.project_intelligence import build_context_bundle, collect_relevant_cont
 
 
 def run_stage_01(issue: dict, target: tuple | None = None) -> dict:
-    """Capability 5개를 실행해 후속 Stage 입력을 만든다. `target` 없으면
-    `dependency_closure`는 `None`(시작점 식별은 이 Stage 책임 아님, CONTEXT.md)."""
+    """`target` 없으면 `dependency_closure`는 `None`이다 — 시작점 식별은
+    이 Stage 책임이 아니다(CONTEXT.md)."""
     # build_context_bundle()이 버리는 키라 별도 호출로 얻는다(둘 다 Engine 미호출).
     directory_structure = collect_relevant_context(issue)["directory_structure"]
     context_bundle = build_context_bundle(issue)
