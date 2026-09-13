@@ -79,6 +79,9 @@ class _Handler(BaseHTTPRequestHandler):
         self._write_json(200, {"data": _DEFAULT_FREE_MODELS})
 
     def do_POST(self):
+        # 모드와 무관하게 모든 POST 시도를 센다 — bounded retry의 실제
+        # 호출 횟수(종료 조건)를 테스트가 검증할 수 있게 한다.
+        self.server.call_count += 1  # type: ignore[attr-defined]
         mode = getattr(self.server, "post_mode", self.server.mode)  # type: ignore[attr-defined] # POST 전용(Chat Completions)
         length = int(self.headers.get("Content-Length", 0))
         raw = self.rfile.read(length) if length else b""
@@ -114,8 +117,7 @@ class _Handler(BaseHTTPRequestHandler):
             return
 
         if mode == "recover_on_retry":
-            self.server.call_count += 1  # type: ignore[attr-defined]
-            if self.server.call_count == 1:  # type: ignore[attr-defined]
+            if self.server.call_count == 1:  # type: ignore[attr-defined] # 상단에서 이미 카운트됨
                 self._write_json(500, {"error": {"message": "transient upstream failure"}})
             else:
                 self._write_json(

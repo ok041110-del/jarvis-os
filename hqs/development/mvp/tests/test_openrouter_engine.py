@@ -83,10 +83,49 @@ def test_models_fetch_failure_raises_runtime_error(monkeypatch):
 
 def test_transient_failure_recovers_on_bounded_retry(monkeypatch):
     """첫 attempt는 500, 두 번째(재시도)는 성공 — bounded retry가 실제로
-    응답을 회복시키는지 확인한다."""
-    with FakeOpenRouterServer(mode="recover_on_retry") as base_url:
+    응답을 회복시키는지 확인한다(Gate #9: retry 수행 확인)."""
+    server = FakeOpenRouterServer(mode="recover_on_retry")
+    with server as base_url:
         monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
         assert call_engine_via_openrouter("hello") == "FAKE_OPENROUTER_RECOVERED"
+    assert server._server.call_count == 2  # 최초 1회 + 재시도 1회, 정확히 2번만
+
+
+def test_successful_first_attempt_does_not_retry(monkeypatch):
+    """1차 시도가 성공하면 재시도를 하지 않는다 — bounded retry가 불필요한
+    추가 호출을 만들지 않는지 확인한다(Gate #9: 종료 조건)."""
+    server = FakeOpenRouterServer(mode="success")
+    with server as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        call_engine_via_openrouter("hello")
+    assert server._server.call_count == 1
+
+
+def test_persistent_failure_stops_after_exactly_two_attempts(monkeypatch):
+    """매 attempt가 계속 실패해도 무한 재시도하지 않고 정확히 2번(최초 1회
+    + bounded retry 1회)만 시도한 뒤 terminal failure로 종료한다
+    (Gate #9: retry 횟수/종료 조건, terminal failure까지 정상 종료)."""
+    server = FakeOpenRouterServer(mode="server_error")
+    with server as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError):
+            call_engine_via_openrouter("hello")
+    assert server._server.call_count == 2
+
+
+def test_quota_failure_still_attempts_bounded_retry(monkeypatch):
+    """quota(429)는 모델 품질 실패와 분리 분류되지만, 그 자체로 재시도
+    자체를 건너뛰지는 않는다(다른 원인의 일시적 실패 가능성을 배제하지
+    않기 위함, `openrouter_engine.py::call_engine_via_openrouter`
+    docstring) — quota 분류가 retry 로직 자체를 바꾸지 않는지 확인한다
+    (Gate #9/#10 경계 확인)."""
+    server = FakeOpenRouterServer(mode="quota")
+    with server as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            call_engine_via_openrouter("hello")
+    assert server._server.call_count == 2
+    assert "429_quota" in str(exc_info.value)
 
 
 # ---- 3. Free Pool 조회 + Deterministic Filter + Candidate 0/1/2/3/>3 ---------
