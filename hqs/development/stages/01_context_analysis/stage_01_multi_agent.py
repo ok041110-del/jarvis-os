@@ -34,9 +34,8 @@ from mvp.parallel_runner import ParallelRunner, ParallelTask, RetryPolicy  # noq
 DEFAULT_REPOSITORY_OWNER = "ok041110-del"
 DEFAULT_REPOSITORY_NAME = "jarvis-os"
 
-# LLM 호출은 일시적 오류(RuntimeError, `call_engine_via_omniroute` 계약)에
-# 한해서만 제한적으로 재시도한다(§5) — 스키마 검증 실패(`AgentOutputError`)는
-# 재시도하지 않고 즉시 INVALID_OUTPUT으로 분류한다.
+# LLM 호출은 일시적 오류(RuntimeError)에 한해서만 재시도한다(§5) —
+# 스키마 검증 실패(`AgentOutputError`)는 즉시 INVALID_OUTPUT으로 분류한다.
 _AGENT_RETRY_POLICY = RetryPolicy(max_attempts=2, retry_on=(RuntimeError,))
 _AGENT_TIMEOUT_SECONDS = 180.0
 _CODE_ANALYSIS_TIMEOUT_SECONDS = 60.0

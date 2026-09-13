@@ -15,9 +15,8 @@ _DEFAULT_FREE_MODELS = [
     {"id": "vendor-c/model-3:free", "context_length": 200000, "architecture": {"input_modalities": ["text"], "output_modalities": ["text"]}},
     {"id": "vendor-d/model-4:free", "context_length": 200000, "architecture": {"input_modalities": ["text"], "output_modalities": ["text"]}},
     {"id": "vendor-e/model-5:free", "context_length": 200000, "architecture": {"input_modalities": ["text"], "output_modalities": ["text"]}},
-    # 이 두 모델도 모델 이름만으로 Deterministic Filter의 실측 exclusion
-    # 목록에 걸려야 KEPT에서 빠진다(테스트가 실제로 이 필터를 검증하려면
-    # 이름이 그 상수와 일치해야 하므로, 별도 mode에서만 pool에 섞는다).
+    # 이 두 모델도 실측 exclusion 목록에 이름이 걸려야 KEPT에서 빠진다 —
+    # 필터 검증을 위해 별도 mode에서만 pool에 섞는다.
 ]
 
 _NONFUNCTIONAL_MODEL_IDS = ["thinkingmachines/inkling:free", "thinkingmachines/inkling-small:free"]
@@ -142,9 +141,8 @@ class FakeOpenRouterServer:
     def __enter__(self):
         self._thread.start()
         port = self._server.server_address[1]
-        # GET/POST가 서로 다른 mode를 써야 하는 테스트를 위해, 핸들러가
-        # do_GET에서는 `_models_mode`(없으면 기본 Pool), do_POST에서는
-        # `_post_mode`를 보도록 서버 객체에 둘 다 실어 둔다.
+        # GET/POST가 서로 다른 mode를 쓰는 테스트를 위해, do_GET은 `_models_mode`
+        # (없으면 기본 Pool), do_POST는 `_post_mode`를 서버 객체에 싣는다.
         self._server.mode = self._models_mode or "default_pool"
         self._server.post_mode = self._post_mode
         return f"http://127.0.0.1:{port}"

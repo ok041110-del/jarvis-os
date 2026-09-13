@@ -124,17 +124,13 @@ def build_dev_hq_snapshot() -> HQSnapshot:
 
 
 _DIRECTION_RE = re.compile(r"Direction:\**\s*([A-Za-z]{3,10})", re.IGNORECASE)
-# Rationale/Reassess when — 3개 실제 Team `trader_decision.md`가 공유하는
-# `- **Label...:** 본문` bullet 구조에서, 다음 bullet(`\n-`) 또는 파일
-# 끝까지를 본문으로 잡는다(Label 뒤 `**` 위치가 팀마다 달라도— aapl/pg는
-# `Direction: HOLD**`, efa는 `Direction:** HOLD` — `\**`가 둘 다 흡수한다).
+# Rationale/Reassess when — 3개 팀 `trader_decision.md`가 공유하는 bullet
+# 구조에서 다음 bullet/파일 끝까지를 본문으로 잡는다(Label 뒤 `**` 위치가 팀마다 다름).
 _RATIONALE_RE = re.compile(r"Rationale:\**\s*(.+?)(?=\n-\s|\Z)", re.IGNORECASE | re.DOTALL)
 _REASSESS_RE = re.compile(r"Reassess when:\**\s*(.+?)(?=\n-\s|\Z)", re.IGNORECASE | re.DOTALL)
 
-# 팀 식별에 실제로 쓸 수 있는 유일한 근거: dogfooding 디렉터리명이 전부
-# "{ticker prefix}-..." 형태다(History Architecture Investigation §2에서
-# 9개 디렉터리 전수 확인, 예외 없음). Representative run(detail/execution/
-# status 계산용, 기존 동작 유지)은 team별 trader-verify 1개로 고정한다.
+# 팀 식별의 유일한 근거는 디렉터리명 "{ticker prefix}-..." 형태다(History
+# Architecture Investigation §2, 9개 전수 확인). Representative run은 trader-verify 1개로 고정.
 _TEAM_PREFIXES = {
     "Stock (AAPL)": "aapl",
     "Dividend Stock (PG)": "pg",
@@ -146,12 +142,8 @@ _TEAM_RUNS = {
     "ETF (EFA)": "efa-trader-verify",
 }
 
-# 팀별 전체 Task 수 — `hqs/investment/teams/*.py`의 `run()`에 실제
-# 존재하는 Wave1 분석 역할 수(dict 리터럴 키 개수) + 고정 4단계
-# (bull_case, bear_case, trader_decision, final_report)를 그대로 옮긴
-# 값이다(팀 코드를 import하지 않으므로 리터럴로 재선언, 회귀 테스트로
-# drift 감지). `trader_decision` 단계가 실제 관측되는 현재
-# `trader-verify` 계열 run에만 적용한다.
+# 팀별 전체 Task 수 — `run()`의 실제 분석 역할 수 + 고정 4단계를 리터럴로
+# 재선언한다(팀 코드 미import, 회귀 테스트로 drift 감지, trader-verify run에만 적용).
 _TEAM_TOTAL_STEPS = {
     "Stock (AAPL)": 9,  # fundamental/technical/industry/news_event/sentiment(5) + bull_case + bear_case + trader_decision + final_report
     "Dividend Stock (PG)": 11,  # fundamental/dividend_quality/valuation/technical/industry/news_event/sentiment(7) + 4

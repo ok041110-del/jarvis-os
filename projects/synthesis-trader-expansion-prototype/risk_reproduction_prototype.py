@@ -89,11 +89,8 @@ def run_case(name: str, portfolio_state: str, decisions: str) -> None:
     print(f"[{name}] done", flush=True)
 
 
-# --- Case 2: PG + JNJ, Dividend Stock Cross-Team, ETF 없음, "방어적 배당
-# 슬리브 결합 노출" 정책. 실제 Trader Decision(PG/JNJ, 이미 존재하는
-# 실제 산출물) 재사용. 슬리브 상한(15%)과 실제 결합 비중(18%)은 정책
-# 위반이 발생하도록 이번 실험을 위해 의도적으로 설계(synthetic control,
-# §4 명시).
+# Case 2: PG+JNJ, 방어적 배당 슬리브 결합 노출 정책 — 실제 Trader Decision
+# 재사용, 슬리브 상한(15%)/실제 결합(18%) 위반은 의도적 설계(synthetic control, §4).
 CASE2_PORTFOLIO = """[PORTFOLIO STATE — hypothetical, constructed for this exercise]
 Direct Holding: PG, 10% of portfolio value. Trader Decision: HOLD.
 Direct Holding: JNJ, 8% of portfolio value. Trader Decision: HOLD.
@@ -105,9 +102,8 @@ STATED PORTFOLIO POLICY (explicit, configured for this portfolio):
   sensitivity) must not exceed 15% of total portfolio value."
 """
 
-# --- Case 3: CAT 단독, Negative Control. 실제 Trader Decision(CAT) +
-# 실제 정책(5% 상한, Portfolio Need Dogfooding에서 이미 사용) 재사용 —
-# 신규 데이터 생성 없음.
+# Case 3: CAT 단독, Negative Control — 실제 Trader Decision·정책(5% 상한)
+# 재사용, 신규 데이터 생성 없음.
 CASE3_PORTFOLIO = """[PORTFOLIO STATE — hypothetical, reused verbatim from prior Dogfooding]
 Direct Holding: CAT, 2% of portfolio value. Trader Decision: HOLD.
 No other industrial/machinery holdings, no overlapping ETF exposure to CAT above 0.1%.

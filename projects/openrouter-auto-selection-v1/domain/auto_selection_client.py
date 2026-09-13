@@ -17,8 +17,7 @@ OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions
 FailureClass = str  # "http_429" | "http_5xx" | "timeout" | "malformed_output" | "contract_failure" | "empty_response" | "connection_error"
 
 # 재시도 가능 여부 표(사용자 지시 §6) — Contract failure/malformed output도
-# 재시도 가능하지만, 재시도 시 실패한 모델을 Pool에서 제외한다(다른 free
-# model이 선택되도록, RetryPolicy.exclude_failed_model_from_retry_pool).
+# 재시도 가능하나, 재시도 시 실패 모델을 Pool에서 제외한다.
 _RETRYABLE_FAILURE_CLASSES = frozenset(
     {"http_429", "http_5xx", "timeout", "malformed_output", "empty_response", "contract_failure"}
 )

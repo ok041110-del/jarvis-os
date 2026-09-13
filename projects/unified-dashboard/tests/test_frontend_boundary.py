@@ -10,10 +10,8 @@ from pathlib import Path
 
 FRONTEND_SRC = Path(__file__).resolve().parents[1] / "frontend" / "src"
 
-# 실제 import/require/호출 구문만 검사한다 — 주석·문서 문자열에 원칙을
-# 설명하기 위해 등장하는 단어(예: "subprocess/child_process/fs로
-# 접근하지 않는다")까지 위반으로 오탐하지 않도록, 코드로서 의미를
-# 갖는 패턴만 정규식으로 한정한다.
+# 실제 import/require/호출 구문만 검사한다 — 주석·문서 문자열에 등장하는
+# 단어까지 위반으로 오탐하지 않도록 코드로서 의미 있는 패턴만 정규식으로 한정.
 _FORBIDDEN_CODE_PATTERNS = (
     re.compile(r"""(?:from|require\()\s*["'](node:)?(child_process|fs|fs/promises)["']"""),
     re.compile(r"\bexecSync\s*\("),

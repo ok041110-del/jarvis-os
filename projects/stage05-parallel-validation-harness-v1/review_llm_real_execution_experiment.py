@@ -94,9 +94,8 @@ def main() -> dict:
     ctx = build_validation_context(fixture)
     engine_call = make_openrouter_engine_call(MODEL, max_tokens=MAX_TOKENS)
 
-    # Review Input 경계 확인 — Structure/Scope/AST/Dependency/Test 결과는
-    # 실제로 계산은 하되(Aggregator/중복 비교용) LLM 프롬프트에는 전달하지
-    # 않는다(별도 변수로 격리, review_validator에는 ctx만 전달됨).
+    # Review Input 경계 확인 — Structure/Scope/AST/Dependency/Test 결과는 계산은
+    # 하되(Aggregator/중복 비교용) LLM 프롬프트에는 전달하지 않는다(별도 변수로 격리).
     deterministic_results = [
         structure_validator(ctx),
         scope_validator(ctx),
@@ -113,9 +112,7 @@ def main() -> dict:
         runs.append(result)
 
     # Aggregator 재확인 — Review 실행 결과와 무관하게 deterministic Verdict가
-    # 동일해야 한다(Test는 이번 실험 범위 밖이므로 PASS로 고정 주입해 Verdict
-    # 계산 로직 자체만 검증한다 — 실제 Test 실행은 latency 비교용으로 별도
-    # 인용, 이 스크립트가 재실행하지 않음).
+    # 동일해야 한다(Test는 범위 밖이라 PASS로 고정 주입, Verdict 계산 로직만 검증).
     fixed_test_result = ValidatorResult("test", "PASS", 0.0, {"note": "이 실험 범위 밖, 별도 latency 인용"})
     verdicts = []
     for run in runs:

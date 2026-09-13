@@ -36,10 +36,8 @@ architecture_team = _load_team("architecture", "architecture_team")
 implementation_team = _load_team("implementation", "implementation_team")
 validation_team = _load_team("validation", "validation_team")
 
-# 기존 화이트박스 테스트(`mvp/tests/test_workflow_integrated.py`)가
-# `workflow.stage_0N.run_stage_0N`을 monkeypatch하므로, Team이 내부에서
-# 로드한 것과 동일한 Stage 모듈 객체를 그대로 노출한다(Team 도입으로 Stage
-# 재사용 capability의 정체성이 바뀌지 않았음을 보장).
+# 기존 화이트박스 테스트가 `workflow.stage_0N.run_stage_0N`을 monkeypatch하므로,
+# Team이 로드한 것과 동일한 Stage 모듈 객체를 그대로 노출한다.
 stage_01 = context_team.stage_01
 stage_02 = planning_team.stage_02
 stage_03 = architecture_team.stage_03

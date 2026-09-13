@@ -15,9 +15,8 @@ from engine_caller import call_engine  # noqa: E402
 PROTO_ROOT = Path(__file__).resolve().parent
 OUTPUT_DIR = PROTO_ROOT / "output"
 
-# 서로 완전히 독립적인 3개 Task — 공유 상태 없음, 서로의 출력을 입력으로 쓰지 않음.
-# Dev HQ(code_review/test_execution)도 Investment HQ(Stock/ETF/Dividend Stock)도
-# 아닌 일반 상식 도메인.
+# 서로 완전히 독립적인 3개 Task — 공유 상태 없음, 서로 출력을 입력으로 쓰지
+# 않음(Dev HQ/Investment HQ 아닌 일반 상식 도메인).
 TASKS = {
     "tides": "In 2-3 sentences, explain in plain prose why ocean tides happen.",
     "autumn_leaves": "In 2-3 sentences, explain in plain prose why leaves change color in autumn.",

@@ -126,9 +126,8 @@ def main() -> dict:
     )
 
     requirement = build_stage_requirements()["stage05_review"]
-    # Requirement의 prompt는 그대로 두되(다른 Stage와 동일한 min_context 추정
-    # 로직 재사용), 실제 OpenRouter 호출에는 위에서 만든(placeholder 없는)
-    # prompt를 쓴다 — 이 실험의 핵심 수정(§핵심 수정)이 여기서 실제로 적용된다.
+    # Requirement의 prompt는 그대로 두고(동일 min_context 추정 재사용), 실제
+    # 호출에는 위에서 만든 placeholder 없는 prompt를 쓴다(이 실험의 핵심 수정).
 
     runs = []
     for rep in range(1, RUN_COUNT + 1):

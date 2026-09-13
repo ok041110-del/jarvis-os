@@ -29,10 +29,8 @@ def test_directory_structure_excludes_noise_dirs():
     assert not any("__pycache__" in entry for entry in result)
 
 
-# CATEGORY_PATHS["source_code"] Blind Spot 회귀 테스트 (Phase 2.5 Case D).
-# 수정 전에는 hqs/development/mvp만 대상이라 cli.py/workflow.py/stages/가
-# candidate에서 구조적으로 제외됐다 — 각 파일의 고유 식별자를 키워드로
-# 써서 실제로 후보에 포함되는지 확인한다.
+# CATEGORY_PATHS["source_code"] Blind Spot 회귀 테스트(Phase 2.5 Case D) —
+# 수정 전엔 mvp만 대상이라 cli.py/workflow.py/stages/가 제외됐었다.
 
 
 def test_source_code_scope_includes_v2_workflow_entrypoint():

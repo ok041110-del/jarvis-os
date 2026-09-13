@@ -21,9 +21,8 @@ class CandidateSelectionResult:
 
 
 def select_candidates(stage: str, filter_results: tuple[ModelFilterResult, ...]) -> CandidateSelectionResult:
-    # `filter_results`는 `free_pool.fetch_free_pool()`이 반환한 OpenRouter 응답
-    # 순서를 그대로 보존한다(deterministic_filter.py가 재정렬하지 않음) — 이
-    # 순서 자체가 tie-break의 근거(RFC-0040 §Candidate Selection Boundary)다.
+    # `filter_results`는 OpenRouter 응답 순서를 그대로 보존한다(재정렬 없음) —
+    # 이 순서 자체가 tie-break 근거다(RFC-0040 §Candidate Selection Boundary).
     kept_ids = tuple(r.model_id for r in filter_results if r.overall == "KEPT")
     kept_count = len(kept_ids)
 

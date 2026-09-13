@@ -29,10 +29,8 @@ _VALIDATED_DOCSTRING_AND_GUARD = (
     '        raise ValueError("code must be a non-empty string.")\n'
 )
 
-# Stage 03 Design — 이 Fixture가 흉내 내는 요구사항(입력 검증 추가)에 대한
-# 고정 Design 텍스트. 실제 Stage 03 Engine을 호출하지 않는다 — 이전 세션
-# (`OPENROUTER-STAGE-MODEL-SELECTION-0001.md` §3.3)이 동일 시나리오로
-# 실제 Design Agent를 호출해 검증한 것과 같은 요구사항을 고정 텍스트로 재사용.
+# Stage 03 Design — 이 Fixture가 흉내 내는 요구사항의 고정 Design 텍스트.
+# 실제 Stage 03 Engine을 호출하지 않는다(이전 세션 §3.3과 동일 요구사항 재사용).
 FIXED_DESIGN_CONTEXT = (
     "Design: Add input validation to backend_agent_code_review.\n\n"
     "Approach: at the top of the function body, check that `code` is a "

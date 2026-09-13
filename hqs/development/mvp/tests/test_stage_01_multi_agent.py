@@ -141,9 +141,8 @@ def test_all_agents_timeout_still_produces_output_not_a_crash(monkeypatch):
 
     result = stage_01_multi_agent.run_stage_01_multi_agent(SAMPLE_ISSUE, adapter=adapter)
 
-    # Reasoning이 전부 INSUFFICIENT여도 Code Analysis/PRD Synthesis는 계속
-    # 진행되어 기존 Contract 6-key(`prd` 포함)를 채운 dict를 반환한다
-    # (크래시하지 않음).
+    # Reasoning이 전부 INSUFFICIENT여도 Code Analysis/PRD Synthesis는 계속돼
+    # 기존 6-key Contract를 채운 dict를 반환한다(크래시하지 않음).
     assert set(result.keys()) == {
         "directory_structure", "context_bundle", "candidate_index", "target", "dependency_closure", "prd",
     }

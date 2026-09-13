@@ -137,9 +137,8 @@ def test_design_scope_handles_malformed_implementation_without_raising(tmp_path,
     assert "parse_error" in result
 
 
-# Phase 2.5 Case C 회귀: rename/multi-site 요구와 Exposure Policy가
-# 충돌할 때 Engine이 EXPOSURE_POLICY_CONFLICT 마커로 응답하면, 모호한
-# parse_error 대신 구조화된 policy_conflict로 FAIL 처리해야 한다.
+# Phase 2.5 Case C 회귀 — rename/multi-site 요구와 Exposure Policy 충돌 시,
+# 모호한 parse_error 대신 구조화된 policy_conflict로 FAIL 처리해야 한다.
 def test_design_scope_reports_structured_policy_conflict(tmp_path, monkeypatch):
     fake_module = tmp_path / "sample_module.py"
     fake_module.write_text(ORIGINAL_SOURCE)

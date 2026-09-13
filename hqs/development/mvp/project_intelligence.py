@@ -13,9 +13,8 @@ _EXECUTION_LAYER = ROOT / "docs" / "core" / "execution-layer"
 
 # 카테고리별 (검색 대상 디렉토리 1개 또는 여러 개, glob 패턴, 제외 디렉토리명)
 CATEGORY_PATHS = {
-    # `hqs/development` 전체(mvp/, stages/, cli.py, workflow.py)를 재귀 탐색한다
-    # — 이전에는 mvp/만 대상이라 v2.0 Stage 파이프라인(cli.py/workflow.py/
-    # stages/)이 candidate에서 구조적으로 제외돼 있었다(Phase 2.5 Case D).
+    # `hqs/development` 전체를 재귀 탐색한다 — 이전엔 mvp/만 대상이라 v2.0
+    # Stage 파이프라인(cli.py/workflow.py/stages/)이 후보에서 제외됐었다(Phase 2.5 Case D).
     "source_code": (ROOT / "hqs" / "development", "*.py", {"tests", "__pycache__"}),
     "existing_workflow": (ROOT / "hqs" / "development" / "mvp", "workflow*.py", {"__pycache__"}),
     "mvp_documents": (ROOT / "docs" / "01_mvp", "*.md", set()),
@@ -86,9 +85,8 @@ _NOISE_DIR_NAMES = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache", ".r
 
 
 def _directory_structure(max_depth: int = 2) -> list:
-    # `max_depth`는 각 base 기준 깊이다 — ROOT 기준으로 재면 base 경로
-    # 자체가 이미 depth를 소모해 base 하위가 통째로 잘려나간다(실제
-    # Blind Spot, DEV-HQ-V2.0-CATEGORY-PATHS-BLIND-SPOT-REVIEW-0001 §7.2).
+    # `max_depth`는 각 base 기준 깊이다 — ROOT 기준으로 재면 base 경로 자체가
+    # depth를 소모해 base 하위가 잘려나간다(Blind Spot, REVIEW-0001 §7.2).
     structure = []
     for base in (ROOT / "hqs" / "development", ROOT / "docs"):
         if not base.exists():

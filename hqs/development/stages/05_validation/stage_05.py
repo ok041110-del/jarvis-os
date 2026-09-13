@@ -17,12 +17,8 @@ from mvp.workflow import _engine_failure_message, is_engine_failure
 _TESTS_DIR = ROOT / "hqs" / "development" / "mvp" / "tests"
 _PYTEST_TIMEOUT_SECONDS = 300
 
-# VerificationRequirement — 이 Stage가 실행할 수 있는 결정적 검증 항목의
-# 전체 이름 집합(`contracts.KNOWN_CHECK_NAMES`와 동일, Single Source of
-# Truth). `run_stage_05()`가 받는 `required_checks`는 이 중 실제로 이번
-# 실행에서 실행·판정에 반영할 부분집합이며, 여기 없는 항목은 SKIPPED로
-# 표시되고 실행되지도 Verdict에 반영되지도 않는다. BLOCKING 항목의 FAIL은
-# Verdict를 FAIL로 만들고, 나머지는 미충족 시 PARTIAL만 유발한다.
+# REQUIRED_CHECKS — 이 Stage가 실행 가능한 검증 항목 전체 집합(SSOT,
+# `contracts.KNOWN_CHECK_NAMES`와 동일). BLOCKING 항목 FAIL만 Verdict를 FAIL로 만든다.
 REQUIRED_CHECKS = contracts.KNOWN_CHECK_NAMES
 _BLOCKING_CHECKS = frozenset({"structural", "design_scope", "test_execution"})
 
@@ -46,10 +42,8 @@ def _evaluate_test_execution(check: dict) -> tuple:
     return blocking_fail, not check["executed"]
 
 
-# name -> raw check dict를 (blocking_fail, incomplete)로 평가하는 함수.
-# `_determine_verdict()`와 `_build_check_results()`가 이 하나의 표를
-# 공유해 두 곳의 판정 규칙이 서로 다른 값으로 갈라지지 않게 한다(이전
-# 감사에서 지적된 "따로 계산되어 우연히 일치할 뿐"이라는 문제의 해소).
+# name -> (blocking_fail, incomplete) 판정표 — `_determine_verdict()`와
+# `_build_check_results()`가 공유해 두 곳 판정이 갈라지지 않게 한다.
 _CHECK_EVALUATORS = {
     "structural": _evaluate_structural,
     "specification_scope": _evaluate_specification_scope,
@@ -71,10 +65,8 @@ def _check_specification_scope(target, stage_02_output: dict) -> dict:
 
     module_name, _ = target
     target_path = str(module_source_path(module_name).relative_to(ROOT))
-    # Stage 02 Output은 top-level 키(`skeleton`)만 Contract로 보장되고
-    # `skeleton` 내부 구조(`scope_candidates`)는 Hidden이라 결측 가능 —
-    # 판정 불가(target 미상과 동일한 None)로 처리하고 raw KeyError로
-    # Stage 전체를 죽이지 않는다.
+    # Stage 02는 `skeleton`만 Contract로 보장한다 — 내부 `scope_candidates`는
+    # Hidden이라 결측 가능(판정 불가로 처리, raw KeyError로 죽이지 않음).
     scope_candidates = stage_02_output.get("skeleton", {}).get("scope_candidates")
     if scope_candidates is None:
         return {"target_in_scope": None}
@@ -97,11 +89,8 @@ def _check_design_scope(target, expose_target: bool, implementation: str) -> dic
     if target is None or not expose_target:
         return {"scope_ok": None, "changed_names": []}
 
-    # Stage 04 Exposure Policy(단일 함수 본문만 허용)가 Design과 구조적으로
-    # 충돌할 때 Engine이 낼 수 있는 결정적 신호(workflow_ast_context.py
-    # `_EXPOSURE_POLICY_INSTRUCTION`) — 자유 텍스트를 코드로 오인해
-    # 모호한 SyntaxError로 보고하는 대신 원인을 명시적으로 구조화한다
-    # (Phase 2.5 Case C, rename/multi-site 설계 vs 단일 함수 노출 정책).
+    # Exposure Policy 충돌 시 Engine의 결정적 신호 — 모호한 SyntaxError 대신
+    # 원인을 구조화해 policy_conflict로 반환한다(Phase 2.5 Case C).
     if implementation.strip().startswith(_EXPOSURE_POLICY_CONFLICT_PREFIX):
         reason = implementation.strip()[len(_EXPOSURE_POLICY_CONFLICT_PREFIX):].strip()
         return {"scope_ok": False, "changed_names": [], "policy_conflict": reason}
@@ -111,10 +100,8 @@ def _check_design_scope(target, expose_target: bool, implementation: str) -> dic
     original_defs = _top_level_defs(original_source)
 
     try:
-        # `implementation`은 Engine이 생성한 신뢰할 수 없는 입력이다 —
-        # malformed Python(미종료 문자열/괄호, 잘못된 들여쓰기 등)이면
-        # raw SyntaxError로 Stage 전체를 죽이는 대신 scope 위반과 동일하게
-        # blocking FAIL로 구조화한다.
+        # `implementation`은 신뢰할 수 없는 Engine 출력이다 — malformed Python이면
+        # raw SyntaxError 대신 scope 위반과 동일하게 blocking FAIL로 구조화한다.
         new_defs = _top_level_defs(implementation)
     except SyntaxError as exc:
         return {"scope_ok": False, "changed_names": [], "parse_error": str(exc)}
@@ -131,9 +118,8 @@ def _run_pytest_with_applied_implementation(target, expose_target: bool, impleme
     if target is None or not expose_target:
         return {"executed": False, "returncode": None, "output": ""}
 
-    # Exposure Policy 충돌 신호는 애초에 코드가 아니므로 파일에 적용해
-    # pytest를 돌리면 design_scope와 무관한 collection error 노이즈만
-    # 남는다 — design_scope가 이미 FAIL로 판정하므로 실행을 건너뛴다.
+    # Exposure Policy 충돌 신호는 코드가 아니므로 pytest를 돌리면 노이즈만
+    # 남는다 — design_scope가 이미 FAIL 판정하므로 실행을 건너뛴다.
     if implementation.strip().startswith(_EXPOSURE_POLICY_CONFLICT_PREFIX):
         return {"executed": False, "returncode": None, "output": "(design_scope policy_conflict로 건너뜀)"}
 
@@ -239,9 +225,8 @@ def run_stage_05(stage_02_output: dict, stage_04_output: dict, required_checks=N
         else None
     )
 
-    # Code Review 실행 여부는 "structural이 required인지"와 무관하게,
-    # Stage 04 Output 자체의 Engine 실패 여부로만 판단한다(구 동작과 동일
-    # — structural을 skip해도 이 게이팅은 깨지지 않는다).
+    # Code Review 실행 여부는 structural 필수 여부와 무관하게 Stage 04 Output의
+    # Engine 실패 여부로만 판단한다(구 동작과 동일).
     if is_engine_failure(implementation):
         code_review = "(Stage 04 Engine 실패로 Code Review를 건너뜀)"
     else:

@@ -11,10 +11,8 @@ from dataclasses import dataclass
 
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
 
-# 이 세션(및 선행 세션)이 실제로 호출해 확인한, plain chat completion
-# 자체가 구조적으로 불가능한 모델 — `OPENROUTER-STAGE-MODEL-SELECTION-0001.md`
-# §2 실측: "이 모델은 agentic harness에서만 사용 가능하다"는 OpenRouter
-# 자체의 403 응답을 받았다(추정 아님, 재현 가능).
+# 실측 확인된, plain chat completion이 구조적으로 불가능한 모델 — OpenRouter
+# 자체 403 응답을 받음(추정 아님, `OPENROUTER-STAGE-MODEL-SELECTION-0001.md` §2).
 _KNOWN_NONFUNCTIONAL_FOR_PLAIN_CHAT = frozenset(
     {
         "thinkingmachines/inkling:free",
@@ -28,12 +26,8 @@ class ModelPoolFetchError(RuntimeError):
     Contract와 동일 패턴)."""
 
 
-# 실측 확인(이 세션): `models` 배열에 4개 이상을 넣으면 OpenRouter가 즉시
-# 400을 반환한다 — 원문: `"'models' array must have 3 items or fewer."`
-# (공식 문서 페이지에는 이 상한이 명시돼 있지 않았고, Anthropic Messages
-# 호환 엔드포인트 문서에만 "최대 3개"라는 각주가 있었다 — 이 실측이 그
-# 제한이 Chat Completions 엔드포인트에도 적용됨을 처음 확인했다). 이
-# 상수는 추정이 아니라 재현 가능한 실측 값이다.
+# 실측 확인: `models` 배열 4개 이상이면 OpenRouter가 즉시 400을 반환한다
+# (공식 문서 미명시, Anthropic 호환 엔드포인트 각주만 확인 — 추정 아닌 실측 값).
 MAX_MODELS_PER_REQUEST = 3
 
 

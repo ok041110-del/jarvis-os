@@ -52,23 +52,17 @@ OPENROUTER_MODELS_PATH = "/api/v1/models"
 OPENROUTER_CHAT_COMPLETIONS_PATH = "/api/v1/chat/completions"
 OPENROUTER_DEFAULT_TIMEOUT_SECONDS = 90
 
-# `models[]` 배열의 실측 상한 — `docs/research/OPENROUTER-MODELS-ARRAY-
-# LIMIT-REVERIFICATION-0001.md` §6이 독립 재구현으로 재현한 API-level
-# limit이다(추정 아님). Jarvis가 임의로 정한 값이 아니다.
+# `models[]` 배열의 실측 상한 — `OPENROUTER-MODELS-ARRAY-LIMIT-
+# REVERIFICATION-0001.md` §6이 재현한 API-level limit이다(추정 아님).
 MAX_CANDIDATES = 3
 
-# 모든 Stage 공통 상한 — Stage별로 다른 값을 두지 않는다(Stage-model
-# 매핑을 다른 형태로 재도입하지 않기 위함, RFC-0041 §Migration Boundary
-# "변경 불가" 항목과의 일관성). 실제 요구 context는 매 호출마다
-# 프롬프트 길이에서 동적으로 추정한다(§_estimate_min_context_tokens).
+# 모든 Stage 공통 상한 — Stage별 값을 두지 않는다(RFC-0041 §Migration
+# Boundary와의 일관성). 실제 요구 context는 매 호출마다 동적으로 추정한다.
 _DEFAULT_OUTPUT_TOKEN_BUDGET = 2048
 _CONTEXT_SAFETY_MARGIN = 1.2
 
-# 이미 실측 확인된, plain chat completion 자체가 구조적으로 불가능한
-# 모델(agentic harness 전용, OpenRouter 자체 403) — 품질 판단이 아니라
-# 구조적 비기능성의 실측 기록이다. `OPENROUTER-STAGE-MODEL-SELECTION-
-# 0001.md` §2, `projects/openrouter-auto-selection-v1/domain/
-# model_pool.py`와 동일 근거를 승계한다.
+# 실측 확인된, plain chat completion이 구조적으로 불가능한 모델(agentic
+# harness 전용, OpenRouter 자체 403) — `OPENROUTER-STAGE-MODEL-SELECTION-0001.md` §2와 동일 근거.
 _KNOWN_NONFUNCTIONAL_FOR_PLAIN_CHAT = frozenset(
     {
         "thinkingmachines/inkling:free",
@@ -87,9 +81,8 @@ def _resolve_base_url() -> str:
 
 
 def _build_opener() -> urllib.request.OpenerDirector:
-    # 매 호출마다 opener를 새로 만든다 — `chatgpt_engine.py`와 동일한
-    # 이유(전역 opener의 ProxyHandler가 최초 호출 시점의 proxy 설정을
-    # 캐싱해버려 이후 변경을 반영하지 못함).
+    # 매 호출마다 opener를 새로 만든다 — `chatgpt_engine.py`와 동일한 이유
+    # (전역 opener의 캐싱된 proxy 설정이 이후 변경을 반영 못함).
     return urllib.request.build_opener(urllib.request.ProxyHandler())
 
 

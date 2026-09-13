@@ -63,10 +63,8 @@ def run_trader_decision(cp, trader_decision_fn, bull_case: str, bear_case: str) 
 _DIRECTION_RE = re.compile(r"Direction:\**\s*([A-Za-z ]{3,20})", re.IGNORECASE)
 _RATIONALE_RE = re.compile(r"Rationale:\**\s*(.+?)(?=\n-\s*\**Reassess|\Z)", re.IGNORECASE | re.DOTALL)
 _REASSESS_RE = re.compile(r"Reassess when:\**\s*(.+)", re.IGNORECASE | re.DOTALL)
-# set이 아닌 고정 순서 tuple — 후보 문자열에 방향 단어가 둘 이상 섞인
-# 모호한 응답에서도 어떤 단어를 고를지가 set 순회 순서(프로세스마다
-# 문자열 해시가 랜덤화돼 달라질 수 있음)에 좌우되지 않고 항상 동일하게
-# 결정되게 한다.
+# set이 아닌 고정 순서 tuple — 방향 단어가 둘 이상 섞인 응답에서도 결과가
+# set 순회 순서(해시 랜덤화)에 좌우되지 않고 항상 동일하게 결정되게 한다.
 _VALID_ACTIONS = ("BUY", "SELL", "HOLD")
 
 

@@ -167,10 +167,8 @@ def test_workspace_mutation_does_not_touch_original_repository():
 def test_workspace_cleanup_failure_does_not_raise_and_original_stays_safe():
     ws = TestWorkspace(REPO_ROOT)
     ws.create()
-    # Workspace를 먼저 지워서 cleanup()이 "이미 없음"을 만나게 한다 — 이는
-    # 실패로 취급하지 않는다(shutil.rmtree는 대상이 없으면 FileNotFoundError를
-    # 던지므로, 이 케이스는 cleanup()이 그 예외를 흡수해 succeeded=False로
-    # 구조화하는지 확인한다).
+    # Workspace를 먼저 지워 cleanup()이 "이미 없음"을 만나게 한다 — rmtree가
+    # 던지는 FileNotFoundError를 흡수해 succeeded=False로 구조화하는지 확인한다.
     import shutil
 
     shutil.rmtree(ws.workspace_root)

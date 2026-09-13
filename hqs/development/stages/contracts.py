@@ -25,9 +25,8 @@ Contract validation 책임: 각 Stage는 자신이 반환하는 dict의 형태�
 
 from typing import TypedDict
 
-# CandidateIndex/DependencyClosure는 Stage 01의 순수 정적 분석 결과값(문자열)
-# 그 자체이며, 별도 필드를 감싸는 새 자료구조를 만들지 않는다(Wrapper 금지 —
-# Registry/Gateway와 같은 일반화를 피한다).
+# CandidateIndex/DependencyClosure는 Stage 01 순수 정적 분석 결과값(문자열)
+# 자체다 — 별도 Wrapper 자료구조를 만들지 않는다.
 CandidateIndex = str
 DependencyClosure = str
 
@@ -111,11 +110,8 @@ class ImplementationResult(TypedDict):
     expose_target: bool
 
 
-# VerificationRequirement — Stage 05가 실행할 수 있는 검증 항목의 전체
-# 이름 집합(고정 4개, 새 검사 종류 추가 아님). `required_checks`는 이
-# 집합의 부분집합이어야 하며, 이 값이 실제 실행 여부(SKIPPED 여부)와
-# Verdict 반영 여부를 결정한다(Producer: 호출자 — 현재 Static Workflow는
-# 항상 전체 집합을 기본값으로 쓴다, Consumer: Stage 05 자기 자신).
+# KNOWN_CHECK_NAMES — Stage 05 검증 항목 전체 집합(고정 4개). `required_checks`는
+# 이 부분집합이며, 실행/Verdict 반영 여부를 결정한다(Static Workflow는 전체 기본값).
 KNOWN_CHECK_NAMES = ("structural", "specification_scope", "design_scope", "test_execution")
 
 

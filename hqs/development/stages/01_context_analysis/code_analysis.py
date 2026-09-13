@@ -14,16 +14,13 @@ from mvp import ast_context  # noqa: E402
 from mvp.ast_context import build_dependency_closure  # noqa: E402
 from mvp.project_intelligence import CATEGORY_PATHS, ROOT, _keywords  # noqa: E402
 
-# `CATEGORY_PATHS`는 절대경로 `Path`를 쓴다 — Snapshot 경로(ROOT-relative
-# POSIX 문자열)와 매칭하려면 상대 경로로 변환한다. 이 저장소를 대상으로 하는
-# 한(§13 실제 GitHub 검증 대상이 이 저장소 자체) 로컬 구조와 GitHub 트리
-# 구조가 같으므로 이 변환은 유효하다.
+# `CATEGORY_PATHS`는 절대경로를 쓴다 — Snapshot 경로(상대 POSIX 문자열)와
+# 매칭하려면 변환해야 한다(이 저장소가 검증 대상이라 로컬·GitHub 구조가 같음).
 _OPEN_WORD_RE = re.compile(r"\bopen\b", re.IGNORECASE)
 _OPEN_KOREAN_MARKERS = ("미해결", "검토가 필요")
 
-# 파일 content를 실제로 fetch하는 상한 — GitHub API 호출 비용을 억제한다
-# (§7 "Repository 전체 파일을 무조건 preload하지 않는다"). 파일명만으로 1차
-# 후보를 추린 뒤 상위 N개만 content까지 확인한다.
+# 파일 content를 실제로 fetch하는 상한 — GitHub API 호출 비용 억제(§7).
+# 파일명으로 1차 후보를 추린 뒤 상위 N개만 content까지 확인한다.
 _MAX_CONTENT_FETCH_PER_CATEGORY = 8
 _MAX_RESULTS_PER_CATEGORY = 3
 

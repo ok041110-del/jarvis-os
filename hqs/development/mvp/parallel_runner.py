@@ -99,11 +99,8 @@ class ParallelRunner:
         self._max_workers = max_workers
 
     def run(self, tasks: list) -> ParallelBatchResult:
-        # `with ThreadPoolExecutor(...)`는 종료 시 `shutdown(wait=True)`를
-        # 호출해 모든 스레드가 끝날 때까지 블로킹한다 — timeout이 걸린 Task의
-        # 스레드가 계속 실행 중이면 그 Task의 timeout이 사실상 무의미해진다
-        # (Python 스레드는 강제 종료가 불가능하므로 `wait=False`로 반환하고
-        # 지연된 스레드는 백그라운드에서 자연 종료되게 둔다).
+        # `wait=True`이면 timeout이 걸린 스레드가 끝날 때까지 블로킹해 timeout이
+        # 무의미해진다(강제 종료 불가) — `wait=False`로 반환하고 자연 종료를 기다린다.
         started_at = time.time()
         results = []
         pool = ThreadPoolExecutor(max_workers=self._max_workers)

@@ -51,10 +51,8 @@ DEFAULT_PKG_DIR = (
 )
 FAKE_API_KEY = "engine-real-test-only-key-0001"
 PORT = 20243
-# `ollama-local`(LOCAL_PROVIDERS registry)의 target은 코드에 고정된
-# `localDefault`(`http://localhost:11434/v1`)이며 `provider_connections`
-# 행의 값으로 override되지 않는다(`EVIDENCE-0004`§5.1이 확인) — 이
-# 로컬 double은 반드시 이 고정 포트에 떠 있어야 한다.
+# `ollama-local`의 target은 코드에 고정된 `localDefault`이며
+# `provider_connections` 값으로 override되지 않는다(EVIDENCE-0004 §5.1) — 로컬 double은 반드시 이 포트에 떠 있어야 한다.
 DOUBLE_PORT = 11434
 
 NOAUTH_BLOCKLIST = [

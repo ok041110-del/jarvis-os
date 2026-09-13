@@ -144,9 +144,8 @@ def real_omniroute_env(tmp_path):
     base_url = f"http://127.0.0.1:{PORT}"
 
     log_file = open(log_path, "w")
-    # 이 fixture는 서버를 **정확히 한 번**만 기동한다 — 테스트 본문은
-    # 이 프로세스를 절대 재기동하지 않는다(health-check-repair 회피,
-    # `EVIDENCE-0004` §3.2/§3.3).
+    # 이 fixture는 서버를 정확히 한 번만 기동한다 — 테스트 본문은 이 프로세스를
+    # 재기동하지 않는다(health-check-repair 회피, EVIDENCE-0004 §3.2/§3.3).
     proc = subprocess.Popen(
         ["node", "dist/server.js"], cwd=pkg_dir, env=env,
         stdout=log_file, stderr=subprocess.STDOUT,

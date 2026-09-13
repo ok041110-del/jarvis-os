@@ -14,25 +14,20 @@ CHATGPT_ENGINE_PY = MVP_DIR / "chatgpt_engine.py"
 CLAUDE_CODE_ENGINE_PY = MVP_DIR / "engine.py"
 OPENROUTER_ENGINE_PY = MVP_DIR / "openrouter_engine.py"
 
-# Stage Mapping(`ADR-0027` Migration 이후) — 호출부 파일과 그 안에서
-# 어떤 Engine 모듈을 import해야 하는지 고정한다. `backend.py`는 두
-# Capability를 별도로 검사한다(아래
-# test_backend_py_uses_openrouter_engine_for_both_capabilities).
+# Stage Mapping(`ADR-0027` Migration 이후) — 호출부 파일과 로드해야 할
+# Engine 모듈을 고정한다(`backend.py`는 두 Capability를 별도 검사, 아래 참고).
 OPENROUTER_ROUTED_FILES = [
     MVP_DIR / "agents" / "requirements.py",
     MVP_DIR / "agents" / "design.py",
     STAGES_DIR / "01_context_analysis" / "reasoning.py",
     STAGES_DIR / "02_planning_specification" / "task_dependency_agent.py",
-    # `stage_04.py`가 무조건 호출하는 Target Identification
-    # (`identify_target`) — 실제 Production 호출 경로임이 실측(ADR-0027
-    # §10 Gate 실행)으로 확인돼 뒤늦게 OpenRouter로 전환됐다. 경위는
-    # `docs/research/OPENROUTER-MIGRATION-SCOPE-GAP-IDENTIFY-TARGET-0001.md`.
+    # `stage_04.py`가 무조건 호출하는 Target Identification(`identify_target`)
+    # — ADR-0027 §10 Gate 실측으로 뒤늦게 OpenRouter로 전환됨(경위: 관련 연구 문서 참고).
     MVP_DIR / "workflow_ast_context.py",
 ]
 
-# 현재 Production 호출부 중 ChatGPT Engine을 계속 쓰는 곳은 없다
-# (`chatgpt_engine.py` 모듈 자체는 Rollback 가능성 유지를 위해 무변경으로
-# 남아있을 뿐 — `RFC-0041` §Rollback Strategy).
+# 현재 Production 호출부 중 ChatGPT Engine을 쓰는 곳은 없다 — `chatgpt_engine.py`
+# 자체는 Rollback 가능성 유지를 위해 무변경으로 남아있을 뿐(RFC-0041 §Rollback).
 CHATGPT_ROUTED_FILES = []
 
 CLAUDE_CODE_ROUTED_FILES = [

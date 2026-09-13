@@ -12,10 +12,8 @@ import pytest
 from ..execution_host import run_isolated
 from ._pytest_target import run_pytest_target
 
-# `hqs/investment/tests/test_stock_team_integration.py`: 2 tests,
-# `monkeypatch.setattr(stock_team, "call_engine", ...)` 사용 —
-# `runtime-boundary`/`process-runtime-strategy` Prototype이 동일
-# Target 오염 재현에 쓴 것과 같은 최소 대상.
+# `test_stock_team_integration.py`: 2 tests, monkeypatch로 오염 재현에
+# 쓰는 것과 같은 최소 대상(`runtime-boundary`/`process-runtime-strategy`와 동일).
 CONTAMINATION_TARGET = "hqs/investment/tests/test_stock_team_integration.py"
 
 

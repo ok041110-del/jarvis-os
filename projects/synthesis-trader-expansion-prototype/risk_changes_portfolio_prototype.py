@@ -12,9 +12,8 @@ from engine import call_engine  # noqa: E402
 
 RESULTS = Path(__file__).resolve().parent / "results"
 
-# 실제 QQQ 공개 비중(AAPL~7.1-7.3%, NVDA~8.5-8.9%, 기존 bull_case.md)을
-# 그대로 쓰되, Direct 비중과 QQQ 비중, 그리고 정책 숫자는 "정책을
-# 명백히 위반하는 상황"을 만들기 위해 이번 실험용으로 가상 설정했다.
+# 실제 QQQ 공개 비중을 그대로 쓰되, Direct/QQQ 비중과 정책 숫자는 정책 위반
+# 상황을 만들기 위해 이번 실험용으로 가상 설정했다.
 PORTFOLIO_STATE = """[PORTFOLIO STATE — hypothetical, constructed for this exercise]
 Direct Holding: AAPL, 8% of portfolio value. Trader Decision: HOLD.
 Direct Holding: NVDA, 8% of portfolio value. Trader Decision: HOLD.

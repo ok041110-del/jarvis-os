@@ -49,8 +49,7 @@ def _imports(src: str, module_prefix: str) -> bool:
     )
 
 
-# ---------------------------------------------------------------- IN-1
-# A-IN (a)(b)(c)(d) + State 동치: 독립 계보(worklist)의 최종 State가
+# ---- IN-1: A-IN(a)(b)(c)(d)+State 동치 — 독립 계보(worklist)의 최종 State가
 # LangGraph 계보와 dict deep-equal.
 @pytest.mark.parametrize("scenario", SCENARIOS)
 def test_IN1_final_state_equivalence_worklist_vs_langgraph(scenario):
@@ -205,9 +204,8 @@ def test_IN5_no_library_types_in_state():
         assert only_plain_types(state)
 
 
-# ---------------------------------------------------------------- IN-6 (신규)
-# 계보 독립성 — L-A 가 서드파티·LangGraph 무의존이고, 자체 실행 모델을
-# 문서화하며, LangGraph 계보와 코드를 공유하지 않는다.
+# ---- IN-6(신규): 계보 독립성 — L-A가 서드파티/LangGraph 무의존이며 자체
+# 실행 모델을 문서화하고 LangGraph 계보와 코드를 공유하지 않는다.
 def test_IN6_worklist_stdlib_and_domain_only():
     src = (ROOT / "adapters/worklist.py").read_text()
     assert not _imports(src, "langgraph"), "worklist 가 langgraph 를 import"

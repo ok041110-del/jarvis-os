@@ -2,8 +2,11 @@
 
 **Governance 근거**: `docs/architecture/core/RFC-0042` → `ADC-0045` →
 `ADR-0028`(Lifecycle 확정) → `docs/research/PYTHON-AUDIT-WAVE-0-INVENTORY-0001.md`
-(456건 발견). 이 문서는 그 456건 **전체**를 개별 Semantic Review하고,
-필요한 항목만 실제 코드(Docstring 텍스트)를 정리한 Wave 1 Evidence다.
+(456건 발견). 이 문서는 Docstring 456건(§0~§12, 최초 완료분)과 그 연장
+작업인 `#` comment 103건(§13~§19, §0에서 발견 후 이관됐던 것을 이번에
+실제로 정리)을 **하나의 Wave 1 연속 작업**으로 함께 추적하는 Evidence다.
+`#` comment 103건은 새 Wave가 아니라 §0/§12가 명시적으로 Wave 1 범위 밖으로
+이관해 뒀던 항목을 같은 Wave 안에서 마무리한 것이다.
 
 ## 0. 범위 수정(작업 도중 사용자 지시로 확정)
 
@@ -261,8 +264,8 @@ Wave 반복 실행에서는 5~7건으로 변동 — 애초에 비결정적인 �
 - **13건 KEEP**은 앞으로도 2줄 정책의 의도적 예외로 유지한다 —
   추가 조치 불필요(§6 근거 문서화 완료).
 - **`#` comment block 103건**(2줄 초과, §0에서 신규 발견) — 이번
-  Wave 범위 밖, Wave 2 후보로 이관(`tokenize` 기반 파서 필요, AST
-  Docstring 치환과 다른 메커니즘).
+  Wave 연장 작업(§13~§19)에서 전수 정리 완료. 아래 §12의 서술은
+  최초 완료 시점 기록이며, 실제 정리 결과는 §13~§19를 따른다.
 - **`projects/in-process-async-command`의 비결정적 실패**(§10.4)는
   Wave 0가 이미 `POSSIBLE BUG`로 표시한 항목이며, 이번 Wave가
   수정하지 않는다(Comment/Docstring cleanup 원칙 7 — 코드 로직
@@ -270,6 +273,230 @@ Wave 반복 실행에서는 5~7건으로 변동 — 애초에 비결정적인 �
 - **`projects/stage05-parallel-validation-harness-v1`의 self-referential
   git-diff 테스트**는 이 Wave의 커밋이 완료되면 정상 PASS로
   돌아간다(§10.3) — 별도 조치 불필요, 커밋 후 1회 재확인을 권장한다.
+
+---
+
+## 13. Wave 1 연장 — `#` Comment 103건 전수 정리(개요)
+
+§0/§12가 Wave 1 범위 밖으로 이관해 둔 `#` comment 2줄 초과 블록
+103건을 이번 연장 작업에서 실제로 정리했다. 새 Wave가 아니라
+**같은 Wave 1의 연속**이며, Docstring 456건과 별도 축을 이룬다.
+
+- **재스캔 재현**: `tokenize` 모듈로 active tree(371개 파일, `archive/`
+  제외) 전체의 `COMMENT` 토큰을 수집하고, 연속된 줄 번호로 묶은
+  block 중 2줄 초과인 것만 추렸다 — §0과 동일한 정의, 재계산 결과
+  **103건, 차이 0**(파일 목록·줄 범위 1:1 일치, §14 표에서 재현).
+- **범위 준수**: 대상은 순수 `#` comment token만이며, Docstring(§0~§12,
+  이번에 재변경하지 않음)과 일반 String Literal은 손대지 않았다.
+
+## 14. 103건 전수 Classification(개별 판정)
+
+| # | 파일:줄 | 원 줄수 | 분류 |
+|---|---|---|---|
+| 0 | `hqs/development/mvp/chatgpt_engine.py:65-67` | 3 | REWRITE |
+| 1 | `hqs/development/mvp/openrouter_engine.py:55-57` | 3 | REWRITE |
+| 2 | `hqs/development/mvp/openrouter_engine.py:60-63` | 4 | REWRITE |
+| 3 | `hqs/development/mvp/openrouter_engine.py:67-71` | 5 | REWRITE |
+| 4 | `hqs/development/mvp/openrouter_engine.py:90-92` | 3 | REWRITE |
+| 5 | `hqs/development/mvp/parallel_runner.py:102-106` | 5 | REWRITE |
+| 6 | `hqs/development/mvp/project_intelligence.py:16-18` | 3 | REWRITE |
+| 7 | `hqs/development/mvp/project_intelligence.py:89-91` | 3 | REWRITE |
+| 8 | `hqs/development/mvp/tests/fake_openrouter_server.py:18-20` | 3 | REWRITE |
+| 9 | `hqs/development/mvp/tests/fake_openrouter_server.py:78-81` | 4 | KEEP |
+| 10 | `hqs/development/mvp/tests/fake_openrouter_server.py:145-147` | 3 | REWRITE |
+| 11 | `hqs/development/mvp/tests/test_engine_boundary.py:17-20` | 4 | REWRITE |
+| 12 | `hqs/development/mvp/tests/test_engine_boundary.py:26-29` | 4 | REWRITE |
+| 13 | `hqs/development/mvp/tests/test_engine_boundary.py:33-35` | 3 | REWRITE |
+| 14 | `hqs/development/mvp/tests/test_execution_host.py:15-18` | 4 | REWRITE |
+| 15 | `hqs/development/mvp/tests/test_omniroute_engine_real.py:54-57` | 4 | REWRITE |
+| 16 | `hqs/development/mvp/tests/test_project_intelligence.py:32-35` | 4 | REWRITE |
+| 17 | `hqs/development/mvp/tests/test_stage_01_multi_agent.py:144-146` | 3 | REWRITE |
+| 18 | `hqs/development/mvp/tests/test_stage_05.py:140-142` | 3 | REWRITE |
+| 19 | `hqs/development/stages/01_context_analysis/code_analysis.py:13-15` | 3 | KEEP |
+| 20 | `hqs/development/stages/01_context_analysis/code_analysis.py:17-20` | 4 | REWRITE |
+| 21 | `hqs/development/stages/01_context_analysis/code_analysis.py:24-26` | 3 | REWRITE |
+| 22 | `hqs/development/stages/01_context_analysis/stage_01_multi_agent.py:28-32` | 5 | KEEP |
+| 23 | `hqs/development/stages/01_context_analysis/stage_01_multi_agent.py:37-39` | 3 | REWRITE |
+| 24 | `hqs/development/stages/04_implementation/architecture_validation/variants.py:13-16` | 4 | KEEP |
+| 25 | `hqs/development/stages/04_implementation/stage_04.py:14-20` | 7 | REWRITE |
+| 26 | `hqs/development/stages/05_validation/stage_05.py:20-25` | 6 | REWRITE |
+| 27 | `hqs/development/stages/05_validation/stage_05.py:49-52` | 4 | REWRITE |
+| 28 | `hqs/development/stages/05_validation/stage_05.py:74-77` | 4 | REWRITE |
+| 29 | `hqs/development/stages/05_validation/stage_05.py:100-104` | 5 | REWRITE |
+| 30 | `hqs/development/stages/05_validation/stage_05.py:114-117` | 4 | REWRITE |
+| 31 | `hqs/development/stages/05_validation/stage_05.py:134-136` | 3 | REWRITE |
+| 32 | `hqs/development/stages/05_validation/stage_05.py:242-244` | 3 | REWRITE |
+| 33 | `hqs/development/stages/contracts.py:28-30` | 3 | REWRITE |
+| 34 | `hqs/development/stages/contracts.py:114-118` | 5 | REWRITE |
+| 35 | `hqs/development/workflow.py:39-42` | 4 | REWRITE |
+| 36 | `hqs/investment/run.py:19-21` | 3 | KEEP |
+| 37 | `hqs/investment/trader.py:66-69` | 4 | REWRITE |
+| 38 | `projects/async-command/tests/test_async_command.py:16-19` | 4 | KEEP |
+| 39 | `projects/command-contract/tests/test_command_contract.py:12-14` | 3 | KEEP |
+| 40 | `projects/dev-hq-vertical-slice/tests/test_vertical_slice.py:15-17` | 3 | KEEP |
+| 41 | `projects/dev-hq-vertical-slice/vs_pipeline.py:19-21` | 3 | KEEP |
+| 42 | `projects/in-process-async-command/tests/test_inprocess_async_command.py:16-19` | 4 | KEEP |
+| 43 | `projects/kernel-parallel-execution-prototype/run_experimental_scaling.py:18-23` | 6 | REWRITE |
+| 44 | `projects/kernel-parallel-execution-prototype/run_prototype.py:18-20` | 3 | REWRITE |
+| 45 | `projects/langgraph-conditional-routing-poc-v1/run_prototype.py:14-16` | 3 | KEEP |
+| 46 | `projects/langgraph-conditional-routing-poc-v1/run_prototype.py:18-21` | 4 | REWRITE |
+| 47 | `projects/notekeeper/src/notekeeper/cli.py:79-81` | 3 | REWRITE |
+| 48 | `projects/omniroute-thin-engine-caller-v1/tests/test_case_a_boundary.py:48-50` | 3 | REWRITE |
+| 49 | `projects/omniroute-thin-engine-caller-v1/tests/test_case_a_boundary.py:84-86` | 3 | REWRITE |
+| 50 | `projects/omniroute-thin-engine-caller-v1/tests/test_case_a_boundary.py:123-126` | 4 | REWRITE |
+| 51 | `projects/omniroute-thin-engine-caller-v1/tests/test_case_a_boundary.py:146-148` | 3 | REWRITE |
+| 52 | `projects/omniroute-thin-engine-caller-v1/tests/test_real_engine_budget_block.py:147-149` | 3 | REWRITE |
+| 53 | `projects/openrouter-auto-selection-v1/domain/auto_selection_client.py:19-21` | 3 | REWRITE |
+| 54 | `projects/openrouter-auto-selection-v1/domain/model_pool.py:14-17` | 4 | REWRITE |
+| 55 | `projects/openrouter-auto-selection-v1/domain/model_pool.py:31-36` | 6 | REWRITE |
+| 56 | `projects/openrouter-auto-selection-v1/models_array_limit_reverification_experiment.py:87-89` | 3 | REWRITE |
+| 57 | `projects/openrouter-auto-selection-v1/tests/test_auto_selection_harness.py:17-19` | 3 | KEEP |
+| 58 | `projects/openrouter-free-model-selection-architecture-experiment-v1/boundary_case_experiment.py:14-17` | 4 | KEEP |
+| 59 | `projects/openrouter-free-model-selection-architecture-experiment-v1/domain/candidate_selection.py:24-26` | 3 | REWRITE |
+| 60 | `projects/openrouter-free-model-selection-architecture-experiment-v1/domain/deterministic_filter.py:32-34` | 3 | REWRITE |
+| 61 | `projects/openrouter-free-model-selection-architecture-experiment-v1/domain/deterministic_filter.py:80-84` | 5 | REWRITE |
+| 62 | `projects/openrouter-free-model-selection-architecture-experiment-v1/domain/stage_requirements.py:29-31` | 3 | KEEP |
+| 63 | `projects/openrouter-free-model-selection-architecture-experiment-v1/run_experiment.py:14-18` | 5 | KEEP |
+| 64 | `projects/openrouter-free-model-selection-architecture-experiment-v1/run_experiment.py:46-49` | 4 | REWRITE |
+| 65 | `projects/openrouter-free-model-selection-architecture-experiment-v1/run_stage05_revalidation.py:15-20` | 6 | KEEP |
+| 66 | `projects/openrouter-free-model-selection-architecture-experiment-v1/run_stage05_revalidation.py:129-131` | 3 | REWRITE |
+| 67 | `projects/openrouter-free-model-selection-architecture-experiment-v1/tests/test_architecture_experiment.py:11-14` | 4 | KEEP |
+| 68 | `projects/process-runtime-strategy/tests/test_process_runtime_strategy.py:17-19` | 3 | KEEP |
+| 69 | `projects/runtime-boundary/tests/test_runtime_boundary.py:15-17` | 3 | KEEP |
+| 70 | `projects/stage05-parallel-validation-harness-v1/domain/aggregator.py:37-39` | 3 | KEEP |
+| 71 | `projects/stage05-parallel-validation-harness-v1/domain/fixtures.py:32-35` | 4 | REWRITE |
+| 72 | `projects/stage05-parallel-validation-harness-v1/domain/review.py:34-36` | 3 | REWRITE |
+| 73 | `projects/stage05-parallel-validation-harness-v1/domain/review.py:131-133` | 3 | REWRITE |
+| 74 | `projects/stage05-parallel-validation-harness-v1/experiment_a.py:12-17` | 6 | KEEP |
+| 75 | `projects/stage05-parallel-validation-harness-v1/failure_isolation_experiment.py:12-17` | 6 | KEEP |
+| 76 | `projects/stage05-parallel-validation-harness-v1/review_llm_real_execution_experiment.py:13-15` | 3 | KEEP |
+| 77 | `projects/stage05-parallel-validation-harness-v1/review_llm_real_execution_experiment.py:20-22` | 3 | KEEP |
+| 78 | `projects/stage05-parallel-validation-harness-v1/review_llm_real_execution_experiment.py:97-99` | 3 | REWRITE |
+| 79 | `projects/stage05-parallel-validation-harness-v1/review_llm_real_execution_experiment.py:115-118` | 4 | REWRITE |
+| 80 | `projects/stage05-parallel-validation-harness-v1/tests/test_harness.py:15-21` | 7 | KEEP |
+| 81 | `projects/stage05-parallel-validation-harness-v1/tests/test_harness.py:170-173` | 4 | REWRITE |
+| 82 | `projects/synthesis-trader-expansion-prototype/risk_changes_portfolio_prototype.py:15-17` | 3 | REWRITE |
+| 83 | `projects/synthesis-trader-expansion-prototype/risk_reproduction_prototype.py:92-96` | 5 | REWRITE |
+| 84 | `projects/synthesis-trader-expansion-prototype/risk_reproduction_prototype.py:108-110` | 3 | REWRITE |
+| 85 | `projects/unified-dashboard/snapshot.py:127-130` | 4 | REWRITE |
+| 86 | `projects/unified-dashboard/snapshot.py:134-137` | 4 | REWRITE |
+| 87 | `projects/unified-dashboard/snapshot.py:149-154` | 6 | REWRITE |
+| 88 | `projects/unified-dashboard/snapshot.py:156-158` | 3 | KEEP |
+| 89 | `projects/unified-dashboard/tests/test_frontend_boundary.py:13-16` | 4 | REWRITE |
+| 90 | `projects/workflow-adapter-gate-c-real-engine-v1/adapters/worklist.py:50-58` | 9 | KEEP |
+| 91 | `projects/workflow-adapter-gate-c-real-engine-v1/tests/test_gate_c_real_engine_v1.py:27-33` | 7 | KEEP |
+| 92 | `projects/workflow-adapter-nonlanggraph-lineage-v1/adapters/worklist.py:50-58` | 9 | KEEP |
+| 93 | `projects/workflow-adapter-nonlanggraph-lineage-v1/tests/test_lineage_v1.py:21-24` | 4 | KEEP |
+| 94 | `projects/workflow-adapter-nonlanggraph-lineage-v1/tests/test_lineage_v1.py:52-54` | 3 | REWRITE |
+| 95 | `projects/workflow-adapter-nonlanggraph-lineage-v1/tests/test_lineage_v1.py:208-210` | 3 | REWRITE |
+| 96 | `projects/workflow-adapter-recursive-lineage-v1/tests/test_recursive_lineage_v1.py:21-24` | 4 | KEEP |
+| 97 | `projects/workflow-adapter-recursive-lineage-v1/tests/test_recursive_lineage_v1.py:78-80` | 3 | REWRITE |
+| 98 | `projects/workflow-adapter-recursive-lineage-v1/tests/test_recursive_lineage_v1.py:112-114` | 3 | REWRITE |
+| 99 | `projects/workflow-adapter-recursive-lineage-v1/tests/test_recursive_lineage_v1.py:130-134` | 5 | REWRITE |
+| 100 | `projects/workflow-adapter-recursive-lineage-v1/tests/test_recursive_lineage_v1.py:249-251` | 3 | REWRITE |
+| 101 | `projects/workflow-adapter-recursive-lineage-v1/tests/test_recursive_lineage_v1.py:272-274` | 3 | REWRITE |
+| 102 | `projects/workflow-adapter-reversibility-v2/tests/test_reversibility_v2.py:20-23` | 4 | KEEP |
+
+**분류 결과 요약**: `REWRITE` 71건(69.9%), `KEEP` 32건(31.1%),
+`REMOVE` 0건, `STRUCTURAL` 0건.
+
+## 15. KEEP(32건) — 유형별 근거
+
+Docstring 456건과 달리, `#` comment의 KEEP 32건은 대부분 "내용이
+길어서 KEEP"이 아니라 **줄 인접 기준(tokenize의 연속 줄 그룹핑)이
+서로 다른 독립 statement에 붙은 개별 한 줄 comment를 하나의 block으로
+잘못 묶은 경우**였다 — 각 comment는 이미 1줄로 최소화돼 있고 그 자체가
+필요한 기능적 표시(lint 억제 등)라 축약할 대상이 없다.
+
+| 유형 | 건수 | 해당 index | 근거 |
+|---|---|---|---|
+| `# noqa: E402` import 트레일러 | 26 | 19,22,24,36,38,39,40,41,42,45,57,58,63,65,67,68,69,74,75,76,77,80,91,93,96,102 | `sys.path.insert()` 직후 import가 필요한 이 저장소 구조상 각 import 줄마다 붙는 flake8 E402 억제 표시 — 서로 다른 import 문에 대한 독립 1줄 주석이 tokenize상 연속 줄이라 하나의 block으로 묶였을 뿐, 하나의 설명 단락이 아니다. 삭제하면 lint 억제 기능 상실. |
+| 코드/dict-literal 트레일러(줄마다 독립) | 4 | 9,62,70,88 | `# type: ignore[...]`(9), dataclass 필드별 주석(62), dict 리터럴 값별 주석(88), 계산 결과 보존용 짧은 인라인 메모(70) — 각각 독립된 statement/필드/키에 붙은 1줄 주석이며 이미 최소 형태다. |
+| ASCII 정적 다이어그램 | 2 | 90, 92 | `worklist.py`의 정적 edge 표 — Wave 1 §6의 `stage_01_multi_agent.py` ASCII 다이어그램 KEEP 선례와 동일 유형(graph_spec에서 파생된 실행 순서를 표 형태로 보여주는 것 자체가 정보, 산문으로 축약하면 표현력 손실). 같은 파일이 두 프로젝트(`workflow-adapter-gate-c-real-engine-v1`, `workflow-adapter-nonlanggraph-lineage-v1`)에 각각 존재하는 사본 관계도 Wave 1 §6의 `worklist.py`/`recursive.py` 선례와 동일. |
+
+## 16. REWRITE(71건) — 방법론
+
+456건 Docstring과 동일한 원칙(역할/WHY 문장 우선 보존, 서술적
+elaboration만 압축)을 적용해 71건 전부를 문단 단위로 재작성했다.
+
+- 인용(RFC-/ADC-/ADR-/EVIDENCE-/§/Gate)과 명시적 경계·근거·비목표
+  문장은 최우선 보존했다 — 근거 문서 인용이 있던 comment 중 인용
+  자체를 삭제한 사례는 0건(문서명이 길어 줄바꿈 위치만 조정한 경우
+  존재, 예: index 1 `OPENROUTER-MODELS-ARRAY-LIMIT-REVERIFICATION-0001.md`).
+- 반복되는 서술(같은 사실을 두 번 다른 말로 설명)만 축약했다 —
+  예: index 25(`stage_04.py`)의 7줄 comment는 "ADC-0005 §8 검증됨,
+  Stage 04는 수정하지 않음"이라는 핵심 제약과 "Phase 2.5 Case C"
+  인용만 남기고 나머지 서술을 압축했다.
+- Section divider comment(`# ----...---- IN-1` 형태, index
+  94/95/97/98/99/100)는 구분선 장식 폭을 줄이되 라벨(`IN-1`,
+  `IN-6'` 등)은 보존해 파일 내 검색·상호 참조성을 유지했다 —
+  라벨 삭제는 없음.
+- REMOVE(순수 삭제) 판정은 0건이었다 — 71건 전부 최소 하나의
+  비자명한 WHY(외부 제약·근거 인용·정확성 요구사항)를 담고 있었다.
+
+## 17. 실제 변경(Actual Changes)
+
+- **변경 파일 수**: 41개(`.py`만).
+- **변경 comment block 수**: 71개(REWRITE 전체 — KEEP 32건은 원문
+  그대로 유지).
+- **적용 방법**: 각 comment block의 정확한 (start_line, end_line)을
+  `tokenize` 재스캔으로 확정한 뒤, 원본 첫 줄의 들여쓰기를 그대로
+  유지하며 해당 줄 범위를 치환 텍스트로 교체 — 코드(비-주석) 줄은
+  1줄도 건드리지 않았다. 파일 단위로 치환 직후 `ast.parse()` 재검증을
+  통과해야만 실제로 저장했다(§18에서 41개 전부 통과 확인).
+- **삭제/추가된 comment 수**: 순수 `#` comment 삭제 0건(모든 REWRITE가
+  텍스트 압축이지 전체 삭제가 아님), 71건 텍스트 치환, 추가 0건(새
+  comment를 만들지 않음).
+
+## 18. Validation
+
+### 18.1 정적 검증
+
+- `git diff -- '*.py'`의 모든 `+`/`-` 줄이 `#`로 시작하는 comment
+  줄이거나 공백 줄임을 grep으로 재확인 — **comment 이외의 변경
+  0건**(runtime statement/expression/일반 String Literal/Docstring
+  변경 전무, §18.2에서 Docstring 개수로 교차 확인).
+- `python3 -m py_compile`(변경된 41개 파일 전체): **오류 0건**.
+- 변경된 41개 파일 전체 `ast.parse()` 재파싱: **오류 0건**.
+- `#` comment 2줄 초과 잔존 건수(동일 스캐너 재실행): **103 → 32건**
+  (32건 전부 §15 KEEP 목록과 정확히 일치 — 의도치 않은 잔존
+  위반 0건).
+- Docstring 2줄 초과 잔존 건수(§10.1의 456→13 결과 재확인): **13건,
+  변화 없음** — 이번 작업이 Docstring을 재변경하지 않았음을 실측으로
+  증명.
+
+### 18.2 회귀 테스트
+
+| 대상 | Before(§10.2, Wave 1 최초 완료 시점) | After(연장 작업 후) | 판정 |
+|---|---|---|---|
+| `hqs/` 전체 | 380 passed, 6 skipped | 380 passed, 6 skipped | **동일, 회귀 없음** |
+
+`hqs/` 이외 `projects/*`의 기존 실패/에러(concurrency 타이밍 flake,
+`langgraph` 미설치, `in-process-async-command` 비결정성)는 §10.2~10.4가
+이미 Pre-existing으로 확인한 상태이며, 이번 작업은 comment 텍스트만
+바꿨으므로 재확인 대상에서 제외한다(코드 로직 diff 0건, §18.1).
+
+## 19. Before / After Metrics(연장 작업분)
+
+| 지표 | Before | After | 변화 |
+|---|---|---|---|
+| `#` comment 2줄 초과 block | 103 | 32 | **-71** |
+| REMOVE | — | 0 | — |
+| REWRITE | — | 71 | — |
+| KEEP | — | 32 | — |
+| STRUCTURAL | — | 0 | — |
+| 변경 Python 파일 수 | — | 41 | — |
+| Active LOC | 36,686(§11 Docstring 완료 시점) | 36,562 | **-124**(comment 텍스트 압축) |
+| Docstring 2줄 초과 잔존 | 13 | 13 | 0(무변경) |
+| `py_compile` 오류 | 0 | 0 | 0 |
+| `hqs/` 테스트 | 380 passed/6 skipped | 380 passed/6 skipped | 0(회귀 없음) |
+| Architecture/Contract 변경 | — | 0 | 0 |
+
+**Wave 1 전체 누적(Docstring + Comment)**: Docstring 456건(REWRITE
+443/KEEP 13/REMOVE 0) + `#` Comment 103건(REWRITE 71/KEEP 32/REMOVE 0)
+= **총 559건 전수 검토, 514건 실제 정리(REWRITE), 45건 의도적 KEEP,
+REMOVE·STRUCTURAL 0건**. Architecture/Contract/Governance 변경은
+Docstring 단계와 Comment 단계 모두 0건이다.
 
 ## Related
 

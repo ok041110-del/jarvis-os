@@ -75,8 +75,7 @@ def _defines_self_recursive_function(src: str, func_name: str) -> bool:
     return False
 
 
-# ---------------------------------------------------------------- IN-1'
-# A-IN (a)(b)(c)(d) + State 동치: 독립 계보(recursive)의 최종 State가
+# ---- IN-1': A-IN(a)(b)(c)(d)+State 동치 — 독립 계보(recursive)의 최종 State가
 # LangGraph 계보와 dict deep-equal.
 @pytest.mark.parametrize("scenario", SCENARIOS)
 def test_IN1p_final_state_equivalence_recursive_vs_langgraph(scenario):
@@ -109,9 +108,8 @@ def test_IN1p_recursive_actually_walks_conditional_and_loop(scenario, expected_o
         assert "fundamental" not in state
 
 
-# ---------------------------------------------------------------- IN-2'
-# 실행 결과의 값 표현 — 예외 비전파. 재귀 구조는 예외가 상위 프레임으로
-# 새기 쉬운 구조이므로, 매 프레임(각 _advance 호출)에서 catch됨을 확인한다.
+# ---- IN-2': 실행 결과 값 표현 — 예외 비전파. 재귀 구조는 예외가 새기 쉬우므로
+# 매 프레임(_advance 호출)에서 catch됨을 확인한다.
 @pytest.mark.parametrize("adapter_name", list(ADAPTERS))
 @pytest.mark.parametrize("scenario", SCENARIOS)
 def test_IN2p_result_as_value_no_exception(adapter_name, scenario):
@@ -127,11 +125,8 @@ def test_IN2p_result_as_value_no_exception(adapter_name, scenario):
         assert any(str(f).startswith("NODE_ERROR:") for f in state["data_flags"])
 
 
-# ---------------------------------------------------------------- IN-3'
-# A-IN(e) 값 기반 Checkpoint/Resume — caller-owned, 별도 프로세스 재개.
-# recursive 계보는 "이전 재귀 호출 스택을 복원하지 않고 완전히 새 재귀로
-# 재개한다"는 것이 검증 포인트다 — checkpoint 값 자체에 visited/frozenset
-# 등 실행기 내부 상태가 전혀 없어야 한다(순수 도메인 State만).
+# ---- IN-3': A-IN(e) 값 기반 Checkpoint/Resume — recursive 계보는 재귀 스택
+# 복원 없이 완전히 새 재귀로 재개하며, checkpoint에 실행기 내부 상태가 없어야 한다.
 @pytest.mark.parametrize("adapter_name", list(ADAPTERS))
 @pytest.mark.parametrize("scenario", RESUME_SCENARIOS)
 def test_IN3p_caller_owned_checkpoint_resume(tmp_path, adapter_name, scenario):
@@ -246,9 +241,8 @@ def test_IN5p_recursive_and_langgraph_do_not_share_code():
     assert _imports(rc, "domain") and _imports(lg, "domain")  # 공유는 domain.* 한 곳
 
 
-# ---------------------------------------------------------------- IN-6' (재설계 — 기계적 복제 아님)
-# 계보 독립성을 "정적 import 목록"만이 아니라 (1) 자료구조 부재,
-# (2) 실행 메커니즘 자체(재귀 self-call + 실측 재귀 깊이)로 증명한다.
+# ---- IN-6'(재설계, 기계적 복제 아님): 정적 import 목록뿐 아니라 (1) 자료구조
+# 부재, (2) 실행 메커니즘 자체(재귀 self-call + 실측 깊이)로 계보 독립성을 증명한다.
 
 # IN-6'-1 — 정적 의존성 (필요조건, E5 IN-6 계승 — 이것만으로는 불충분함을
 # IN-6'-2/3이 보강한다).
@@ -269,9 +263,8 @@ def test_IN6p_2_recursive_has_no_class_or_queue():
     tree = ast.parse(src)
     assert not any(isinstance(n, ast.ClassDef) for n in ast.walk(tree)), "recursive.py에 class 정의 존재"
     assert "collections" not in _import_roots(src), "recursive.py가 collections(deque 등)를 import"
-    # 코드 바디(문서 docstring 제외)에 큐 자료구조 사용 흔적이 없는지 확인.
-    # 모듈 docstring은 L-A와의 대조 설명을 위해 "deque"라는 단어를 인용하므로
-    # 텍스트 전체가 아니라 AST 바디(모듈 docstring을 제외한 구문 트리)만 본다.
+    # 코드 바디(모듈 docstring 제외)에 큐 자료구조 사용 흔적이 없는지 확인한다 —
+    # docstring은 L-A와의 대조 설명으로 "deque"를 인용하므로 AST 바디만 검사한다.
     body_without_docstring = tree.body[1:] if ast.get_docstring(tree) else tree.body
     body_src = "\n".join(ast.unparse(n) for n in body_without_docstring)
     assert "deque" not in body_src, "recursive.py 코드 바디에 deque 사용 흔적"

@@ -84,9 +84,8 @@ def main() -> dict:
         print(f"[models n={n}] http_status={result['http_status']} error={result['error_body']}", file=sys.stderr)
         results["models_field"].append(result)
 
-    # 대조군: 공식 문서상 `fallbacks`는 Chat Completions 엔드포인트 파라미터가
-    # 아니다 — 이 엔드포인트에 `fallbacks`를 보내면 어떻게 되는지 1회만 관찰
-    # (models와 fallbacks가 서로 다른 필드임을 실측으로도 구분하기 위함).
+    # 대조군 — `fallbacks`는 공식적으로 이 엔드포인트 파라미터가 아니다.
+    # 1회만 관찰해 models와 다른 필드임을 실측으로 구분한다.
     control = _raw_models_call(list(pool.model_ids[:2]), use_fallbacks_field=True)
     print(f"[fallbacks(control) n=2] http_status={control['http_status']} error={control['error_body']}", file=sys.stderr)
     results["fallbacks_field_control"].append(control)

@@ -62,9 +62,8 @@ def call_engine_via_chatgpt(prompt: str) -> str:
     }
     url = base_url.rstrip("/") + CHATGPT_CHAT_COMPLETIONS_PATH
     request = urllib.request.Request(url, data=body, headers=headers, method="POST")
-    # 매 호출마다 opener를 새로 만든다 — urlopen()의 전역 opener는 최초
-    # 호출 시 ProxyHandler()가 그 시점의 getproxies()를 한 번만 캐싱해
-    # 버려서, 이후 HTTPS_PROXY 변경이 반영되지 않기 때문이다.
+    # 매 호출마다 opener를 새로 만든다 — 전역 opener는 최초 호출 시점의
+    # getproxies()를 캐싱해, 이후 HTTPS_PROXY 변경을 반영하지 못하기 때문이다.
     opener = urllib.request.build_opener(urllib.request.ProxyHandler())
     try:
         with opener.open(request, timeout=timeout) as response:

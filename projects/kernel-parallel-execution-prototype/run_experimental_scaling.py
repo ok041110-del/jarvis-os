@@ -15,12 +15,8 @@ from engine_caller import call_engine  # noqa: E402
 PROTO_ROOT = Path(__file__).resolve().parent
 OUTPUT_DIR = PROTO_ROOT / "output" / "experimental-scaling"
 
-# 6개 독립 Task — Phase 6과 동일한 제3의 중립 도메인(자연 현상)을 유지하되
-# 4-way 이상 검증을 위해 3개를 추가했다. 각 프롬프트는 응답 첫 단어로
-# 자기 주제 태그를 선언하도록 요구한다 — 이는 "결과 수집이 deterministic한가"
-# (어느 Task의 결과가 실제로 그 Task 자신의 것인지)를 텍스트 내용만으로
-# 프로그램적으로 검증하기 위한 것이며, LLM 텍스트 자체의 결정론을
-# 주장하는 것이 아니다.
+# 6개 독립 Task — Phase 6과 동일한 중립 도메인 유지, 4-way 이상 검증 위해 3개
+# 추가. 응답 첫 단어의 주제 태그로 결과 귀속을 프로그램적으로 검증한다(텍스트 결정론 주장 아님).
 TASK_POOL = {
     "tides": "Start your answer with the exact word 'TIDES.' then a space. In 1-2 sentences, explain in plain prose why ocean tides happen.",
     "autumn_leaves": "Start your answer with the exact word 'LEAVES.' then a space. In 1-2 sentences, explain in plain prose why leaves change color in autumn.",

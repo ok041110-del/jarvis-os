@@ -31,9 +31,8 @@ class ReviewConfig:
             raise ValueError(f"unknown review mode: {self.mode!r}, expected one of {REVIEW_MODES}")
 
 
-# ---- Deterministic Review — 결정론적으로 근사 가능한 부분집합만 다룬다.
-# (Stage 04 Architecture Validation Harness의 `quality_heuristics.py`와
-# 동일한 성격 — 의미적 결함 판단은 하지 않는다, RFC-0039 §8 재확인.)
+# Deterministic Review — 결정론적으로 근사 가능한 부분집합만 다룬다
+# (quality_heuristics.py와 동일 성격, 의미적 결함 판단은 하지 않음, RFC-0039 §8).
 
 _BARE_EXCEPT_RE = re.compile(r"^\s*except\s*:\s*$", re.MULTILINE)
 _TODO_RE = re.compile(r"#\s*(TODO|FIXME|XXX)\b", re.IGNORECASE)
@@ -128,7 +127,6 @@ def review_validator(ctx: ValidationContext, config: ReviewConfig) -> ValidatorR
         elapsed_ms = (time.perf_counter() - start) * 1000
         return ValidatorResult("review", "ERROR", elapsed_ms, {"mode": "llm"}, error=f"engine call failed: {exc}")
     elapsed_ms = (time.perf_counter() - start) * 1000
-    # LLM 응답의 PASS/FAIL 자체는 이 Harness가 임의로 파싱해 판정하지 않는다
-    # (Policy 구현 금지 원칙 — Review는 항상 advisory, 상태는 응답을 받았는지
-    # 여부만 나타낸다).
+    # LLM 응답의 PASS/FAIL은 이 Harness가 임의로 파싱해 판정하지 않는다(Policy
+    # 구현 금지 원칙) — Review는 항상 advisory, 상태는 응답 수신 여부만 나타낸다.
     return ValidatorResult("review", "PASS", elapsed_ms, detail)
