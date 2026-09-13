@@ -1,7 +1,5 @@
-"""Stage 01 PRD/Specification Synthesis — RFC-0034/ADC-0037/ADR-0022.
-
-이 Capability는 이전에 Stage 02가 담당했다(`stage_02.py`, ADR-0022로 책임 이동) — Stage 02는 이제 이 결과를 그대로 전달(passthrough)할 뿐 재생성하지 않는다.
-"""
+"""Stage 01 PRD/Specification Synthesis(RFC-0034/ADC-0037/ADR-0022) — 이전에는
+Stage 02가 담당했으나 이관됐고, Stage 02는 이 결과를 재생성 없이 전달만 한다."""
 
 import sys
 from pathlib import Path
@@ -21,7 +19,8 @@ _PRD_INSTRUCTION = (
 
 
 def _skeleton_from_context_bundle(issue: dict, context_bundle: dict) -> dict:
-    """Stage 02의 기존 `_structure_from_context()`와 동일한 결정적 재배치(Engine 미호출) — Stage 01→02 의존 방향을 지키기 위해 이 골격 조립 로직만 이 Stage에도 둔다. Stage 02는 이제 이 골격을 다시 계산하지 않고 `prd["skeleton"]`을 그대로 전달한다."""
+    """Stage 01→02 의존 방향을 지키기 위해 골격 조립 로직을 이 Stage에도 둔다 —
+    Stage 02는 이 값을 다시 계산하지 않고 그대로 전달한다."""
     return {
         "problem_definition": f"{issue['title']}: {issue['description']}",
         "constraints": context_bundle.get("known_constraints", []),
@@ -40,8 +39,6 @@ def _skeleton_to_text(skeleton: dict) -> str:
 
 
 def _structured_understanding_to_text(structured_understanding: dict) -> str:
-    """Structured Understanding을 재추론 없이 텍스트로 직렬화한다 —
-    Synthesis일 뿐 Agent를 다시 호출하지 않는다."""
     intent = structured_understanding.get("intent") or {}
     goal = structured_understanding.get("goal") or {}
     requirement = structured_understanding.get("requirement") or {}
@@ -76,7 +73,8 @@ def synthesize_prd(
     directory_structure: list,
     candidate_index: str,
 ) -> dict:
-    """PRD/Specification Synthesis — Structured Understanding과 Repository Context를 종합해 Engine을 정확히 1회 호출한다. Engine 실패 시에도 `specification`은 기존 오류 포맷(`_engine_failure_message`)으로 채워진다(Stage 02의 기존 동작과 동일)."""
+    """Engine을 정확히 1회 호출한다 — 실패 시에도 기존 오류 포맷으로
+    `specification`을 채운다(Stage 02의 기존 동작과 동일)."""
     skeleton = _skeleton_from_context_bundle(issue, context_bundle)
     synthesis_text = "\n\n".join([
         _skeleton_to_text(skeleton),
