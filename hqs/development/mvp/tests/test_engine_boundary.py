@@ -5,9 +5,13 @@
 Gateway가 생기지 않았음을 정적으로 검증한다.
 
 `ADR-0027` Migration으로 기존 ChatGPT-routed 호출부(Stage 01/02
-Reasoning, Stage 03 Design, Stage 05 Review)와 requirements.py는
-3번째 Engine(OpenRouter)으로 전환됐다 — `chatgpt_engine.py`/`engine.py`
-자체는 무변경(Rollback 가능성 유지, `RFC-0041` §Rollback Strategy)."""
+Reasoning, Stage 03 Design, Stage 05 Review, requirements.py, Stage 04
+Target Identification)는 3번째 Engine(OpenRouter)으로 전환됐다 —
+`chatgpt_engine.py`/`engine.py` 자체는 무변경(Rollback 가능성 유지,
+`RFC-0041` §Rollback Strategy). Stage 04 Target Identification
+(`workflow_ast_context.py::identify_target`) 전환 경위는
+`docs/research/OPENROUTER-MIGRATION-SCOPE-GAP-IDENTIFY-TARGET-0001.md`
+참조."""
 
 import ast
 from pathlib import Path
@@ -29,15 +33,17 @@ OPENROUTER_ROUTED_FILES = [
     MVP_DIR / "agents" / "design.py",
     STAGES_DIR / "01_context_analysis" / "reasoning.py",
     STAGES_DIR / "02_planning_specification" / "task_dependency_agent.py",
-]
-
-# `workflow_ast_context.py`는 실제 Stage 01~05 파이프라인 호출부가
-# 아니다(AST Context 유틸리티의 과거 예제 모듈, T18 Evidence 당시
-# 스냅샷) — 이번 Migration 범위(RFC-0041 §Migration Scope) 밖이므로
-# ChatGPT 라우팅을 그대로 유지한다.
-CHATGPT_ROUTED_FILES = [
+    # `stage_04.py`가 무조건 호출하는 Target Identification
+    # (`identify_target`) — 실제 Production 호출 경로임이 실측(ADR-0027
+    # §10 Gate 실행)으로 확인돼 뒤늦게 OpenRouter로 전환됐다. 경위는
+    # `docs/research/OPENROUTER-MIGRATION-SCOPE-GAP-IDENTIFY-TARGET-0001.md`.
     MVP_DIR / "workflow_ast_context.py",
 ]
+
+# 현재 Production 호출부 중 ChatGPT Engine을 계속 쓰는 곳은 없다
+# (`chatgpt_engine.py` 모듈 자체는 Rollback 가능성 유지를 위해 무변경으로
+# 남아있을 뿐 — `RFC-0041` §Rollback Strategy).
+CHATGPT_ROUTED_FILES = []
 
 CLAUDE_CODE_ROUTED_FILES = [
     MVP_DIR / "agents" / "qa.py",
@@ -52,11 +58,12 @@ def test_openrouter_routed_files_import_openrouter_engine_only():
         assert "chatgpt_engine" not in source, f"{path}가 여전히 chatgpt_engine을 참조한다(Migration 미완료)"
 
 
-def test_chatgpt_routed_files_import_chatgpt_engine_only():
-    for path in CHATGPT_ROUTED_FILES:
-        source = path.read_text(encoding="utf-8")
-        assert "chatgpt_engine" in source, f"{path}가 chatgpt_engine을 import하지 않는다"
-        assert "omniroute_engine" not in source, f"{path}가 여전히 omniroute_engine을 참조한다"
+def test_no_production_file_still_routed_to_chatgpt_engine():
+    """Stage 04 Target Identification 전환(`identify_target`)으로
+    ChatGPT-routed Production 호출부는 더 이상 없다 — 목록이 빈 채로
+    유지되는지 자체를 확인한다(회귀 시 누군가 목록에 도로 추가하면
+    실패)."""
+    assert CHATGPT_ROUTED_FILES == []
 
 
 def test_claude_code_routed_files_import_engine_only():
