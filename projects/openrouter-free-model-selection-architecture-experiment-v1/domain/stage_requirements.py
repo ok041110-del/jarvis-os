@@ -32,7 +32,7 @@ class StageRequirement:
 
 
 def _estimate_prompt_tokens(prompt: str) -> int:
-    """정확한 tokenizer 없이(모델마다 tokenizer가 다름, 사전에 알 수 없음) **문자 수 / 4를 보수적 근사치**로 쓴다 — 이는 영어 텍스트의 일반적인 근사 비율이며, 실제 tokenizer와 다를 수 있다는 한계를 Evidence에 명시한다(추측을 감추지 않는다)."""
+    """모델마다 tokenizer가 달라 사전에 정확히 알 수 없으므로, 문자 수 / 4를 보수적 근사치로 쓴다."""
     return len(prompt) // 4
 
 

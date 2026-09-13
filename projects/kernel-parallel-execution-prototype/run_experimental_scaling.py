@@ -1,6 +1,6 @@
 """Experimental Implementation — Parallel Execution 확장 검증(Governance v2).
 
-이 스크립트는 Formal Kernel Migration이 아니다 — Phase 7 HOLD, RFC-0012 Proposed, ADC-0012 DEFER를 해제하지 않는다. `hqs/`·`core/`에 대한 실행 경로 의존은 여전히 0건이다(`engine_caller.py` 재사용, `core/execution/`과의 결합 실험은 별도 파일 `execution_result_bridge.py`에서 읽기 전용 import로만 수행).
+Formal Kernel Migration이 아니다 — Phase 7 HOLD/RFC-0012/ADC-0012를 해제하지 않으며, `hqs/`·`core/` 실행 경로 의존은 0건이다.
 """
 
 import json
@@ -108,10 +108,7 @@ def run_parallel_6way() -> dict:
 
 
 def run_long_task_scenario() -> dict:
-    """장시간 Task(수백 단어 요구) 1개 + 짧은 Task 2개를 같은 Pool에 동시 제출.
-
-검증 대상: (1) 장시간 Task가 ENGINE_TIMEOUT_SECONDS(180s) 안에 끝나는가, (2) 짧은 Task가 장시간 Task에 의해 지연되지 않고 먼저 완료되는가(완료 순서로 확인), (3) 세 Task의 결과가 서로 섞이지 않는가.
-    """
+    """장시간 Task 1개 + 짧은 Task 2개를 같은 Pool에 제출 — 짧은 Task가 지연 없이 먼저 완료되는지 확인한다."""
     jobs = {
         "long_water_cycle": LONG_TASK_PROMPT,
         "tides": TASK_POOL["tides"],
@@ -141,7 +138,7 @@ def run_long_task_scenario() -> dict:
 
 
 def run_exception_in_pool() -> dict:
-    """정상 Task 2개 + 반드시 실패하는 Task 1개(존재하지 않는 바이너리 호출, 실제 subprocess 예외 — 인위적으로 코드에서 던지는 예외가 아니다)를 같은 Pool에 동시 제출."""
+    """정상 Task 2개 + 실패하는 Task 1개(존재하지 않는 바이너리 호출 — 실제 subprocess 예외)를 같은 Pool에 제출한다."""
 
     def _call_nonexistent_engine(prompt: str) -> str:
         import subprocess
@@ -172,7 +169,7 @@ def run_exception_in_pool() -> dict:
 
 
 def check_deterministic_collection(*batches: dict) -> dict:
-    """각 배치의 결과가 자기 자신의 Task 태그로 시작하는지 검증한다 — Dispatch가 결과를 다른 Task와 교차 배정하지 않았는지에 대한 프로그램적 증거다(텍스트 내용의 결정론이 아니라 결합/라우팅의 정확성 검증)."""
+    """각 배치의 결과가 자기 자신의 Task 태그로 시작하는지 검증한다 — Dispatch의 교차 배정 여부를 확인한다."""
     mismatches = []
     checked = 0
     for batch in batches:
@@ -186,7 +183,7 @@ def check_deterministic_collection(*batches: dict) -> dict:
 
 
 def check_zero_dependency() -> list[str]:
-    """이 실험 파일들이 hqs/ 를 import하지 않는지 정적 검사(핵심 Dispatch 경로만 대상 — core/execution 결합 실험은 execution_result_bridge.py에 별도로 있으며, 그 파일 자체가 스스로를 core/ 결합 실험이라고 명시한다)."""
+    """핵심 Dispatch 경로가 hqs/를 import하지 않는지 정적 검사한다(core/execution 결합은 execution_result_bridge.py에서 별도 검증)."""
     violations = []
     for py_file in [PROTO_ROOT / "engine_caller.py", PROTO_ROOT / "run_experimental_scaling.py"]:
         text = py_file.read_text(encoding="utf-8")

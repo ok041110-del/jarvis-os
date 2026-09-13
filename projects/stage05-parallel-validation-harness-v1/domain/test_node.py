@@ -1,4 +1,4 @@
-"""Test Validator — 유일하게 파일 시스템에 쓰기를 하는 Validator (RFC-0039 §2.5, `STAGE05-TEST-ISOLATION-VALIDATION-0001.md`). 반드시 `TestWorkspace`를 통해서만 실행하고, 원본 repository는 절대 참조하지 않는다. Workspace 생성 실패/Implementation 적용 실패/pytest 실행 실패/cleanup 실패를 각각 구분해 반환한다(사용자 지시 Part 3)."""
+"""Test Validator — 유일하게 파일 시스템에 쓰기를 하는 Validator. 반드시 `TestWorkspace`를 통해서만 실행하고, 원본 repository는 절대 참조하지 않는다."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class TestNodeConfig:
 
 
 def run_test_validator(implementation: str, config: TestNodeConfig) -> ValidatorResult:
-    """4단계(workspace 생성 -> implementation 적용 -> pytest 실행 -> cleanup)를 전부 거치고, 각 단계 실패를 `detail`에 구분해 기록한다. cleanup 실패는 Validator 결과 자체를 FAIL로 만들지 않는다 — Production 소스에 영향이 없기 때문이다(Evidence 문서 §7 판단과 동일)."""
+    """cleanup 실패는 Validator 결과를 FAIL로 만들지 않는다 — Production 소스에 영향이 없기 때문이다."""
     start = time.perf_counter()
     detail: dict = {
         "workspace_creation": {"succeeded": None, "error": None, "latency_ms": None},

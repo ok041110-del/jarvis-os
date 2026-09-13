@@ -56,7 +56,6 @@ def _run_test(ctx: ValidationContext, test_config: TestNodeConfig) -> ValidatorR
 
 
 def run_single(ctx: ValidationContext, review_config: ReviewConfig, test_config: TestNodeConfig) -> RunResult:
-    """Structure -> Scope -> AST -> Dependency -> Test -> Review, 순서대로 1개씩. 각 Validator가 다른 Validator의 결과를 실제로 쓰지 않는다는 것(RFC-0039 §2)을 확인하기 위해 순서를 지켜도 각 함수는 `ctx`만 받는다 — 이전 Validator의 출력이 다음 Validator의 입력에 섞이지 않는다."""
     start = time.perf_counter()
     results = [
         _run_structure(ctx),
@@ -77,7 +76,6 @@ def run_single(ctx: ValidationContext, review_config: ReviewConfig, test_config:
 
 
 def run_parallel(ctx: ValidationContext, review_config: ReviewConfig, test_config: TestNodeConfig) -> RunResult:
-    """6개 Validator를 동시에 시작한다. Test만 별도 Process에서, 나머지 5개는 Thread Pool에서 — 실행 완료 순서와 무관하게 결과는 항상 고정 ID 순서로 정렬한다(사용자 지시)."""
     start = time.perf_counter()
     results: list[ValidatorResult] = []
 

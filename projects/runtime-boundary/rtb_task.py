@@ -53,9 +53,6 @@ def refresh(task_id: str) -> Task:
 
 
 def retry(task_id: str) -> Task:
-    """원본 target/strategy를 그대로 재사용해 새 Task를 만든다 — 원본
-    Task는 변경하지 않는다."""
-
     old_task = _REGISTRY[task_id]
     return start(old_task.target, old_task.strategy)
 

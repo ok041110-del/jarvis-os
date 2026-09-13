@@ -10,8 +10,6 @@ from .workflow_project_intelligence import _enrich_issue
 
 
 def run_issue_to_implementation(issue: dict) -> dict:
-    """Engine 호출 실패 시에도 기존 반환 계약(4개 키)을 유지하며,
-    `context`는 실패 시에도 그대로 유지한다."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 

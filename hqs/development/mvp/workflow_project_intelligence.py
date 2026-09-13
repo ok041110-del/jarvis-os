@@ -21,8 +21,7 @@ def _enrich_issue(issue: dict, context: dict) -> dict:
 
 
 def run_issue_to_planning(issue: dict) -> dict:
-    """Engine 호출 실패 시에도 기존 반환 계약(2개 키)을 유지한다.
-    `workflow_0009.run_comparison()`의 flat-context 절반이 이 함수를 재사용한다."""
+    """`workflow_0009.run_comparison()`의 flat-context 절반이 이 함수를 재사용한다."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 
@@ -41,8 +40,7 @@ def run_issue_to_planning(issue: dict) -> dict:
 
 
 def run_issue_to_design(issue: dict) -> dict:
-    """동일 Context를 Planning/Design 양쪽에 재사용한다(Stage마다 재수집하지 않음).
-    Engine 호출 실패 시에도 기존 반환 계약(3개 키)을 유지한다."""
+    """동일 Context를 Planning/Design 양쪽에 재사용한다(Stage마다 재수집하지 않음)."""
     context = collect_relevant_context(issue)
     enriched_issue = _enrich_issue(issue, context)
 
