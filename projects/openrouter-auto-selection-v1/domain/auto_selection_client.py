@@ -86,6 +86,45 @@ def _single_call(models_offered: tuple[str, ...], prompt: str, *, max_tokens: in
     return {"http_status": status, "elapsed_ms": elapsed_ms, "error": None, "parsed": parsed}
 
 
+def _record_attempt(
+    attempts: list[AutoSelectionAttempt],
+    *,
+    attempt_number: int,
+    models_offered: tuple[str, ...],
+    call_result: dict,
+    selected_model: Optional[str] = None,
+    raw_content: Optional[str] = None,
+    usage: Optional[dict] = None,
+    failure_class: Optional[FailureClass] = None,
+    error_detail: Optional[str] = None,
+    contract_passed: Optional[bool] = None,
+    contract_detail: Optional[dict] = None,
+) -> None:
+    """이번 시도의 결과를 `AutoSelectionAttempt`로 기록해 `attempts`에 추가한다."""
+    attempts.append(
+        AutoSelectionAttempt(
+            attempt_number=attempt_number,
+            models_offered=models_offered,
+            http_status=call_result.get("http_status"),
+            selected_model=selected_model,
+            raw_content=raw_content,
+            usage=usage,
+            api_latency_ms=call_result.get("elapsed_ms"),
+            failure_class=failure_class,
+            error_detail=error_detail,
+            contract_passed=contract_passed,
+            contract_detail=contract_detail,
+        )
+    )
+
+
+def _exclude_model_if_configured(pool: tuple[str, ...], model: Optional[str], exclude: bool) -> tuple[str, ...]:
+    """실패한 `model`을 다음 재시도 Pool에서 제외한다(`exclude`가 True이고 Pool에 있을 때만)."""
+    if exclude and model in pool:
+        return tuple(m for m in pool if m != model)
+    return pool
+
+
 def classify_failure(call_result: dict) -> Optional[FailureClass]:
     """호출 1회 결과를 실패 유형으로 분류한다. 성공(재시도 불필요)이면
     `None`을 반환한다."""
@@ -122,20 +161,13 @@ def call_with_auto_selection(
         failure_class = classify_failure(call_result)
 
         if failure_class is not None:
-            attempts.append(
-                AutoSelectionAttempt(
-                    attempt_number=attempt_number,
-                    models_offered=current_pool,
-                    http_status=call_result.get("http_status"),
-                    selected_model=None,
-                    raw_content=None,
-                    usage=None,
-                    api_latency_ms=call_result.get("elapsed_ms"),
-                    failure_class=failure_class,
-                    error_detail=call_result.get("error") or json.dumps(call_result.get("parsed"))[:300],
-                    contract_passed=None,
-                    contract_detail=None,
-                )
+            _record_attempt(
+                attempts,
+                attempt_number=attempt_number,
+                models_offered=current_pool,
+                call_result=call_result,
+                failure_class=failure_class,
+                error_detail=call_result.get("error") or json.dumps(call_result.get("parsed"))[:300],
             )
             if failure_class in _NON_RETRYABLE_FAILURE_CLASSES or attempt_number > max_retries:
                 break
@@ -150,65 +182,51 @@ def call_with_auto_selection(
             content = None
 
         if not content:
-            attempts.append(
-                AutoSelectionAttempt(
-                    attempt_number=attempt_number,
-                    models_offered=current_pool,
-                    http_status=call_result["http_status"],
-                    selected_model=selected_model,
-                    raw_content=None,
-                    usage=usage,
-                    api_latency_ms=call_result["elapsed_ms"],
-                    failure_class="empty_response",
-                    error_detail=f"finish_reason={parsed.get('choices', [{}])[0].get('finish_reason')}",
-                    contract_passed=None,
-                    contract_detail=None,
-                )
+            _record_attempt(
+                attempts,
+                attempt_number=attempt_number,
+                models_offered=current_pool,
+                call_result=call_result,
+                selected_model=selected_model,
+                usage=usage,
+                failure_class="empty_response",
+                error_detail=f"finish_reason={parsed.get('choices', [{}])[0].get('finish_reason')}",
             )
-            if exclude_failed_model_from_retry_pool and selected_model in current_pool:
-                current_pool = tuple(m for m in current_pool if m != selected_model)
+            current_pool = _exclude_model_if_configured(current_pool, selected_model, exclude_failed_model_from_retry_pool)
             if attempt_number > max_retries or not current_pool:
                 break
             continue
 
         contract_result = output_contract(content)
         if not contract_result.passed:
-            attempts.append(
-                AutoSelectionAttempt(
-                    attempt_number=attempt_number,
-                    models_offered=current_pool,
-                    http_status=call_result["http_status"],
-                    selected_model=selected_model,
-                    raw_content=content,
-                    usage=usage,
-                    api_latency_ms=call_result["elapsed_ms"],
-                    failure_class="contract_failure",
-                    error_detail=None,
-                    contract_passed=False,
-                    contract_detail=contract_result.detail,
-                )
+            _record_attempt(
+                attempts,
+                attempt_number=attempt_number,
+                models_offered=current_pool,
+                call_result=call_result,
+                selected_model=selected_model,
+                raw_content=content,
+                usage=usage,
+                failure_class="contract_failure",
+                contract_passed=False,
+                contract_detail=contract_result.detail,
             )
-            if exclude_failed_model_from_retry_pool and selected_model in current_pool:
-                current_pool = tuple(m for m in current_pool if m != selected_model)
+            current_pool = _exclude_model_if_configured(current_pool, selected_model, exclude_failed_model_from_retry_pool)
             if attempt_number > max_retries or not current_pool:
                 break
             continue
 
         # 성공
-        attempts.append(
-            AutoSelectionAttempt(
-                attempt_number=attempt_number,
-                models_offered=current_pool,
-                http_status=call_result["http_status"],
-                selected_model=selected_model,
-                raw_content=content,
-                usage=usage,
-                api_latency_ms=call_result["elapsed_ms"],
-                failure_class=None,
-                error_detail=None,
-                contract_passed=True,
-                contract_detail=contract_result.detail,
-            )
+        _record_attempt(
+            attempts,
+            attempt_number=attempt_number,
+            models_offered=current_pool,
+            call_result=call_result,
+            selected_model=selected_model,
+            raw_content=content,
+            usage=usage,
+            contract_passed=True,
+            contract_detail=contract_result.detail,
         )
         total_ms = (time.perf_counter() - overall_start) * 1000
         return AutoSelectionResult(
