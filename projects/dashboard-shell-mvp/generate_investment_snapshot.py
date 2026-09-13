@@ -1,22 +1,6 @@
 """Dashboard Shell MVP — Investment HQ Snapshot Generator.
 
-`generate_development_snapshot.py`와 같은 방식이다:
-`projects/unified-dashboard/snapshot.py`의 `build_investment_hq_snapshot()`
-을 그대로 재사용해 Investment HQ Evidence를 읽는다 — 새 Evidence 수집
-로직을 만들지 않는다. 이 스크립트는 그 결과를 `js/data.js`의
-`getHQSnapshot('investment')`가 기대하는 최소 shape(JSON)으로만
-옮겨 적는다.
-
-Boundary: `hqs/investment`의 Python 코드를 import하지 않는다(재사용하는
-`build_investment_hq_snapshot()` 자체가 이미 이 Boundary를 지킨다 —
-AST 검증은 `tests/test_generate_investment_snapshot.py` 참조). trader.py
-등 Engine/Agent를 호출하지 않는다.
-
-팀별 status/lastDecision은 `build_investment_hq_snapshot()`이 이미
-만들어 둔 `detail` 문자열(대표 run 1개, `_TEAM_RUNS` 계열)을 정규식으로
-그대로 옮긴 것뿐이다 — 새로운 판정 기준(예: "Promoted" 같은 조직
-상태)을 추가하지 않는다. 대표 run이 없는 팀은 "UNKNOWN(실행 기록
-없음)"을 그대로 노출한다(가상 값 생성 금지).
+Boundary: `hqs/investment`의 Python 코드를 import하지 않는다(재사용하는 `build_investment_hq_snapshot()` 자체가 이미 이 Boundary를 지킨다 — AST 검증은 `tests/test_generate_investment_snapshot.py` 참조). trader.py 등 Engine/Agent를 호출하지 않는다.
 """
 
 from __future__ import annotations

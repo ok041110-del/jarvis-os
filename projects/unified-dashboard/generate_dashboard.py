@@ -1,10 +1,6 @@
 """Unified Dashboard Prototype — CLI 진입점.
 
-실행: python projects/unified-dashboard/generate_dashboard.py
-출력: projects/unified-dashboard/output/dashboard.html
-
-Dashboard = Observe 원칙 검증용 Experimental Implementation.
-Agent/Engine을 호출하지 않는다 — 기존 Evidence 파일만 읽는다.
+Dashboard = Observe 원칙 검증용 Experimental Implementation. Agent/Engine을 호출하지 않는다 — 기존 Evidence 파일만 읽는다.
 """
 
 from __future__ import annotations

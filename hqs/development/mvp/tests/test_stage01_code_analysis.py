@@ -1,7 +1,4 @@
-"""Stage 01 Code Analysis Executors 검증(`stages/01_context_analysis/
-code_analysis.py`) — Structure/Relevant Discovery/AST Candidate 3종을
-가짜 RepositorySnapshot + fetch_content로 검증한다(실제 GitHub API 호출
-없음). Dependency Analysis(target 조건부)와 Context Aggregator도 확인."""
+"""Stage 01 Code Analysis Executors 검증(`stages/01_context_analysis/ code_analysis.py`) — Structure/Relevant Discovery/AST Candidate 3종을 가짜 RepositorySnapshot + fetch_content로 검증한다(실제 GitHub API 호출 없음). Dependency Analysis(target 조건부)와 Context Aggregator도 확인."""
 
 import importlib.util
 import sys

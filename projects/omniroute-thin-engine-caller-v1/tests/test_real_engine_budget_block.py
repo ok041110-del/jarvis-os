@@ -144,9 +144,8 @@ def real_omniroute_env(tmp_path):
     base_url = f"http://127.0.0.1:{PORT}"
 
     log_file = open(log_path, "w")
-    # 이 fixture는 서버를 **정확히 한 번**만 기동한다 — 테스트 본문은
-    # 이 프로세스를 절대 재기동하지 않는다(health-check-repair 회피,
-    # `EVIDENCE-0004` §3.2/§3.3).
+    # 이 fixture는 서버를 정확히 한 번만 기동한다 — 테스트 본문은 이 프로세스를
+    # 재기동하지 않는다(health-check-repair 회피, EVIDENCE-0004 §3.2/§3.3).
     proc = subprocess.Popen(
         ["node", "dist/server.js"], cwd=pkg_dir, env=env,
         stdout=log_file, stderr=subprocess.STDOUT,
@@ -181,8 +180,7 @@ def real_omniroute_env(tmp_path):
 def _sqlite_exec(db_path, statements):
     """서버가 실행 중인 채로 별도 연결을 열어 statement를 실행한다.
 
-    서버 프로세스를 멈추거나 재기동하지 않는다 — 이것이
-    `EVIDENCE-0004`가 확정한 안전한 방법론의 핵심이다.
+서버 프로세스를 멈추거나 재기동하지 않는다 — 이것이 `EVIDENCE-0004`가 확정한 안전한 방법론의 핵심이다.
     """
     conn = sqlite3.connect(str(db_path), timeout=10)
     try:

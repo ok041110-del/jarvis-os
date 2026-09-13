@@ -1,13 +1,7 @@
-"""Stage 04 Architecture Validation — A/B/C 실험군 orchestration(RFC 요청
-§4). 세 실험군 모두 동일한 `build_input`/`target`/`expose_target`(§5)을
-입력받는다 — Target Identification 자체의 변동성은 이 Harness의 비교
-대상이 아니다.
+"""Stage 04 Architecture Validation — A/B/C 실험군 orchestration(RFC 요청 §4). 세 실험군 모두 동일한 `build_input`/`target`/`expose_target`(§5)을 입력받는다 — Target Identification 자체의 변동성은 이 Harness의 비교 대상이 아니다.
 
-`engine_call: Callable[[str], str]`을 주입받는다 — production
-`backend_agent_code_generation`을 그대로 넘길 수도, 이 Harness의 controlled
-fake를 넘길 수도 있다(§11: 실제 Ponytail 미구현 상태에서 Architecture를
-이미 채택한 것처럼 만들지 않기 위한 DI 구조). 이 모듈은 어떤 Production
-경로도 새로 만들지 않는다 — 파일을 쓰지 않고 문자열만 다룬다."""
+`engine_call: Callable[[str], str]`을 주입받는다 — production `backend_agent_code_generation`을 그대로 넘길 수도, 이 Harness의 controlled fake를 넘길 수도 있다(§11: 실제 Ponytail 미구현 상태에서 Architecture를 이미 채택한 것처럼 만들지 않기 위한 DI 구조). 이 모듈은 어떤 Production 경로도 새로 만들지 않는다 — 파일을 쓰지 않고 문자열만 다룬다.
+"""
 
 import sys
 from pathlib import Path
@@ -49,9 +43,7 @@ def _gate(code: str, allowed_function_names: tuple, required_function_names: tup
 
 
 def _annotate_result(result: dict, code, target, expose_target: bool) -> None:
-    """Gate 판정 이후 공통 후처리 — Stage 04 Contract 판정(§7), Quality
-    구조 신호(§8), Comment/Docstring 집계(§9)를 채운다. `code`가 `None`
-    이면(모든 후보가 Gate에서 FAIL) 기본값(None/0)을 그대로 둔다."""
+    """Gate 판정 이후 공통 후처리 — Stage 04 Contract 판정(§7), Quality 구조 신호(§8), Comment/Docstring 집계(§9)를 채운다. `code`가 `None` 이면(모든 후보가 Gate에서 FAIL) 기본값(None/0)을 그대로 둔다."""
     if code is None:
         return
 
@@ -120,9 +112,7 @@ def run_variant_b(
     case_id: str, build_input: str, engine_call, allowed_function_names: tuple,
     *, required_function_names: tuple = None, target=None, expose_target: bool = False,
 ) -> tuple:
-    """B — Multi-Agent. `implementation`/`consistency`/`minimality` 3개
-    고정 ID Agent를 호출하고, Deterministic Gate를 통과한 후보 중 고정
-    ID 순서로 Best Candidate를 고른다(§10 — 실행 완료 순서 무관)."""
+    """B — Multi-Agent. `implementation`/`consistency`/`minimality` 3개 고정 ID Agent를 호출하고, Deterministic Gate를 통과한 후보 중 고정 ID 순서로 Best Candidate를 고른다(§10 — 실행 완료 순서 무관)."""
     result = new_result(case_id, "multi")
 
     candidates, generation_ms_total, validation_ms = _generate_and_gate_candidates(
@@ -146,10 +136,7 @@ def run_variant_c(
     case_id: str, build_input: str, engine_call, allowed_function_names: tuple,
     *, required_function_names: tuple = None, target=None, expose_target: bool = False,
 ) -> tuple:
-    """C — Multi-Agent + Ponytail. B와 동일한 3개 고정 ID Agent 호출을
-    재사용하고(중복 호출 없음), Ponytail Adapter(controlled, §11)로 Final
-    Candidate를 고른다. 실제 Ponytail LLM 판단은 포함하지 않는다 —
-    `ponytail` latency는 이 adapter 실행 시간만 측정한다."""
+    """C — Multi-Agent + Ponytail. B와 동일한 3개 고정 ID Agent 호출을 재사용하고(중복 호출 없음), Ponytail Adapter(controlled, §11)로 Final Candidate를 고른다. 실제 Ponytail LLM 판단은 포함하지 않는다 — `ponytail` latency는 이 adapter 실행 시간만 측정한다."""
     result = new_result(case_id, "multi_ponytail")
 
     candidates, generation_ms_total, validation_ms = _generate_and_gate_candidates(

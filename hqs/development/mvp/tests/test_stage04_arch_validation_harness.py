@@ -1,11 +1,4 @@
-"""Stage 04 Architecture Validation Harness 검증(RFC 요청 — Stage 04
-Architecture Validation Harness Implementation). 이 Harness 자체는
-Production `stage_04.py`/Kernel Architecture를 변경하지 않는다 — 여기서는
-(a) Deterministic Gate/comment 정책이 올바르게 판정하는지, (b) 고정 ID
-순서가 실행 완료 순서와 무관한지, (c) A/B/C variant가 Contract대로
-llm_calls/latency/candidate를 만드는지, (d) Ponytail Adapter가 실제
-Supervisor 없이 결정적으로만 동작하는지를 전부 controlled fake로
-검증한다 — 실제 Engine을 호출하지 않는다."""
+"""Stage 04 Architecture Validation Harness 검증(RFC 요청 — Stage 04 Architecture Validation Harness Implementation). 이 Harness 자체는 Production `stage_04.py`/Kernel Architecture를 변경하지 않는다 — 여기서는 (a) Deterministic Gate/comment 정책이 올바르게 판정하는지, (b) 고정 ID 순서가 실행 완료 순서와 무관한지, (c) A/B/C variant가 Contract대로 llm_calls/latency/candidate를 만드는지, (d) Ponytail Adapter가 실제 Supervisor 없이 결정적으로만 동작하는지를 전부 controlled fake로 검증한다 — 실제 Engine을 호출하지 않는다."""
 
 import importlib.util
 import sys
@@ -143,9 +136,7 @@ def test_ponytail_adapter_returns_none_when_all_fail():
 
 
 def test_deterministic_gate_ordering_is_independent_of_completion_order():
-    """§10 예시(A PASS, B FAIL, C PASS → Ponytail input: A + C)와 동등한
-    성질을 고정 ID 3개로 검증한다 — 완료 순서를 뒤섞어도 최종 선택은
-    항상 고정 ID 순서를 따른다."""
+    """§10 예시(A PASS, B FAIL, C PASS → Ponytail input: A + C)와 동등한 성질을 고정 ID 3개로 검증한다 — 완료 순서를 뒤섞어도 최종 선택은 항상 고정 ID 순서를 따른다."""
     call_order = []
 
     def out_of_order_engine_call(prompt):

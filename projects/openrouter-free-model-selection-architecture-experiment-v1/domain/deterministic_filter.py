@@ -1,8 +1,4 @@
-"""ADR-0026 §6 Deterministic Filter — "명백히 판정 가능한 사실"만으로
-후보를 거른다. 판정 불가능한 metadata는 절대 추측하지 않고
-`NOT_DETERMINED`로 기록한다(사용자 지시 §3) — `NOT_DETERMINED`는
-탈락(FAIL)이 아니다: 판정 불가능한 항목 때문에 후보를 임의로
-제외하면 그 자체가 추측이 되기 때문이다."""
+"""ADR-0026 §6 Deterministic Filter — "명백히 판정 가능한 사실"만으로 후보를 거른다. 판정 불가능한 metadata는 절대 추측하지 않고 `NOT_DETERMINED`로 기록한다(사용자 지시 §3) — `NOT_DETERMINED`는 탈락(FAIL)이 아니다: 판정 불가능한 항목 때문에 후보를 임의로 제외하면 그 자체가 추측이 되기 때문이다."""
 
 from __future__ import annotations
 
@@ -33,9 +29,8 @@ class ModelFilterResult:
 
 
 def _check_free(model_id: str) -> CheckResult:
-    # Free Pool 조회 단계(free_pool.py)가 이미 `:free` 접미사만 반환하므로,
-    # 이 시점에는 항상 PASS다 — 그래도 ADR-0026이 "free 여부"를 필터의
-    # 첫 항목으로 명시했으므로 검사 자체는 명시적으로 남긴다.
+    # Free Pool 조회 단계가 이미 `:free` 접미사만 반환해 항상 PASS다 — 그래도
+    # ADR-0026이 필터 첫 항목으로 명시했으므로 검사 자체는 명시적으로 남긴다.
     verdict = "PASS" if model_id.endswith(":free") else "FAIL"
     return CheckResult("free", verdict, f"model id={model_id!r}")
 
@@ -81,11 +76,8 @@ def _check_modality(
 
 
 def _check_contract_compatibility() -> CheckResult:
-    # ADR-0026 §6 Contract compatibility는 "명백히 판정 가능한 사실"에
-    # 해당하지 않는다 — 구조적 출력 준수 여부는 모델 메타데이터에
-    # 존재하지 않고, 실제 호출 결과(§6 Contract Validation)로만 확인
-    # 가능하다. 사전 단계에서 이를 추측(예: "supported_parameters에
-    # response_format이 있으니 통과할 것이다")하지 않는다 — 사용자 지시.
+    # ADR-0026 §6 Contract compatibility는 사전 판정 불가능하다 — 실제 호출
+    # 결과로만 확인 가능하며, 메타데이터 기반 추측은 하지 않는다(사용자 지시).
     return CheckResult(
         "contract_compatibility",
         "NOT_DETERMINED",
@@ -95,10 +87,7 @@ def _check_contract_compatibility() -> CheckResult:
 
 
 def apply_deterministic_filter(pool: FreePool, requirement: StageRequirement) -> tuple[ModelFilterResult, ...]:
-    """OpenRouter 응답 순서를 그대로 보존한 채(재정렬 없음) 각 모델에
-    5개 체크를 적용한다. `FAIL`이 하나라도 있으면 `EXCLUDED`,
-    `NOT_DETERMINED`만 있으면 그 항목은 판정을 보류할 뿐 제외 사유가
-    되지 않는다(§Verdict — 추측 배제 원칙)."""
+    """OpenRouter 응답 순서를 그대로 보존한 채(재정렬 없음) 각 모델에 5개 체크를 적용한다. `FAIL`이 하나라도 있으면 `EXCLUDED`, `NOT_DETERMINED`만 있으면 그 항목은 판정을 보류할 뿐 제외 사유가 되지 않는다(§Verdict — 추측 배제 원칙)."""
     results: list[ModelFilterResult] = []
     for model in pool.models:
         checks = (

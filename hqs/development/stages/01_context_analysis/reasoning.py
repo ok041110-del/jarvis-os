@@ -1,11 +1,4 @@
-"""Stage 01 Multi-Agent Reasoning — Intent/Goal/Requirement/Ambiguity Agent +
-Reasoning Aggregator(RFC-0033/ADC-0036/ADR-0021). 각 Agent는 독립적인
-reasoning 책임만 가지며 repository의 파일/함수를 직접 선택하지 않는다.
-Multi-Engine Architecture(`ADR-0024`) 이후 Reasoning 목적 호출은 3번째
-Engine인 OpenRouter Free Model Selection(`ADR-0027`,
-`mvp/openrouter_engine.py::call_engine_via_openrouter`)을 사용한다 — 이
-모듈은 Engine routing/provider 선택/policy를 소유하지 않는다(어떤 free
-모델이 실제로 쓰이는지 이 모듈은 모른다)."""
+"""Stage 01 Multi-Agent Reasoning — Intent/Goal/Requirement/Ambiguity Agent + Reasoning Aggregator(RFC-0033/ADC-0036/ADR-0021). 각 Agent는 독립적인 reasoning 책임만 가지며 repository의 파일/함수를 직접 선택하지 않는다. Multi-Engine Architecture(`ADR-0024`) 이후 Reasoning 목적 호출은 3번째 Engine인 OpenRouter Free Model Selection(`ADR-0027`, `mvp/openrouter_engine.py::call_engine_via_openrouter`)을 사용한다 — 이 모듈은 Engine routing/provider 선택/policy를 소유하지 않는다(어떤 free 모델이 실제로 쓰이는지 이 모듈은 모른다)."""
 
 import json
 import re
@@ -92,9 +85,7 @@ def goal_agent(issue: dict) -> dict:
 
 
 def requirement_agent(issue: dict) -> dict:
-    """functional/non-functional requirement, constraint, scope candidate를
-    구조화한다(scope candidate는 일반 주제/키워드 문자열이며 repository 경로가
-    아니다)."""
+    """functional/non-functional requirement, constraint, scope candidate를 구조화한다(scope candidate는 일반 주제/키워드 문자열이며 repository 경로가 아니다)."""
     instruction = (
         "You are the Requirement Agent. Extract functional requirements, "
         "non-functional requirements, constraints, and scope candidates (as "
@@ -154,11 +145,7 @@ def _detect_conflicts(intent: dict, requirement: dict) -> list:
 
 
 def aggregate_reasoning(batch_result) -> dict:
-    """4개 Agent Task 결과(`ParallelBatchResult`)를 StructuredUnderstanding
-    으로 통합한다. schema validation은 각 Agent가 이미 수행했으므로(SUCCESS만
-    통과), 여기서는 normalization/dedup/conflict detection/confidence
-    aggregation/search specification 생성만 담당한다. Agent 간 충돌이 있으면
-    임의로 하나를 선택하지 않고 `CONFLICT`로 표시한다."""
+    """4개 Agent Task 결과(`ParallelBatchResult`)를 StructuredUnderstanding 으로 통합한다. schema validation은 각 Agent가 이미 수행했으므로(SUCCESS만 통과), 여기서는 normalization/dedup/conflict detection/confidence aggregation/search specification 생성만 담당한다. Agent 간 충돌이 있으면 임의로 하나를 선택하지 않고 `CONFLICT`로 표시한다."""
     from mvp.parallel_runner import TaskStatus  # 지연 import — 순환 의존 회피
 
     by_id = {result.task_id: result for result in batch_result.results}

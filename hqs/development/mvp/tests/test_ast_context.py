@@ -27,9 +27,7 @@ def test_candidate_index_lists_class_candidates():
 
 
 def test_closure_single_module_contains_target_only_dependencies():
-    """`_strip_code_fence`는 Agent Package Refactoring으로 `agents/backend.py`
-    (dotted: `agents.backend`)에 있다(ADC-0006 Condition 6, 실제 파일 이동에
-    직접 필요한 literal 변경)."""
+    """`_strip_code_fence`는 Agent Package Refactoring으로 `agents/backend.py` (dotted: `agents.backend`)에 있다(ADC-0006 Condition 6, 실제 파일 이동에 직접 필요한 literal 변경)."""
     closure = build_dependency_closure("agents.backend", "_strip_code_fence")
     assert "# module: agents.backend" in closure
     assert "def _strip_code_fence(text: str) -> str:" in closure
@@ -44,13 +42,7 @@ def test_closure_includes_referenced_class_in_same_module():
 
 
 def test_closure_follows_relative_imports_across_modules():
-    """Agent Package Refactoring 이후 `requirements_agent_requirement_analysis`/
-    `design_agent_design`는 각각 `agents.requirements`/`agents.design`에
-    있다 — T18 Evidence 당시의 단일 `agents` 모듈은 이제 2개로 나뉜다
-    (ADC-0006 Condition 6). OpenRouter Production Engine Migration
-    (`ADR-0027`) 이후 두 Agent 모두 3번째 Engine인 `openrouter_engine`을
-    import한다 — 실제 의존 관계가 바뀌었으므로 폐쇄도 그 변경을 그대로
-    반영해야 한다."""
+    """Agent Package Refactoring 이후 `requirements_agent_requirement_analysis`/ `design_agent_design`는 각각 `agents.requirements`/`agents.design`에 있다 — T18 Evidence 당시의 단일 `agents` 모듈은 이제 2개로 나뉜다 (ADC-0006 Condition 6). OpenRouter Production Engine Migration (`ADR-0027`) 이후 두 Agent 모두 3번째 Engine인 `openrouter_engine`을 import한다 — 실제 의존 관계가 바뀌었으므로 폐쇄도 그 변경을 그대로 반영해야 한다."""
     closure = build_dependency_closure("workflow_project_intelligence", "run_issue_to_design")
     for module in (
         "workflow_project_intelligence",

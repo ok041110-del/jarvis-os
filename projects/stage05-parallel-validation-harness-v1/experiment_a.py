@@ -1,10 +1,4 @@
-"""Experiment A — Single Sequential Validation vs 6-way Parallel
-Validation, 동일 Stage 04 Implementation 입력으로 N회 반복(사용자 지시
-Part 2). 반복 횟수는 이 세션이 이미 확립한 관례(OpenRouter Stage
-01~04 반복 재현성 Validation, `OPENROUTER-STAGE-MODEL-SELECTION-0001.md`
-§8 — "최소 3회 반복", `RT-0001`의 "1회 관찰은 Evidence로 인정하지
-않는다")를 그대로 따라 **3회**로 정한다 — 이 Harness가 새 기준을
-만들지 않는다."""
+"""Experiment A — Single Sequential Validation vs 6-way Parallel Validation, 동일 Stage 04 Implementation 입력으로 N회 반복(사용자 지시 Part 2). 반복 횟수는 이 세션이 이미 확립한 관례(OpenRouter Stage 01~04 반복 재현성 Validation, `OPENROUTER-STAGE-MODEL-SELECTION-0001.md` §8 — "최소 3회 반복", `RT-0001`의 "1회 관찰은 Evidence로 인정하지 않는다")를 그대로 따라 **3회**로 정한다 — 이 Harness가 새 기준을 만들지 않는다."""
 
 from __future__ import annotations
 

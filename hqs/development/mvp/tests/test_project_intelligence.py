@@ -1,8 +1,6 @@
-"""`_directory_structure()`의 `max_depth` Blind Spot 회귀 테스트
-(DEV-HQ-V2.0-CATEGORY-PATHS-BLIND-SPOT-REVIEW-0001 §7.2 Next Task).
+"""`_directory_structure()`의 `max_depth` Blind Spot 회귀 테스트 (DEV-HQ-V2.0-CATEGORY-PATHS-BLIND-SPOT-REVIEW-0001 §7.2 Next Task).
 
-실제 파일시스템(ROOT)을 그대로 사용한다 — 이 함수는 mock 대상 외부
-의존성이 없고, 버그 자체가 실제 경로 깊이 계산에 있었기 때문이다.
+실제 파일시스템(ROOT)을 그대로 사용한다 — 이 함수는 mock 대상 외부 의존성이 없고, 버그 자체가 실제 경로 깊이 계산에 있었기 때문이다.
 """
 
 import sys
@@ -31,10 +29,8 @@ def test_directory_structure_excludes_noise_dirs():
     assert not any("__pycache__" in entry for entry in result)
 
 
-# CATEGORY_PATHS["source_code"] Blind Spot 회귀 테스트 (Phase 2.5 Case D).
-# 수정 전에는 hqs/development/mvp만 대상이라 cli.py/workflow.py/stages/가
-# candidate에서 구조적으로 제외됐다 — 각 파일의 고유 식별자를 키워드로
-# 써서 실제로 후보에 포함되는지 확인한다.
+# CATEGORY_PATHS["source_code"] Blind Spot 회귀 테스트(Phase 2.5 Case D) —
+# 수정 전엔 mvp만 대상이라 cli.py/workflow.py/stages/가 제외됐었다.
 
 
 def test_source_code_scope_includes_v2_workflow_entrypoint():

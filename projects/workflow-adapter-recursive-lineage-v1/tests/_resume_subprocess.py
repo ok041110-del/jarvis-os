@@ -1,8 +1,6 @@
 """IN-3 전용 별도 프로세스 진입점.
 
-fresh 인터프리터에서 checkpoint 파일을 로드해 run_phase2만 실행한다 —
-adapter 모듈·이전 재귀 호출 스택이 전혀 없는 상태에서 재개가 성립함을
-보인다. stdout에 최종 State를 JSON으로 출력한다.
+fresh 인터프리터에서 checkpoint 파일을 로드해 run_phase2만 실행한다 — adapter 모듈·이전 재귀 호출 스택이 전혀 없는 상태에서 재개가 성립함을 보인다. stdout에 최종 State를 JSON으로 출력한다.
 """
 from __future__ import annotations
 

@@ -115,15 +115,7 @@ def _advance(
 ) -> tuple[dict, frozenset, int, bool]:
     """`name`을 재귀적으로 실행한다. 반환: (state, visited, max_depth, stopped).
 
-    `starts`는 이 `_run` 호출의 명시적 시작 노드 집합이다 — `name in starts`인
-    동안은 predecessor 검사를 생략한다. 이는 **매 호출마다** 적용된다(최초
-    진입 1회만이 아니다) — L-A `_Interpreter.self.start`가 인스턴스 생애
-    전체에 걸쳐 매 pop마다 검사되는 것과 동일한 의미다. 이게 필요한 이유:
-    수렴 Loop의 재진입(`bull_case`로 되돌아가는 매 라운드)이 phase2
-    재개처럼 "이 `_run` 호출 안에서 predecessor 없이 재개 가능한 지점"이기
-    때문이다 — `visited`가 실제 predecessor(`collect`)를 담고 있는지 여부와
-    무관하게, 이 이름이 애초에 시작점으로 지정됐다면 항상 재진입 가능해야
-    한다.
+`starts`는 이 `_run` 호출의 명시적 시작 노드 집합이다 — `name in starts`인 동안은 predecessor 검사를 생략한다. 이는 **매 호출마다** 적용된다(최초 진입 1회만이 아니다) — L-A `_Interpreter.self.start`가 인스턴스 생애 전체에 걸쳐 매 pop마다 검사되는 것과 동일한 의미다. 이게 필요한 이유: 수렴 Loop의 재진입(`bull_case`로 되돌아가는 매 라운드)이 phase2 재개처럼 "이 `_run` 호출 안에서 predecessor 없이 재개 가능한 지점"이기 때문이다 — `visited`가 실제 predecessor(`collect`)를 담고 있는지 여부와 무관하게, 이 이름이 애초에 시작점으로 지정됐다면 항상 재진입 가능해야 한다.
     """
     if name in visited:
         return state, visited, depth, False

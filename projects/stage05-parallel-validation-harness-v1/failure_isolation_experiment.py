@@ -1,6 +1,4 @@
-"""Part 5 — Failure Isolation 실험. 7개 시나리오(6/6 success ~ all
-failure)를 전부 실행하고, 매 시나리오에서 "한 Validator의 실패가 다른
-Validator 실행을 막지 않는다"는 원칙을 실제로 확인한다."""
+"""Part 5 — Failure Isolation 실험. 7개 시나리오(6/6 success ~ all failure)를 전부 실행하고, 매 시나리오에서 "한 Validator의 실패가 다른 Validator 실행을 막지 않는다"는 원칙을 실제로 확인한다."""
 
 from __future__ import annotations
 

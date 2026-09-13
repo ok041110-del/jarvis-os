@@ -1,11 +1,7 @@
-"""ADR-0026 Architecture Experiment — Free Pool → Deterministic Filter →
-Candidate Selection(≤3) → `models[]` → OpenRouter 실제 선택 → Contract
-Validation 전체 경로를 Stage 01~05 각 3회 실측한다.
+"""ADR-0026 Architecture Experiment — Free Pool → Deterministic Filter → Candidate Selection(≤3) → `models[]` → OpenRouter 실제 선택 → Contract Validation 전체 경로를 Stage 01~05 각 3회 실측한다.
 
-Production 코드 변경 없음. Stage 01~05 Production routing 변경 없음.
-RFC/ADC/ADR 변경 없음. API Key/Authorization 값 출력 없음(Egress
-Proxy 자동 인증만 사용, 이 파일 어디에도 Authorization 헤더 설정
-없음)."""
+Production 코드 변경 없음. Stage 01~05 Production routing 변경 없음. RFC/ADC/ADR 변경 없음. API Key/Authorization 값 출력 없음(Egress Proxy 자동 인증만 사용, 이 파일 어디에도 Authorization 헤더 설정 없음).
+"""
 
 from __future__ import annotations
 
@@ -47,10 +43,8 @@ def _filter_summary(filter_results) -> list[dict]:
 def run_stage(stage_key: str, requirement) -> dict:
     runs = []
     for rep in range(1, RUN_COUNT + 1):
-        # 매 반복마다 Free Pool을 다시 조회한다 — Pool 자체가 반복 사이에
-        # 달라질 수 있는지(사용자 지시 §8 "가능하면 서로 다른 candidate
-        # pool에서도 반복") 실측으로 확인하기 위함이다. 인위적으로 pool을
-        # 바꾸지 않는다(추측/조작 없음).
+        # 매 반복마다 Free Pool을 다시 조회한다 — Pool이 반복 사이 달라질 수 있는지
+        # 실측 확인 위함(사용자 지시 §8), 인위적 조작은 하지 않는다.
         pool = fetch_free_pool()
         filter_results = apply_deterministic_filter(pool, requirement)
         selection = select_candidates(stage_key, filter_results)

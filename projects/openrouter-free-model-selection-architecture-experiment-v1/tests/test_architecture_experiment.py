@@ -1,6 +1,4 @@
-"""ADR-0026 Architecture Experiment Harness 테스트. 실제 네트워크 호출
-없이 검증 가능한 것만 Fixture/Mock으로 확인한다(§11 원칙과 동일 —
-외부 서비스를 실제로 공격/rate-limit 유발하지 않는다)."""
+"""ADR-0026 Architecture Experiment Harness 테스트. 실제 네트워크 호출 없이 검증 가능한 것만 Fixture/Mock으로 확인한다(§11 원칙과 동일 — 외부 서비스를 실제로 공격/rate-limit 유발하지 않는다)."""
 
 from __future__ import annotations
 

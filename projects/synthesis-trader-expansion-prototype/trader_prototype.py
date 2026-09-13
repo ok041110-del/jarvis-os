@@ -1,16 +1,6 @@
 """Synthesis -> Trader 확장 Prototype.
 
-격리된 Prototype 디렉토리(roadmap.md의 기존 관행: `projects/*-prototype/`).
-`hqs/investment/teams/stock_team.py`의 `synthesis_judgment()`를 수정하지
-않는다 — 기존 함수를 그대로 import해서 "원본 Synthesis"와 "확장된
-Trader"를 같은 입력(Bull/Bear)에 대해 나란히 돌려 비교하기 위한
-1회성 실험 스크립트다. 실행 후에도 `hqs/investment/`는 무수정으로
-남는다(diff로 확인 가능).
-
-Trader 확장 프롬프트는 기존 `synthesis_judgment()`의 지시문을 그대로
-포함하고(종합 책임 유지, Q2), 그 뒤에 Decision 책임만 추가한다
-(§4 최소 변경 원칙). confidence/time_horizon/risk_notes 등은 프롬프트
-어디에도 요청하지 않는다(§6 Contract-First 금지).
+Trader 확장 프롬프트는 기존 `synthesis_judgment()`의 지시문을 그대로 포함하고(종합 책임 유지, Q2), 그 뒤에 Decision 책임만 추가한다 (§4 최소 변경 원칙). confidence/time_horizon/risk_notes 등은 프롬프트 어디에도 요청하지 않는다(§6 Contract-First 금지).
 """
 
 import sys
@@ -36,11 +26,7 @@ _DATA_LIMITATION_NOTICE = (
 def trader_expanded(bull_case: str, bear_case: str) -> str:
     """확장된 Trader — 기존 synthesis_judgment() 지시문 + Decision 책임만 추가.
 
-    최소 변경 원칙(§3): 원본 지시문 문장(Bull/Bear 종합, 사실 vs 해석
-    구분, 미해결 질문 도출)을 한 글자도 바꾸지 않고 그대로 포함한다.
-    "not a trade order" 문장만 제거하고(그 자리에 Decision 책임을
-    추가하는 것이 이 Prototype의 목적이므로), 그 외 원본 문장은
-    그대로 유지한다.
+최소 변경 원칙(§3): 원본 지시문 문장(Bull/Bear 종합, 사실 vs 해석 구분, 미해결 질문 도출)을 한 글자도 바꾸지 않고 그대로 포함한다. "not a trade order" 문장만 제거하고(그 자리에 Decision 책임을 추가하는 것이 이 Prototype의 목적이므로), 그 외 원본 문장은 그대로 유지한다.
     """
     instruction = (
         "You are synthesizing a Bull Case and a Bear Case for the same stock "

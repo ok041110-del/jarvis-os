@@ -1,7 +1,6 @@
 """Dev HQ Vertical Slice — E2E Validation.
 
-Command → Task → Runtime(Process) → Dev HQ(실제 Validation) → Result
-저장 → Dashboard 관찰 전체 경로를 실제로 검증한다.
+Command → Task → Runtime(Process) → Dev HQ(실제 Validation) → Result 저장 → Dashboard 관찰 전체 경로를 실제로 검증한다.
 """
 
 from __future__ import annotations

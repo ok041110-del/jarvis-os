@@ -1,10 +1,6 @@
-"""LangGraph Conditional Routing Prototype — MVP-0002 대응 (State/Node/
-Conditional Edge만 사용, Loop/Checkpoint는 다루지 않음 — README 참고).
+"""LangGraph Conditional Routing Prototype — MVP-0002 대응 (State/Node/ Conditional Edge만 사용, Loop/Checkpoint는 다루지 않음 — README 참고).
 
-이 파일은 Development HQ v2.0 Baseline을 수정하지 않는다. 실제 프로덕션
-Capability(`backend_agent_code_review`/`qa_agent_test_execution`)를
-읽기 전용으로 import해 그대로 재사용하며, 그 위의 분기 배선만 LangGraph로
-구현한다.
+이 파일은 Development HQ v2.0 Baseline을 수정하지 않는다. 실제 프로덕션 Capability(`backend_agent_code_review`/`qa_agent_test_execution`)를 읽기 전용으로 import해 그대로 재사용하며, 그 위의 분기 배선만 LangGraph로 구현한다.
 """
 
 from typing import TypedDict

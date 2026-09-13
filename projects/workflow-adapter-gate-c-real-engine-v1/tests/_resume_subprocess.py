@@ -1,12 +1,6 @@
 """IN-7-4 전용 별도 프로세스 진입점.
 
-fresh 인터프리터에서 checkpoint 파일을 로드해 run_phase2만 실행한다 —
-adapter 모듈이 폐기된 상태에서, 실제 Engine 텍스트가 담긴 값으로도
-재개가 성립함을 보인다. stdout에 최종 State를 JSON으로 출력한다.
-
-이 프로세스는 실제 Engine을 호출하지 않는다 — phase1에서 이미 캡처된
-값이 checkpoint 파일에 값으로 실려 있을 뿐이다(engine_cache 재사용 없음,
-필요도 없음).
+이 프로세스는 실제 Engine을 호출하지 않는다 — phase1에서 이미 캡처된 값이 checkpoint 파일에 값으로 실려 있을 뿐이다(engine_cache 재사용 없음, 필요도 없음).
 """
 from __future__ import annotations
 

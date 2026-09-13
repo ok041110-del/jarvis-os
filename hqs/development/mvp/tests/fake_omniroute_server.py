@@ -1,9 +1,7 @@
 """테스트 전용 로컬 OmniRoute test double(stdlib `http.server`).
 
-실제 OmniRoute가 아니라 OpenAI-compatible 응답 형태를 흉내 낸
-결정론적 fixture다 — Experimental Thin Caller 프로토타입(`projects/`
-아래)의 동명 fixture와 같은 목적이지만, production 테스트가
-Experimental 경로를 참조하지 않도록 이 위치에 독립적으로 둔다."""
+실제 OmniRoute가 아니라 OpenAI-compatible 응답 형태를 흉내 낸 결정론적 fixture다 — Experimental Thin Caller 프로토타입(`projects/` 아래)의 동명 fixture와 같은 목적이지만, production 테스트가 Experimental 경로를 참조하지 않도록 이 위치에 독립적으로 둔다.
+"""
 
 import json
 import threading

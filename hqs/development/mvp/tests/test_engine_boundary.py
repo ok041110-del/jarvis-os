@@ -1,17 +1,7 @@
-"""Multi-Engine Architecture(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`,
-`docs/architecture/core/ADR-0027-openrouter-production-engine-migration-adoption.md`)
-경계 확인 — 정확히 세 Engine(ChatGPT/Claude Code/OpenRouter)만 존재하고,
-각 호출부가 정확히 하나의 Engine 모듈을 참조하며, Central Router/
-Gateway가 생기지 않았음을 정적으로 검증한다.
+"""Multi-Engine Architecture(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`, `docs/architecture/core/ADR-0027-openrouter-production-engine-migration-adoption.md`) 경계 확인 — 정확히 세 Engine(ChatGPT/Claude Code/OpenRouter)만 존재하고, 각 호출부가 정확히 하나의 Engine 모듈을 참조하며, Central Router/ Gateway가 생기지 않았음을 정적으로 검증한다.
 
-`ADR-0027` Migration으로 기존 ChatGPT-routed 호출부(Stage 01/02
-Reasoning, Stage 03 Design, Stage 05 Review, requirements.py, Stage 04
-Target Identification)는 3번째 Engine(OpenRouter)으로 전환됐다 —
-`chatgpt_engine.py`/`engine.py` 자체는 무변경(Rollback 가능성 유지,
-`RFC-0041` §Rollback Strategy). Stage 04 Target Identification
-(`workflow_ast_context.py::identify_target`) 전환 경위는
-`docs/research/OPENROUTER-MIGRATION-SCOPE-GAP-IDENTIFY-TARGET-0001.md`
-참조."""
+`ADR-0027` Migration으로 기존 ChatGPT-routed 호출부(Stage 01/02 Reasoning, Stage 03 Design, Stage 05 Review, requirements.py, Stage 04 Target Identification)는 3번째 Engine(OpenRouter)으로 전환됐다 — `chatgpt_engine.py`/`engine.py` 자체는 무변경(Rollback 가능성 유지, `RFC-0041` §Rollback Strategy). Stage 04 Target Identification (`workflow_ast_context.py::identify_target`) 전환 경위는 `docs/research/OPENROUTER-MIGRATION-SCOPE-GAP-IDENTIFY-TARGET-0001.md` 참조.
+"""
 
 import ast
 from pathlib import Path
@@ -24,25 +14,20 @@ CHATGPT_ENGINE_PY = MVP_DIR / "chatgpt_engine.py"
 CLAUDE_CODE_ENGINE_PY = MVP_DIR / "engine.py"
 OPENROUTER_ENGINE_PY = MVP_DIR / "openrouter_engine.py"
 
-# Stage Mapping(`ADR-0027` Migration 이후) — 호출부 파일과 그 안에서
-# 어떤 Engine 모듈을 import해야 하는지 고정한다. `backend.py`는 두
-# Capability를 별도로 검사한다(아래
-# test_backend_py_uses_openrouter_engine_for_both_capabilities).
+# Stage Mapping(`ADR-0027` Migration 이후) — 호출부 파일과 로드해야 할
+# Engine 모듈을 고정한다(`backend.py`는 두 Capability를 별도 검사, 아래 참고).
 OPENROUTER_ROUTED_FILES = [
     MVP_DIR / "agents" / "requirements.py",
     MVP_DIR / "agents" / "design.py",
     STAGES_DIR / "01_context_analysis" / "reasoning.py",
     STAGES_DIR / "02_planning_specification" / "task_dependency_agent.py",
-    # `stage_04.py`가 무조건 호출하는 Target Identification
-    # (`identify_target`) — 실제 Production 호출 경로임이 실측(ADR-0027
-    # §10 Gate 실행)으로 확인돼 뒤늦게 OpenRouter로 전환됐다. 경위는
-    # `docs/research/OPENROUTER-MIGRATION-SCOPE-GAP-IDENTIFY-TARGET-0001.md`.
+    # `stage_04.py`가 무조건 호출하는 Target Identification(`identify_target`)
+    # — ADR-0027 §10 Gate 실측으로 뒤늦게 OpenRouter로 전환됨(경위: 관련 연구 문서 참고).
     MVP_DIR / "workflow_ast_context.py",
 ]
 
-# 현재 Production 호출부 중 ChatGPT Engine을 계속 쓰는 곳은 없다
-# (`chatgpt_engine.py` 모듈 자체는 Rollback 가능성 유지를 위해 무변경으로
-# 남아있을 뿐 — `RFC-0041` §Rollback Strategy).
+# 현재 Production 호출부 중 ChatGPT Engine을 쓰는 곳은 없다 — `chatgpt_engine.py`
+# 자체는 Rollback 가능성 유지를 위해 무변경으로 남아있을 뿐(RFC-0041 §Rollback).
 CHATGPT_ROUTED_FILES = []
 
 CLAUDE_CODE_ROUTED_FILES = [
@@ -59,10 +44,7 @@ def test_openrouter_routed_files_import_openrouter_engine_only():
 
 
 def test_no_production_file_still_routed_to_chatgpt_engine():
-    """Stage 04 Target Identification 전환(`identify_target`)으로
-    ChatGPT-routed Production 호출부는 더 이상 없다 — 목록이 빈 채로
-    유지되는지 자체를 확인한다(회귀 시 누군가 목록에 도로 추가하면
-    실패)."""
+    """Stage 04 Target Identification 전환(`identify_target`)으로 ChatGPT-routed Production 호출부는 더 이상 없다 — 목록이 빈 채로 유지되는지 자체를 확인한다(회귀 시 누군가 목록에 도로 추가하면 실패)."""
     assert CHATGPT_ROUTED_FILES == []
 
 
@@ -76,11 +58,7 @@ def test_claude_code_routed_files_import_engine_only():
 
 
 def test_backend_py_uses_openrouter_engine_for_both_capabilities():
-    """`agents/backend.py`는 `code_review`/`code_generation` 둘 다
-    `ADR-0027` Migration으로 3번째 Engine(OpenRouter)을 쓴다 — 두
-    Capability가 서로 다른 함수 이름(`call_engine_review`/
-    `call_engine_generation`)으로 남아있는 구조(`RFC-0036` §1.4가
-    지적한 module-level 이름 공유 문제의 해소)는 그대로 유지된다."""
+    """`agents/backend.py`는 `code_review`/`code_generation` 둘 다 `ADR-0027` Migration으로 3번째 Engine(OpenRouter)을 쓴다 — 두 Capability가 서로 다른 함수 이름(`call_engine_review`/ `call_engine_generation`)으로 남아있는 구조(`RFC-0036` §1.4가 지적한 module-level 이름 공유 문제의 해소)는 그대로 유지된다."""
     source = (MVP_DIR / "agents" / "backend.py").read_text(encoding="utf-8")
     assert "from ..openrouter_engine import call_engine_via_openrouter as call_engine_review" in source
     assert "from ..openrouter_engine import call_engine_via_openrouter as call_engine_generation" in source
@@ -90,11 +68,7 @@ def test_backend_py_uses_openrouter_engine_for_both_capabilities():
 
 
 def test_no_provider_specific_function_names_in_stage_or_agent_code():
-    """Stage/Agent 코드에 `call_chatgpt(...)`/`call_claude_code(...)`처럼
-    Provider-specific 이름을 흩뿌리지 않는다(`ADR-0024` §Decision — 모든
-    호출부는 `call_engine`/`call_engine_review`/`call_engine_generation`
-    같은 목적 기반 이름만 쓴다) — 이 함수를 호출부에서 재정의하지 않는지
-    확인한다."""
+    """Stage/Agent 코드에 `call_chatgpt(...)`/`call_claude_code(...)`처럼 Provider-specific 이름을 흩뿌리지 않는다(`ADR-0024` §Decision — 모든 호출부는 `call_engine`/`call_engine_review`/`call_engine_generation` 같은 목적 기반 이름만 쓴다) — 이 함수를 호출부에서 재정의하지 않는지 확인한다."""
     forbidden = ("call_chatgpt", "call_claude_code", "call_openrouter")
     for path in [*OPENROUTER_ROUTED_FILES, *CHATGPT_ROUTED_FILES, *CLAUDE_CODE_ROUTED_FILES,
                  MVP_DIR / "agents" / "backend.py"]:
@@ -104,9 +78,7 @@ def test_no_provider_specific_function_names_in_stage_or_agent_code():
 
 
 def test_no_central_router_or_gateway_module_created():
-    """`IMPLEMENTATION_RULES.md` 15행(Engine Gateway 금지)이 Multi-Engine
-    전환 이후에도 유지되는지 확인 — Router/Gateway 이름의 신규 모듈이
-    `mvp/` 아래 생기지 않았다."""
+    """`IMPLEMENTATION_RULES.md` 15행(Engine Gateway 금지)이 Multi-Engine 전환 이후에도 유지되는지 확인 — Router/Gateway 이름의 신규 모듈이 `mvp/` 아래 생기지 않았다."""
     forbidden_names = {"engine_router.py", "engine_gateway.py", "router.py", "gateway.py"}
     existing = {p.name for p in MVP_DIR.glob("*.py")}
     assert existing.isdisjoint(forbidden_names), f"금지된 Router/Gateway 모듈 발견: {existing & forbidden_names}"
@@ -128,9 +100,7 @@ _FOREIGN_ENGINE_MODULE_NAMES = (
 
 
 def _assert_module_does_not_import_other_engines(engine_py: Path, own_names: tuple[str, ...]):
-    """어떤 Engine 모듈도 다른 Engine 모듈을 import하지 않는지 확인한다
-    (`ADR-0024` §Rollback이 요구하는 Reversibility 조건 — 3개로 늘어난
-    지금도 그대로 지켜야 한다)."""
+    """어떤 Engine 모듈도 다른 Engine 모듈을 import하지 않는지 확인한다 (`ADR-0024` §Rollback이 요구하는 Reversibility 조건 — 3개로 늘어난 지금도 그대로 지켜야 한다)."""
     tree = ast.parse(engine_py.read_text(encoding="utf-8"))
     forbidden = tuple(n for n in _FOREIGN_ENGINE_MODULE_NAMES if n not in own_names)
     for node in ast.walk(tree):

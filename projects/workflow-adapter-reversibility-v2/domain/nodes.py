@@ -1,8 +1,6 @@
 """도메인 stub 노드 13개 — 결정론적, fixture 기반. langgraph 무의존.
 
-의미 출처: hqs/investment/teams/stock_team.py(Wave 병렬 구조),
-hqs/investment/trader.py(REPORT/DECISION 분리). 참조만 — import·수정 없음.
-각 노드는 partial State 업데이트(dict)를 반환한다.
+의미 출처: hqs/investment/teams/stock_team.py(Wave 병렬 구조), hqs/investment/trader.py(REPORT/DECISION 분리). 참조만 — import·수정 없음. 각 노드는 partial State 업데이트(dict)를 반환한다.
 """
 from __future__ import annotations
 

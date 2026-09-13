@@ -1,9 +1,6 @@
 """Case A — Command 하나에 in-process 실행 상태를 직접 담는다.
 
-`async-command` Prototype의 Case A(subprocess 버전)와 동일한 질문을
-in-process 실행에서 반복한다: Command가 실행 상태까지 스스로 표현할
-수 있는가? 여기서는 mutable Command만 사용한다(frozen=True 불가 —
-실행 도중 `status`/`result`가 바뀌어야 하므로).
+`async-command` Prototype의 Case A(subprocess 버전)와 동일한 질문을 in-process 실행에서 반복한다: Command가 실행 상태까지 스스로 표현할 수 있는가? 여기서는 mutable Command만 사용한다(frozen=True 불가 — 실행 도중 `status`/`result`가 바뀌어야 하므로).
 """
 
 from __future__ import annotations

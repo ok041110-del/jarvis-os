@@ -1,9 +1,6 @@
 """Case B — Command는 불변, Task가 in-process 실행 lifecycle을 소유한다.
 
-Command / Task 필드는 최소한으로 유지한다(작업 지시 §7) — task_id,
-status, result, error만 사용한다. Result는 passed/failed 튜플로 표현
-한다(operation.OperationStatus를 그대로 감싸지 않고 Task 자신의 최소
-표현으로 압축 — Task가 Operation 세부 구현을 몰라도 되게 한다).
+Command / Task 필드는 최소한으로 유지한다(작업 지시 §7) — task_id, status, result, error만 사용한다. Result는 passed/failed 튜플로 표현 한다(operation.OperationStatus를 그대로 감싸지 않고 Task 자신의 최소 표현으로 압축 — Task가 Operation 세부 구현을 몰라도 되게 한다).
 """
 
 from __future__ import annotations

@@ -1,6 +1,4 @@
-"""`call_engine_via_omniroute()` 단위 테스트(로컬 test double, 실제
-egress 없음). `call_engine()`(기존, `test_engine.py`)과 동일한 외부
-계약(`str -> str`, 실패 시 `RuntimeError`)을 지키는지 확인한다."""
+"""`call_engine_via_omniroute()` 단위 테스트(로컬 test double, 실제 egress 없음). `call_engine()`(기존, `test_engine.py`)과 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 지키는지 확인한다."""
 
 import sys
 from pathlib import Path

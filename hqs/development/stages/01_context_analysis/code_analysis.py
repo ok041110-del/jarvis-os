@@ -1,12 +1,7 @@
-"""Stage 01 Code Analysis Executors — RepositorySnapshot을 입력으로 삼는
-결정적(Engine 미호출) 분석 3종(Structure/Relevant Discovery/AST Candidate)과
-Context Aggregator, 그리고 조건부 Dependency Analysis(RFC-0033 §8/§9).
+"""Stage 01 Code Analysis Executors — RepositorySnapshot을 입력으로 삼는 결정적(Engine 미호출) 분석 3종(Structure/Relevant Discovery/AST Candidate)과 Context Aggregator, 그리고 조건부 Dependency Analysis(RFC-0033 §8/§9).
 
-기존 `mvp/project_intelligence.py`·`mvp/ast_context.py`의 순수 로직
-(`_keywords`, 단어 경계 스코어링, `_candidate_entries_from_source`, 8-key
-Context Bundle 형태, `KNOWN`/미해결 마커 판정)을 재사용하고, local
-filesystem 순회 부분만 GitHub Snapshot 기반으로 바꾼다 — 알고리즘 자체는
-다시 작성하지 않는다."""
+기존 `mvp/project_intelligence.py`·`mvp/ast_context.py`의 순수 로직 (`_keywords`, 단어 경계 스코어링, `_candidate_entries_from_source`, 8-key Context Bundle 형태, `KNOWN`/미해결 마커 판정)을 재사용하고, local filesystem 순회 부분만 GitHub Snapshot 기반으로 바꾼다 — 알고리즘 자체는 다시 작성하지 않는다.
+"""
 
 import fnmatch
 import re
@@ -19,16 +14,13 @@ from mvp import ast_context  # noqa: E402
 from mvp.ast_context import build_dependency_closure  # noqa: E402
 from mvp.project_intelligence import CATEGORY_PATHS, ROOT, _keywords  # noqa: E402
 
-# `CATEGORY_PATHS`는 절대경로 `Path`를 쓴다 — Snapshot 경로(ROOT-relative
-# POSIX 문자열)와 매칭하려면 상대 경로로 변환한다. 이 저장소를 대상으로 하는
-# 한(§13 실제 GitHub 검증 대상이 이 저장소 자체) 로컬 구조와 GitHub 트리
-# 구조가 같으므로 이 변환은 유효하다.
+# `CATEGORY_PATHS`는 절대경로를 쓴다 — Snapshot 경로(상대 POSIX 문자열)와
+# 매칭하려면 변환해야 한다(이 저장소가 검증 대상이라 로컬·GitHub 구조가 같음).
 _OPEN_WORD_RE = re.compile(r"\bopen\b", re.IGNORECASE)
 _OPEN_KOREAN_MARKERS = ("미해결", "검토가 필요")
 
-# 파일 content를 실제로 fetch하는 상한 — GitHub API 호출 비용을 억제한다
-# (§7 "Repository 전체 파일을 무조건 preload하지 않는다"). 파일명만으로 1차
-# 후보를 추린 뒤 상위 N개만 content까지 확인한다.
+# 파일 content를 실제로 fetch하는 상한 — GitHub API 호출 비용 억제(§7).
+# 파일명으로 1차 후보를 추린 뒤 상위 N개만 content까지 확인한다.
 _MAX_CONTENT_FETCH_PER_CATEGORY = 8
 _MAX_RESULTS_PER_CATEGORY = 3
 
@@ -64,15 +56,10 @@ def structure_analysis(snapshot) -> list:
 
 
 def relevant_discovery(snapshot, fetch_content, issue: dict, search_specification: dict) -> dict:
-    """Relevant File/Document Discovery — 기존 `collect_relevant_context`/
-    `build_context_bundle`의 8-key Context Bundle 형태와 카테고리 구조를
-    재사용하되, 파일 순회는 Snapshot Tree에서, 채점은 fetch된 content에서
-    수행한다(`fetch_content: Callable[[str], str | None]`).
+    """Relevant File/Document Discovery — 기존 `collect_relevant_context`/ `build_context_bundle`의 8-key Context Bundle 형태와 카테고리 구조를 재사용하되, 파일 순회는 Snapshot Tree에서, 채점은 fetch된 content에서 수행한다(`fetch_content: Callable[[str], str | None]`).
 
-    비용 억제를 위해 2단계로 채점한다: (1) 파일명 자체에 키워드가 포함되는지로
-    1차 후보를 추리고 (2) 상위 후보만 content를 fetch해 최종 점수를 매긴다 —
-    로컬 파일시스템(무료 읽기)과 달리 GitHub API 호출에는 비용이 있기 때문에
-    필요한 최소 수정이다(RFC-0033 §9)."""
+비용 억제를 위해 2단계로 채점한다: (1) 파일명 자체에 키워드가 포함되는지로 1차 후보를 추리고 (2) 상위 후보만 content를 fetch해 최종 점수를 매긴다 — 로컬 파일시스템(무료 읽기)과 달리 GitHub API 호출에는 비용이 있기 때문에 필요한 최소 수정이다(RFC-0033 §9).
+    """
     keywords = _keywords(f"{issue['title']} {issue['description']}") | set(
         kw.lower() for kw in search_specification.get("keywords", [])
     )
@@ -135,10 +122,7 @@ def relevant_discovery(snapshot, fetch_content, issue: dict, search_specificatio
 
 
 def ast_candidate_analysis(snapshot, fetch_content) -> str:
-    """AST Function Candidate Index — `mvp/ast_context.py`의
-    `_candidate_entries_from_source()`(RFC-0033 §9로 추출된 순수 함수)를
-    그대로 재사용하고, 대상 파일만 Snapshot Tree(`hqs/development/mvp/*.py`)
-    +fetch로 공급한다."""
+    """AST Function Candidate Index — `mvp/ast_context.py`의 `_candidate_entries_from_source()`(RFC-0033 §9로 추출된 순수 함수)를 그대로 재사용하고, 대상 파일만 Snapshot Tree(`hqs/development/mvp/*.py`) +fetch로 공급한다."""
     mvp_prefix = str((ROOT / "hqs" / "development" / "mvp").relative_to(ROOT))
     py_paths = sorted(
         entry.path
@@ -161,20 +145,13 @@ def ast_candidate_analysis(snapshot, fetch_content) -> str:
 
 
 def dependency_analysis(target) -> str:
-    """AST Dependency Closure — `target`(module, function)이 명확히 주어진
-    경우에만 실행한다(§8 Conditional). 현재 이 Capability는 로컬 파일시스템
-    기준 `build_dependency_closure()`를 그대로 재사용한다 — Stage 01은 실제
-    호출 경로에서 `target`을 받은 적이 없어(§ RESPONSIBILITY.md "시작점 자동
-    식별 없음") Snapshot 기반 재구현은 이번 반복에서 보류한다(Known
-    Limitation, 최종 보고서 참조)."""
+    """AST Dependency Closure — `target`(module, function)이 명확히 주어진 경우에만 실행한다(§8 Conditional). 현재 이 Capability는 로컬 파일시스템 기준 `build_dependency_closure()`를 그대로 재사용한다 — Stage 01은 실제 호출 경로에서 `target`을 받은 적이 없어(§ RESPONSIBILITY.md "시작점 자동 식별 없음") Snapshot 기반 재구현은 이번 반복에서 보류한다(Known Limitation, 최종 보고서 참조)."""
     module, function = target
     return build_dependency_closure(module, function)
 
 
 def aggregate_context(directory_structure: list, context_bundle: dict, candidate_index: str, target, dependency_closure, prd: dict) -> dict:
-    """Context Aggregator — `ContextAnalysisResult` Public Contract
-    6개 키(`stages/contracts.py`, `prd`는 RFC-0034/ADC-0037/ADR-0022로
-    추가)를 그대로 채운다. 재해석 없이 조립만 한다."""
+    """Context Aggregator — `ContextAnalysisResult` Public Contract 6개 키(`stages/contracts.py`, `prd`는 RFC-0034/ADC-0037/ADR-0022로 추가)를 그대로 채운다. 재해석 없이 조립만 한다."""
     return {
         "directory_structure": directory_structure,
         "context_bundle": context_bundle,

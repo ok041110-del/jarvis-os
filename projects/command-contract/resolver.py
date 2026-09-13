@@ -1,12 +1,6 @@
 """Command Resolver — Case A: User -> Command -> HQ (Task 없이).
 
-Engine/Agent를 호출하지 않는다. `projects/unified-dashboard/`의
-읽기 전용 Snapshot Builder만 재사용한다(Prototype 간 연결, Production
-External Interface Contract 아님 — 작업 지시 §12).
-
-HQ Business Logic을 이 모듈이 소유하지 않는다: HQ별 상태 해석은
-전부 `unified-dashboard/snapshot.py`에 있고, 이 모듈은 "어떤 HQ를
-호출할지"만 결정한다(Command Resolution 책임).
+Engine/Agent를 호출하지 않는다. `projects/unified-dashboard/`의 읽기 전용 Snapshot Builder만 재사용한다(Prototype 간 연결, Production External Interface Contract 아님 — 작업 지시 §12).
 """
 
 from __future__ import annotations
@@ -52,9 +46,7 @@ def _detect_intent(raw_input: str) -> str | None:
 
 
 def parse_command(raw_input: str) -> Command:
-    """User Input -> Command. 파싱 실패 시에도 Command 자체는
-    생성된다(intent/target_hq가 None으로 남을 뿐) — 오류 판정은
-    resolve()가 담당한다."""
+    """User Input -> Command. 파싱 실패 시에도 Command 자체는 생성된다(intent/target_hq가 None으로 남을 뿐) — 오류 판정은 resolve()가 담당한다."""
 
     return Command(
         raw_input=raw_input,

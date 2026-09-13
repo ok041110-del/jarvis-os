@@ -1,8 +1,6 @@
 """Characterization tests for `mvp.workflow_0008.run_pipeline` (P1-2).
 
-Production code(`workflow_0008.py`)는 수정하지 않았다. 모든 외부
-의존성(Project Intelligence, Agent 호출)은 mock/stub해 결정적으로
-테스트한다.
+Production code(`workflow_0008.py`)는 수정하지 않았다. 모든 외부 의존성(Project Intelligence, Agent 호출)은 mock/stub해 결정적으로 테스트한다.
 """
 
 import sys

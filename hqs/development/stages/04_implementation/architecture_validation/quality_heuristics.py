@@ -1,10 +1,4 @@
-"""Stage 04 Architecture Validation — Quality 구조 신호(§8). LOC를 품질
-지표로 쓰지 않는다("Short code is not automatically simple code"). 이
-모듈은 §8의 Explicitness 체크리스트(과도한 one-liner/comprehension/중첩
-conditional/chaining) 중 코드로 결정적으로 셀 수 있는 부분만 다룬다 —
-Readability/Cognitive Load/전체 Maintainability처럼 "새 개발자가 얼마나
-추론해야 하는가"를 묻는 판단은 사람 또는 LLM-judge가 필요해 이 모듈이
-대신하지 않는다(README 참고)."""
+"""Stage 04 Architecture Validation — Quality 구조 신호(§8). LOC를 품질 지표로 쓰지 않는다("Short code is not automatically simple code"). 이 모듈은 §8의 Explicitness 체크리스트(과도한 one-liner/comprehension/중첩 conditional/chaining) 중 코드로 결정적으로 셀 수 있는 부분만 다룬다 — Readability/Cognitive Load/전체 Maintainability처럼 "새 개발자가 얼마나 추론해야 하는가"를 묻는 판단은 사람 또는 LLM-judge가 필요해 이 모듈이 대신하지 않는다(README 참고)."""
 
 import ast
 
@@ -66,9 +60,7 @@ def max_control_flow_nesting(code: str) -> int:
 
 
 def explicitness_issue_count(code: str) -> int:
-    """§8 Explicitness 구조 신호 합계 — 값이 낮을수록 명시적이다. 이 값
-    자체가 "명시성 점수"는 아니다. 사람이 읽었을 때 실제로 헷갈리는지는
-    이 값만으로 판단할 수 없다(README/Evidence 문서 한계 참고)."""
+    """§8 Explicitness 구조 신호 합계 — 값이 낮을수록 명시적이다. 이 값 자체가 "명시성 점수"는 아니다. 사람이 읽었을 때 실제로 헷갈리는지는 이 값만으로 판단할 수 없다(README/Evidence 문서 한계 참고)."""
     tree_ok = _safe_parse(code)
     if tree_ok is None:
         return -1

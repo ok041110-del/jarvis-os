@@ -1,14 +1,6 @@
-"""Development HQ Adapter — 기존 Production Contract/Workflow/Engine을
-변경하지 않고 연결한다(작업 지시 §5).
+"""Development HQ Adapter — 기존 Production Contract/Workflow/Engine을 변경하지 않고 연결한다(작업 지시 §5).
 
-Dev HQ의 실제 코드(`hqs/development/`)를 직접 import하지 않는다 —
-`pytest.main()`으로 실제 Validation 대상을 실행하는 것은 이미
-`runtime-boundary`/`process-runtime-strategy` Prototype이 검증한
-안전한 방식이다(실제 Engine 호출·코드 생성 없음, read-only).
-
-이 Adapter가 하는 일은 "action 이름 → 실제 대상 경로" 매핑뿐이다.
-Dev HQ의 Workflow/Engine을 호출하거나 그 결과를 해석하지 않는다 —
-그 실행은 전적으로 Runtime(`rtb_runtime`)의 책임이다.
+Dev HQ의 실제 코드(`hqs/development/`)를 직접 import하지 않는다 — `pytest.main()`으로 실제 Validation 대상을 실행하는 것은 이미 `runtime-boundary`/`process-runtime-strategy` Prototype이 검증한 안전한 방식이다(실제 Engine 호출·코드 생성 없음, read-only).
 """
 
 ACTIONS = {

@@ -1,12 +1,6 @@
 """Unified Dashboard Prototype — Data Acquisition.
 
-Global dashboard/Experimental Prototype Contract. Production
-Contract가 아니다(docs/research/JARVIS-OS-V2.0-UNIFIED-DASHBOARD-
-PROTOTYPE-0001.md 참조).
-
-Boundary 검증 대상: 이 모듈은 hqs/development, hqs/investment의
-어떤 Python 모듈도 import하지 않는다 — 기존 Evidence 파일(Markdown/
-JSON)을 읽기만 한다. Agent/Engine을 호출하지 않는다.
+Global dashboard/Experimental Prototype Contract. Production Contract가 아니다(docs/research/JARVIS-OS-V2.0-UNIFIED-DASHBOARD- PROTOTYPE-0001.md 참조).
 """
 
 from __future__ import annotations
@@ -130,17 +124,13 @@ def build_dev_hq_snapshot() -> HQSnapshot:
 
 
 _DIRECTION_RE = re.compile(r"Direction:\**\s*([A-Za-z]{3,10})", re.IGNORECASE)
-# Rationale/Reassess when — 3개 실제 Team `trader_decision.md`가 공유하는
-# `- **Label...:** 본문` bullet 구조에서, 다음 bullet(`\n-`) 또는 파일
-# 끝까지를 본문으로 잡는다(Label 뒤 `**` 위치가 팀마다 달라도— aapl/pg는
-# `Direction: HOLD**`, efa는 `Direction:** HOLD` — `\**`가 둘 다 흡수한다).
+# Rationale/Reassess when — 3개 팀 `trader_decision.md`가 공유하는 bullet
+# 구조에서 다음 bullet/파일 끝까지를 본문으로 잡는다(Label 뒤 `**` 위치가 팀마다 다름).
 _RATIONALE_RE = re.compile(r"Rationale:\**\s*(.+?)(?=\n-\s|\Z)", re.IGNORECASE | re.DOTALL)
 _REASSESS_RE = re.compile(r"Reassess when:\**\s*(.+?)(?=\n-\s|\Z)", re.IGNORECASE | re.DOTALL)
 
-# 팀 식별에 실제로 쓸 수 있는 유일한 근거: dogfooding 디렉터리명이 전부
-# "{ticker prefix}-..." 형태다(History Architecture Investigation §2에서
-# 9개 디렉터리 전수 확인, 예외 없음). Representative run(detail/execution/
-# status 계산용, 기존 동작 유지)은 team별 trader-verify 1개로 고정한다.
+# 팀 식별의 유일한 근거는 디렉터리명 "{ticker prefix}-..." 형태다(History
+# Architecture Investigation §2, 9개 전수 확인). Representative run은 trader-verify 1개로 고정.
 _TEAM_PREFIXES = {
     "Stock (AAPL)": "aapl",
     "Dividend Stock (PG)": "pg",
@@ -152,12 +142,8 @@ _TEAM_RUNS = {
     "ETF (EFA)": "efa-trader-verify",
 }
 
-# 팀별 전체 Task 수 — `hqs/investment/teams/*.py`의 `run()`에 실제
-# 존재하는 Wave1 분석 역할 수(dict 리터럴 키 개수) + 고정 4단계
-# (bull_case, bear_case, trader_decision, final_report)를 그대로 옮긴
-# 값이다(팀 코드를 import하지 않으므로 리터럴로 재선언, 회귀 테스트로
-# drift 감지). `trader_decision` 단계가 실제 관측되는 현재
-# `trader-verify` 계열 run에만 적용한다.
+# 팀별 전체 Task 수 — `run()`의 실제 분석 역할 수 + 고정 4단계를 리터럴로
+# 재선언한다(팀 코드 미import, 회귀 테스트로 drift 감지, trader-verify run에만 적용).
 _TEAM_TOTAL_STEPS = {
     "Stock (AAPL)": 9,  # fundamental/technical/industry/news_event/sentiment(5) + bull_case + bear_case + trader_decision + final_report
     "Dividend Stock (PG)": 11,  # fundamental/dividend_quality/valuation/technical/industry/news_event/sentiment(7) + 4
@@ -166,10 +152,7 @@ _TEAM_TOTAL_STEPS = {
 
 
 def _progress_for_run(team_label: str, tasks: list[str]) -> tuple[int | None, float | None]:
-    """`trader_decision` 단계가 실제로 관측된 run에만 진행률을
-    계산한다 — `synthesis` 패턴(레거시 `hq-verify` 등)은 Task 구성
-    자체가 달라 같은 분모를 강제하지 않는다(존재하지 않는 기준
-    임의 부여 금지)."""
+    """`trader_decision` 단계가 실제로 관측된 run에만 진행률을 계산한다 — `synthesis` 패턴(레거시 `hq-verify` 등)은 Task 구성 자체가 달라 같은 분모를 강제하지 않는다(존재하지 않는 기준 임의 부여 금지)."""
     if "trader_decision" not in tasks:
         return None, None
     total = _TEAM_TOTAL_STEPS.get(team_label)
@@ -187,9 +170,7 @@ def _discover_team_run_dirs(dogfooding_dir: Path, prefix: str) -> list[Path]:
 
 
 def _run_family(run_dir_name: str, prefix: str) -> str:
-    """디렉터리명에서 prefix를 뗀 나머지를 그대로 계열명으로 쓴다 —
-    팀마다 실제 문자열이 다를 수 있으므로(예: efa는 hq-verify가 아니라
-    2026-08) 억지로 통일하지 않는다(존재하지 않는 의미 추론 금지)."""
+    """디렉터리명에서 prefix를 뗀 나머지를 그대로 계열명으로 쓴다 — 팀마다 실제 문자열이 다를 수 있으므로(예: efa는 hq-verify가 아니라 2026-08) 억지로 통일하지 않는다(존재하지 않는 의미 추론 금지)."""
     return run_dir_name[len(prefix) + 1 :]
 
 
@@ -234,14 +215,10 @@ def _read_team_run(run_dir: Path) -> dict:
 
 
 def build_investment_hq_snapshot() -> HQSnapshot:
-    """hqs/investment/dogfooding/*-trader-verify의 기존 checkpoint
-    manifest.json·trader_decision.md만 읽는다. trader.py를 import
-    하지 않는다(Boundary 검증 대상, Q3).
+    """hqs/investment/dogfooding/*-trader-verify의 기존 checkpoint manifest.json·trader_decision.md만 읽는다. trader.py를 import 하지 않는다(Boundary 검증 대상, Q3).
 
-    `detail`/`status`/`source_files`는 기존과 동일하게 팀별 대표
-    run(`_TEAM_RUNS`, trader-verify 계열) 하나만 대표해 요약한다 —
-    이 대표 run 선택 로직은 Execution Evidence 확장과 무관하므로
-    그대로 둔다."""
+`detail`/`status`/`source_files`는 기존과 동일하게 팀별 대표 run(`_TEAM_RUNS`, trader-verify 계열) 하나만 대표해 요약한다 — 이 대표 run 선택 로직은 Execution Evidence 확장과 무관하므로 그대로 둔다.
+    """
 
     dogfooding_dir = REPO_ROOT / "hqs/investment/dogfooding"
     detail = []
@@ -278,13 +255,7 @@ def build_investment_hq_snapshot() -> HQSnapshot:
 
 
 def _build_investment_execution(dogfooding_dir: Path) -> list[dict]:
-    """Execution Evidence Vertical Slice 확장 — 팀별 대표 run 1개의
-    call_log만 보여주던 기존 방식 대신, `_build_investment_history`와
-    동일하게 `_discover_team_run_dirs`로 실제 존재하는 9개 run 전체를
-    순회해 각 run의 call_log를 전부 노출한다(legacy hq-verify 계열도
-    실제 manifest.json에 call_log가 있으므로 제외하지 않는다). 각
-    항목의 `run`은 History의 `run` 필드와 동일한 디렉터리명이다 —
-    두 표가 같은 run을 가리킬 때 이름이 어긋나지 않는다."""
+    """Execution Evidence Vertical Slice 확장 — 팀별 대표 run 1개의 call_log만 보여주던 기존 방식 대신, `_build_investment_history`와 동일하게 `_discover_team_run_dirs`로 실제 존재하는 9개 run 전체를 순회해 각 run의 call_log를 전부 노출한다(legacy hq-verify 계열도 실제 manifest.json에 call_log가 있으므로 제외하지 않는다). 각 항목의 `run`은 History의 `run` 필드와 동일한 디렉터리명이다 — 두 표가 같은 run을 가리킬 때 이름이 어긋나지 않는다."""
     execution: list[dict] = []
     for team_label, prefix in _TEAM_PREFIXES.items():
         for run_dir in _discover_team_run_dirs(dogfooding_dir, prefix):
@@ -304,12 +275,7 @@ def _build_investment_execution(dogfooding_dir: Path) -> list[dict]:
 
 
 def _build_investment_history(dogfooding_dir: Path) -> list[dict]:
-    """팀별 prefix로 dogfooding 디렉터리를 스캔해 실제 존재하는 run을
-    전부 History로 열거한다(하드코딩된 단일 run만 보던 기존 detail/
-    execution과 달리, 9개 run 전부 대상). run family는 디렉터리명
-    그대로, 정렬은 `_discover_team_run_dirs`가 반환하는 디렉터리명
-    오름차순뿐이다 — git이나 다른 외부 프로세스를 조회하지 않는다
-    (Snapshot Boundary Review 결론, 위 HQSnapshot docstring 참조)."""
+    """팀별 prefix로 dogfooding 디렉터리를 스캔해 실제 존재하는 run을 전부 History로 열거한다(하드코딩된 단일 run만 보던 기존 detail/ execution과 달리, 9개 run 전부 대상). run family는 디렉터리명 그대로, 정렬은 `_discover_team_run_dirs`가 반환하는 디렉터리명 오름차순뿐이다 — git이나 다른 외부 프로세스를 조회하지 않는다 (Snapshot Boundary Review 결론, 위 HQSnapshot docstring 참조)."""
     entries: list[dict] = []
     for team_label, prefix in _TEAM_PREFIXES.items():
         for run_dir in _discover_team_run_dirs(dogfooding_dir, prefix):

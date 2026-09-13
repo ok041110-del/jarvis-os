@@ -1,13 +1,7 @@
-"""Experiment A/B 공통 입력 — 동일한 Stage 04 Implementation을 모든
-실행(Single/Parallel, Review Case A/B/C)에서 재사용한다(사용자 지시).
+"""Experiment A/B 공통 입력 — 동일한 Stage 04 Implementation을 모든 실행(Single/Parallel, Review Case A/B/C)에서 재사용한다(사용자 지시).
 
-대상은 이전 세션(`OPENROUTER-STAGE-MODEL-SELECTION-0001.md`)이 이미
-Stage 05 실제 검증 기준(structural/design_scope/test_execution)으로
-PASS를 확인한 것과 동일한 실제 대상(`backend_agent_code_review`,
-`hqs/development/mvp/agents/backend.py`)을 재사용한다 — 이 모듈은
-원본 파일을 **읽기만** 한다(쓰지 않음). Implementation은 원본을 읽어
-그 자리에서 문자열 치환으로 구성한다 — 하드코딩된 사본을 별도로
-관리하지 않아 원본과 드리프트하지 않는다."""
+대상은 이전 세션(`OPENROUTER-STAGE-MODEL-SELECTION-0001.md`)이 이미 Stage 05 실제 검증 기준(structural/design_scope/test_execution)으로 PASS를 확인한 것과 동일한 실제 대상(`backend_agent_code_review`, `hqs/development/mvp/agents/backend.py`)을 재사용한다 — 이 모듈은 원본 파일을 **읽기만** 한다(쓰지 않음). Implementation은 원본을 읽어 그 자리에서 문자열 치환으로 구성한다 — 하드코딩된 사본을 별도로 관리하지 않아 원본과 드리프트하지 않는다.
+"""
 
 from __future__ import annotations
 
@@ -35,10 +29,8 @@ _VALIDATED_DOCSTRING_AND_GUARD = (
     '        raise ValueError("code must be a non-empty string.")\n'
 )
 
-# Stage 03 Design — 이 Fixture가 흉내 내는 요구사항(입력 검증 추가)에 대한
-# 고정 Design 텍스트. 실제 Stage 03 Engine을 호출하지 않는다 — 이전 세션
-# (`OPENROUTER-STAGE-MODEL-SELECTION-0001.md` §3.3)이 동일 시나리오로
-# 실제 Design Agent를 호출해 검증한 것과 같은 요구사항을 고정 텍스트로 재사용.
+# Stage 03 Design — 이 Fixture가 흉내 내는 요구사항의 고정 Design 텍스트.
+# 실제 Stage 03 Engine을 호출하지 않는다(이전 세션 §3.3과 동일 요구사항 재사용).
 FIXED_DESIGN_CONTEXT = (
     "Design: Add input validation to backend_agent_code_review.\n\n"
     "Approach: at the top of the function body, check that `code` is a "
@@ -65,9 +57,7 @@ class Stage04ImplementationFixture:
 
 
 def build_fixture(repo_root: Path) -> Stage04ImplementationFixture:
-    """원본 파일을 읽고(쓰지 않음), 검증 로직을 추가한 Implementation을
-    문자열 치환으로 구성한다. 원본에 마커 문자열이 없으면(파일이 바뀌었다면)
-    조용히 넘어가지 않고 즉시 실패한다(Evidence 왜곡 방지)."""
+    """원본 파일을 읽고(쓰지 않음), 검증 로직을 추가한 Implementation을 문자열 치환으로 구성한다. 원본에 마커 문자열이 없으면(파일이 바뀌었다면) 조용히 넘어가지 않고 즉시 실패한다(Evidence 왜곡 방지)."""
     target_path = Path(repo_root) / TARGET_RELATIVE_PATH
     original = target_path.read_text(encoding="utf-8")
     if _ORIGINAL_DOCSTRING_MARKER not in original:

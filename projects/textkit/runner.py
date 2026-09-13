@@ -1,7 +1,4 @@
-"""TextKit runner: Issue -> Planning -> Design -> Implementation ->
-src/textkit/<module>.py -> Validation. Verification script, not a
-production entry point; does not modify development-hq/mvp.
-"""
+"""TextKit runner: Issue -> Planning -> Design -> Implementation -> src/textkit/<module>.py -> Validation. Verification script, not a production entry point; does not modify development-hq/mvp."""
 
 import sys
 from pathlib import Path

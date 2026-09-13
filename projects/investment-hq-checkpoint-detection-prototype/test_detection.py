@@ -1,7 +1,4 @@
-"""Prototype 검증 — 실제 관찰값(재현) 대비 True Positive, 실제 Dogfooding
-산출물 30건 대비 False Positive 여부만 확인한다. `pytest` 스위트에는
-포함하지 않는다(Prototype이며, 본 구현으로 승격되지 않았다).
-"""
+"""Prototype 검증 — 실제 관찰값(재현) 대비 True Positive, 실제 Dogfooding 산출물 30건 대비 False Positive 여부만 확인한다. `pytest` 스위트에는 포함하지 않는다(Prototype이며, 본 구현으로 승격되지 않았다)."""
 
 import sys
 from pathlib import Path

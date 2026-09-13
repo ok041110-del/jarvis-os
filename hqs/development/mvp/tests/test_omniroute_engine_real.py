@@ -51,10 +51,8 @@ DEFAULT_PKG_DIR = (
 )
 FAKE_API_KEY = "engine-real-test-only-key-0001"
 PORT = 20243
-# `ollama-local`(LOCAL_PROVIDERS registry)의 target은 코드에 고정된
-# `localDefault`(`http://localhost:11434/v1`)이며 `provider_connections`
-# 행의 값으로 override되지 않는다(`EVIDENCE-0004`§5.1이 확인) — 이
-# 로컬 double은 반드시 이 고정 포트에 떠 있어야 한다.
+# `ollama-local`의 target은 코드에 고정된 `localDefault`이며
+# `provider_connections` 값으로 override되지 않는다(EVIDENCE-0004 §5.1) — 로컬 double은 반드시 이 포트에 떠 있어야 한다.
 DOUBLE_PORT = 11434
 
 NOAUTH_BLOCKLIST = [
@@ -229,12 +227,7 @@ def test_error_mapping_via_production_function(real_omniroute_with_local_double,
 def test_actual_call_site_routes_through_omniroute_end_to_end(
     real_omniroute_with_local_double, monkeypatch
 ):
-    """`EVIDENCE-0013` Governance PASS 이후 실제로 전환된 5개 호출부 중
-    하나(`backend_agent_code_review`)가 `call_engine_via_omniroute`를
-    거쳐 실제(격리) OmniRoute 서버까지 도달하는지 end-to-end로
-    확인한다 — 이전 테스트들은 `call_engine_via_omniroute()`를 직접
-    호출했을 뿐, 실제 Agent 함수를 통한 배선(import alias)까지는
-    검증하지 않았다."""
+    """`EVIDENCE-0013` Governance PASS 이후 실제로 전환된 5개 호출부 중 하나(`backend_agent_code_review`)가 `call_engine_via_omniroute`를 거쳐 실제(격리) OmniRoute 서버까지 도달하는지 end-to-end로 확인한다 — 이전 테스트들은 `call_engine_via_omniroute()`를 직접 호출했을 뿐, 실제 Agent 함수를 통한 배선(import alias)까지는 검증하지 않았다."""
     env = real_omniroute_with_local_double
     monkeypatch.setenv("OMNIROUTE_BASE_URL", env["base_url"])
     monkeypatch.setenv("OMNIROUTE_API_KEY", FAKE_API_KEY)
@@ -245,10 +238,7 @@ def test_actual_call_site_routes_through_omniroute_end_to_end(
 
 
 def test_timeout_abort_via_production_function(real_omniroute_with_local_double, monkeypatch):
-    """`call_engine_via_omniroute()`는 동기 계약(`call_engine()`과 동일)만
-    노출한다 — cancellation API는 `caller.py`(비동기 handle)에서만
-    검증한다(`EVIDENCE-0004`§5.4, 이번 회귀에서 재확인). 이 함수의
-    동기 계약에서 "진행 중 중단"에 대응하는 것은 timeout이다."""
+    """`call_engine_via_omniroute()`는 동기 계약(`call_engine()`과 동일)만 노출한다 — cancellation API는 `caller.py`(비동기 handle)에서만 검증한다(`EVIDENCE-0004`§5.4, 이번 회귀에서 재확인). 이 함수의 동기 계약에서 "진행 중 중단"에 대응하는 것은 timeout이다."""
     env = real_omniroute_with_local_double
     env["double_server"].mode = "slow"
     monkeypatch.setenv("OMNIROUTE_BASE_URL", env["base_url"])

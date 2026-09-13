@@ -1,11 +1,6 @@
 """Pipeline — Command → Task → Runtime → Dev HQ → Result 저장까지 연결한다.
 
-Dashboard는 이 모듈을 거치지 않는다 — `vs_dashboard_view.py`는 Task
-Registry와 Result Store를 직접 읽기만 한다(Observe-only, 작업 지시
-§4). 이 모듈에는 Dashboard 관련 코드가 없다.
-
-`rtb_task`/`rtb_runtime`(`runtime-boundary` Prototype, 이미 main에
-병합됨)을 그대로 재사용한다 — 중복 구현하지 않는다.
+Dashboard는 이 모듈을 거치지 않는다 — `vs_dashboard_view.py`는 Task Registry와 Result Store를 직접 읽기만 한다(Observe-only, 작업 지시 §4). 이 모듈에는 Dashboard 관련 코드가 없다.
 """
 
 from __future__ import annotations

@@ -1,15 +1,6 @@
 """Execution Layer MVP-0006: ExecutionResultBuilder.
 
-Execution State에 대한 Execution Result를 만든다. Execution State는
-수정하지 않고 산출물 목록(``results``, `list[str]`)과 식별 메타데이터만
-추가한다(handle_id, request_id, produced_at, artifact_version).
-``results``의 각 항목은 opaque 문자열로만 다루며 해석하지 않는다 —
-개수(빈 목록 포함) 검증도 하지 않는다(`ADC-0003-execution-result-item-schema.md`
-Decision).
-
-`handle_id`/`produced_at`/`results`는 Runtime/Scheduler/Engine 책임
-영역이므로 호출자가 주입한다. `request_id`만 예외로, Execution State의
-`## State` 절에서 그대로 읽어 재사용한다(Canonical 참조 유지).
+Execution State에 대한 Execution Result를 만든다 — `results`(list[str])는 opaque 문자열로만 다루고 개수 검증도 하지 않는다(`ADC-0003-execution-result-item-schema.md`). `handle_id`/`produced_at`/`results`는 호출자가 주입하고, `request_id`만 Execution State의 `## State` 절에서 그대로 읽어 재사용한다.
 """
 
 import re
@@ -38,8 +29,7 @@ def build_execution_result(
 ) -> str:
     """Execution State에 대한 Execution Result를 만든다.
 
-    텍스트는 그대로 두고 앞에 결과 메타데이터 절(``## Result``)과
-    산출물 목록 절(``## Results``)만 추가한 새 Artifact를 반환한다.
+텍스트는 그대로 두고 앞에 결과 메타데이터 절(``## Result``)과 산출물 목록 절(``## Results``)만 추가한 새 Artifact를 반환한다.
     """
     request_id = _extract_request_id(execution_state)
 

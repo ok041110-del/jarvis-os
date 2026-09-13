@@ -1,7 +1,4 @@
-"""`stage05-parallel-validation-harness-v1` 프로젝트를 읽기 전용으로
-재사용하기 위한 import 헬퍼(`domain/_sibling_import.py`와 동일한 패턴
-— 세 프로젝트 모두 최상위 패키지 이름이 `domain`이라 일반 import는
-충돌한다). 이 파일은 sibling 프로젝트의 어떤 파일도 수정하지 않는다."""
+"""`stage05-parallel-validation-harness-v1` 프로젝트를 읽기 전용으로 재사용하기 위한 import 헬퍼(`domain/_sibling_import.py`와 동일한 패턴 — 세 프로젝트 모두 최상위 패키지 이름이 `domain`이라 일반 import는 충돌한다). 이 파일은 sibling 프로젝트의 어떤 파일도 수정하지 않는다."""
 
 from __future__ import annotations
 

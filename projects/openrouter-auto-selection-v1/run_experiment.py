@@ -1,6 +1,4 @@
-"""Stage 01~05 x 3회 실행 — OpenRouter Free Auto Selection(`models` 배열)
-실측. Production 코드/Engine Routing 변경 없음. API Key/Credential 탐색·
-출력 없음."""
+"""Stage 01~05 x 3회 실행 — OpenRouter Free Auto Selection(`models` 배열) 실측. Production 코드/Engine Routing 변경 없음. API Key/Credential 탐색· 출력 없음."""
 
 from __future__ import annotations
 

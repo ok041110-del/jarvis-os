@@ -1,8 +1,5 @@
 """Dev HQ Vertical Slice — 수동 실행 데모(Evidence 문서용).
 
-Command → Task → Runtime(Process) → Dev HQ(실제 Validation) → Result
-저장 → Dashboard 관찰까지 전체 경로를 한 번에 보여준다.
-
 실행: python3 projects/dev-hq-vertical-slice/demo.py
 """
 

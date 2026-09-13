@@ -76,9 +76,8 @@ def _cmd_delete(args, store):
 
 
 def build_parser():
-    # Subparsers must default --store to argparse.SUPPRESS, not "notes.json":
-    # a literal default would override an already-parsed top-level --store
-    # whenever it's given before the subcommand.
+    # Subparsers must default --store to argparse.SUPPRESS: a literal default
+    # would override an already-parsed top-level --store given before the subcommand.
     store_parent = argparse.ArgumentParser(add_help=False)
     store_parent.add_argument("--store", default="notes.json", help="Path to the note store file")
 

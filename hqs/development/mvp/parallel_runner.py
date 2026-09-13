@@ -1,9 +1,4 @@
-"""ParallelRunner — 재사용 가능한 내부 병렬 실행 인프라(Stage 01 전용 코드가
-아니다, RFC-0033/ADC-0036 §Out of Scope). 책임은 task scheduling·concurrent
-실행·timeout·retry·결과 정규화·batch 결과 수집으로 한정한다. Agent 선택,
-Repository 판단, LLM 선택, GitHub API, semantic correctness, conflict
-resolution, workflow semantics는 이 모듈이 판단하지 않는다 — 호출자(Reasoning
-Aggregator/Context Aggregator)의 책임이다."""
+"""ParallelRunner — 재사용 가능한 내부 병렬 실행 인프라(Stage 01 전용 코드가 아니다, RFC-0033/ADC-0036 §Out of Scope). 책임은 task scheduling·concurrent 실행·timeout·retry·결과 정규화·batch 결과 수집으로 한정한다. Agent 선택, Repository 판단, LLM 선택, GitHub API, semantic correctness, conflict resolution, workflow semantics는 이 모듈이 판단하지 않는다 — 호출자(Reasoning Aggregator/Context Aggregator)의 책임이다."""
 
 import time
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
@@ -98,20 +93,14 @@ def _run_single(task: ParallelTask) -> ParallelTaskResult:
 
 
 class ParallelRunner:
-    """`tasks`를 동시에 실행하고 `ParallelBatchResult`로 결과를 모은다.
-    Task 하나의 실패/timeout이 다른 Task 실행을 막지 않는다(concurrent task
-    isolation) — 최종 진행 가능 여부 판단은 이 클래스가 아니라 호출자
-    (Aggregator)의 책임이다(Partial Failure 원칙)."""
+    """`tasks`를 동시에 실행하고 `ParallelBatchResult`로 결과를 모은다. Task 하나의 실패/timeout이 다른 Task 실행을 막지 않는다(concurrent task isolation) — 최종 진행 가능 여부 판단은 이 클래스가 아니라 호출자 (Aggregator)의 책임이다(Partial Failure 원칙)."""
 
     def __init__(self, max_workers: int = 8):
         self._max_workers = max_workers
 
     def run(self, tasks: list) -> ParallelBatchResult:
-        # `with ThreadPoolExecutor(...)`는 종료 시 `shutdown(wait=True)`를
-        # 호출해 모든 스레드가 끝날 때까지 블로킹한다 — timeout이 걸린 Task의
-        # 스레드가 계속 실행 중이면 그 Task의 timeout이 사실상 무의미해진다
-        # (Python 스레드는 강제 종료가 불가능하므로 `wait=False`로 반환하고
-        # 지연된 스레드는 백그라운드에서 자연 종료되게 둔다).
+        # `wait=True`이면 timeout이 걸린 스레드가 끝날 때까지 블로킹해 timeout이
+        # 무의미해진다(강제 종료 불가) — `wait=False`로 반환하고 자연 종료를 기다린다.
         started_at = time.time()
         results = []
         pool = ThreadPoolExecutor(max_workers=self._max_workers)

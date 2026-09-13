@@ -1,12 +1,6 @@
-"""01→05 Integrated Workflow(`hqs/development/workflow.py`) `run_workflow()`
-검증.
+"""01→05 Integrated Workflow(`hqs/development/workflow.py`) `run_workflow()` 검증.
 
-각 Stage의 내부 로직은 재구현하지 않았으므로 여기서는 (a) 5개 Stage가
-정확한 순서로, 문서화된 Input/Output Handover 그대로 호출되는지, (b)
-중간 Stage 실패 시 이후 Stage가 호출되지 않고 즉시 중단하는지, (c)
-Stage 05의 `verdict`가 재해석 없이 그대로 반환되는지, (d) 각 Stage
-Output이 `stages/contracts.py` 필수 키를 채우지 못하면 명시적으로
-실패 처리되는지만 mock으로 검증한다.
+각 Stage의 내부 로직은 재구현하지 않았으므로 여기서는 (a) 5개 Stage가 정확한 순서로, 문서화된 Input/Output Handover 그대로 호출되는지, (b) 중간 Stage 실패 시 이후 Stage가 호출되지 않고 즉시 중단하는지, (c) Stage 05의 `verdict`가 재해석 없이 그대로 반환되는지, (d) 각 Stage Output이 `stages/contracts.py` 필수 키를 채우지 못하면 명시적으로 실패 처리되는지만 mock으로 검증한다.
 """
 
 import importlib.util
@@ -138,9 +132,7 @@ def test_verdict_is_returned_unchanged_not_reinterpreted(monkeypatch):
 
 
 def test_stage_output_missing_required_key_fails_explicitly_not_silently(monkeypatch):
-    """Stage 01이 Contract가 요구하는 키(`candidate_index`)를 채우지 못하면
-    다음 Stage로 조용히 넘어가지 않고 `failed_at`/`error`로 명시적으로
-    드러나야 한다."""
+    """Stage 01이 Contract가 요구하는 키(`candidate_index`)를 채우지 못하면 다음 Stage로 조용히 넘어가지 않고 `failed_at`/`error`로 명시적으로 드러나야 한다."""
     incomplete_stage_01_output = dict(STAGE_01_OUTPUT)
     del incomplete_stage_01_output["candidate_index"]
 

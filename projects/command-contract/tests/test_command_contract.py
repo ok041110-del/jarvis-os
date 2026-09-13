@@ -67,10 +67,7 @@ def test_unknown_command_returns_invalid():
 # --- 5. Command -> Snapshot 연결 --------------------------------------------
 
 def test_command_result_matches_dashboard_snapshot_content():
-    """Command 결과(detail)가 Dashboard Prototype의 Snapshot과
-    동일한 원본 데이터를 반환하는지 확인 — Command Layer가 자체
-    데이터를 만들지 않고 기존 Snapshot Builder를 그대로 재사용함을
-    검증한다."""
+    """Command 결과(detail)가 Dashboard Prototype의 Snapshot과 동일한 원본 데이터를 반환하는지 확인 — Command Layer가 자체 데이터를 만들지 않고 기존 Snapshot Builder를 그대로 재사용함을 검증한다."""
 
     sys.path.insert(0, str(PROTOTYPE_DIR.parent / "unified-dashboard"))
     from snapshot import build_dev_hq_snapshot  # noqa: E402
@@ -83,11 +80,7 @@ def test_command_result_matches_dashboard_snapshot_content():
 # --- 6. Command -> Task 필요성 검증 ------------------------------------------
 
 def test_task_wrapping_adds_no_observable_value_for_single_readonly_command():
-    """Case A(Command->HQ)와 Case B(Command->Task->HQ)를 같은 입력으로
-    비교한다. Task가 추가하는 것은 task_id(사용되지 않음)와 status
-    (항상 completed, 재조회되지 않음)뿐임을 확인한다 — 이는 이번
-    Prototype 범위(단발 동기 read-only 명령)에서 Task가 실질적
-    이점(재실행/진행상태 추적/결과 연결)을 제공하지 않는다는 Evidence다."""
+    """Case A(Command->HQ)와 Case B(Command->Task->HQ)를 같은 입력으로 비교한다. Task가 추가하는 것은 task_id(사용되지 않음)와 status (항상 completed, 재조회되지 않음)뿐임을 확인한다 — 이는 이번 Prototype 범위(단발 동기 read-only 명령)에서 Task가 실질적 이점(재실행/진행상태 추적/결과 연결)을 제공하지 않는다는 Evidence다."""
 
     raw_input = "Investment HQ 최신 상태를 보여줘"
     command = parse_command(raw_input)
@@ -117,9 +110,7 @@ def test_hq_isolation_dev_and_investment_do_not_cross_reference():
 
 
 def test_multi_hq_sequential_commands_do_not_require_shared_state():
-    """같은 세션에서 두 HQ Command를 순차 실행해도 이전 Command의
-    상태가 다음 Command에 영향을 주지 않는지 확인(Context 필요성
-    검증, Q4)."""
+    """같은 세션에서 두 HQ Command를 순차 실행해도 이전 Command의 상태가 다음 Command에 영향을 주지 않는지 확인(Context 필요성 검증, Q4)."""
 
     first = run_command("Development HQ 상태를 보여줘")
     second = run_command("Investment HQ 최신 상태를 보여줘")

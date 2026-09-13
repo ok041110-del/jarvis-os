@@ -1,7 +1,4 @@
-"""`call_engine_via_chatgpt()` 단위 테스트(로컬 test double, 실제
-egress 없음). `call_engine_via_omniroute()`(`test_omniroute_engine.py`)와
-동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 지키는지
-확인한다 — `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`."""
+"""`call_engine_via_chatgpt()` 단위 테스트(로컬 test double, 실제 egress 없음). `call_engine_via_omniroute()`(`test_omniroute_engine.py`)와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 지키는지 확인한다 — `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`."""
 
 import sys
 from pathlib import Path
@@ -74,11 +71,7 @@ def test_default_model_is_gpt_4o(monkeypatch):
 
 
 def test_uses_http_proxy_env_var(monkeypatch):
-    """`http_proxy`/`HTTPS_PROXY`를 실제로 경유하는지 확인한다 —
-    Agent Egress Proxy 우회(Root Cause) 재발 방지 회귀 테스트.
-    존재하지 않는 upstream(`192.0.2.1`, TEST-NET-1)을 `CHATGPT_BASE_URL`로
-    주고, `http_proxy`만 로컬 fake 서버로 돌려 놓는다 — 프록시를 거치지
-    않으면 연결이 실패하고, 거치면 fake 서버 응답을 그대로 받는다."""
+    """`http_proxy`/`HTTPS_PROXY`를 실제로 경유하는지 확인한다 — Agent Egress Proxy 우회(Root Cause) 재발 방지 회귀 테스트. 존재하지 않는 upstream(`192.0.2.1`, TEST-NET-1)을 `CHATGPT_BASE_URL`로 주고, `http_proxy`만 로컬 fake 서버로 돌려 놓는다 — 프록시를 거치지 않으면 연결이 실패하고, 거치면 fake 서버 응답을 그대로 받는다."""
     with FakeOmniRouteServer(mode="success") as proxy_base_url:
         monkeypatch.setenv("CHATGPT_BASE_URL", "http://192.0.2.1:9")
         monkeypatch.setenv("OPENAI_API_KEY", "test-key")

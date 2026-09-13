@@ -1,9 +1,6 @@
-"""Thin Caller가 Case A 범위(`ADC-0031` §Q1)를 지키고, Jarvis 자체
-Routing/Gateway/Policy 로직이 존재하지 않음을 정적으로 검증한다.
+"""Thin Caller가 Case A 범위(`ADC-0031` §Q1)를 지키고, Jarvis 자체 Routing/Gateway/Policy 로직이 존재하지 않음을 정적으로 검증한다.
 
-이 테스트는 동작이 아니라 **구조**를 검증한다 — `caller.py` 소스와
-저장소 전체를 대상으로, 금지된 패턴이 없는지, production 경로에서
-import되지 않는지를 확인한다.
+이 테스트는 동작이 아니라 **구조**를 검증한다 — `caller.py` 소스와 저장소 전체를 대상으로, 금지된 패턴이 없는지, production 경로에서 import되지 않는지를 확인한다.
 """
 
 import ast
@@ -48,9 +45,8 @@ def test_no_second_engine_target_hardcoded():
 
 
 def test_no_provider_or_routing_selection_logic():
-    # Provider/Model 선택·우선순위·fallback·재랭킹 로직이 없어야 한다.
-    # DEFAULT_MODEL="auto" 같은 상수 지정은 "선택"이 아니라 OmniRoute에
-    # 그대로 위임하는 값이므로 별도로 허용한다.
+    # Provider/Model 선택·우선순위·fallback·재랭킹 로직이 없어야 한다 —
+    # DEFAULT_MODEL="auto" 같은 상수는 OmniRoute 위임 값이라 예외적으로 허용.
     tree = _caller_ast()
     forbidden_identifiers = {
         "provider_connections", "priority", "fallback_chain",
@@ -84,9 +80,8 @@ def test_no_provider_or_routing_selection_logic():
 
 
 def test_no_generalized_adapter_or_gateway_class():
-    # "여러 Engine을 갈아 끼울 수 있는" 일반화된 추상화(Base class +
-    # 복수 구현체)가 없어야 한다 — 이 모듈의 클래스는 전부 단일 호출
-    # 하나의 lifecycle/오류 표현에 그친다.
+    # "여러 Engine을 갈아 끼우는" 일반화 추상화(Base class + 복수 구현체)가
+    # 없어야 한다 — 이 모듈 클래스는 단일 호출 하나의 lifecycle/오류 표현만 담당.
     tree = _caller_ast()
     class_names = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
     forbidden_name_fragments = ["gateway", "engineadapter", "enginebase", "engineinterface"]
@@ -123,10 +118,8 @@ def test_module_defines_exactly_one_network_call_entrypoint():
 
 
 def test_engine_py_not_imported_or_referenced():
-    # Development HQ의 단일 Engine 호출 함수(call_engine)를 이 모듈이
-    # import하거나 호출하지 않는다 — 완전히 별개 경로다. docstring이
-    # 설명 목적으로 그 이름을 인용하는 것은(§목적 문단) 실제 import/
-    # 호출이 아니므로 AST 기준(Import/Call)으로만 검사한다.
+    # 단일 Engine 호출 함수(call_engine)를 import/호출하지 않는다 — docstring이
+    # 설명 목적으로 이름을 인용하는 것은 제외, AST 기준(Import/Call)으로만 검사.
     tree = _caller_ast()
     import_targets = []
     for node in ast.walk(tree):
@@ -146,9 +139,8 @@ def test_engine_py_not_imported_or_referenced():
 
 
 def test_not_imported_from_hqs_production_paths():
-    # `hqs/development/`·`hqs/investment/` 어떤 파일도 이 프로젝트를
-    # import하지 않아야 한다(Experimental이 production path에 직접
-    # 연결되지 않아야 한다 — ARCHITECTURE_GOVERNANCE.md).
+    # `hqs/development/`·`hqs/investment/` 어떤 파일도 이 프로젝트를 import하지
+    # 않아야 한다(Experimental이 production path에 연결되지 않아야 함).
     result = subprocess.run(
         [
             "grep", "-rl",

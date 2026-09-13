@@ -1,21 +1,6 @@
 """OmniRoute Thin Engine Caller — 단일 OmniRoute endpoint 호출 함수.
 
-Case A(Thin Engine Caller) 경계를 지킨다(`docs/architecture/core/
-ADC-0031-omniroute-thin-engine-caller-boundary.md` §Q1·§Decision,
-`docs/architecture/core/ADR-0016-omniroute-thin-caller-freeze-scoped-relaxation.md`):
-단일 함수/클래스가 OmniRoute OpenAI-compatible endpoint 하나만 호출하고,
-request/response 변환과 Adapter 수준 lifecycle(취소·상태 조회)만
-담당한다. Provider/Model 선택, Routing, Fallback, Policy 판정은 이
-모듈에 없다 — 그 전부가 OmniRoute 책임이다(`docs/architecture/core/
-ADC-0027-omniroute-model-routing-engine-adapter-conditional-adoption.md`
-§Q5).
-
-Scope: Experimental(`docs/00_governance/ARCHITECTURE_GOVERNANCE.md`
-"Experimental Implementation"), `projects/` 격리 환경. 이 모듈은
-`hqs/development/`·`hqs/investment/` production path 어디에서도
-import되지 않는다 — `hqs/development/mvp/engine.py`의 `call_engine()`
-(Development HQ의 단일 Engine 호출 함수)과는 완전히 별개이며 그
-파일을 참조·수정하지 않는다.
+Case A(Thin Engine Caller) 경계를 지킨다(`docs/architecture/core/ ADC-0031-omniroute-thin-engine-caller-boundary.md` §Q1·§Decision, `docs/architecture/core/ADR-0016-omniroute-thin-caller-freeze-scoped-relaxation.md`): 단일 함수/클래스가 OmniRoute OpenAI-compatible endpoint 하나만 호출하고
 """
 
 import http.client
@@ -60,10 +45,7 @@ class OmniRouteCancelledError(OmniRouteCallError):
 
 
 def _build_request_body(prompt, *, model):
-    """Jarvis 내부 표현(prompt 문자열)을 OmniRoute OpenAI-compatible
-    포맷으로 변환한다 — 이 함수가 담당하는 유일한 "선택"은 caller가
-    넘긴 model 문자열을 그대로 옮기는 것뿐이며, 어떤 provider/model을
-    쓸지는 판단하지 않는다(그 판단은 OmniRoute의 책임)."""
+    """Jarvis 내부 표현(prompt 문자열)을 OmniRoute OpenAI-compatible 포맷으로 변환한다 — 이 함수가 담당하는 유일한 "선택"은 caller가 넘긴 model 문자열을 그대로 옮기는 것뿐이며, 어떤 provider/model을 쓸지는 판단하지 않는다(그 판단은 OmniRoute의 책임)."""
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -72,9 +54,7 @@ def _build_request_body(prompt, *, model):
 
 
 def _parse_response_body(status, body_bytes):
-    """OmniRoute의 HTTP 응답을 Jarvis 쪽 결과 문자열 또는 타입이 있는
-    예외로 변환한다 — 이 함수는 어떤 재시도·fallback·provider 재선택도
-    수행하지 않는다. 상태 코드를 그대로 옮겨 적을 뿐이다."""
+    """OmniRoute의 HTTP 응답을 Jarvis 쪽 결과 문자열 또는 타입이 있는 예외로 변환한다 — 이 함수는 어떤 재시도·fallback·provider 재선택도 수행하지 않는다. 상태 코드를 그대로 옮겨 적을 뿐이다."""
     try:
         parsed = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
     except (ValueError, UnicodeDecodeError):
@@ -107,9 +87,7 @@ def _resolve_config(base_url, api_key, model, timeout):
 
 
 def _do_call(prompt, *, base_url, api_key, model, timeout, handle=None):
-    """단일 OmniRoute 호출을 실제로 수행하는 내부 함수. `handle`이
-    주어지면 진행 중인 연결 객체를 등록해 다른 스레드가 취소할 수
-    있도록 한다(Adapter 수준 lifecycle 지원, 라우팅/정책 판단 아님)."""
+    """단일 OmniRoute 호출을 실제로 수행하는 내부 함수. `handle`이 주어지면 진행 중인 연결 객체를 등록해 다른 스레드가 취소할 수 있도록 한다(Adapter 수준 lifecycle 지원, 라우팅/정책 판단 아님)."""
     base_url, api_key, model, timeout = _resolve_config(base_url, api_key, model, timeout)
 
     parsed_url = urllib.parse.urlparse(base_url)
@@ -151,11 +129,9 @@ def _do_call(prompt, *, base_url, api_key, model, timeout, handle=None):
 
 
 def call_omniroute(prompt, *, base_url=None, api_key=None, model=None, timeout=None):
-    """단일 OmniRoute 호출 지점. 동기 호출, 성공 시 응답 텍스트를
-    반환하고 실패 시 타입이 있는 예외를 raise한다.
+    """단일 OmniRoute 호출 지점. 동기 호출, 성공 시 응답 텍스트를 반환하고 실패 시 타입이 있는 예외를 raise한다.
 
-    Provider/Model 선택, Routing, Fallback은 전부 OmniRoute가
-    수행한다 — 이 함수는 어느 것도 판단하지 않는다.
+Provider/Model 선택, Routing, Fallback은 전부 OmniRoute가 수행한다 — 이 함수는 어느 것도 판단하지 않는다.
     """
     return _do_call(prompt, base_url=base_url, api_key=api_key, model=model, timeout=timeout)
 
@@ -163,9 +139,7 @@ def call_omniroute(prompt, *, base_url=None, api_key=None, model=None, timeout=N
 class OmniRouteCallHandle:
     """비동기 호출 하나의 lifecycle(상태 조회·취소)만 다루는 handle.
 
-    Provider/Model 후보를 나열하거나 비교하지 않는다 — 이 handle이
-    아는 것은 자신이 감싼 단일 호출의 pending/succeeded/failed/
-    cancelled 상태뿐이다.
+Provider/Model 후보를 나열하거나 비교하지 않는다 — 이 handle이 아는 것은 자신이 감싼 단일 호출의 pending/succeeded/failed/ cancelled 상태뿐이다.
     """
 
     def __init__(self):
@@ -212,10 +186,7 @@ class OmniRouteCallHandle:
 
 
 def call_omniroute_async(prompt, *, base_url=None, api_key=None, model=None, timeout=None):
-    """`call_omniroute`의 비동기 버전 — 동일한 단일 호출을 별도
-    스레드에서 실행하고, 상태 조회·취소가 가능한 handle을 즉시
-    반환한다. 새로운 Engine/Provider를 추가하지 않는다 — 감싸는
-    대상은 여전히 `call_omniroute` 하나뿐이다."""
+    """`call_omniroute`의 비동기 버전 — 동일한 단일 호출을 별도 스레드에서 실행하고, 상태 조회·취소가 가능한 handle을 즉시 반환한다. 새로운 Engine/Provider를 추가하지 않는다 — 감싸는 대상은 여전히 `call_omniroute` 하나뿐이다."""
     handle = OmniRouteCallHandle()
 
     def _worker():

@@ -1,8 +1,6 @@
 """Execution Layer MVP-0002 Dogfooding.
 
-Development HQ가 생성하는 Implementation Specification부터 MVP-0001/0002
-Builder를 통과시켜 Artifact Flow를 검증한다. 읽기(호출)만 하며 어떤
-파일도 수정하지 않는다.
+Development HQ가 생성하는 Implementation Specification부터 MVP-0001/0002 Builder를 통과시켜 Artifact Flow를 검증한다. 읽기(호출)만 하며 어떤 파일도 수정하지 않는다.
 """
 
 import sys

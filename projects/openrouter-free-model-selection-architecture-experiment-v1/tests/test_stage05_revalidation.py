@@ -52,9 +52,7 @@ def test_review_prompt_actually_contains_implementation_not_placeholder():
 
 
 def test_review_prompt_preserves_input_boundary_sections():
-    """ADR-0025/RFC-0039 §9 Input 경계(Design/Contract/Scope/Immutable
-    Source Snapshot)가 전부 유지되는지 확인 — 이전 구조를 임의로
-    바꾸지 않았음을 보증."""
+    """ADR-0025/RFC-0039 §9 Input 경계(Design/Contract/Scope/Immutable Source Snapshot)가 전부 유지되는지 확인 — 이전 구조를 임의로 바꾸지 않았음을 보증."""
     prompt = _build_review_prompt_with_actual_implementation("ORIGINAL_SOURCE_MARKER")
     for marker in ("---STAGE 03 DESIGN---", "---CONTRACT---", "---SCOPE CONTEXT---", "---IMMUTABLE SOURCE SNAPSHOT---", "ORIGINAL_SOURCE_MARKER"):
         assert marker in prompt

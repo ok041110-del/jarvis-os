@@ -1,28 +1,6 @@
 """Dashboard Shell MVP — 로컬 실행 스크립트.
 
-Dashboard는 `js/data.js`가 `fetch("data/development-snapshot.json")`을
-호출하므로 `file://`로 직접 열면 CORS로 막힌다(README 참조) — 반드시
-HTTP 서버가 필요하다. 이 스크립트는 그 서버를 표준 라이브러리
-(`http.server`)만으로 띄우고, 접속 URL을 곧바로 출력한다.
-
-이 파일은 실행 편의용이며 Dashboard 코드(`index.html`/`css`/`js`/
-`generate_*_snapshot.py`)를 전혀 건드리지 않는다.
-
-`POST /api/command`/`POST /api/llm-command` 두 경로만 예외다.
-`/api/command`는 Dashboard Chat의 raw_input을 `projects/command-
-contract/resolver.py`의 `parse_command()`/`resolve()`에 그대로
-전달한다(같은 로직을 여기 복제하지 않는다). `/api/llm-command`는
-그 앞단에 실제 Claude 호출(이미 로그인된 `claude` CLI, `--tools ""`로
-Tool을 전부 비활성화한 순수 분류 1회 호출)을 끼워 넣어 raw_input을
-intent/target_hq로 해석한 뒤 같은 `resolve()`를 그대로 호출한다 —
-Claude는 분류만 하고, 실제 HQ 상태 조회는 여전히 기존 resolve()/
-Snapshot Builder가 전담한다. 이 서버는 `hqs/`·`core/`를 직접
-호출하지 않는다 — resolver 자체가 이미 그 Boundary를 지킨다.
-
-Claude API Key/OAuth Credential은 이 파일 어디에도 등장하지 않는다 —
-`claude` CLI가 이미 이 머신에 로그인된 기존 인증(Claude Code 자신의
-Credential Mechanism)을 그대로 쓸 뿐이며, 이 코드는 그 값을 읽거나
-로그에 남기지 않는다.
+`POST /api/command`/`POST /api/llm-command` 두 경로만 예외다. `/api/command`는 Dashboard Chat의 raw_input을 `projects/command- contract/resolver.py`의 `parse_command()`/`resolve()`에 그대로 전달한다(같은 로직을 여기 복제하지 않는다). `/api/llm-command`는 그 앞단에 실제 Claude 호출
 """
 
 from __future__ import annotations
@@ -68,10 +46,7 @@ class LLMInterpretError(Exception):
 def _interpret_with_claude(raw_input: str) -> tuple[str | None, str | None]:
     """raw_input을 Command 스키마(intent/target_hq)로 분류한다.
 
-    `--tools ""`로 Bash/Read 등 모든 Tool(Agent 포함)을 비활성화해
-    Claude가 파일을 직접 읽거나 행동을 취하지 못하게 막는다 — 순수
-    텍스트 분류 1회 호출이다. `--restricted`로 이 저장소의 CLAUDE.md/
-    project 설정도 불러오지 않는다(분류와 무관한 컨텍스트 배제).
+`--tools ""`로 Bash/Read 등 모든 Tool(Agent 포함)을 비활성화해 Claude가 파일을 직접 읽거나 행동을 취하지 못하게 막는다 — 순수 텍스트 분류 1회 호출이다. `--restricted`로 이 저장소의 CLAUDE.md/ project 설정도 불러오지 않는다(분류와 무관한 컨텍스트 배제).
     """
 
     prompt = _LLM_CLASSIFIER_PROMPT_TEMPLATE.format(raw_input=raw_input)

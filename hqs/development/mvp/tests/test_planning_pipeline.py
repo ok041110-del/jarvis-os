@@ -1,7 +1,4 @@
-"""Stage 02 Deterministic Layer(`planning_pipeline.py`) 검증(RFC-0035/
-ADC-0038/ADR-0023 Decision 3) — Schema Validation, Dependency Graph
-Validation, Cycle Detection, Topological Ordering, Plan Assembly를 각각
-LLM 없이 순수 Python 데이터로 검증한다."""
+"""Stage 02 Deterministic Layer(`planning_pipeline.py`) 검증(RFC-0035/ ADC-0038/ADR-0023 Decision 3) — Schema Validation, Dependency Graph Validation, Cycle Detection, Topological Ordering, Plan Assembly를 각각 LLM 없이 순수 Python 데이터로 검증한다."""
 
 import importlib.util
 import sys

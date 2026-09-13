@@ -1,6 +1,4 @@
-"""Stage 04 Architecture Validation — Result Schema(RFC 요청 §13). 실행
-1건의 측정값을 구조화된 dict로 담는다. 이 모듈 자체는 LLM을 호출하지
-않는다."""
+"""Stage 04 Architecture Validation — Result Schema(RFC 요청 §13). 실행 1건의 측정값을 구조화된 dict로 담는다. 이 모듈 자체는 LLM을 호출하지 않는다."""
 
 VARIANTS = ("single", "multi", "multi_ponytail")
 

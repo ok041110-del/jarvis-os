@@ -1,8 +1,6 @@
 """Execution Layer MVP-0001 Dogfooding.
 
-Development HQ가 실제로 생성하는 Implementation Specification을 입력으로
-ExecutionRequestBuilder를 실행하고 결과를 `output/`에 저장한다.
-Development HQ 코드는 읽기(호출)만 한다.
+Development HQ가 실제로 생성하는 Implementation Specification을 입력으로 ExecutionRequestBuilder를 실행하고 결과를 `output/`에 저장한다. Development HQ 코드는 읽기(호출)만 한다.
 """
 
 import sys

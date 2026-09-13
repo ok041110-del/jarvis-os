@@ -1,11 +1,6 @@
 """Case B — Command은 불변(요청 그 자체), Task가 실행 상태를 소유한다.
 
-Case A(`case_a_command_only.py`)의 `AsyncCommand`는 `status`/`result`/
-`error`가 실행 중 바뀌어야 하므로 `frozen=True`로 만들 수 없었다 —
-이는 Command Contract Prototype(`projects/command-contract/command.py`)
-이 확립한 "Command는 불변 요청 기록"이라는 설계를 깨뜨린다. Case B는
-Command를 다시 불변으로 유지하고, 변하는 것(실행 상태)만 Task가
-소유하게 해서 이 문제가 실제로 해소되는지 검증한다.
+Case A(`case_a_command_only.py`)의 `AsyncCommand`는 `status`/`result`/ `error`가 실행 중 바뀌어야 하므로 `frozen=True`로 만들 수 없었다 — 이는 Command Contract Prototype(`projects/command-contract/command.py`) 이 확립한 "Command는 불변 요청 기록"이라는 설계를 깨뜨린다. Case B는 Command를 다시 불변으로 유지하고, 변하는 것(실행 상태)만 Task가 소유하게 해서 이 문제가 실제로 해소되는지 검증한다.
 """
 
 from __future__ import annotations
@@ -34,9 +29,7 @@ class Command:
 
 @dataclass
 class Task:
-    """가변 — Command 하나를 실행하는 단위. 실행 상태(lifecycle)를
-    소유한다. `task_id`는 Command 객체를 들고 있지 않아도 나중에
-    이 Task를 다시 찾을 수 있게 한다(Registry 조회 대상)."""
+    """가변 — Command 하나를 실행하는 단위. 실행 상태(lifecycle)를 소유한다. `task_id`는 Command 객체를 들고 있지 않아도 나중에 이 Task를 다시 찾을 수 있게 한다(Registry 조회 대상)."""
 
     task_id: str
     command: Command
@@ -68,9 +61,7 @@ def start(raw_input: str, valid_path: bool = True) -> Task:
 
 
 def get_task(task_id: str) -> Task:
-    """Command/Task 객체를 들고 있지 않아도 task_id만으로 조회한다
-    — Dashboard가 실행 중인 작업을 관찰하려면 이 조회 경로가
-    필요하다(작업 지시 §11, §Q5)."""
+    """Command/Task 객체를 들고 있지 않아도 task_id만으로 조회한다 — Dashboard가 실행 중인 작업을 관찰하려면 이 조회 경로가 필요하다(작업 지시 §11, §Q5)."""
 
     return _TASK_REGISTRY[task_id]
 
@@ -94,10 +85,7 @@ def refresh(task_id: str) -> Task:
 
 
 def retry(task_id: str) -> Task:
-    """실패한 Task를 같은 Command로 재실행한다 — 원본 Command가
-    불변이었기 때문에 재실행 시 요청 내용을 다시 조립할 필요가
-    없었다(Case A였다면 이미 mutate된 Command에서 원본 raw_input이
-    보존돼 있었는지 별도로 신경 써야 했을 것)."""
+    """실패한 Task를 같은 Command로 재실행한다 — 원본 Command가 불변이었기 때문에 재실행 시 요청 내용을 다시 조립할 필요가 없었다(Case A였다면 이미 mutate된 Command에서 원본 raw_input이 보존돼 있었는지 별도로 신경 써야 했을 것)."""
 
     old_task = _TASK_REGISTRY[task_id]
     if old_task.status != "FAILED":

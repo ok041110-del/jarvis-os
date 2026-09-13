@@ -1,7 +1,4 @@
-"""Structure/Scope/AST/Dependency — 4개 결정적 Validator(RFC-0039 §2.1
-§2.2 §2.3 §2.4의 "책임의 본질" 정의를 그대로 구현). 전부 순수 함수다
-— 파일 시스템 접근·Engine 호출 없음, 입력은 미리 준비된 Context
-객체뿐(RFC-0039 §1 "Context가 준비된 상태" 전제와 동일)."""
+"""Structure/Scope/AST/Dependency — 4개 결정적 Validator(RFC-0039 §2.1 §2.2 §2.3 §2.4의 "책임의 본질" 정의를 그대로 구현). 전부 순수 함수다 — 파일 시스템 접근·Engine 호출 없음, 입력은 미리 준비된 Context 객체뿐(RFC-0039 §1 "Context가 준비된 상태" 전제와 동일)."""
 
 from __future__ import annotations
 
@@ -74,9 +71,7 @@ def _top_level_defs(source: str) -> dict[str, str]:
 
 
 def ast_validator(ctx: ValidationContext) -> ValidatorResult:
-    """Implementation이 Target 함수 외의 다른 top-level 정의를 바꾸지
-    않았는가(RFC-0039 §2.3) — 원본은 Context의 읽기 전용 스냅샷에서만
-    읽는다(Test Workspace를 절대 참조하지 않음)."""
+    """Implementation이 Target 함수 외의 다른 top-level 정의를 바꾸지 않았는가(RFC-0039 §2.3) — 원본은 Context의 읽기 전용 스냅샷에서만 읽는다(Test Workspace를 절대 참조하지 않음)."""
 
     def _check():
         try:
@@ -109,10 +104,7 @@ def _import_lines(source: str) -> frozenset[str]:
 
 
 def dependency_validator(ctx: ValidationContext) -> ValidatorResult:
-    """Implementation이 참조하는 것(import)이 사전에 확정된 Dependency
-    Context(원본 import 집합) 밖으로 새로 추가되지 않았는가(RFC-0039 §2.4)
-    — 새 import 추가 금지는 Stage 04 Ponytail policy(`check_no_new_imports`)
-    와 동일한 성격의 결정적 검사다."""
+    """Implementation이 참조하는 것(import)이 사전에 확정된 Dependency Context(원본 import 집합) 밖으로 새로 추가되지 않았는가(RFC-0039 §2.4) — 새 import 추가 금지는 Stage 04 Ponytail policy(`check_no_new_imports`) 와 동일한 성격의 결정적 검사다."""
 
     def _check():
         try:

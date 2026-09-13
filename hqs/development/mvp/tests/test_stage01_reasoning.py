@@ -1,7 +1,4 @@
-"""Stage 01 Multi-Agent Reasoning 검증(`stages/01_context_analysis/reasoning.py`)
-— Intent/Goal/Requirement/Ambiguity Agent(mock Engine)와 Reasoning
-Aggregator(schema validation/dedup/conflict/confidence/search spec)를
-확인한다."""
+"""Stage 01 Multi-Agent Reasoning 검증(`stages/01_context_analysis/reasoning.py`) — Intent/Goal/Requirement/Ambiguity Agent(mock Engine)와 Reasoning Aggregator(schema validation/dedup/conflict/confidence/search spec)를 확인한다."""
 
 import importlib.util
 import json

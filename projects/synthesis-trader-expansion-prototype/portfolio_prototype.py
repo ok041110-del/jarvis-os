@@ -1,12 +1,6 @@
 """Portfolio Need Dogfooding — STEP1/2/3 실험 스크립트.
 
-격리된 Prototype 디렉토리. `hqs/investment/`는 수정하지 않는다(무수정
-확인은 evidence 문서에 기록). 새로운 시장 데이터(raw_data)는 만들지
-않는다 — 이 스크립트가 다루는 것은 실제 Trader Decision(기존
-`results/*_trader_expanded.md`, 이미 실제 Engine 호출로 생성된 것)과
-Portfolio State(계좌 구성 — 시장 데이터가 아니라 "얼마나 들고
-있는가"라는 설정값)뿐이다. Portfolio State는 이 실험을 위해 명시적으로
-가상(hypothetical)이라고 표시한다 — 실제 계좌 데이터가 아니다.
+격리된 Prototype 디렉토리. `hqs/investment/`는 수정하지 않는다(무수정 확인은 evidence 문서에 기록). 새로운 시장 데이터(raw_data)는 만들지 않는다 — 이 스크립트가 다루는 것은 실제 Trader Decision(기존 `results/*_trader_expanded.md`, 이미 실제 Engine 호출로 생성된 것)과 Portfolio State(계좌 구성 — 시장 데이터가 아니라 "얼마나 들고 있는가"라는 설정값)뿐이다. Portfolio State는 이 실험을 위해 명시적으로 가상(hypothetical)이라고 표시한다 — 실제 계좌 데이터가 아니다.
 """
 
 import sys

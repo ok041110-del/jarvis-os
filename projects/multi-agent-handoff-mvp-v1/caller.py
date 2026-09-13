@@ -1,13 +1,6 @@
 """상위 흐름(caller) — Agent A -> Agent B 전달, 결과를 caller에게 반환.
 
-이 파일은 새 일반화된 Runtime API를 만들지 않는다 — 직접 함수 호출
-(`hqs/development/workflow.py`의 Stage 01->05 패턴과 동형)만 쓴다.
-Task 배분을 결정하는 코드(Scheduler)나 Agent를 동적으로 선택하는 코드는
-없다 — 어느 Agent가 어떤 순서로 실행되는지는 이 파일에 고정되어 있다.
-
-병렬 시나리오(`run_parallel_independent_agents`)는 `hqs/investment/
-teams/stock_team.py`가 이미 쓰는 `ThreadPoolExecutor` 직접 사용 패턴을
-그대로 재현한다 — 새 동시성 추상화를 만들지 않는다.
+병렬 시나리오(`run_parallel_independent_agents`)는 `hqs/investment/ teams/stock_team.py`가 이미 쓰는 `ThreadPoolExecutor` 직접 사용 패턴을 그대로 재현한다 — 새 동시성 추상화를 만들지 않는다.
 """
 from __future__ import annotations
 

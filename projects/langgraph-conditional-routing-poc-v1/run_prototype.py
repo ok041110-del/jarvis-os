@@ -1,9 +1,6 @@
-"""실행 harness — baseline(`run_mvp_0002`)과 LangGraph 버전을 동일한
-실제 입력으로 실행하고 결과를 비교한다. 저장소 코드는 수정하지 않는다
-(README "Engine 호출 경로에 대한 unavoidable 차이" 참고).
+"""실행 harness — baseline(`run_mvp_0002`)과 LangGraph 버전을 동일한 실제 입력으로 실행하고 결과를 비교한다. 저장소 코드는 수정하지 않는다 (README "Engine 호출 경로에 대한 unavoidable 차이" 참고).
 
-실행: 저장소 루트에서 `python3 projects/langgraph-conditional-routing-poc-v1/run_prototype.py`
-(langgraph가 설치된 환경에서, PYTHONPATH에 저장소 루트 포함)
+실행: 저장소 루트에서 `python3 projects/langgraph-conditional-routing-poc-v1/run_prototype.py` (langgraph가 설치된 환경에서, PYTHONPATH에 저장소 루트 포함)
 """
 
 import json
@@ -18,10 +15,8 @@ import hqs.development.mvp.agents.backend as backend_mod  # noqa: E402
 import hqs.development.mvp.agents.qa as qa_mod  # noqa: E402
 from hqs.development.mvp.engine import call_engine as real_call_engine  # noqa: E402
 
-# OmniRoute 서버가 이 실행 환경에 없어(README 참고) 프로덕션 경로
-# (call_engine_via_omniroute) 대신 이 저장소의 다른 real Engine
-# 경로(engine.py::call_engine, Claude CLI 직접 호출)로 일시 교체한다.
-# 프로세스 메모리 안에서만 유효하며 파일은 수정하지 않는다.
+# OmniRoute 서버가 이 환경에 없어(README) 프로덕션 경로 대신 다른 real Engine
+# 경로(engine.py::call_engine)로 일시 교체한다 — 프로세스 메모리 안에서만 유효.
 backend_mod.call_engine = real_call_engine
 qa_mod.call_engine = real_call_engine
 

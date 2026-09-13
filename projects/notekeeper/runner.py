@@ -1,7 +1,4 @@
-"""NoteKeeper runner: Issue -> Planning -> Design -> Implementation ->
-src/notekeeper/<module>.py -> Validation. Verification script, not a
-production entry point; does not modify development-hq/mvp.
-"""
+"""NoteKeeper runner: Issue -> Planning -> Design -> Implementation -> src/notekeeper/<module>.py -> Validation. Verification script, not a production entry point; does not modify development-hq/mvp."""
 
 import sys
 from pathlib import Path
@@ -38,10 +35,7 @@ def _enrich_with_existing_code(issue: dict, existing_files: list) -> dict:
 
 
 def _augment_design_with_target_source(design: str, module_path: Path) -> str:
-    """code_generation() receives design prose only, not the target file's
-    actual bytes, so extending an existing file can drop its other methods.
-    When module_path already exists, append its verbatim content so the
-    generator preserves it; no-op for new files."""
+    """code_generation() receives design prose only, not the target file's actual bytes, so extending an existing file can drop its other methods. When module_path already exists, append its verbatim content so the generator preserves it; no-op for new files."""
     if not module_path.exists():
         return design
     existing_source = module_path.read_text(encoding="utf-8")

@@ -1,10 +1,6 @@
 """Stage 04/05 Agent Team 격리 재현 — 상위 흐름(caller).
 
-새 Runtime API·Event Bus·Message Contract를 만들지 않는다. Stage 04는
-직접 함수 호출 순차 체인(`hqs/development/workflow.py`와 동형), Stage
-05의 병렬은 표준 라이브러리 `ThreadPoolExecutor`만 쓴다(`hqs/investment/
-teams/stock_team.py`, Phase E `multi-agent-handoff-mvp-v1/caller.py`와
-동일 패턴 재사용). 실패는 예외가 아닌 값으로 전파한다.
+새 Runtime API·Event Bus·Message Contract를 만들지 않는다. Stage 04는 직접 함수 호출 순차 체인(`hqs/development/workflow.py`와 동형), Stage 05의 병렬은 표준 라이브러리 `ThreadPoolExecutor`만 쓴다(`hqs/investment/ teams/stock_team.py`, Phase E `multi-agent-handoff-mvp-v1/caller.py`와 동일 패턴 재사용). 실패는 예외가 아닌 값으로 전파한다.
 """
 from __future__ import annotations
 

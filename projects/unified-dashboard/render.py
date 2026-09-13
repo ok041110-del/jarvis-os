@@ -1,9 +1,6 @@
 """Unified Dashboard Prototype — Global/HQ 렌더링.
 
-Global Dashboard 책임(Navigation/HQ Status/Overview 조합)과 HQ View
-책임(해당 HQ의 상세 정보 표시)을 분리한다. Global Shell은 어떤
-HQ-specific 내용도 알지 못한다 — snapshot.detail을 그대로 나열할 뿐
-해석하지 않는다.
+Global Dashboard 책임(Navigation/HQ Status/Overview 조합)과 HQ View 책임(해당 HQ의 상세 정보 표시)을 분리한다. Global Shell은 어떤 HQ-specific 내용도 알지 못한다 — snapshot.detail을 그대로 나열할 뿐 해석하지 않는다.
 """
 
 from __future__ import annotations
@@ -42,9 +39,7 @@ def _render_hq_card(snap: HQSnapshot) -> str:
 
 
 def render_dashboard(snapshots: list[HQSnapshot]) -> str:
-    """Global Shell — Navigation/HQ Status Overview만 조합한다.
-    HQ 내부 의미(Portfolio/Trader 등)를 Global Shell이 해석하지
-    않는다 — 각 HQ Card의 detail 문자열을 그대로 표시할 뿐이다."""
+    """Global Shell — Navigation/HQ Status Overview만 조합한다. HQ 내부 의미(Portfolio/Trader 등)를 Global Shell이 해석하지 않는다 — 각 HQ Card의 detail 문자열을 그대로 표시할 뿐이다."""
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     nav_items = "".join(f'<li>{escape(s.identity)} {_status_badge(s.status)}</li>' for s in snapshots)

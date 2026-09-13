@@ -1,7 +1,4 @@
-"""Stage 01 PRD/Specification Synthesis 검증(`stages/01_context_analysis/
-prd_synthesis.py`, RFC-0034/ADC-0037/ADR-0022) — Structured Understanding +
-Repository Context를 종합해 기존 Requirement Agent를 정확히 1회 호출하는지,
-Engine 실패 시 오류 포맷을 유지하는지 mock으로 검증한다."""
+"""Stage 01 PRD/Specification Synthesis 검증(`stages/01_context_analysis/ prd_synthesis.py`, RFC-0034/ADC-0037/ADR-0022) — Structured Understanding + Repository Context를 종합해 기존 Requirement Agent를 정확히 1회 호출하는지, Engine 실패 시 오류 포맷을 유지하는지 mock으로 검증한다."""
 
 import importlib.util
 import sys

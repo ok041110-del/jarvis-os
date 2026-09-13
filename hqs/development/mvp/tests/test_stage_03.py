@@ -1,10 +1,6 @@
-"""Stage 03(Architecture / Design) `run_stage_03()` 검증 (ADR-0008,
-`stages/03_architecture_design/VALIDATION.md`).
+"""Stage 03(Architecture / Design) `run_stage_03()` 검증 (ADR-0008, `stages/03_architecture_design/VALIDATION.md`).
 
-`design_agent_design`은 재구현하지 않았으므로 여기서는 (a) Skeleton
-추출이 Stage 01/02 Output을 정확히 반영하는지, (b) 골격+Specification이
-반영된 `requirement`가 실제로 Engine에 전달되는지, (c) 기존 오류 포맷
-유지 여부만 mock으로 검증한다.
+`design_agent_design`은 재구현하지 않았으므로 여기서는 (a) Skeleton 추출이 Stage 01/02 Output을 정확히 반영하는지, (b) 골격+Specification이 반영된 `requirement`가 실제로 Engine에 전달되는지, (c) 기존 오류 포맷 유지 여부만 mock으로 검증한다.
 """
 
 import importlib.util

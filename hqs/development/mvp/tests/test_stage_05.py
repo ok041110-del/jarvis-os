@@ -1,11 +1,6 @@
-"""Stage 05(Validation) `run_stage_05()` 검증 (ADR-0008,
-`stages/05_validation/VALIDATION.md`).
+"""Stage 05(Validation) `run_stage_05()` 검증 (ADR-0008, `stages/05_validation/VALIDATION.md`).
 
-`backend_agent_code_review`는 재구현하지 않았으므로 여기서는 (a) 4개
-결정적 Capability(구조/Specification Scope/Design Scope/Test Execution)
-가 Stage 02/04 Output을 정확히 반영하는지, (b) pytest 실행이 예외 발생
-시에도 원본 파일을 복원하는지, (c) Code Review가 실제 implementation을
-받는지, (d) PASS/FAIL/PARTIAL 판정 규칙이 정확한지를 검증한다.
+`backend_agent_code_review`는 재구현하지 않았으므로 여기서는 (a) 4개 결정적 Capability(구조/Specification Scope/Design Scope/Test Execution) 가 Stage 02/04 Output을 정확히 반영하는지, (b) pytest 실행이 예외 발생 시에도 원본 파일을 복원하는지, (c) Code Review가 실제 implementation을 받는지, (d) PASS/FAIL/PARTIAL 판정 규칙이 정확한지를 검증한다.
 """
 
 import importlib.util
@@ -69,9 +64,7 @@ def test_specification_scope_target_not_in_scope_candidates(monkeypatch):
 
 
 def test_specification_scope_missing_scope_candidates_returns_none_without_raising(monkeypatch):
-    """`skeleton`은 있지만 nested `scope_candidates`가 없는 불완전한 Stage 02
-    Output(contracts.py는 top-level 키만 검사해 감지하지 못함) — raw KeyError
-    대신 target 미상과 동일한 판정 불가(None)로 처리된다."""
+    """`skeleton`은 있지만 nested `scope_candidates`가 없는 불완전한 Stage 02 Output(contracts.py는 top-level 키만 검사해 감지하지 못함) — raw KeyError 대신 target 미상과 동일한 판정 불가(None)로 처리된다."""
     monkeypatch.setattr(stage_05, "module_source_path", lambda module: stage_05.ROOT / "hqs/development/mvp/agents.py")
 
     result = stage_05._check_specification_scope(
@@ -144,9 +137,8 @@ def test_design_scope_handles_malformed_implementation_without_raising(tmp_path,
     assert "parse_error" in result
 
 
-# Phase 2.5 Case C 회귀: rename/multi-site 요구와 Exposure Policy가
-# 충돌할 때 Engine이 EXPOSURE_POLICY_CONFLICT 마커로 응답하면, 모호한
-# parse_error 대신 구조화된 policy_conflict로 FAIL 처리해야 한다.
+# Phase 2.5 Case C 회귀 — rename/multi-site 요구와 Exposure Policy 충돌 시,
+# 모호한 parse_error 대신 구조화된 policy_conflict로 FAIL 처리해야 한다.
 def test_design_scope_reports_structured_policy_conflict(tmp_path, monkeypatch):
     fake_module = tmp_path / "sample_module.py"
     fake_module.write_text(ORIGINAL_SOURCE)

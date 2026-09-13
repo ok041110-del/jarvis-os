@@ -25,9 +25,8 @@ Contract validation 책임: 각 Stage는 자신이 반환하는 dict의 형태�
 
 from typing import TypedDict
 
-# CandidateIndex/DependencyClosure는 Stage 01의 순수 정적 분석 결과값(문자열)
-# 그 자체이며, 별도 필드를 감싸는 새 자료구조를 만들지 않는다(Wrapper 금지 —
-# Registry/Gateway와 같은 일반화를 피한다).
+# CandidateIndex/DependencyClosure는 Stage 01 순수 정적 분석 결과값(문자열)
+# 자체다 — 별도 Wrapper 자료구조를 만들지 않는다.
 CandidateIndex = str
 DependencyClosure = str
 
@@ -45,9 +44,7 @@ def require_keys(data: dict, keys: tuple, contract_name: str) -> None:
 
 
 class PrdResult(TypedDict):
-    """Stage 01 PRD/Specification Synthesis 산출 형태 — Producer: Stage 01
-    (`prd` 키, RFC-0034/ADC-0037/ADR-0022). Stage 02는 이 값을 그대로
-    통과시킬 뿐 재생성하지 않는다(ADR-0022)."""
+    """Stage 01 PRD/Specification Synthesis 산출 형태 — Producer: Stage 01 (`prd` 키, RFC-0034/ADC-0037/ADR-0022). Stage 02는 이 값을 그대로 통과시킬 뿐 재생성하지 않는다(ADR-0022)."""
 
     skeleton: dict
     specification: str
@@ -78,11 +75,7 @@ class ImplementationPlan(TypedDict):
 
 
 class SpecificationResult(TypedDict):
-    """Stage 02 Output(`SPECIFICATION.md`) — Producer: Stage 02.
-    `skeleton`/`specification`은 Stage 01의 `prd`를 그대로 통과시킨
-    값이고(`PrdResult`와 동일 형태), `tasks`/`dependencies`/`plan`은
-    Stage 02의 Task & Dependency Agent + Deterministic Layer가 새로
-    산출한다(RFC-0035/ADC-0038/ADR-0023)."""
+    """Stage 02 Output(`SPECIFICATION.md`) — Producer: Stage 02. `skeleton`/`specification`은 Stage 01의 `prd`를 그대로 통과시킨 값이고(`PrdResult`와 동일 형태), `tasks`/`dependencies`/`plan`은 Stage 02의 Task & Dependency Agent + Deterministic Layer가 새로 산출한다(RFC-0035/ADC-0038/ADR-0023)."""
 
     skeleton: dict
     specification: str
@@ -92,12 +85,7 @@ class SpecificationResult(TypedDict):
 
 
 class ContextAnalysisResult(TypedDict):
-    """Stage 01 Output(CONTEXT.md) — Producer: Stage 01. `prd`는
-    RFC-0034/ADC-0037/ADR-0022로 추가된 PRD/Specification Synthesis
-    결과(`PrdResult`, `skeleton`/`specification` 2-key)다 — Stage 02가
-    Task & Dependency Agent + Deterministic Layer로 3개 키를 더 채운
-    `SpecificationResult`(5-key)와는 다른 형태다(RFC-0035/ADC-0038/
-    ADR-0023)."""
+    """Stage 01 Output(CONTEXT.md) — Producer: Stage 01. `prd`는 RFC-0034/ADC-0037/ADR-0022로 추가된 PRD/Specification Synthesis 결과(`PrdResult`, `skeleton`/`specification` 2-key)다 — Stage 02가 Task & Dependency Agent + Deterministic Layer로 3개 키를 더 채운 `SpecificationResult`(5-key)와는 다른 형태다(RFC-0035/ADC-0038/ ADR-0023)."""
 
     directory_structure: object
     context_bundle: dict
@@ -122,11 +110,8 @@ class ImplementationResult(TypedDict):
     expose_target: bool
 
 
-# VerificationRequirement — Stage 05가 실행할 수 있는 검증 항목의 전체
-# 이름 집합(고정 4개, 새 검사 종류 추가 아님). `required_checks`는 이
-# 집합의 부분집합이어야 하며, 이 값이 실제 실행 여부(SKIPPED 여부)와
-# Verdict 반영 여부를 결정한다(Producer: 호출자 — 현재 Static Workflow는
-# 항상 전체 집합을 기본값으로 쓴다, Consumer: Stage 05 자기 자신).
+# KNOWN_CHECK_NAMES — Stage 05 검증 항목 전체 집합(고정 4개). `required_checks`는
+# 이 부분집합이며, 실행/Verdict 반영 여부를 결정한다(Static Workflow는 전체 기본값).
 KNOWN_CHECK_NAMES = ("structural", "specification_scope", "design_scope", "test_execution")
 
 
@@ -183,10 +168,7 @@ def validate_implementation_result(data: dict) -> None:
 
 
 def validate_verification_requirement(required_checks) -> None:
-    """`required_checks`가 비어 있거나 알 수 없는 이름을 포함하면 조용히
-    통과시키지 않고 즉시 실패시킨다(빈 목록은 "아무 것도 요구하지 않음"이
-    아니라 계약 위반이다 — required_checks가 존재해도 무시되던 이전
-    결함의 재발을 막는 방어선)."""
+    """`required_checks`가 비어 있거나 알 수 없는 이름을 포함하면 조용히 통과시키지 않고 즉시 실패시킨다(빈 목록은 "아무 것도 요구하지 않음"이 아니라 계약 위반이다 — required_checks가 존재해도 무시되던 이전 결함의 재발을 막는 방어선)."""
     if not required_checks:
         raise ContractViolation("VerificationRequirement contract violated — required_checks must not be empty")
     unknown = [name for name in required_checks if name not in KNOWN_CHECK_NAMES]
@@ -195,10 +177,7 @@ def validate_verification_requirement(required_checks) -> None:
 
 
 def validate_verification_result(data: dict) -> None:
-    """필수 키 존재뿐 아니라, `required_checks`에 선언된 항목이 실제로
-    `check_results`에서 실행됐는지(SKIPPED가 아닌지)까지 확인한다 —
-    required_checks가 선언만 되고 실행/판정과 연결되지 않는 상태(decorative
-    mirror)를 Contract 층에서도 차단한다."""
+    """필수 키 존재뿐 아니라, `required_checks`에 선언된 항목이 실제로 `check_results`에서 실행됐는지(SKIPPED가 아닌지)까지 확인한다 — required_checks가 선언만 되고 실행/판정과 연결되지 않는 상태(decorative mirror)를 Contract 층에서도 차단한다."""
     require_keys(data, VERIFICATION_REQUIRED_KEYS, "VerificationResult")
     required_checks = data["required_checks"]
     validate_verification_requirement(required_checks)

@@ -1,7 +1,4 @@
-"""공통 Validator Result 스키마 — 6개 Validator·Aggregator가 전부 이
-형태만 주고받는다(RFC-0039/ADC-0042의 "완결된 Result 객체만 수집"
-원칙). 고정 ID 순서를 여기 한 곳에서만 정의해 Single/Parallel 양쪽이
-동일한 정렬 기준을 공유한다."""
+"""공통 Validator Result 스키마 — 6개 Validator·Aggregator가 전부 이 형태만 주고받는다(RFC-0039/ADC-0042의 "완결된 Result 객체만 수집" 원칙). 고정 ID 순서를 여기 한 곳에서만 정의해 Single/Parallel 양쪽이 동일한 정렬 기준을 공유한다."""
 
 from __future__ import annotations
 

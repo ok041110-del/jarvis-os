@@ -1,13 +1,7 @@
-"""Candidate Selection의 5개 Case(0/1/2/3/>3)를 **실제 조회한 Free
-Pool 메타데이터**로 전부 재현한다. Stage 01~05의 실제 Requirement는
-이번 세션 기준 항상 `>3_candidates`로 귀결됐으므로(모든 Stage의
-context 요구치가 대부분 free 모델의 context_length보다 훨씬 작음),
-나머지 4개 case는 동일한 실측 Pool에 **합성 Requirement**(실제
-메타데이터 분포를 근거로 역산한 임계값)를 적용해 Filter/Selection
-로직 자체가 5개 case 모두에서 올바르게 동작하는지 확인한다.
+"""Candidate Selection의 5개 Case(0/1/2/3/>3)를 **실제 조회한 Free Pool 메타데이터**로 전부 재현한다. Stage 01~05의 실제 Requirement는 이번 세션 기준 항상 `>3_candidates`로 귀결됐으므로(모든 Stage의 context 요구치가 대부분 free 모델의 context_length보다 훨씬 작음), 나머지 4개 case는 동일한 실측 Pool에 **합성 Requirement**(실제 메타데이터 분포를 근거로 역산한 임계값)를 적용해 Filter/Selection 로직 자체가 5개 case 모두에서 올바르게 동작하는지 확인한다.
 
-이 스크립트는 OpenRouter Chat Completions를 호출하지 않는다(순수
-Free Pool 조회 + Filter + Selection만) — quota를 소모하지 않는다."""
+이 스크립트는 OpenRouter Chat Completions를 호출하지 않는다(순수 Free Pool 조회 + Filter + Selection만) — quota를 소모하지 않는다.
+"""
 
 from __future__ import annotations
 
