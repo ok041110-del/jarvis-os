@@ -10,7 +10,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
+import pytest
+
 from mvp import workflow_ast_context
+from .fake_openrouter_server import FakeOpenRouterServer
 
 SAMPLE_ISSUE = {"title": "Sample Issue", "description": "Do the thing.", "status": "Open"}
 SAMPLE_CONTEXT = {"relevant_documents": ["doc.md"]}
@@ -139,3 +142,17 @@ def test_identify_target_returns_none_for_unknown(monkeypatch):
     monkeypatch.setattr(workflow_ast_context, "call_engine", lambda prompt: "FILE: UNKNOWN\nFUNCTION: UNKNOWN")
 
     assert workflow_ast_context.identify_target("some design") is None
+
+
+def test_identify_target_real_openrouter_failure_surfaces_as_single_runtime_error(monkeypatch):
+    """`call_engine`을 mock하지 않고 실제 `openrouter_engine`을 fake
+    server로 통과시켜, OpenRouter의 실패 분류(`429_quota`)가
+    `identify_target()`을 거쳐도 `str -> str`/단일 `RuntimeError`
+    Contract를 깨지 않고 그대로 전달되는지 확인한다(Gate #10:
+    classification 결과가 Stage Contract를 깨뜨리지 않는지 확인)."""
+    monkeypatch.setattr(workflow_ast_context, "build_function_candidate_index", lambda: "INDEX")
+    with FakeOpenRouterServer(mode="quota") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            workflow_ast_context.identify_target("some design")
+    assert "429_quota" in str(exc_info.value)

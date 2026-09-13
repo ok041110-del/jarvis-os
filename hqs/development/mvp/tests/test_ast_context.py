@@ -47,15 +47,16 @@ def test_closure_follows_relative_imports_across_modules():
     """Agent Package Refactoring 이후 `requirements_agent_requirement_analysis`/
     `design_agent_design`는 각각 `agents.requirements`/`agents.design`에
     있다 — T18 Evidence 당시의 단일 `agents` 모듈은 이제 2개로 나뉜다
-    (ADC-0006 Condition 6). Multi-Engine Architecture(`ADR-0024`) 이후
-    두 Agent 모두 Reasoning 목적이라 `chatgpt_engine`을 import한다 —
-    실제 의존 관계가 바뀌었으므로 폐쇄도 그 변경을 그대로 반영해야 한다."""
+    (ADC-0006 Condition 6). OpenRouter Production Engine Migration
+    (`ADR-0027`) 이후 두 Agent 모두 3번째 Engine인 `openrouter_engine`을
+    import한다 — 실제 의존 관계가 바뀌었으므로 폐쇄도 그 변경을 그대로
+    반영해야 한다."""
     closure = build_dependency_closure("workflow_project_intelligence", "run_issue_to_design")
     for module in (
         "workflow_project_intelligence",
         "agents.design",
         "agents.requirements",
-        "chatgpt_engine",
+        "openrouter_engine",
         "project_intelligence",
         "workflow",
     ):

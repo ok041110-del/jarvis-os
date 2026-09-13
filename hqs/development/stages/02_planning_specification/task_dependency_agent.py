@@ -4,14 +4,14 @@ Task Decomposition과 Dependency Judgment를 별도 Agent로 쪼개지 않는다
 모듈은 Engine 호출과 JSON 추출만 담당하고, tasks/dependencies의 스키마·구조
 검증은 `planning_pipeline.py`(Deterministic Layer)가 별도로 수행한다.
 Multi-Engine Architecture(`ADR-0024`) 이후 이 Reasoning 목적 호출은
-ChatGPT Engine을 사용한다."""
+3번째 Engine인 OpenRouter Free Model Selection(`ADR-0027`)을 사용한다."""
 
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from mvp.chatgpt_engine import call_engine_via_chatgpt as call_engine  # noqa: E402
+from mvp.openrouter_engine import call_engine_via_openrouter as call_engine  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "01_context_analysis"))
 

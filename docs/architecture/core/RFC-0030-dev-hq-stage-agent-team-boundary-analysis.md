@@ -3,7 +3,11 @@
 **Status**: Proposed (분석 결과 기록, Baseline 결정 아님). **§3 Stage 01
 항의 "추가 Agent 후보 없음" 결론은 `ADC-0036`으로 superseded됨** — Stage
 01 Multi-Agent Reasoning 도입 결정은 `RFC-0033`/`ADC-0036`/`ADR-0021`
-참조. 이 문서 본문은 원 분석 기록 보존을 위해 무수정.
+참조. **§3 Stage 05 항의 "code_review와 test proposal은 둘 다
+`implementation`만 입력받아 완전 독립"이라는 서술은 `RFC-0038`로
+부분 정정됨** — 실제 `qa_agent_test_execution` 시그니처는 Code Review
+출력(`review`)에 의존하는 순차 관계이며, 완전 독립이 아니다(`RFC-0038`
+§2.2, `ADC-0041` 참조). 이 문서 본문은 원 분석 기록 보존을 위해 무수정.
 **Author**: Claude Code
 **대상**: `hqs/development/CONSTITUTION.md`·`BASELINE.md`·`IMPLEMENTATION_RULES.md`,
 `hqs/development/workflow.py`, `hqs/development/stages/01~05/stage_0N.py`,
