@@ -1,8 +1,4 @@
-"""ADR-0026 §Candidate Selection(≤3) — Deterministic Filter를 통과한
-후보(`KEPT`)를 OpenRouter `models[]`에 넘길 최종 목록(최대 3개)으로
-좁힌다. 순위화 없음 — 3개를 초과하면 RFC-0040 §Candidate Selection
-Boundary가 정한 tie-break(OpenRouter 조회 순서, 앞에서부터 자름)만
-적용한다."""
+"""ADR-0026 §Candidate Selection(≤3) — Deterministic Filter를 통과한 후보(`KEPT`)를 OpenRouter `models[]`에 넘길 최종 목록(최대 3개)으로 좁힌다. 순위화 없음 — 3개를 초과하면 RFC-0040 §Candidate Selection Boundary가 정한 tie-break(OpenRouter 조회 순서, 앞에서부터 자름)만 적용한다."""
 
 from __future__ import annotations
 

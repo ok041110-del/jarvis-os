@@ -1,8 +1,6 @@
-"""Characterization tests for `mvp.workflow_0009` (P1-2):
-`run_issue_to_planning_with_bundle`, `run_comparison`.
+"""Characterization tests for `mvp.workflow_0009` (P1-2): `run_issue_to_planning_with_bundle`, `run_comparison`.
 
-`run_comparison`의 Multi-Task 동시 실행 반영(`docs/architecture/core/ADR-0006-multi-task-minimal-responsibility-baseline.md`)
-이후 외부 의존성은 계속 mock/stub한다.
+`run_comparison`의 Multi-Task 동시 실행 반영(`docs/architecture/core/ADR-0006-multi-task-minimal-responsibility-baseline.md`) 이후 외부 의존성은 계속 mock/stub한다.
 """
 
 import sys
@@ -96,9 +94,7 @@ def test_run_comparison_assembles_flat_and_bundled_results(monkeypatch):
 
 
 def test_run_comparison_executes_branches_concurrently(monkeypatch):
-    """flat/bundled 두 분기는 순차가 아니라 동시에 실행돼야 한다 —
-    각각 0.2초씩 걸려도 총 소요 시간은 두 배가 아니라 한 번 분량에
-    가까워야 한다(§16.4 Multi-Task 존재 근거 그 자체)."""
+    """flat/bundled 두 분기는 순차가 아니라 동시에 실행돼야 한다 — 각각 0.2초씩 걸려도 총 소요 시간은 두 배가 아니라 한 번 분량에 가까워야 한다(§16.4 Multi-Task 존재 근거 그 자체)."""
 
     def fake_flat(issue):
         time.sleep(0.2)
@@ -147,9 +143,7 @@ def test_run_comparison_other_branch_completes_despite_one_failure(monkeypatch):
 
 
 def test_run_comparison_retry_does_not_corrupt_previous_successful_result(monkeypatch):
-    """실패 후 재시도(전체 함수 재호출)해도, 이전에 반환된 결과 객체가
-    이후 호출에 의해 변형되지 않는다 — `run_comparison`은 상태를 갖지
-    않으므로 두 번째 호출이 첫 번째 호출의 반환값을 훼손할 수 없다."""
+    """실패 후 재시도(전체 함수 재호출)해도, 이전에 반환된 결과 객체가 이후 호출에 의해 변형되지 않는다 — `run_comparison`은 상태를 갖지 않으므로 두 번째 호출이 첫 번째 호출의 반환값을 훼손할 수 없다."""
 
     def fake_flat(issue):
         return {"context": {}, "planning": "FLAT_PLANNING"}

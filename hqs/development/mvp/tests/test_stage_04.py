@@ -1,14 +1,6 @@
-"""Stage 04(Implementation) `run_stage_04()` 검증 (ADR-0008,
-`stages/04_implementation/VALIDATION.md`).
+"""Stage 04(Implementation) `run_stage_04()` 검증 (ADR-0008, `stages/04_implementation/VALIDATION.md`).
 
-`identify_target`/`build_dependency_closure`/`backend_agent_code_
-generation`은 재구현하지 않았으므로 여기서는 (a) Stage 04가 이 함수들에
-올바른 입력(Stage 03 design)을 넘기는지, (b) 조립 로직이 target 유무/
-exposure 켬끔 4가지 조합에서 결정적으로 맞는지, (c) 기존 오류 포맷
-유지 여부만 mock/실제 파일로 검증한다. `("agents.backend", "_strip_code_
-fence")`는 Agent Package Refactoring 이후 실제 파일 경로 반영(ADC-0006
-Condition 6) — `identify_target`은 mock이지만 조립 로직은 실제
-`build_dependency_closure`를 호출한다.
+`identify_target`/`build_dependency_closure`/`backend_agent_code_ generation`은 재구현하지 않았으므로 여기서는 (a) Stage 04가 이 함수들에 올바른 입력(Stage 03 design)을 넘기는지, (b) 조립 로직이 target 유무/ exposure 켬끔 4가지 조합에서 결정적으로 맞는지, (c) 기존 오류 포맷 유지 여부만 mock/실제 파일로 검증한다. `("agents.backend", "_strip_code_ fence")`는 Agent Package Refactoring 이후 실제 파일 경로 반영(ADC-0006 Condition 6) — `identify_target`은 mock이지만 조립 로직은 실제 `build_dependency_closure`를 호출한다.
 """
 
 import importlib.util
@@ -115,9 +107,7 @@ def test_identify_target_receives_stage_03_design(monkeypatch):
 
 
 def test_identify_target_reuses_stage_01_candidate_index_without_recomputing(monkeypatch):
-    """중복 계산 제거 회귀 테스트: Stage 04는 Stage 01이 이미 계산한
-    candidate_index를 그대로 넘겨야 하며, 자체적으로 다시 계산하지
-    않는다(CandidateIndex Contract, Producer: Stage 01)."""
+    """중복 계산 제거 회귀 테스트: Stage 04는 Stage 01이 이미 계산한 candidate_index를 그대로 넘겨야 하며, 자체적으로 다시 계산하지 않는다(CandidateIndex Contract, Producer: Stage 01)."""
     seen = {}
 
     def fake_identify(design, candidate_index):

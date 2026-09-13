@@ -53,10 +53,7 @@ def _assemble_build_input(design: str, target, expose_target: bool) -> str:
 
 
 def run_stage_04(stage_01_context: dict, stage_03_output: dict, expose_target: bool = False) -> dict:
-    """Target Identification(Stage 01 `candidate_index` 재사용, 재계산 없음)
-    -> Closure/Exposure 조립 -> Code Generation. `issue`는 이 Stage가
-    실제로 쓰지 않아 Input에서 제거했다(CandidateIndex Contract, Producer:
-    Stage 01 / Consumer: Stage 04)."""
+    """Target Identification(Stage 01 `candidate_index` 재사용, 재계산 없음) -> Closure/Exposure 조립 -> Code Generation. `issue`는 이 Stage가 실제로 쓰지 않아 Input에서 제거했다(CandidateIndex Contract, Producer: Stage 01 / Consumer: Stage 04)."""
     design = stage_03_output["design"]
     candidate_index = stage_01_context["candidate_index"]
 

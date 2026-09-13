@@ -1,14 +1,7 @@
-"""Review Validator — 3개 Mode(disabled/deterministic/llm, Experiment B).
-어떤 Mode든 다른 5개 Validator의 결과를 입력으로 받지 않는다(RFC-0039
-§2.6.1 — 5개 각각에 대해 불필요함을 이미 확인). Review는 항상
-advisory(비-blocking)로만 Aggregator에 전달된다.
+"""Review Validator — 3개 Mode(disabled/deterministic/llm, Experiment B). 어떤 Mode든 다른 5개 Validator의 결과를 입력으로 받지 않는다(RFC-0039 §2.6.1 — 5개 각각에 대해 불필요함을 이미 확인). Review는 항상 advisory(비-blocking)로만 Aggregator에 전달된다.
 
-LLM Mode는 기존 Engine Contract(`str -> str`, 실패 시 단일 예외)와
-동일한 형태의 `engine_call: Callable[[str], str]`을 주입받는다 — 이
-모듈 자신은 어떤 Engine도 소유·선택하지 않는다(새 Gateway/Router 없음,
-사용자 지시 Part 2). `engine_call`을 주입하지 않으면 LLM Mode는
-`ReviewEngineNotConfigured`로 명시적으로 실패한다 — 조용히 스킵하거나
-가짜 결과를 만들지 않는다."""
+LLM Mode는 기존 Engine Contract(`str -> str`, 실패 시 단일 예외)와 동일한 형태의 `engine_call: Callable[[str], str]`을 주입받는다 — 이 모듈 자신은 어떤 Engine도 소유·선택하지 않는다(새 Gateway/Router 없음, 사용자 지시 Part 2). `engine_call`을 주입하지 않으면 LLM Mode는 `ReviewEngineNotConfigured`로 명시적으로 실패한다 — 조용히 스킵하거나 가짜 결과를 만들지 않는다.
+"""
 
 from __future__ import annotations
 
@@ -68,12 +61,7 @@ def _run_deterministic(ctx: ValidationContext) -> dict:
 
 
 def _build_llm_review_prompt(ctx: ValidationContext) -> str:
-    """Review Input 경계(사용자 지시)를 그대로 구현한다 — Stage 03
-    Design / Stage 04 Implementation / Contract / Scope Context / Immutable
-    Source Snapshot **만** 포함한다. Structure/Scope/AST/Dependency/Test의
-    ValidatorResult는 이 함수의 인자로 존재하지 않으므로(시그니처가
-    `ctx: ValidationContext` 하나뿐) 애초에 여기 들어올 수 없다 — Review
-    독립성은 우연이 아니라 함수 시그니처로 구조적으로 강제된다."""
+    """Review Input 경계(사용자 지시)를 그대로 구현한다 — Stage 03 Design / Stage 04 Implementation / Contract / Scope Context / Immutable Source Snapshot **만** 포함한다. Structure/Scope/AST/Dependency/Test의 ValidatorResult는 이 함수의 인자로 존재하지 않으므로(시그니처가 `ctx: ValidationContext` 하나뿐) 애초에 여기 들어올 수 없다 — Review 독립성은 우연이 아니라 함수 시그니처로 구조적으로 강제된다."""
     instruction = (
         "You are the Review capability of a validation pipeline. Review the "
         "following code and describe issues in prose (bugs, risks, style) — "

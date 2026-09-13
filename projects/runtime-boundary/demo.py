@@ -1,9 +1,5 @@
 """Runtime Boundary Prototype — 수동 실행 데모(Evidence 문서용).
 
-동일한 실제 대상(hqs/investment/tests/test_stock_team_integration.py,
-2 tests)을 Sequential / Thread / Process 세 전략으로 두 번씩 동시
-실행해 실제 격리 차이를 관찰한다.
-
 실행: python3 projects/runtime-boundary/demo.py
 """
 

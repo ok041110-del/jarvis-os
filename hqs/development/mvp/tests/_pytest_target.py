@@ -1,7 +1,4 @@
-"""`test_execution_host.py`가 Worker Process에서 실행할 pytest 대상
-헬퍼. `ProcessPoolExecutor`로 전달되는 함수는 모듈 최상위에서
-importable해야 하므로 별도 모듈로 분리한다(`projects/runtime-boundary`
-Prototype의 `rtb_runtime._run_pytest`와 동일한 이유)."""
+"""`test_execution_host.py`가 Worker Process에서 실행할 pytest 대상 헬퍼. `ProcessPoolExecutor`로 전달되는 함수는 모듈 최상위에서 importable해야 하므로 별도 모듈로 분리한다(`projects/runtime-boundary` Prototype의 `rtb_runtime._run_pytest`와 동일한 이유)."""
 
 from __future__ import annotations
 

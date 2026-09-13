@@ -1,10 +1,6 @@
 """Frontend(TS/TSX) Observe-only Boundary Validation — 텍스트 기반 검사.
 
-작업 지시(§8): Frontend에서 subprocess/child_process/fs를 통한
-Repository 접근, Python 실행, Engine/Agent/Workflow 실행을 구현하지
-않는다. tsc/JS 실행 환경 없이도 CI에서 검증 가능하도록 순수 문자열
-검사로 강제한다 — snapshot.py의 AST 기반 Boundary 테스트와 대칭되는
-Frontend 쪽 최소 대응.
+작업 지시(§8): Frontend에서 subprocess/child_process/fs를 통한 Repository 접근, Python 실행, Engine/Agent/Workflow 실행을 구현하지 않는다. tsc/JS 실행 환경 없이도 CI에서 검증 가능하도록 순수 문자열 검사로 강제한다 — snapshot.py의 AST 기반 Boundary 테스트와 대칭되는 Frontend 쪽 최소 대응.
 """
 
 from __future__ import annotations
@@ -32,9 +28,7 @@ def _source_files() -> list[Path]:
 
 
 def _strip_comments(text: str) -> str:
-    """block(/* */)·line(//) 주석을 제거해 주석 속 설명 문구가 코드
-    패턴 검사에 걸리지 않게 한다(간이 처리 — 문자열 리터럴 안의
-    `//`는 이 Prototype 소스에 없으므로 별도 처리하지 않는다)."""
+    """block(/* */)·line(//) 주석을 제거해 주석 속 설명 문구가 코드 패턴 검사에 걸리지 않게 한다(간이 처리 — 문자열 리터럴 안의 `//`는 이 Prototype 소스에 없으므로 별도 처리하지 않는다)."""
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
     text = re.sub(r"//.*", "", text)
     return text

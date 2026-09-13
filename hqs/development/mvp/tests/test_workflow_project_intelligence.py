@@ -1,8 +1,6 @@
-"""Characterization tests for `mvp.workflow_project_intelligence`
-(P1-2): `run_issue_to_planning`, `run_issue_to_design`.
+"""Characterization tests for `mvp.workflow_project_intelligence` (P1-2): `run_issue_to_planning`, `run_issue_to_design`.
 
-Production code(`workflow_project_intelligence.py`)는 수정하지 않았다.
-외부 의존성은 mock/stub한다.
+Production code(`workflow_project_intelligence.py`)는 수정하지 않았다. 외부 의존성은 mock/stub한다.
 """
 
 import sys
@@ -77,9 +75,7 @@ def test_design_happy_path_returns_context_planning_and_design(monkeypatch):
 
 
 def test_design_receives_enriched_issue_not_original(monkeypatch):
-    """`run_issue_to_design`의 계약(모듈 docstring): Planning과 Design
-    양쪽 모두 동일한(enriched) Issue를 받는다 — `workflow_artifact_flow`/
-    `workflow_0008`이 Design에 원본 Issue를 넘기는 것과 다른 지점이다."""
+    """`run_issue_to_design`의 계약(모듈 docstring): Planning과 Design 양쪽 모두 동일한(enriched) Issue를 받는다 — `workflow_artifact_flow`/ `workflow_0008`이 Design에 원본 Issue를 넘기는 것과 다른 지점이다."""
     _patch_context(monkeypatch)
     seen = {}
 

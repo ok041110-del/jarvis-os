@@ -1,6 +1,4 @@
-"""GitHubRepositoryAdapter/RepositorySnapshot 단위 테스트 — 실제 네트워크
-호출 없이 `urllib.request.urlopen`을 대체(mock)해 검증한다. 실제 GitHub API
-검증은 `test_github_adapter_real.py`(환경변수 `GITHUB_TOKEN` 없으면 skip)."""
+"""GitHubRepositoryAdapter/RepositorySnapshot 단위 테스트 — 실제 네트워크 호출 없이 `urllib.request.urlopen`을 대체(mock)해 검증한다. 실제 GitHub API 검증은 `test_github_adapter_real.py`(환경변수 `GITHUB_TOKEN` 없으면 skip)."""
 
 import base64
 import json

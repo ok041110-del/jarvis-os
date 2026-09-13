@@ -61,10 +61,7 @@ def test_investment_hq_snapshot_reads_real_dogfooding_evidence():
 
 
 def test_investment_hq_snapshot_execution_matches_real_call_log():
-    """Execution Evidence — 전체 History Run 확장 Vertical Slice:
-    execution 필드가 대표 run 1개가 아니라 실제 존재하는 9개 run
-    전체의 checkpoints/manifest.json call_log를 그대로 옮긴 것인지
-    검증한다(가상 데이터 생성 금지, run 누락 금지)."""
+    """Execution Evidence — 전체 History Run 확장 Vertical Slice: execution 필드가 대표 run 1개가 아니라 실제 존재하는 9개 run 전체의 checkpoints/manifest.json call_log를 그대로 옮긴 것인지 검증한다(가상 데이터 생성 금지, run 누락 금지)."""
     import json
 
     snap = snapshot.build_investment_hq_snapshot()
@@ -107,9 +104,7 @@ def test_dev_hq_snapshot_execution_is_empty_without_fabrication():
 
 
 def test_investment_hq_history_discovers_all_real_run_directories():
-    """History Vertical Slice: _TEAM_RUNS의 팀당 단일 하드코딩과 달리,
-    History는 dogfooding 디렉터리의 실제 ticker prefix run을 전부
-    열거해야 한다(가상 run 생성 금지, 누락 금지)."""
+    """History Vertical Slice: _TEAM_RUNS의 팀당 단일 하드코딩과 달리, History는 dogfooding 디렉터리의 실제 ticker prefix run을 전부 열거해야 한다(가상 run 생성 금지, 누락 금지)."""
     snap = snapshot.build_investment_hq_snapshot()
 
     dogfooding_dir = snapshot.REPO_ROOT / "hqs/investment/dogfooding"
@@ -124,9 +119,7 @@ def test_investment_hq_history_discovers_all_real_run_directories():
 
 
 def test_investment_hq_history_entries_have_no_fabricated_fields():
-    """실행 timestamp나 SUCCESS/FAILED 상태를 만들어내지 않는지 검증:
-    스키마에 허용된 키만 있어야 하고, trader_decision.md가 없는 run은
-    trader_decision이 None이어야 한다(빈 문자열이나 'UNKNOWN' 아님)."""
+    """실행 timestamp나 SUCCESS/FAILED 상태를 만들어내지 않는지 검증: 스키마에 허용된 키만 있어야 하고, trader_decision.md가 없는 run은 trader_decision이 None이어야 한다(빈 문자열이나 'UNKNOWN' 아님)."""
     snap = snapshot.build_investment_hq_snapshot()
     assert snap.history, "실제 9개 run이 있으므로 history가 비어있으면 안 됨"
 
@@ -157,9 +150,7 @@ def test_investment_hq_history_entries_have_no_fabricated_fields():
 
 
 def test_investment_hq_history_family_derived_literally_from_dirname():
-    """family는 디렉터리명에서 prefix를 뗀 나머지 그대로다 — 팀마다
-    실제 문자열이 다를 수 있다는 것(efa는 hq-verify가 아님)을 검증해
-    "존재하지 않는 의미 추론 금지" 원칙을 강제한다."""
+    """family는 디렉터리명에서 prefix를 뗀 나머지 그대로다 — 팀마다 실제 문자열이 다를 수 있다는 것(efa는 hq-verify가 아님)을 검증해 "존재하지 않는 의미 추론 금지" 원칙을 강제한다."""
     snap = snapshot.build_investment_hq_snapshot()
     families = {entry["run"]: entry["family"] for entry in snap.history}
     assert families["aapl-hq-verify"] == "hq-verify"
@@ -169,18 +160,13 @@ def test_investment_hq_history_family_derived_literally_from_dirname():
 
 
 def test_snapshot_module_does_not_use_subprocess():
-    """Snapshot Boundary Review 결론: History 때문에 git 등 외부
-    프로세스를 조회하지 않는다 — snapshot.py는 subprocess를 import하지
-    않는다(AST 기반, 정규식 오탐 없이 실제 import 구문만 검사)."""
+    """Snapshot Boundary Review 결론: History 때문에 git 등 외부 프로세스를 조회하지 않는다 — snapshot.py는 subprocess를 import하지 않는다(AST 기반, 정규식 오탐 없이 실제 import 구문만 검사)."""
     modules = _imported_top_level_modules(PROTOTYPE_DIR / "snapshot.py")
     assert "subprocess" not in modules
 
 
 def test_investment_hq_history_order_is_directory_scan_only():
-    """정렬은 디렉터리명 오름차순(문자열 비교)뿐이다 — 우연히 실제
-    계열 진행 순서(hq-verify -> run2 -> trader-verify)와 일치하지만,
-    이는 git commit 조회가 아니라 `_discover_team_run_dirs`의 `sorted()`
-    결과라는 것을 검증한다."""
+    """정렬은 디렉터리명 오름차순(문자열 비교)뿐이다 — 우연히 실제 계열 진행 순서(hq-verify -> run2 -> trader-verify)와 일치하지만, 이는 git commit 조회가 아니라 `_discover_team_run_dirs`의 `sorted()` 결과라는 것을 검증한다."""
     snap = snapshot.build_investment_hq_snapshot()
     runs_by_team: dict[str, list[str]] = {}
     for entry in snap.history:
@@ -197,9 +183,7 @@ def test_dev_hq_snapshot_history_is_empty_without_fabrication():
 
 
 def test_investment_hq_history_tasks_match_raw_manifest_completed_steps_order():
-    """Tasks/Progress Vertical Slice: `tasks`가 실제 manifest.json의
-    `completed_steps`를 순서까지 그대로 옮긴 것인지 검증한다(완료
-    도착 순서 보존, Wave 순서로 재정렬하지 않음)."""
+    """Tasks/Progress Vertical Slice: `tasks`가 실제 manifest.json의 `completed_steps`를 순서까지 그대로 옮긴 것인지 검증한다(완료 도착 순서 보존, Wave 순서로 재정렬하지 않음)."""
     import json
 
     snap = snapshot.build_investment_hq_snapshot()
@@ -215,10 +199,7 @@ def test_investment_hq_history_tasks_match_raw_manifest_completed_steps_order():
 
 
 def test_investment_hq_progress_known_only_for_trader_decision_pattern():
-    """`trader_decision` 단계가 실제 관측된 run(현재 trader-verify
-    계열)에서만 progress_total/progress_pct가 채워지고, `synthesis`
-    패턴 레거시 run(hq-verify 등)은 두 값 모두 None으로 남아
-    "0%"와 "계산 불가"를 혼동하지 않는지 검증한다."""
+    """`trader_decision` 단계가 실제 관측된 run(현재 trader-verify 계열)에서만 progress_total/progress_pct가 채워지고, `synthesis` 패턴 레거시 run(hq-verify 등)은 두 값 모두 None으로 남아 "0%"와 "계산 불가"를 혼동하지 않는지 검증한다."""
     snap = snapshot.build_investment_hq_snapshot()
     assert snap.history, "실제 9개 run이 있으므로 history가 비어있으면 안 됨"
 
@@ -240,17 +221,7 @@ def test_investment_hq_progress_known_only_for_trader_decision_pattern():
 
 
 def _team_step_names_from_source(team_file: Path) -> set[str]:
-    """`hqs/investment/teams/*.py`의 `run()`에 실제 존재하는 Task
-    이름을 import 없이 AST로만 추출한다: Wave1/Wave2는 `wave1_jobs`/
-    `wave2_jobs` dict 리터럴의 키, Wave3는 `run_step(cp, "이름", ...)`
-    직접 호출의 문자열 리터럴이다. Trader Task(Wave3)는
-    `hqs/investment/trader.py`의 `run_trader_decision(cp, trader_decision,
-    ...)`를 거치며, 그 안의 `run_step(cp, "trader_decision", ...)` 호출은
-    이 파일이 아니라 `trader.py`에 있어 여기서는 보이지 않는다 —
-    `run_trader_decision(...)` 호출 자체를 `"trader_decision"` 리터럴 1개로
-    센다(그 이름이 검증 전 저장을 막는 checkpoint 저장 전 게이트라는
-    책임은 여전히 고정이다). `_TEAM_TOTAL_STEPS`가 실제 팀 코드와
-    어긋나면(drift) 이 테스트가 실패해야 한다."""
+    """`hqs/investment/teams/*.py`의 `run()`에 실제 존재하는 Task 이름을 import 없이 AST로만 추출한다: Wave1/Wave2는 `wave1_jobs`/ `wave2_jobs` dict 리터럴의 키, Wave3는 `run_step(cp, "이름", ...)` 직접 호출의 문자열 리터럴이다. Trader Task(Wave3)는 `hqs/investment/trader.py`의 `run_trader_decision(cp, trader_decision, ...)`를 거치며, 그 안의 `run_step(cp, "trader_decision", ...)` 호출은 이 파일이 아니라 `trader.py`에 있어 여기서는 보이지 않는다 — `run_trader_decision(...)` 호출 자체를 `"trader_decision"` 리터럴 1개로 센다(그 이름이 검증 전 저장을 막는 checkpoint 저장 전 게이트라는 책임은 여전히 고정이다). `_TEAM_TOTAL_STEPS`가 실제 팀 코드와 어긋나면(drift) 이 테스트가 실패해야 한다."""
     tree = ast.parse(team_file.read_text(encoding="utf-8"))
     names: set[str] = set()
     for node in ast.walk(tree):
@@ -279,11 +250,7 @@ def _team_step_names_from_source(team_file: Path) -> set[str]:
 
 
 def test_team_total_steps_literal_matches_actual_team_source():
-    """anti-drift 회귀 테스트: `snapshot._TEAM_TOTAL_STEPS`(Boundary
-    때문에 팀 코드를 import하지 못해 재선언한 리터럴)가 실제
-    `hqs/investment/teams/*.py`의 Task 구성과 여전히 일치하는지
-    정적 분석으로 확인한다 — 팀 코드에 분석 역할이 추가/삭제되면
-    이 테스트가 즉시 실패해야 한다(조용한 stale 방지)."""
+    """anti-drift 회귀 테스트: `snapshot._TEAM_TOTAL_STEPS`(Boundary 때문에 팀 코드를 import하지 못해 재선언한 리터럴)가 실제 `hqs/investment/teams/*.py`의 Task 구성과 여전히 일치하는지 정적 분석으로 확인한다 — 팀 코드에 분석 역할이 추가/삭제되면 이 테스트가 즉시 실패해야 한다(조용한 stale 방지)."""
     team_files = {
         "Stock (AAPL)": "stock_team.py",
         "Dividend Stock (PG)": "dividend_stock_team.py",
@@ -299,12 +266,7 @@ def test_team_total_steps_literal_matches_actual_team_source():
 
 
 def test_investment_hq_trader_decision_detail_matches_real_files_for_all_teams():
-    """Trader Decision Rationale/Reassess Vertical Slice: 3개 실제 Team
-    (`aapl`/`pg`/`efa`)의 `trader_decision.md` 원문에서 Direction/
-    Rationale/Reassess when이 실제로 추출되는지 검증한다(fixture 가공
-    없이 저장소의 실제 파일을 직접 재검증). aapl/pg는
-    `Direction: HOLD**`, efa는 `Direction:** HOLD`로 Bold 위치가 달라도
-    `action`은 기존과 동일하게 추출돼야 한다(하위 호환)."""
+    """Trader Decision Rationale/Reassess Vertical Slice: 3개 실제 Team (`aapl`/`pg`/`efa`)의 `trader_decision.md` 원문에서 Direction/ Rationale/Reassess when이 실제로 추출되는지 검증한다(fixture 가공 없이 저장소의 실제 파일을 직접 재검증). aapl/pg는 `Direction: HOLD**`, efa는 `Direction:** HOLD`로 Bold 위치가 달라도 `action`은 기존과 동일하게 추출돼야 한다(하위 호환)."""
     snap = snapshot.build_investment_hq_snapshot()
     by_run = {entry["run"]: entry for entry in snap.history}
 
@@ -331,9 +293,7 @@ def test_investment_hq_trader_decision_detail_matches_real_files_for_all_teams()
 
 
 def test_investment_hq_trader_decision_detail_none_for_legacy_runs_without_fabrication():
-    """trader_decision.md 자체가 없는 legacy `hq-verify`/`efa-2026-08`
-    run은 `trader_decision_detail`이 `None`이어야 한다 — 빈 문자열이나
-    `{}` 같은 가짜 placeholder를 만들지 않는다."""
+    """trader_decision.md 자체가 없는 legacy `hq-verify`/`efa-2026-08` run은 `trader_decision_detail`이 `None`이어야 한다 — 빈 문자열이나 `{}` 같은 가짜 placeholder를 만들지 않는다."""
     snap = snapshot.build_investment_hq_snapshot()
     legacy_runs = [
         entry

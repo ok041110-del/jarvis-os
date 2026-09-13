@@ -1,13 +1,6 @@
 """Phase E — Minimal Multi-Agent 실행 시나리오 검증 (IN-1 ~ IN-6).
 
-목적: `docs/decisions/adc/ADC.md` ADC-02(Runtime 개념의 존폐, Open, NOW)
-판단에 필요한 실제 실행 Evidence를 확보한다. 이 테스트는 Runtime을
-채택·구현하지 않는다 — 현재 Contract(직접 함수 호출, §16.3 Execution
-Host/§16.4 Multi-Task 패턴)만으로 최소 Multi-Agent 시나리오(2개 독립
-Agent 역할, Task 전달, 결과 반환, 실패 종료, 병렬 실행)를 재현할 수
-있는지만 관찰한다. LangGraph·새 일반화된 Runtime API·Agent Manager·
-Scheduler·Registry·Event Bus는 이 디렉터리 어디에도 없다(IN-6이 정적
-검증).
+목적: `docs/decisions/adc/ADC.md` ADC-02(Runtime 개념의 존폐, Open, NOW) 판단에 필요한 실제 실행 Evidence를 확보한다. 이 테스트는 Runtime을 채택·구현하지 않는다 — 현재 Contract(직접 함수 호출, §16.3 Execution Host/§16.4 Multi-Task 패턴)만으로 최소 Multi-Agent 시나리오(2개 독립 Agent 역할, Task 전달, 결과 반환, 실패 종료, 병렬 실행)를 재현할 수 있는지만 관찰한다. LangGraph·새 일반화된 Runtime API·Agent Manager· Scheduler·Registry·Event Bus는 이 디렉터리 어디에도 없다(IN-6이 정적 검증).
 """
 from __future__ import annotations
 
@@ -69,9 +62,7 @@ def test_in5_independent_parallel_execution_via_stdlib_only():
 
 
 def test_in6_isolation_no_forbidden_dependency():
-    """IN-6: 이 실험이 LangGraph·Kernel/HQ production 경로·새 일반화된
-    Runtime/Scheduler/Registry/Event Bus/Agent Manager 어휘에 의존하지
-    않는가 — 정적 소스 검사."""
+    """IN-6: 이 실험이 LangGraph·Kernel/HQ production 경로·새 일반화된 Runtime/Scheduler/Registry/Event Bus/Agent Manager 어휘에 의존하지 않는가 — 정적 소스 검사."""
     src_files = [
         ROOT / "caller.py",
         ROOT / "domain" / "agents.py",

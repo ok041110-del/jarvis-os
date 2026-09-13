@@ -1,10 +1,6 @@
 """Task — Identity/Lifecycle 책임만 담당한다(Scheduling/Isolation은 rtb_runtime이 담당).
 
-이 모듈은 `ThreadPoolExecutor`/`ProcessPoolExecutor`를 전혀 모른다 —
-`rtb_runtime.start()`/`rtb_runtime.poll()`만 호출한다. Task가 아는
-것은 "어떤 대상을, 어떤 전략으로, 실행했고, 지금 상태가 무엇인가"
-뿐이다. 최소 필드만 사용한다(task_id, target, strategy, status,
-result, error) — `context`/`priority` 등은 추가하지 않는다.
+이 모듈은 `ThreadPoolExecutor`/`ProcessPoolExecutor`를 전혀 모른다 — `rtb_runtime.start()`/`rtb_runtime.poll()`만 호출한다. Task가 아는 것은 "어떤 대상을, 어떤 전략으로, 실행했고, 지금 상태가 무엇인가" 뿐이다. 최소 필드만 사용한다(task_id, target, strategy, status, result, error) — `context`/`priority` 등은 추가하지 않는다.
 """
 
 from __future__ import annotations

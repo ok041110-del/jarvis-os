@@ -1,6 +1,4 @@
-"""ADC-0005 §1/§2 — AST Function Candidate Index / Dependency Closure, Engine
-미호출 순수 정적 분석 함수 2개(`project_intelligence.py`의 경로-only 성질 유지, RFC-0007 §4).
-ADC-0006: dotted package module path 지원을 additive extension으로 추가(평면 module path 동작 무변경)."""
+"""ADC-0005 §1/§2 — AST Function Candidate Index / Dependency Closure, Engine 미호출 순수 정적 분석 함수 2개(`project_intelligence.py`의 경로-only 성질 유지, RFC-0007 §4). ADC-0006: dotted package module path 지원을 additive extension으로 추가(평면 module path 동작 무변경)."""
 
 import ast
 from pathlib import Path
@@ -16,9 +14,7 @@ def _mvp_source_files() -> list:
 
 
 def _mvp_package_dirs() -> list:
-    """`__init__.py`를 가진 mvp/ 바로 아래 디렉터리만 패키지로 인식한다
-    (ADC-0006 additive extension — 평면 탐색(`_mvp_source_files`)과는 별개로
-    유지, 기존 반환값을 바꾸지 않는다)."""
+    """`__init__.py`를 가진 mvp/ 바로 아래 디렉터리만 패키지로 인식한다 (ADC-0006 additive extension — 평면 탐색(`_mvp_source_files`)과는 별개로 유지, 기존 반환값을 바꾸지 않는다)."""
     return [
         path
         for path in sorted(_MVP_DIR.iterdir())
@@ -39,20 +35,13 @@ def _package_source_files() -> list:
 
 
 def module_source_path(module: str) -> Path:
-    """`module` 이름을 `hqs/development/mvp/*.py` 경로로 변환(Target File
-    Exposure 배선용, ADC-0005 §7). dotted 이름(`pkg.sub`)은 `pkg/sub.py`로
-    변환한다(ADC-0006 additive extension) — 점이 없는 이름의 반환값은
-    기존과 동일하다(`_MVP_DIR.joinpath(f"{module}.py")` == 기존
-    `_MVP_DIR / f"{module}.py"`)."""
+    """`module` 이름을 `hqs/development/mvp/*.py` 경로로 변환(Target File Exposure 배선용, ADC-0005 §7). dotted 이름(`pkg.sub`)은 `pkg/sub.py`로 변환한다(ADC-0006 additive extension) — 점이 없는 이름의 반환값은 기존과 동일하다(`_MVP_DIR.joinpath(f"{module}.py")` == 기존 `_MVP_DIR / f"{module}.py"`)."""
     *package_parts, module_name = module.split(".")
     return _MVP_DIR.joinpath(*package_parts, f"{module_name}.py")
 
 
 def _resolve_source_path(module: str):
-    """실제 파일 존재 여부까지 확인해 `module`을 경로로 해석한다(ADC-0006
-    additive extension). 평면 파일을 우선 시도하고(기존과 동일 경로),
-    없으면 점 없는 이름에 한해 동명의 패키지 `__init__.py`를 시도한다.
-    둘 다 없으면 `None`."""
+    """실제 파일 존재 여부까지 확인해 `module`을 경로로 해석한다(ADC-0006 additive extension). 평면 파일을 우선 시도하고(기존과 동일 경로), 없으면 점 없는 이름에 한해 동명의 패키지 `__init__.py`를 시도한다. 둘 다 없으면 `None`."""
     flat_path = module_source_path(module)
     if flat_path.exists():
         return flat_path
@@ -83,10 +72,7 @@ def _first_doc_line(node) -> str:
 
 
 def _candidate_entries_from_source(source: str, filename: str = "<source>"):
-    """`source` 문자열 하나의 함수/클래스 후보 목록을 추출한다(본문 없음).
-    파싱 불가 시 `None`. `_candidate_entries()`가 로컬 파일용으로 감싸는
-    핵심 로직 — Snapshot 기반(GitHub) 입력도 이 함수를 그대로 재사용한다
-    (Stage 01 Multi-Agent Code Analysis, RFC-0033 §9 최소 수정 원칙)."""
+    """`source` 문자열 하나의 함수/클래스 후보 목록을 추출한다(본문 없음). 파싱 불가 시 `None`. `_candidate_entries()`가 로컬 파일용으로 감싸는 핵심 로직 — Snapshot 기반(GitHub) 입력도 이 함수를 그대로 재사용한다 (Stage 01 Multi-Agent Code Analysis, RFC-0033 §9 최소 수정 원칙)."""
     try:
         tree = ast.parse(source, filename=filename)
     except SyntaxError:
@@ -103,9 +89,7 @@ def _candidate_entries_from_source(source: str, filename: str = "<source>"):
 
 
 def _candidate_entries(path: Path):
-    """`path` 하나의 함수/클래스 후보 목록을 추출한다(본문 없음). 파일을 읽지
-    못하면(`OSError`) `None` — 기존 `build_function_candidate_index()`의
-    동작과 완전히 동일(ADC-0006 additive extension 유지)."""
+    """`path` 하나의 함수/클래스 후보 목록을 추출한다(본문 없음). 파일을 읽지 못하면(`OSError`) `None` — 기존 `build_function_candidate_index()`의 동작과 완전히 동일(ADC-0006 additive extension 유지)."""
     try:
         source = path.read_text(encoding="utf-8")
     except OSError:
@@ -114,11 +98,7 @@ def _candidate_entries(path: Path):
 
 
 def build_function_candidate_index() -> str:
-    """저장소 함수 후보를 이름+시그니처+docstring 첫 줄로 색인화(본문 없음) —
-    RFC-0007 §2 시작점 식별용, T17~T19 3/3 재현. 평면 파일 목록·순서·형식은
-    그대로이며, 패키지 디렉터리가 있으면 그 뒤에 이어 붙인다(ADC-0006
-    additive extension — 현재 저장소는 패키지 디렉터리가 없어 출력이
-    기존과 완전히 동일하다)."""
+    """저장소 함수 후보를 이름+시그니처+docstring 첫 줄로 색인화(본문 없음) — RFC-0007 §2 시작점 식별용, T17~T19 3/3 재현. 평면 파일 목록·순서·형식은 그대로이며, 패키지 디렉터리가 있으면 그 뒤에 이어 붙인다(ADC-0006 additive extension — 현재 저장소는 패키지 디렉터리가 없어 출력이 기존과 완전히 동일하다)."""
     sections = []
     for path in _mvp_source_files() + [pkg_path for _, pkg_path in _package_source_files()]:
         entries = _candidate_entries(path)

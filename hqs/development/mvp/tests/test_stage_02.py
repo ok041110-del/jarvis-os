@@ -1,10 +1,7 @@
-"""Stage 02(Planning & Specification) `run_stage_02()` 검증(ADR-0008,
-RFC-0035/ADC-0038/ADR-0023, `stages/02_planning_specification/VALIDATION.md`).
+"""Stage 02(Planning & Specification) `run_stage_02()` 검증(ADR-0008, RFC-0035/ADC-0038/ADR-0023, `stages/02_planning_specification/VALIDATION.md`).
 
-Stage 01의 PRD(`skeleton`/`specification`)는 재생성 없이 그대로 전달되고
-(ADR-0022 유지), Task & Dependency Agent(mock) + Deterministic Layer가
-`tasks`/`dependencies`/`plan`을 새로 산출하는지 확인한다. PRD Synthesis
-자체의 검증은 `test_stage01_prd_synthesis.py` 참조."""
+Stage 01의 PRD(`skeleton`/`specification`)는 재생성 없이 그대로 전달되고 (ADR-0022 유지), Task & Dependency Agent(mock) + Deterministic Layer가 `tasks`/`dependencies`/`plan`을 새로 산출하는지 확인한다. PRD Synthesis 자체의 검증은 `test_stage01_prd_synthesis.py` 참조.
+"""
 
 import importlib.util
 import sys

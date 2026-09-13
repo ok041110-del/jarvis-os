@@ -1,7 +1,4 @@
-"""OpenRouter Auto Selection v1 Harness 테스트(사용자 지시 §14). 실제
-네트워크 호출 없이 검증 가능한 것은 전부 Mock/Fault Injection으로
-수행한다(§11 원칙 — 외부 서비스를 실제로 공격/rate-limit 유발하지
-않는다)."""
+"""OpenRouter Auto Selection v1 Harness 테스트(사용자 지시 §14). 실제 네트워크 호출 없이 검증 가능한 것은 전부 Mock/Fault Injection으로 수행한다(§11 원칙 — 외부 서비스를 실제로 공격/rate-limit 유발하지 않는다)."""
 
 from __future__ import annotations
 
@@ -125,9 +122,7 @@ def test_classify_failure_maps_http_statuses_correctly():
 
 
 def test_contract_failure_excludes_failed_model_from_retry_pool(monkeypatch):
-    """Contract 실패 시, 재시도에서 같은 모델이 다시 응답 모델로 오더라도
-    Pool에서는 제외된 상태로 다음 호출이 나가는지 확인(사용자 지시 §6 —
-    "retry 시 다른 free model이 선택될 가능성을 고려한다")."""
+    """Contract 실패 시, 재시도에서 같은 모델이 다시 응답 모델로 오더라도 Pool에서는 제외된 상태로 다음 호출이 나가는지 확인(사용자 지시 §6 — "retry 시 다른 free model이 선택될 가능성을 고려한다")."""
     import domain.auto_selection_client as client_module
 
     call_log = []
@@ -238,9 +233,7 @@ def test_stage_policies_do_not_share_mutable_pool_state():
 
 
 def test_harness_does_not_import_or_modify_production_engine_modules():
-    """`mvp/chatgpt_engine.py`/`mvp/engine.py`/`stages/05_validation/
-    stage_05.py`의 실제 Engine 선택 로직을 이 Harness가 import하거나
-    패치하지 않는지 소스 코드 수준으로 확인한다(정적 검사)."""
+    """`mvp/chatgpt_engine.py`/`mvp/engine.py`/`stages/05_validation/ stage_05.py`의 실제 Engine 선택 로직을 이 Harness가 import하거나 패치하지 않는지 소스 코드 수준으로 확인한다(정적 검사)."""
     harness_files = list(HARNESS_ROOT.rglob("*.py"))
     forbidden_imports = ("chatgpt_engine", "mvp.engine", "omniroute_engine")
     for path in harness_files:

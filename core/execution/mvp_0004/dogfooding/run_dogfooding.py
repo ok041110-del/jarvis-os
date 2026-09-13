@@ -1,11 +1,6 @@
 """Execution Layer MVP-0004 Dogfooding.
 
-Development HQ가 생성하는 Implementation Specification부터 MVP-0001~0004
-Builder를 통과시켜 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤
-파일도 수정하지 않는다.
-
-`handle_id`/`submitted_at`은 Builder가 생성하지 않으므로(Session/Runtime
-책임 영역) 이 스크립트가 호출자로서 주입한다.
+Development HQ가 생성하는 Implementation Specification부터 MVP-0001~0004 Builder를 통과시켜 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤 파일도 수정하지 않는다.
 """
 
 import hashlib

@@ -1,10 +1,6 @@
 """Execution Host(Production, `execution_host.py`) 최소 검증.
 
-`ADC-0015` Conditional Accept 범위(Process 1차, "동일 Target 동시
-실행" 조건에서 Thread 배제)를 Production 모듈에서 재확인한다 —
-새 실험이 아니라 `runtime-boundary`/`process-runtime-strategy`
-Experimental Prototype이 이미 검증한 방법론을 Production 모듈
-대상으로 재사용한다.
+`ADC-0015` Conditional Accept 범위(Process 1차, "동일 Target 동시 실행" 조건에서 Thread 배제)를 Production 모듈에서 재확인한다 — 새 실험이 아니라 `runtime-boundary`/`process-runtime-strategy` Experimental Prototype이 이미 검증한 방법론을 Production 모듈 대상으로 재사용한다.
 """
 
 from __future__ import annotations
@@ -47,9 +43,7 @@ def test_run_isolated_executes_real_pytest_target():
 
 
 def test_run_isolated_is_accurate_on_identical_target_concurrent_execution():
-    """동일 Target을 두 호출자가 동시에 요청해도(Process 격리로)
-    결과가 오염되지 않는다 — `runtime-boundary` §4, `process-runtime-
-    strategy` §4가 반복 관찰한 조건을 Production 모듈로 재현."""
+    """동일 Target을 두 호출자가 동시에 요청해도(Process 격리로) 결과가 오염되지 않는다 — `runtime-boundary` §4, `process-runtime- strategy` §4가 반복 관찰한 조건을 Production 모듈로 재현."""
 
     def _call():
         return run_isolated(run_pytest_target, CONTAMINATION_TARGET)

@@ -1,11 +1,6 @@
 """Stage 04/05 Agent Team Experimental PoC — 결정적 검증 (IN-1 ~ IN-14).
 
-목적: `RFC-0030`/Phase F-2 확장이 후보로 선정한 두 구조 —
-Stage 04(Target Identification -> Implementation 순차 Handoff), Stage
-05(Review ∥ QA -> deterministic Aggregator/Verdict) — 를 격리된
-`projects/` 영역에서 재현해 성공/실패/의존성/병렬성/결과 종합/부분
-재실행 가능성을 결정적으로 확인한다. 새 Runtime/Event Bus/Message
-Contract는 만들지 않는다(IN-14가 정적으로 확인).
+목적: `RFC-0030`/Phase F-2 확장이 후보로 선정한 두 구조 — Stage 04(Target Identification -> Implementation 순차 Handoff), Stage 05(Review ∥ QA -> deterministic Aggregator/Verdict) — 를 격리된 `projects/` 영역에서 재현해 성공/실패/의존성/병렬성/결과 종합/부분 재실행 가능성을 결정적으로 확인한다. 새 Runtime/Event Bus/Message Contract는 만들지 않는다(IN-14가 정적으로 확인).
 """
 from __future__ import annotations
 
@@ -100,9 +95,7 @@ def test_in7_stage05_review_failure_does_not_block_qa():
 
 
 def test_in8_stage05_verdict_ignores_agent_content():
-    """Aggregator(Verdict)가 review/qa의 텍스트 내용을 반영하지 않는가
-    — Policy 구현 금지 경계(Phase F-2 확장 §6)의 결정적 재확인.
-    Agent가 둘 다 실패해도 결정적 검사가 PASS면 Verdict는 PASS다."""
+    """Aggregator(Verdict)가 review/qa의 텍스트 내용을 반영하지 않는가 — Policy 구현 금지 경계(Phase F-2 확장 §6)의 결정적 재확인. Agent가 둘 다 실패해도 결정적 검사가 PASS면 Verdict는 PASS다."""
     result = caller.run_stage05_pipeline("def f(): return 1", fail_review=True, fail_qa=True)
     assert result["review"]["status"] == "error"
     assert result["qa"]["status"] == "error"
@@ -116,10 +109,7 @@ def test_in9_stage05_deterministic_check_failure_sets_verdict_fail():
 
 
 def test_in10_stage05_actual_parallel_execution_wall_clock():
-    """IN-10: Review/QA가 실제로 동시 실행되는가 — 각 0.2s 지연을 줘
-    총 소요 시간이 순차 합(0.4s)이 아니라 병렬 시간(~0.2s)에 가까운지
-    측정. 새 Runtime 없이 `ThreadPoolExecutor`만으로 병렬성이 실제로
-    나타나는지 확인하는 결정적(시간 기반) 증거."""
+    """IN-10: Review/QA가 실제로 동시 실행되는가 — 각 0.2s 지연을 줘 총 소요 시간이 순차 합(0.4s)이 아니라 병렬 시간(~0.2s)에 가까운지 측정. 새 Runtime 없이 `ThreadPoolExecutor`만으로 병렬성이 실제로 나타나는지 확인하는 결정적(시간 기반) 증거."""
     from concurrent.futures import ThreadPoolExecutor
 
     start = time.monotonic()

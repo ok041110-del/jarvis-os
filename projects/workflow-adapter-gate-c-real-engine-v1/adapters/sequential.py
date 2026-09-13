@@ -1,8 +1,6 @@
 """Sequential Reference Adapter — §16.6 "최소한으로는 순차 함수 호출"의 지정 형태.
 
-외부 의존 0. 조건부 = if/elif, Loop = while, 병렬 = ThreadPoolExecutor,
-reducer = 명시적 merge. 노드 예외의 catch-and-encode는 어댑터 책임
-(ADC-0020 §Q-D (b)).
+외부 의존 0. 조건부 = if/elif, Loop = while, 병렬 = ThreadPoolExecutor, reducer = 명시적 merge. 노드 예외의 catch-and-encode는 어댑터 책임 (ADC-0020 §Q-D (b)).
 """
 from __future__ import annotations
 

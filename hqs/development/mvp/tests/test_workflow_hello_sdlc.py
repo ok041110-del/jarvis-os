@@ -1,12 +1,6 @@
 """Characterization tests for `mvp.workflow_hello_sdlc.run_hello_sdlc` (P1-2).
 
-Production code(`workflow_hello_sdlc.py`)는 수정하지 않았다. 외부
-의존성은 mock/stub한다.
-
-**중요**: 이 함수의 실패 반환 shape은 다른 workflow_*.py들("Engine call
-failed: {exc}" 문자열을 각 키에 채우는 방식)과 **다르다** — `None` 값 +
-`status`/`error` 키를 쓴다. 이 차이를 있는 그대로 고정한다(P1-1 리팩토링
-전에 이 비대칭 자체가 실제 현재 behavior임을 증명하기 위함).
+**중요**: 이 함수의 실패 반환 shape은 다른 workflow_*.py들("Engine call failed: {exc}" 문자열을 각 키에 채우는 방식)과 **다르다** — `None` 값 + `status`/`error` 키를 쓴다. 이 차이를 있는 그대로 고정한다(P1-1 리팩토링 전에 이 비대칭 자체가 실제 현재 behavior임을 증명하기 위함).
 """
 
 import sys

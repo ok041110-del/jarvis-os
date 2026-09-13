@@ -1,8 +1,4 @@
-"""실제 GitHub Repository 검증(§13) — `ok041110-del/jarvis-os`를 대상으로
-최소 한 번 실제 RepositorySnapshot 생성과 Code Analysis 실행을 확인한다.
-`GITHUB_TOKEN`이 환경변수에 없으면(이 저장소/CI 밖에서 실행하는 경우) skip
-한다 — Mock 기반 검증(`test_github_adapter.py`)과 명확히 구분한다. 인증
-정보는 이 파일에 하드코드하지 않고 환경변수만 읽는다."""
+"""실제 GitHub Repository 검증(§13) — `ok041110-del/jarvis-os`를 대상으로 최소 한 번 실제 RepositorySnapshot 생성과 Code Analysis 실행을 확인한다. `GITHUB_TOKEN`이 환경변수에 없으면(이 저장소/CI 밖에서 실행하는 경우) skip 한다 — Mock 기반 검증(`test_github_adapter.py`)과 명확히 구분한다. 인증 정보는 이 파일에 하드코드하지 않고 환경변수만 읽는다."""
 
 import importlib.util
 import os

@@ -1,7 +1,4 @@
-"""Stage 02 Task & Dependency Agent(`task_dependency_agent.py`) 검증(RFC-0035/
-ADC-0038/ADR-0023 Decision 2) — Engine 호출 자체는 mock하고, JSON 추출/파싱
-동작만 확인한다(스키마 검증은 `planning_pipeline.py` 책임이라 여기서는
-검사하지 않는다)."""
+"""Stage 02 Task & Dependency Agent(`task_dependency_agent.py`) 검증(RFC-0035/ ADC-0038/ADR-0023 Decision 2) — Engine 호출 자체는 mock하고, JSON 추출/파싱 동작만 확인한다(스키마 검증은 `planning_pipeline.py` 책임이라 여기서는 검사하지 않는다)."""
 
 import importlib.util
 import sys

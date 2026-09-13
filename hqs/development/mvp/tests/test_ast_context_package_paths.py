@@ -1,12 +1,7 @@
-"""ADC-0006(RFC-0008 후속) — `ast_context.py`의 dotted package module path
-additive extension 전용 테스트. 기존 `test_ast_context.py`는 수정하지
-않았다 — 이 파일은 평면 module path 동작(기존 파일)과 별개로, 패키지
-디렉터리를 인식하는 새 경로만 검증한다.
+"""ADC-0006(RFC-0008 후속) — `ast_context.py`의 dotted package module path additive extension 전용 테스트. 기존 `test_ast_context.py`는 수정하지 않았다 — 이 파일은 평면 module path 동작(기존 파일)과 별개로, 패키지 디렉터리를 인식하는 새 경로만 검증한다.
 
-모든 패키지 시나리오는 `tmp_path`에 합성 파일을 만들고 `ast_context.ROOT`/
-`ast_context._MVP_DIR`을 그 경로로 monkeypatch해 검증한다 — 실제
-저장소에 `agents/` 등 어떤 디렉터리도 생성하지 않는다(RFC-0008/ADC-0006
-금지 사항)."""
+모든 패키지 시나리오는 `tmp_path`에 합성 파일을 만들고 `ast_context.ROOT`/ `ast_context._MVP_DIR`을 그 경로로 monkeypatch해 검증한다 — 실제 저장소에 `agents/` 등 어떤 디렉터리도 생성하지 않는다(RFC-0008/ADC-0006 금지 사항).
+"""
 
 import pytest
 
@@ -14,9 +9,7 @@ from .. import ast_context
 
 
 def _patch_mvp_dir(monkeypatch, tmp_path):
-    """ROOT/_MVP_DIR을 합성 트리로 바꿔치기한다 — `build_function_candidate_
-    index()`가 `path.relative_to(ROOT)`를 계산하므로 둘 다 같은 트리를
-    가리켜야 한다."""
+    """ROOT/_MVP_DIR을 합성 트리로 바꿔치기한다 — `build_function_candidate_ index()`가 `path.relative_to(ROOT)`를 계산하므로 둘 다 같은 트리를 가리켜야 한다."""
     monkeypatch.setattr(ast_context, "ROOT", tmp_path)
     monkeypatch.setattr(ast_context, "_MVP_DIR", tmp_path)
 
@@ -35,9 +28,7 @@ def test_flat_module_source_path_unchanged_for_non_dotted_name():
 
 
 def test_flat_dependency_closure_still_works_for_real_repo_module():
-    """`agents.py`가 Agent Package Refactoring으로 패키지가 된 뒤에도,
-    여전히 평면 파일로 남아 있는 `engine.py`를 기준으로 평면 module
-    closure가 그대로 동작함을 확인한다."""
+    """`agents.py`가 Agent Package Refactoring으로 패키지가 된 뒤에도, 여전히 평면 파일로 남아 있는 `engine.py`를 기준으로 평면 module closure가 그대로 동작함을 확인한다."""
     closure = ast_context.build_dependency_closure("engine", "call_engine")
     assert "# module: engine" in closure
     assert "def call_engine(prompt: str) -> str:" in closure
@@ -60,9 +51,7 @@ def test_bare_name_resolves_to_package_init_when_no_flat_file(monkeypatch, tmp_p
 
 
 def test_resolve_source_path_prefers_flat_file_over_package(monkeypatch, tmp_path):
-    """평면 파일과 패키지 디렉터리가 같은 이름으로 동시에 존재할 수는
-    없지만(Python 제약), 평면 파일이 있으면 패키지 폴백을 시도조차 하지
-    않는다는 우선순위 자체를 확인한다."""
+    """평면 파일과 패키지 디렉터리가 같은 이름으로 동시에 존재할 수는 없지만(Python 제약), 평면 파일이 있으면 패키지 폴백을 시도조차 하지 않는다는 우선순위 자체를 확인한다."""
     _patch_mvp_dir(monkeypatch, tmp_path)
     _write(tmp_path / "solo.py", "def solo() -> str:\n    return 'flat'\n")
 

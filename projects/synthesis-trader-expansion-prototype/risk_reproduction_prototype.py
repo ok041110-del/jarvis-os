@@ -1,18 +1,6 @@
 """Risk -> Portfolio Decision Change Reproduction Dogfooding — 격리된 Prototype.
 
-동일한 3-Pass 구조(PASS1 Portfolio-only / PASS2 Risk-only / PASS3
-Risk-informed Portfolio)를 QQQ 사례(이전 실험, 재실행하지 않음)와는
-다른 두 개의 독립 사례에 적용한다:
-
-- Case 2(신규): PG+JNJ(Dividend Stock, ETF 없음) — "방어적 배당 슬리브"
-  섹터/팩터 결합 노출 정책. 이전 QQQ 사례(ETF look-through)와는 다른
-  종류의 Portfolio-level 제약(§4 "다른 Concentration policy").
-- Case 3(신규, Negative Control): CAT 단독 — 명시적 정책 존재, 위반
-  없음, 의미 있는 구조적 위험 없음(§11).
-
-`hqs/investment/`는 수정하지 않는다. Exposure는 절대 일반 합산하지
-않는다 — 정책 확인 목적의 계산만 "Policy Evaluation Calculation"으로
-명시적으로 라벨링한다(§6).
+- Case 2(신규): PG+JNJ(Dividend Stock, ETF 없음) — "방어적 배당 슬리브" 섹터/팩터 결합 노출 정책. 이전 QQQ 사례(ETF look-through)와는 다른 종류의 Portfolio-level 제약(§4 "다른 Concentration policy"). - Case 3(신규, Negative Control): CAT 단독 — 명시적 정책 존재, 위반 없음, 의미 있는 구조적 위험 없음(§11).
 """
 
 import sys

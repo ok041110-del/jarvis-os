@@ -1,8 +1,6 @@
 """(C) Reversibility v2 in-repo 통합 테스트 — IN-1 ~ IN-5.
 
-검증 대상 = §16.6 Reversibility 필수 불변조건 + Adapter Contract 부속 명세
-(a)(b)(d). 범위 밖(mid-node resume, 성능, 실제 엔진, Public Port, Q-E-2,
-(c) 규범화)은 assert하지 않는다 — Test Design 0001 §2.2·§2.3.
+검증 대상 = §16.6 Reversibility 필수 불변조건 + Adapter Contract 부속 명세 (a)(b)(d). 범위 밖(mid-node resume, 성능, 실제 엔진, Public Port, Q-E-2, (c) 규범화)은 assert하지 않는다 — Test Design 0001 §2.2·§2.3.
 """
 from __future__ import annotations
 

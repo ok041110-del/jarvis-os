@@ -1,9 +1,6 @@
 """Case A — Command 하나에 실행 상태를 직접 담는다(Task 없음).
 
-User Command -> Command Resolver -> Long-running Operation -> Result.
-Command 자체가 started_at/status/result/error를 보유한다(작업 지시
-§6이 예시한 필드). Task를 미리 설계하지 않고, 이 구조가 실제로
-막히는 지점을 관찰하는 것이 목적이다.
+User Command -> Command Resolver -> Long-running Operation -> Result. Command 자체가 started_at/status/result/error를 보유한다(작업 지시 §6이 예시한 필드). Task를 미리 설계하지 않고, 이 구조가 실제로 막히는 지점을 관찰하는 것이 목적이다.
 """
 
 from __future__ import annotations
@@ -22,9 +19,7 @@ import operation  # noqa: E402
 
 @dataclass
 class AsyncCommand:
-    """Case A Contract — Command 하나가 요청과 실행 상태를 함께
-    가진다. `execution_id`는 이 Command가 시작한 Operation을
-    가리키는 참조일 뿐, 별도 Entity(Task)가 아니다."""
+    """Case A Contract — Command 하나가 요청과 실행 상태를 함께 가진다. `execution_id`는 이 Command가 시작한 Operation을 가리키는 참조일 뿐, 별도 Entity(Task)가 아니다."""
 
     raw_input: str
     target_hq: str | None = None

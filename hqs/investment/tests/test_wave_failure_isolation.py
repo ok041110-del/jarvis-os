@@ -1,8 +1,4 @@
-"""Wave1/Wave2 Task 실패 격리 테스트 — ThreadPoolExecutor 동시 실행 중
-하나가 ContentFailureError를 던져도 나머지 Task는 정상 완료·저장되고,
-Resume 시 실패한 Task만 재실행되는지 실제 stock_team.run()으로 검증한다.
-etf_team/dividend_stock_team은 동일한 Wave 구조를 재사용하므로 stock_team이
-대표 사례다(STRUCTURE.md "신규 표준 실행 패턴 재사용" 참조)."""
+"""Wave1/Wave2 Task 실패 격리 테스트 — ThreadPoolExecutor 동시 실행 중 하나가 ContentFailureError를 던져도 나머지 Task는 정상 완료·저장되고, Resume 시 실패한 Task만 재실행되는지 실제 stock_team.run()으로 검증한다. etf_team/dividend_stock_team은 동일한 Wave 구조를 재사용하므로 stock_team이 대표 사례다(STRUCTURE.md "신규 표준 실행 패턴 재사용" 참조)."""
 
 import json
 import sys

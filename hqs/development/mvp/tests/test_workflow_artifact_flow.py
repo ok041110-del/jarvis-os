@@ -1,8 +1,6 @@
-"""Characterization tests for `mvp.workflow_artifact_flow.run_issue_to_implementation`
-(P1-2).
+"""Characterization tests for `mvp.workflow_artifact_flow.run_issue_to_implementation` (P1-2).
 
-Production code(`workflow_artifact_flow.py`)는 수정하지 않았다. 외부
-의존성은 mock/stub한다.
+Production code(`workflow_artifact_flow.py`)는 수정하지 않았다. 외부 의존성은 mock/stub한다.
 """
 
 import sys

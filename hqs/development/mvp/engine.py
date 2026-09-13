@@ -1,11 +1,7 @@
-"""Claude Code Engine — Multi-Engine Architecture의 Implementation/
-Execution 측 Engine(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`).
-Gateway 추상화·Engine Routing 없음(IMPLEMENTATION_RULES.md).
+"""Claude Code Engine — Multi-Engine Architecture의 Implementation/ Execution 측 Engine(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`). Gateway 추상화·Engine Routing 없음(IMPLEMENTATION_RULES.md).
 
-이 모듈은 `claude` CLI를 텍스트 전용 함수로 감싼다 — `disallowedTools`로
-filesystem/shell 도구 접근을 전부 차단하므로, 지금 이 함수는 Repository
-Execution이 아니라 Text/Reasoning Execution Mode다(`ADR-0024` §Non-goal).
-함수 시그니처·구현은 Multi-Engine 전환으로 변경되지 않았다."""
+이 모듈은 `claude` CLI를 텍스트 전용 함수로 감싼다 — `disallowedTools`로 filesystem/shell 도구 접근을 전부 차단하므로, 지금 이 함수는 Repository Execution이 아니라 Text/Reasoning Execution Mode다(`ADR-0024` §Non-goal). 함수 시그니처·구현은 Multi-Engine 전환으로 변경되지 않았다.
+"""
 
 import subprocess
 import tempfile
@@ -28,14 +24,10 @@ STATELESS_CALL_NOTICE = (
 
 
 def call_engine(prompt: str) -> str:
-    """단일 Engine 호출 지점(ENGINE-CONNECT-0001). `disallowedTools`로 텍스트
-    전용 계약을 강제하고, `cwd`를 저장소 밖으로 고정해 CLAUDE.md 오염을 막는다.
+    """단일 Engine 호출 지점(ENGINE-CONNECT-0001). `disallowedTools`로 텍스트 전용 계약을 강제하고, `cwd`를 저장소 밖으로 고정해 CLAUDE.md 오염을 막는다.
 
-    subprocess가 실패(non-zero returncode)하면 stdout 대신 returncode/stderr를
-    담은 RuntimeError를 raise한다 — 호출부(workflow.py 등)가 이미
-    `except Exception`으로 잡아 `Engine call failed: {exc}`로 구조화하므로,
-    여기서 실패를 삼키면 그 구조화가 발동하지 않고 빈/부분 stdout이 성공
-    결과로 오인된다."""
+subprocess가 실패(non-zero returncode)하면 stdout 대신 returncode/stderr를 담은 RuntimeError를 raise한다 — 호출부(workflow.py 등)가 이미 `except Exception`으로 잡아 `Engine call failed: {exc}`로 구조화하므로, 여기서 실패를 삼키면 그 구조화가 발동하지 않고 빈/부분 stdout이 성공 결과로 오인된다.
+    """
     result = subprocess.run(
         [
             ENGINE_CLI, "-p", prompt,

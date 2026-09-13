@@ -1,9 +1,6 @@
-"""실행 harness — baseline(`run_mvp_0002`)과 LangGraph 버전을 동일한
-실제 입력으로 실행하고 결과를 비교한다. 저장소 코드는 수정하지 않는다
-(README "Engine 호출 경로에 대한 unavoidable 차이" 참고).
+"""실행 harness — baseline(`run_mvp_0002`)과 LangGraph 버전을 동일한 실제 입력으로 실행하고 결과를 비교한다. 저장소 코드는 수정하지 않는다 (README "Engine 호출 경로에 대한 unavoidable 차이" 참고).
 
-실행: 저장소 루트에서 `python3 projects/langgraph-conditional-routing-poc-v1/run_prototype.py`
-(langgraph가 설치된 환경에서, PYTHONPATH에 저장소 루트 포함)
+실행: 저장소 루트에서 `python3 projects/langgraph-conditional-routing-poc-v1/run_prototype.py` (langgraph가 설치된 환경에서, PYTHONPATH에 저장소 루트 포함)
 """
 
 import json

@@ -1,7 +1,6 @@
 """Workflow Adapter Reversibility v2 PoC — 도메인 State 스키마.
 
-이 모듈은 langgraph를 import하지 않는다. State는 평문 dict로 표현되며
-JSON round-trip이 가능해야 한다(caller-owned checkpoint 값 소유 모델 검증).
+이 모듈은 langgraph를 import하지 않는다. State는 평문 dict로 표현되며 JSON round-trip이 가능해야 한다(caller-owned checkpoint 값 소유 모델 검증).
 """
 from __future__ import annotations
 

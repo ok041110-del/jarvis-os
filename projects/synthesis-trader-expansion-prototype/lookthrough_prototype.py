@@ -1,13 +1,6 @@
 """ETF Look-through Exposure Dogfooding — 격리된 Prototype.
 
-`hqs/investment/`는 수정하지 않는다. 새로운 시장 데이터를 만들지
-않는다 — 여기서 쓰는 ETF 구성종목 비중은 전부 기존 실제
-`bull_case.md`/`holdings_exposure_analysis.md` 등에 이미 존재하던
-수치를 그대로 인용한다. Portfolio State(직접 보유 여부)만 이 실험을
-위한 가상 설정값이다.
-
-핵심 규칙(사용자 지시 준수): 서로 다른 Exposure Path를 하나의 숫자로
-합산하지 않는다 — 프롬프트 자체가 합산을 명시적으로 금지한다.
+`hqs/investment/`는 수정하지 않는다. 새로운 시장 데이터를 만들지 않는다 — 여기서 쓰는 ETF 구성종목 비중은 전부 기존 실제 `bull_case.md`/`holdings_exposure_analysis.md` 등에 이미 존재하던 수치를 그대로 인용한다. Portfolio State(직접 보유 여부)만 이 실험을 위한 가상 설정값이다.
 """
 
 import sys

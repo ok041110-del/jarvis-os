@@ -1,8 +1,4 @@
-"""Aggregator — validation logic을 새로 발명하지 않는다(사용자 지시
-Part 4). 5개 blocking Validator(Structure/Scope/AST/Dependency/Test)의
-FAIL/ERROR만 Verdict를 FAIL로 만든다. Review는 항상 advisory —
-Review가 PASS여도 deterministic FAIL을 뒤집지 않고, Review가 FAIL/ERROR
-여도 deterministic PASS를 자동으로 FAIL로 바꾸지 않는다."""
+"""Aggregator — validation logic을 새로 발명하지 않는다(사용자 지시 Part 4). 5개 blocking Validator(Structure/Scope/AST/Dependency/Test)의 FAIL/ERROR만 Verdict를 FAIL로 만든다. Review는 항상 advisory — Review가 PASS여도 deterministic FAIL을 뒤집지 않고, Review가 FAIL/ERROR 여도 deterministic PASS를 자동으로 FAIL로 바꾸지 않는다."""
 
 from __future__ import annotations
 
@@ -26,10 +22,7 @@ class AggregationResult:
 
 
 def aggregate(results: list[ValidatorResult]) -> AggregationResult:
-    """1. 모든 Validator 결과 수집, 2. ID 정규화, 3. deterministic blocking
-    집계, 4. Review 결과 별도 보존, 5. Final Verdict 계산 — 순서 그대로
-    구현한다. 이 함수는 어떤 Validator도 직접 실행하지 않는다(이미 끝난
-    결과만 받는다)."""
+    """1. 모든 Validator 결과 수집, 2. ID 정규화, 3. deterministic blocking 집계, 4. Review 결과 별도 보존, 5. Final Verdict 계산 — 순서 그대로 구현한다. 이 함수는 어떤 Validator도 직접 실행하지 않는다(이미 끝난 결과만 받는다)."""
     # 1~2. 수집 + ID 정규화(고정 순서로 정렬, 실행/완료 순서와 분리)
     ordered = sort_by_fixed_id_order(results)
     results_by_id = {r.validator_id: r for r in ordered}

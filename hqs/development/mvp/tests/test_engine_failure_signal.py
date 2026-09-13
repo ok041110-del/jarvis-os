@@ -1,6 +1,4 @@
-"""`_engine_failure_message()`/`is_engine_failure()` 왕복 검증 — 생산자와
-판정자가 같은 접두사 소스(`mvp.workflow._ENGINE_FAILURE_PREFIX`)를 쓰는지
-확인한다(Stage 05가 리터럴을 직접 중복 보유하지 않도록 하는 회귀 테스트)."""
+"""`_engine_failure_message()`/`is_engine_failure()` 왕복 검증 — 생산자와 판정자가 같은 접두사 소스(`mvp.workflow._ENGINE_FAILURE_PREFIX`)를 쓰는지 확인한다(Stage 05가 리터럴을 직접 중복 보유하지 않도록 하는 회귀 테스트)."""
 
 import sys
 from pathlib import Path

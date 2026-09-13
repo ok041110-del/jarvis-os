@@ -1,9 +1,4 @@
-"""Stage 02 Deterministic Layer — Task & Dependency Agent 출력을 LLM 호출
-없이 코드로만 검증/정렬/조립한다(RFC-0035/ADC-0038/ADR-0023 Decision 3):
-Schema Validation → Dependency Graph Validation → Cycle Detection →
-Topological Ordering → Implementation Plan Assembly → Final Aggregation.
-Cycle Detection은 구조적 무결성(순환 여부)만 보장하며, 의미적으로 잘못됐지만
-순환이 아닌 의존관계는 걸러내지 못한다는 한계를 그대로 안는다(ADR-0023)."""
+"""Stage 02 Deterministic Layer — Task & Dependency Agent 출력을 LLM 호출 없이 코드로만 검증/정렬/조립한다(RFC-0035/ADC-0038/ADR-0023 Decision 3): Schema Validation → Dependency Graph Validation → Cycle Detection → Topological Ordering → Implementation Plan Assembly → Final Aggregation. Cycle Detection은 구조적 무결성(순환 여부)만 보장하며, 의미적으로 잘못됐지만 순환이 아닌 의존관계는 걸러내지 못한다는 한계를 그대로 안는다(ADR-0023)."""
 
 
 class PlanningPipelineError(ValueError):

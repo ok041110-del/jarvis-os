@@ -101,9 +101,7 @@ def _auth_headers() -> dict:
 
 
 def _fetch_free_model_pool(timeout: float) -> list[dict]:
-    """`:free`로 끝나는 모델을 OpenRouter가 반환한 순서 그대로 가져온다
-    — 재정렬·순위화 없음. 이 순서 자체가 나중에 3개 초과 시 tie-break
-    근거가 된다."""
+    """`:free`로 끝나는 모델을 OpenRouter가 반환한 순서 그대로 가져온다 — 재정렬·순위화 없음. 이 순서 자체가 나중에 3개 초과 시 tie-break 근거가 된다."""
     url = _resolve_base_url() + OPENROUTER_MODELS_PATH
     request = urllib.request.Request(url, method="GET", headers=_auth_headers())
     try:
@@ -128,10 +126,7 @@ def _estimate_min_context_tokens(prompt: str) -> int:
 
 
 def _deterministic_filter(pool: list[dict], min_context_tokens: int) -> list[str]:
-    """`ADR-0026` §6 Hard Filter — free 여부(Pool 자체가 이미 보장)/
-    알려진 비기능 모델 제외/context 길이/modality(text 입출력)만으로
-    판정한다. 판정 불가능한 항목(예: Contract compatibility)은 추측
-    하지 않고 그냥 통과시킨다 — 제외 사유로 쓰지 않는다."""
+    """`ADR-0026` §6 Hard Filter — free 여부(Pool 자체가 이미 보장)/ 알려진 비기능 모델 제외/context 길이/modality(text 입출력)만으로 판정한다. 판정 불가능한 항목(예: Contract compatibility)은 추측 하지 않고 그냥 통과시킨다 — 제외 사유로 쓰지 않는다."""
     kept = []
     for model in pool:
         model_id = model.get("id", "")
@@ -155,18 +150,12 @@ def _deterministic_filter(pool: list[dict], min_context_tokens: int) -> list[str
 
 
 def _select_candidates(kept_model_ids: list[str]) -> tuple[str, ...]:
-    """3개 초과 시 순위화 없이 Pool 응답 순서 그대로 앞에서부터 자른다
-    (`RFC-0040`/`RFC-0041` §Candidate Selection Boundary의 deterministic
-    tie-break)."""
+    """3개 초과 시 순위화 없이 Pool 응답 순서 그대로 앞에서부터 자른다 (`RFC-0040`/`RFC-0041` §Candidate Selection Boundary의 deterministic tie-break)."""
     return tuple(kept_model_ids[:MAX_CANDIDATES])
 
 
 def _parse_chat_response(status: int, body_bytes: bytes) -> tuple[str | None, str | None]:
-    """(content, selected_model) 튜플을 반환하거나, 재시도 불가능한
-    오류면 `RuntimeError`를 raise한다. 429/5xx/4xx는 호출부가 재시도
-    분류에 쓸 수 있도록 여기서 바로 raise하지 않고 `None, None`을
-    반환한다 — 호출부(`call_engine_via_openrouter`)가 실패 분류와
-    bounded retry를 담당한다."""
+    """(content, selected_model) 튜플을 반환하거나, 재시도 불가능한 오류면 `RuntimeError`를 raise한다. 429/5xx/4xx는 호출부가 재시도 분류에 쓸 수 있도록 여기서 바로 raise하지 않고 `None, None`을 반환한다 — 호출부(`call_engine_via_openrouter`)가 실패 분류와 bounded retry를 담당한다."""
     try:
         parsed = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
     except (ValueError, UnicodeDecodeError):
@@ -185,9 +174,7 @@ def _parse_chat_response(status: int, body_bytes: bytes) -> tuple[str | None, st
 
 
 def _classify_failure(status: int | None, connection_error: bool) -> str:
-    """quota(429)를 모델 품질 실패와 분리해서 분류한다 — quota 실패를
-    "이 모델이 나쁘다"는 신호로 취급하지 않는다(`ADR-0027` §Retry
-    Boundary)."""
+    """quota(429)를 모델 품질 실패와 분리해서 분류한다 — quota 실패를 "이 모델이 나쁘다"는 신호로 취급하지 않는다(`ADR-0027` §Retry Boundary)."""
     if connection_error:
         return "connection_error"
     if status == 429:
@@ -231,17 +218,10 @@ def _single_chat_call(candidate_ids: tuple[str, ...], prompt: str, timeout: floa
 
 
 def call_engine_via_openrouter(prompt: str) -> str:
-    """단일 OpenRouter 호출 지점. `call_engine()`/`call_engine_via_chatgpt()`
-    와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따른다
-    — 호출부가 이미 `except Exception`으로 잡아 `Engine call failed:
-    {exc}`로 구조화하므로 여기서 실패를 삼키지 않는다.
+    """단일 OpenRouter 호출 지점. `call_engine()`/`call_engine_via_chatgpt()` 와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따른다 — 호출부가 이미 `except Exception`으로 잡아 `Engine call failed: {exc}`로 구조화하므로 여기서 실패를 삼키지 않는다.
 
-    내부적으로 Free Pool 조회 → Deterministic Filter → 최대 3개
-    candidate 선정 → OpenRouter `models[]` 호출 → 실패 시 bounded
-    retry(최대 1회, 실패 후보를 재시도 Pool에서 제외)를 수행한다.
-    quota(429) 실패는 모델 교체로 회복되지 않을 수 있음을 알고 있다
-    (계정 단위 제약, 모델별 제약이 아님) — 그래도 재시도 자체는
-    수행한다(다른 원인의 일시적 실패 가능성을 배제하지 않기 위해)."""
+내부적으로 Free Pool 조회 → Deterministic Filter → 최대 3개 candidate 선정 → OpenRouter `models[]` 호출 → 실패 시 bounded retry(최대 1회, 실패 후보를 재시도 Pool에서 제외)를 수행한다. quota(429) 실패는 모델 교체로 회복되지 않을 수 있음을 알고 있다 (계정 단위 제약, 모델별 제약이 아님) — 그래도 재시도 자체는 수행한다(다른 원인의 일시적 실패 가능성을 배제하지 않기 위해).
+    """
     timeout = float(os.environ.get("OPENROUTER_TIMEOUT_SECONDS", OPENROUTER_DEFAULT_TIMEOUT_SECONDS))
 
     pool = _fetch_free_model_pool(timeout)

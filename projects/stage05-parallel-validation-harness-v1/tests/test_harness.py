@@ -1,6 +1,4 @@
-"""Stage 05 Parallel Validation Harness 자체에 대한 테스트(사용자 지시
-Part 7). Production `hqs/development/`는 읽기만 한다 — 어떤 테스트도
-그 트리에 쓰지 않는다(각 테스트가 이를 개별적으로 확인한다)."""
+"""Stage 05 Parallel Validation Harness 자체에 대한 테스트(사용자 지시 Part 7). Production `hqs/development/`는 읽기만 한다 — 어떤 테스트도 그 트리에 쓰지 않는다(각 테스트가 이를 개별적으로 확인한다)."""
 
 from __future__ import annotations
 
@@ -91,9 +89,7 @@ def _make_ctx(implementation: str = _VALID_IMPLEMENTATION, scope_candidates=("sa
 
 
 def test_structure_scope_ast_dependency_do_not_read_each_others_results():
-    """4개 결정적 Validator는 서로의 ValidatorResult를 인자로 받지 않는다
-    (함수 시그니처 자체가 ValidationContext만 받는다) — 코드 수준으로
-    독립성을 고정한다."""
+    """4개 결정적 Validator는 서로의 ValidatorResult를 인자로 받지 않는다 (함수 시그니처 자체가 ValidationContext만 받는다) — 코드 수준으로 독립성을 고정한다."""
     ctx = _make_ctx()
     import inspect
 
@@ -146,10 +142,7 @@ def test_workspace_creates_isolated_copy_outside_source_repo():
 
 
 def _tracked_source_diff() -> str:
-    """`hqs/` 하위 추적 파일의 실제 변경만 본다 — 이 Harness 자신의 신규
-    (아직 untracked인) 프로젝트 파일은 `git status --short`에 항상 잡히므로
-    노이즈가 된다. Production 소스(`hqs/`)만 범위로 좁혀 실제 오염 여부만
-    본다."""
+    """`hqs/` 하위 추적 파일의 실제 변경만 본다 — 이 Harness 자신의 신규 (아직 untracked인) 프로젝트 파일은 `git status --short`에 항상 잡히므로 노이즈가 된다. Production 소스(`hqs/`)만 범위로 좁혀 실제 오염 여부만 본다."""
     return subprocess.run(
         ["git", "diff", "--stat", "--", "hqs/"], cwd=REPO_ROOT, capture_output=True, text=True, check=True
     ).stdout
@@ -336,9 +329,7 @@ def test_review_llm_mode_without_engine_call_fails_explicitly_not_silently():
 
 
 def test_single_and_parallel_produce_equivalent_deterministic_statuses(monkeypatch):
-    """Test/Review를 실제로 실행하지 않고(느림·비결정) Structure/Scope/AST/
-    Dependency만 비교한다 — 결정적 4개 Validator는 Single/Parallel 실행
-    방식과 무관하게 동일한 status를 내야 한다."""
+    """Test/Review를 실제로 실행하지 않고(느림·비결정) Structure/Scope/AST/ Dependency만 비교한다 — 결정적 4개 Validator는 Single/Parallel 실행 방식과 무관하게 동일한 status를 내야 한다."""
     ctx = _make_ctx()
     seq = [structure_validator(ctx), scope_validator(ctx), ast_validator(ctx), dependency_validator(ctx)]
 
@@ -363,9 +354,7 @@ def test_single_and_parallel_produce_equivalent_deterministic_statuses(monkeypat
 
 @pytest.mark.slow
 def test_real_fixture_single_and_parallel_agree_and_repository_untouched():
-    """실제 backend.py 대상 fixture로 Single/Parallel을 각 1회 실행해
-    Verdict가 같은지, 원본 저장소가 무변화인지 확인한다(느림 — 실제
-    pytest 전체 스위트를 2회 실행, 약 1분)."""
+    """실제 backend.py 대상 fixture로 Single/Parallel을 각 1회 실행해 Verdict가 같은지, 원본 저장소가 무변화인지 확인한다(느림 — 실제 pytest 전체 스위트를 2회 실행, 약 1분)."""
     before = _tracked_source_diff()
 
     fixture = build_fixture(REPO_ROOT)
@@ -441,10 +430,7 @@ def test_llm_review_prompt_contains_only_the_allowed_input_boundary():
 
 
 def test_llm_review_prompt_never_contains_other_validator_result_fields():
-    """Structure/Scope/AST/Dependency/Test의 ValidatorResult는 함수 시그니처
-    자체에 존재하지 않으므로(= ctx만 받음) 프롬프트에 들어갈 수 없다 — 이를
-    문자열 검사로도 재확인한다(결과 관련 필드 이름이 우연히도 섞여 들어가지
-    않았는지)."""
+    """Structure/Scope/AST/Dependency/Test의 ValidatorResult는 함수 시그니처 자체에 존재하지 않으므로(= ctx만 받음) 프롬프트에 들어갈 수 없다 — 이를 문자열 검사로도 재확인한다(결과 관련 필드 이름이 우연히도 섞여 들어가지 않았는지)."""
     from domain.review import _build_llm_review_prompt
 
     ctx = _make_ctx()
@@ -463,9 +449,7 @@ def test_llm_review_prompt_builder_signature_only_accepts_context():
 
 
 def test_openrouter_adapter_wraps_connection_failure_as_single_exception_type():
-    """실제 네트워크를 쓰지 않고, 연결 자체가 불가능한 상황(존재하지 않는
-    프록시 설정)에서 단일 예외 타입(`OpenRouterCallError`)만 노출되는지
-    확인한다 — 기존 Engine Adapter Contract(단일 예외)와 동일 패턴."""
+    """실제 네트워크를 쓰지 않고, 연결 자체가 불가능한 상황(존재하지 않는 프록시 설정)에서 단일 예외 타입(`OpenRouterCallError`)만 노출되는지 확인한다 — 기존 Engine Adapter Contract(단일 예외)와 동일 패턴."""
     import urllib.error
 
     from domain.openrouter_experimental_adapter import OpenRouterCallError, make_openrouter_engine_call
@@ -486,9 +470,7 @@ def test_openrouter_adapter_wraps_connection_failure_as_single_exception_type():
 
 
 def test_review_llm_result_never_participates_in_deterministic_verdict_even_when_error():
-    """Review LLM 호출이 완전히 실패(ERROR)해도 Aggregator의 blocking
-    집계에는 전혀 반영되지 않는다 — Test 등 5개가 전부 PASS면 Verdict는
-    PASS로 유지돼야 한다."""
+    """Review LLM 호출이 완전히 실패(ERROR)해도 Aggregator의 blocking 집계에는 전혀 반영되지 않는다 — Test 등 5개가 전부 PASS면 Verdict는 PASS로 유지돼야 한다."""
     results = [
         ValidatorResult("structure", "PASS", 1.0),
         ValidatorResult("scope", "PASS", 1.0),

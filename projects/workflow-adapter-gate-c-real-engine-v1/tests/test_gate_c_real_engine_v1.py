@@ -1,19 +1,6 @@
 """E7 (Gate C(i) 잔여 한계 — 결정론적 stub) — 실제 Engine 호출 기반 검증.
 
-승인된 Test Design(세션 2026-09-05)에 따른 IN-7-1 ~ IN-7-5.
-
-- opt-in 게이팅: `RUN_REAL_ENGINE_TESTS=1` 없이는 이 파일 전체가 SKIP된다
-  (실제 Engine 호출은 비용·지연이 있으므로 기본 `pytest tests/`에 섞지 않음).
-- Record-once-replay: `clean`/`data_gap` 시나리오는 각각 정확히 1회만 실제
-  Engine을 호출하고, 그 캡처값을 4개 어댑터(sequential/worklist/recursive/
-  langgraph) 모두에 동일 주입한다 — "LLM이 매번 같은 말을 하는가"가 아니라
-  "같은 값을 4개 어댑터가 동일하게 처리하는가"를 검증한다.
-- 실제 Engine 호출 총량은 `engine_cache.real_call_count()`로 계측하고,
-  이 스위트 자체가 예산(≤10회) 준수를 assert한다(IN-7-meta).
-- 환경 문제(claude CLI 부재·미인증·네트워크 실패)는 FAIL이 아니라 SKIP으로
-  구분한다.
-- Gate C(i) discharge나 Gate C(iii) 해결을 이 파일은 선언하지 않는다 —
-  결과 판정은 후속 ADR/ADC의 몫이다.
+- opt-in 게이팅: `RUN_REAL_ENGINE_TESTS=1` 없이는 이 파일 전체가 SKIP된다 (실제 Engine 호출은 비용·지연이 있으므로 기본 `pytest tests/`에 섞지 않음). - Record-once-replay: `clean`/`data_gap` 시나리오는 각각 정확히 1회만 실제 Engine을 호출하고, 그 캡처값을 4개 어댑터(sequential/worklist/recursive/ langgraph) 모두에 동일 주입한다
 """
 from __future__ import annotations
 
@@ -86,8 +73,7 @@ def _imports(src: str, module_prefix: str) -> bool:
 def _capture_real_scenarios():
     """모듈 전체에서 재사용할 실제 Engine 캡처 — clean/data_gap 각 1회.
 
-    환경 문제(claude CLI 부재·미인증·네트워크)로 실패하면 SKIP한다(FAIL 아님)
-    — 어댑터 결함과 환경 가용성 문제를 구분하기 위함.
+환경 문제(claude CLI 부재·미인증·네트워크)로 실패하면 SKIP한다(FAIL 아님) — 어댑터 결함과 환경 가용성 문제를 구분하기 위함.
     """
     try:
         for scenario, prompt in _PROMPTS.items():
@@ -101,8 +87,7 @@ def _capture_real_scenarios():
 def _real_timeout_exception():
     """진짜 timeout 시도 1회로 `subprocess.TimeoutExpired`를 캡처한다(실제 호출 카운트 +1).
 
-    `ENGINE_TIMEOUT_SECONDS`는 이 fixture 안에서만 일시적으로 줄였다가
-    복원한다 — `hqs/development/mvp/engine.py` 파일 자체는 무수정.
+`ENGINE_TIMEOUT_SECONDS`는 이 fixture 안에서만 일시적으로 줄였다가 복원한다 — `hqs/development/mvp/engine.py` 파일 자체는 무수정.
     """
 
     def trigger():
@@ -123,11 +108,7 @@ def _real_timeout_exception():
 
 @pytest.fixture(scope="module")
 def _synthetic_runtime_error_exception():
-    """`call_engine()`의 실제 RuntimeError 발생 코드 경로(비-zero exit 분기)를
-    조건 통제 하에 재현한다 — `subprocess.run`을 로컬로 대체해 non-zero exit를
-    강제할 뿐, 실제 `claude` CLI는 기동하지 않는다(합성, 실제 호출 카운트에
-    포함되지 않음 — `EVIDENCE.md`에 그렇게 명시한다).
-    """
+    """`call_engine()`의 실제 RuntimeError 발생 코드 경로(비-zero exit 분기)를 조건 통제 하에 재현한다 — `subprocess.run`을 로컬로 대체해 non-zero exit를 강제할 뿐, 실제 `claude` CLI는 기동하지 않는다(합성, 실제 호출 카운트에 포함되지 않음 — `EVIDENCE.md`에 그렇게 명시한다)."""
     original_run = subprocess.run
 
     def _fake_run(*args, **kwargs):

@@ -1,7 +1,4 @@
-"""Stage 01~05 공통 Fixture — 이전 세션(`OPENROUTER-STAGE-MODEL-
-SELECTION-0001.md`)이 이미 실측에 쓴 것과 동일한 시나리오("Add input
-validation to code review agent")를 그대로 재사용한다(새 시나리오
-발명 없음, 비교 가능성 유지). Production 파일은 읽기만 한다."""
+"""Stage 01~05 공통 Fixture — 이전 세션(`OPENROUTER-STAGE-MODEL- SELECTION-0001.md`)이 이미 실측에 쓴 것과 동일한 시나리오("Add input validation to code review agent")를 그대로 재사용한다(새 시나리오 발명 없음, 비교 가능성 유지). Production 파일은 읽기만 한다."""
 
 from __future__ import annotations
 
@@ -69,9 +66,7 @@ _STAGE04_DESIGN_TEXT = (
 
 
 def build_stage04_prompt(repo_root: Path = REPO_ROOT) -> str:
-    """Production 파일을 읽기만 해서(쓰지 않음) 실제 Exposure Policy
-    프롬프트를 구성한다 — 하드코딩 사본을 두지 않아 원본과 드리프트하지
-    않는다."""
+    """Production 파일을 읽기만 해서(쓰지 않음) 실제 Exposure Policy 프롬프트를 구성한다 — 하드코딩 사본을 두지 않아 원본과 드리프트하지 않는다."""
     target_source = (repo_root / TARGET_RELATIVE_PATH).read_text(encoding="utf-8")
     build_input = (
         f"{_STAGE04_DESIGN_TEXT}\n\n---TARGET FILE (agents/backend.py, full content)---\n"
@@ -82,10 +77,7 @@ def build_stage04_prompt(repo_root: Path = REPO_ROOT) -> str:
 
 
 def build_stage05_review_prompt(repo_root: Path = REPO_ROOT) -> str:
-    """Stage 05 Review(advisory, experimental) 프롬프트 — 이전 세션
-    (`STAGE05-REVIEW-LLM-REAL-EXECUTION-EVIDENCE-0001.md`)의 Input
-    경계(Design/Implementation/Contract/Scope/Immutable Source
-    Snapshot)를 그대로 재사용한다."""
+    """Stage 05 Review(advisory, experimental) 프롬프트 — 이전 세션 (`STAGE05-REVIEW-LLM-REAL-EXECUTION-EVIDENCE-0001.md`)의 Input 경계(Design/Implementation/Contract/Scope/Immutable Source Snapshot)를 그대로 재사용한다."""
     original_source = (repo_root / TARGET_RELATIVE_PATH).read_text(encoding="utf-8")
     instruction = (
         "You are the Review capability of a validation pipeline. Review the "

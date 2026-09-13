@@ -1,8 +1,6 @@
-"""`_directory_structure()`의 `max_depth` Blind Spot 회귀 테스트
-(DEV-HQ-V2.0-CATEGORY-PATHS-BLIND-SPOT-REVIEW-0001 §7.2 Next Task).
+"""`_directory_structure()`의 `max_depth` Blind Spot 회귀 테스트 (DEV-HQ-V2.0-CATEGORY-PATHS-BLIND-SPOT-REVIEW-0001 §7.2 Next Task).
 
-실제 파일시스템(ROOT)을 그대로 사용한다 — 이 함수는 mock 대상 외부
-의존성이 없고, 버그 자체가 실제 경로 깊이 계산에 있었기 때문이다.
+실제 파일시스템(ROOT)을 그대로 사용한다 — 이 함수는 mock 대상 외부 의존성이 없고, 버그 자체가 실제 경로 깊이 계산에 있었기 때문이다.
 """
 
 import sys

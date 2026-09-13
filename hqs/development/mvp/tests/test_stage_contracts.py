@@ -1,9 +1,4 @@
-"""`hqs/development/stages/contracts.py` — Stage 01~05 Data Contract 검증
-(ADR-0008 Stage 구조 위에 추가된 Handover 시점 필수 키 검사). Contract는
-Stage 고정 연결이 아니라 데이터 자체의 필수 형태만 검사하므로, 여기서는
-(a) 각 `validate_*`가 필수 키 부재를 정확히 잡아내는지, (b) 값이 있으면
-통과하는지, (c) `ContractViolation` 메시지가 어떤 키가 빠졌는지 명확히
-알려주는지만 검증한다."""
+"""`hqs/development/stages/contracts.py` — Stage 01~05 Data Contract 검증 (ADR-0008 Stage 구조 위에 추가된 Handover 시점 필수 키 검사). Contract는 Stage 고정 연결이 아니라 데이터 자체의 필수 형태만 검사하므로, 여기서는 (a) 각 `validate_*`가 필수 키 부재를 정확히 잡아내는지, (b) 값이 있으면 통과하는지, (c) `ContractViolation` 메시지가 어떤 키가 빠졌는지 명확히 알려주는지만 검증한다."""
 
 import importlib.util
 import sys

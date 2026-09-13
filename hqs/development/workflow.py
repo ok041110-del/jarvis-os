@@ -1,13 +1,7 @@
-"""Context→Planning→Architecture→Implementation→Validation Team Workflow —
-Team을 순서대로 호출·연결한다(ADR-0008 §4 Stage 순서·Handover 의미 유지,
-Stage → Team Migration). `mvp/workflow.py`(MVP-0001)와는 다른 파일이며 그
-파일을 수정하지 않는다.
+"""Context→Planning→Architecture→Implementation→Validation Team Workflow — Team을 순서대로 호출·연결한다(ADR-0008 §4 Stage 순서·Handover 의미 유지, Stage → Team Migration). `mvp/workflow.py`(MVP-0001)와는 다른 파일이며 그 파일을 수정하지 않는다.
 
-각 Team은 `stages/0N_*/stage_0N.py`의 기존 capability를 그대로 호출한다
-(재구현 없음, `hqs/development/teams/README.md` 참조). Handover와 함께, 각
-Team Output이 `stages/contracts.py`가 정의한 필수 키를 갖췄는지 명시적으로
-검증한다(계약 위반이 다음 Team으로 조용히 전파되지 않도록 함 — 값의
-재해석은 하지 않고 키 존재만 확인)."""
+각 Team은 `stages/0N_*/stage_0N.py`의 기존 capability를 그대로 호출한다 (재구현 없음, `hqs/development/teams/README.md` 참조). Handover와 함께, 각 Team Output이 `stages/contracts.py`가 정의한 필수 키를 갖췄는지 명시적으로 검증한다(계약 위반이 다음 Team으로 조용히 전파되지 않도록 함 — 값의 재해석은 하지 않고 키 존재만 확인).
+"""
 
 import importlib.util
 import sys

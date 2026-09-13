@@ -1,8 +1,6 @@
 """Execution Layer Pipeline — 6개 Builder(MVP-0001~0006)를 하나의 함수로 묶는다.
 
-Task 순서는 함수 본문에 하드코딩된다(설정/파서/조건문 없음) —
-Runtime/Scheduler가 아니다. 상태를 보관하지 않고 호출마다 독립
-실행되며, 시스템 시계·난수를 쓰지 않는다(`hqs/development/IMPLEMENTATION_RULES.md`).
+Task 순서는 함수 본문에 하드코딩된다(설정/파서/조건문 없음) — Runtime/Scheduler가 아니다. 상태를 보관하지 않고 호출마다 독립 실행되며, 시스템 시계·난수를 쓰지 않는다(`hqs/development/IMPLEMENTATION_RULES.md`).
 """
 
 import hashlib
@@ -48,11 +46,7 @@ def run_execution_layer_pipeline(
     produced_at: str,
     results: list[str],
 ) -> str:
-    """Implementation Specification에서 Execution Result까지 6개 Builder를
-    순서대로 호출한다. `request_id`/`handle_id`는 이 함수가 결정론적으로
-    유도하고, 그 외 caller-supplied 값은 해석·검증 없이 그대로 전달한다
-    (각 Builder 자신의 검증만 적용된다). 중간 Artifact는 반환하지 않는다.
-    """
+    """Implementation Specification에서 Execution Result까지 6개 Builder를 순서대로 호출한다. `request_id`/`handle_id`는 이 함수가 결정론적으로 유도하고, 그 외 caller-supplied 값은 해석·검증 없이 그대로 전달한다 (각 Builder 자신의 검증만 적용된다). 중간 Artifact는 반환하지 않는다."""
     execution_request = build_execution_request(implementation_specification)
     prompt_specification = build_prompt_specification(execution_request)
 

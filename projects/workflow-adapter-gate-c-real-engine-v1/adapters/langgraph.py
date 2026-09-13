@@ -1,11 +1,6 @@
 """LangGraph 대조 Adapter — Reversibility 대조 Evidence용.
 
-이것은 LangGraph 채택이 아니다(ADC-0021 §D2). E1/E2/E3와 동일하게 교체
-가능한 구현체 후보 하나로만 인용된다. `langgraph` import는 이 저장소에서
-이 파일 한 곳에만 존재한다.
-
-노드 예외의 catch-and-encode는 LangGraph의 보장이 아니라 어댑터의 책임이다
-(ADC-0020 §Q-D (b), E3 §6-b) — 아래 `_wrap`이 그 책임을 수행한다.
+이것은 LangGraph 채택이 아니다(ADC-0021 §D2). E1/E2/E3와 동일하게 교체 가능한 구현체 후보 하나로만 인용된다. `langgraph` import는 이 저장소에서 이 파일 한 곳에만 존재한다.
 """
 from __future__ import annotations
 

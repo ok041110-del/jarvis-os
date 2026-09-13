@@ -1,10 +1,6 @@
 """호출자 역할 (HQ 자리). adapter 모듈을 인자로 받으며 adapter 종류를 모른다.
 
-caller-owned checkpoint: adapter는 값을 '생산'만 하고, 그 값의 영속화·복원은
-caller의 몫이다(BASELINE §15.2·§16.6 A-IN(e), ADC-0020 §Q-D (a)).
-
-이 모듈은 adapters를 import하지 않는다 — 어댑터 교체 시 이 파일은 바이트
-단위로 불변이며, 교체점은 `adapter` 인자 한 곳이다(ADC-0021 §D4).
+caller-owned checkpoint: adapter는 값을 '생산'만 하고, 그 값의 영속화·복원은 caller의 몫이다(BASELINE §15.2·§16.6 A-IN(e), ADC-0020 §Q-D (a)).
 """
 from __future__ import annotations
 

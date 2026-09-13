@@ -1,6 +1,4 @@
-"""Stage Policy — 모델 이름을 갖지 않는다(사용자 지시 §4). 각 Stage가
-필요로 하는 것(무료 여부/Contract/예산/timeout/재시도 정책)만 선언한다.
-Capability scoring/model ranking은 v1에서 구현하지 않는다."""
+"""Stage Policy — 모델 이름을 갖지 않는다(사용자 지시 §4). 각 Stage가 필요로 하는 것(무료 여부/Contract/예산/timeout/재시도 정책)만 선언한다. Capability scoring/model ranking은 v1에서 구현하지 않는다."""
 
 from __future__ import annotations
 
@@ -12,9 +10,7 @@ from .contracts import STAGE_CONTRACTS
 
 @dataclass
 class RetryPolicy:
-    """최대 1회 bounded retry(사용자 지시 §6). 실패 유형별로 재시도
-    가능 여부가 다르다 — `classify_failure()`(auto_selection_client.py)가
-    이 표를 그대로 따른다."""
+    """최대 1회 bounded retry(사용자 지시 §6). 실패 유형별로 재시도 가능 여부가 다르다 — `classify_failure()`(auto_selection_client.py)가 이 표를 그대로 따른다."""
 
     max_retries: int = 1
     exclude_failed_model_from_retry_pool: bool = True  # Contract/malformed 실패 시, 재시도에서 같은 모델을 다시 뽑지 않도록

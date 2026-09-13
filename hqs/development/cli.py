@@ -35,10 +35,7 @@ def _load_issue(issue_path: str | None) -> dict:
 
 
 def _warn_if_expose_target_degraded_checks(result: dict, expose_target: bool) -> None:
-    """`--expose-target` 없이 실행하면 `design_scope`/`test_execution`(둘 다
-    blocking)이 조용히 INCONCLUSIVE로 빠져 verdict가 PARTIAL에 그칠 수 있다
-    — 이 경우 실제 구현 결함은 non-blocking `code_review` 서술에만 남는다.
-    Verdict/Contract 계산은 그대로 두고 stderr 경고만 추가한다."""
+    """`--expose-target` 없이 실행하면 `design_scope`/`test_execution`(둘 다 blocking)이 조용히 INCONCLUSIVE로 빠져 verdict가 PARTIAL에 그칠 수 있다 — 이 경우 실제 구현 결함은 non-blocking `code_review` 서술에만 남는다. Verdict/Contract 계산은 그대로 두고 stderr 경고만 추가한다."""
     if expose_target or result["failed_at"] is not None:
         return
 

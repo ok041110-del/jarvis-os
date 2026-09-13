@@ -1,7 +1,6 @@
 """Dashboard Shell MVP — Development Snapshot Generator Boundary/Functional Validation.
 
-`projects/unified-dashboard/tests/test_snapshot.py`의 AST 기반 import
-검사 방식을 재사용한다.
+`projects/unified-dashboard/tests/test_snapshot.py`의 AST 기반 import 검사 방식을 재사용한다.
 """
 
 from __future__ import annotations

@@ -1,12 +1,6 @@
 """E5 (B-1 / C(ii)) — 비-LangGraph 독립 계보 검증 — IN-1 ~ IN-6.
 
-검증 대상 = §16.6 A-IN 5항목(State·Node·Conditional Edge·Loop·값 기반
-Checkpoint/Resume) + Reversibility 필수 불변조건이, LangGraph 아닌 독립
-실행 계보(L-A = worklist 인터프리터)에서도 성립하는가. LangGraph(L-LG)는
-3-way 동치 대조로 유지한다.
-
-범위 밖(mid-node resume, 성능, 실제 엔진, Public Port, Q-E-2, (c) 규범화)은
-assert하지 않는다 — E4 Test Design 0001 §2.2·§2.3 계승.
+검증 대상 = §16.6 A-IN 5항목(State·Node·Conditional Edge·Loop·값 기반 Checkpoint/Resume) + Reversibility 필수 불변조건이, LangGraph 아닌 독립 실행 계보(L-A = worklist 인터프리터)에서도 성립하는가. LangGraph(L-LG)는 3-way 동치 대조로 유지한다.
 """
 from __future__ import annotations
 

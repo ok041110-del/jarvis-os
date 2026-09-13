@@ -1,8 +1,6 @@
 """HQ가 '정의'하는 그래프 구조 — adapter-agnostic 데이터. langgraph 무의존.
 
-실행 로직은 없다. 두 어댑터(sequential / langgraph)가 이 선언을 읽어
-각자의 방식으로 배선한다. phase 경계(PHASE1_END)는 이 PoC의 fixture 선택이며
-Governance 선언(ADC-0020 §Q-E-2 Defer)이 아니다.
+실행 로직은 없다. 두 어댑터(sequential / langgraph)가 이 선언을 읽어 각자의 방식으로 배선한다. phase 경계(PHASE1_END)는 이 PoC의 fixture 선택이며 Governance 선언(ADC-0020 §Q-E-2 Defer)이 아니다.
 """
 from __future__ import annotations
 

@@ -1,8 +1,6 @@
 """Characterization tests for `mvp.workflow_ast_context` (ADC-0005 §8).
 
-Production code(`workflow_ast_context.py`)는 수정하지 않았다. 모든 외부
-의존성(Project Intelligence, Agent 호출, Engine 호출)은 mock/stub해
-결정적으로 테스트한다 — `test_workflow_0008.py`와 동일한 패턴.
+Production code(`workflow_ast_context.py`)는 수정하지 않았다. 모든 외부 의존성(Project Intelligence, Agent 호출, Engine 호출)은 mock/stub해 결정적으로 테스트한다 — `test_workflow_0008.py`와 동일한 패턴.
 """
 
 import sys
@@ -124,9 +122,7 @@ def test_identify_target_parses_file_and_function_lines(monkeypatch):
 
 
 def test_identify_target_strips_directory_prefix_from_file_line(monkeypatch):
-    """후보 인덱스가 FILE을 저장소 상대 경로로 표기하므로(예:
-    hqs/development/mvp/x.py), Engine이 그 경로를 그대로 돌려줘도
-    module 이름은 basename만 남아야 한다."""
+    """후보 인덱스가 FILE을 저장소 상대 경로로 표기하므로(예: hqs/development/mvp/x.py), Engine이 그 경로를 그대로 돌려줘도 module 이름은 basename만 남아야 한다."""
     monkeypatch.setattr(workflow_ast_context, "build_function_candidate_index", lambda: "INDEX")
     monkeypatch.setattr(
         workflow_ast_context,
@@ -145,11 +141,7 @@ def test_identify_target_returns_none_for_unknown(monkeypatch):
 
 
 def test_identify_target_real_openrouter_failure_surfaces_as_single_runtime_error(monkeypatch):
-    """`call_engine`을 mock하지 않고 실제 `openrouter_engine`을 fake
-    server로 통과시켜, OpenRouter의 실패 분류(`429_quota`)가
-    `identify_target()`을 거쳐도 `str -> str`/단일 `RuntimeError`
-    Contract를 깨지 않고 그대로 전달되는지 확인한다(Gate #10:
-    classification 결과가 Stage Contract를 깨뜨리지 않는지 확인)."""
+    """`call_engine`을 mock하지 않고 실제 `openrouter_engine`을 fake server로 통과시켜, OpenRouter의 실패 분류(`429_quota`)가 `identify_target()`을 거쳐도 `str -> str`/단일 `RuntimeError` Contract를 깨지 않고 그대로 전달되는지 확인한다(Gate #10: classification 결과가 Stage Contract를 깨뜨리지 않는지 확인)."""
     monkeypatch.setattr(workflow_ast_context, "build_function_candidate_index", lambda: "INDEX")
     with FakeOpenRouterServer(mode="quota") as base_url:
         monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)

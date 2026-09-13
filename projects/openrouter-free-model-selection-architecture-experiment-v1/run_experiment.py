@@ -1,11 +1,7 @@
-"""ADR-0026 Architecture Experiment — Free Pool → Deterministic Filter →
-Candidate Selection(≤3) → `models[]` → OpenRouter 실제 선택 → Contract
-Validation 전체 경로를 Stage 01~05 각 3회 실측한다.
+"""ADR-0026 Architecture Experiment — Free Pool → Deterministic Filter → Candidate Selection(≤3) → `models[]` → OpenRouter 실제 선택 → Contract Validation 전체 경로를 Stage 01~05 각 3회 실측한다.
 
-Production 코드 변경 없음. Stage 01~05 Production routing 변경 없음.
-RFC/ADC/ADR 변경 없음. API Key/Authorization 값 출력 없음(Egress
-Proxy 자동 인증만 사용, 이 파일 어디에도 Authorization 헤더 설정
-없음)."""
+Production 코드 변경 없음. Stage 01~05 Production routing 변경 없음. RFC/ADC/ADR 변경 없음. API Key/Authorization 값 출력 없음(Egress Proxy 자동 인증만 사용, 이 파일 어디에도 Authorization 헤더 설정 없음).
+"""
 
 from __future__ import annotations
 

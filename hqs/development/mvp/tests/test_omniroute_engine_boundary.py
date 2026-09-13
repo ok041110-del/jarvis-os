@@ -1,16 +1,7 @@
-"""`omniroute_engine.py` 자신의 Case A(Thin Engine Caller) 경계를 정적으로
-확인한다.
+"""`omniroute_engine.py` 자신의 Case A(Thin Engine Caller) 경계를 정적으로 확인한다.
 
-**Superseded 안내**: 이 파일은 원래 "5개(이후 7개) 기존 호출부 전부가
-`omniroute_engine`을 예외 없이 import한다"는 RT-0001 Candidate 2
-non-trigger 실증까지 담당했다. `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`가
-Multi-Engine Architecture로 전환하면서 그 특정 불변조건(Engine 수=1)은
-더 이상 성립하지 않는다 — 이 파일은 그 부분(호출부 전수 검사)을
-`test_engine_boundary.py`로 이관하고, `omniroute_engine.py` 자신의
-Case A 경계(단일 함수, Policy 로직 0줄, `engine.py`와 독립)만 계속
-검증한다. OmniRoute는 `ADR-0024` §Non-goal에 따라 필수 실행 경로가
-아닌 선택적 Adapter로 코드에 그대로 남아 있으므로, 이 경계 자체는
-여전히 유효하다."""
+**Superseded 안내**: 이 파일은 원래 "5개(이후 7개) 기존 호출부 전부가 `omniroute_engine`을 예외 없이 import한다"는 RT-0001 Candidate 2 non-trigger 실증까지 담당했다. `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`가 Multi-Engine Architecture로 전환하면서 그 특정 불변조건(Engine 수=1)은 더 이상 성립하지 않는다 — 이 파일은 그 부분(호출부 전수 검사)을 `test_engine_boundary.py`로 이관하고, `omniroute_engine.py` 자신의 Case A 경계(단일 함수, Policy 로직 0줄, `engine.py`와 독립)만 계속 검증한다. OmniRoute는 `ADR-0024` §Non-goal에 따라 필수 실행 경로가 아닌 선택적 Adapter로 코드에 그대로 남아 있으므로, 이 경계 자체는 여전히 유효하다.
+"""
 
 import ast
 import sys
@@ -47,9 +38,7 @@ def test_omniroute_engine_does_not_import_call_engine():
 
 
 def test_no_provider_or_routing_selection_logic():
-    """`caller.py`/`test_case_a_boundary.py`와 동일한 금지 식별자
-    부재 확인 — provider 목록·priority·scoring·fallback을 코드
-    (실행 가능한 statement)로 다루지 않는다."""
+    """`caller.py`/`test_case_a_boundary.py`와 동일한 금지 식별자 부재 확인 — provider 목록·priority·scoring·fallback을 코드 (실행 가능한 statement)로 다루지 않는다."""
     tree = ast.parse(OMNIROUTE_ENGINE_PY.read_text(encoding="utf-8"))
     code_only_source = "\n".join(
         ast.unparse(node) for node in ast.walk(tree)

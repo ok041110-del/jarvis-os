@@ -1,17 +1,6 @@
-"""L-B (Gate B 완전 완화 후속조건 (i) / `ADC-0024` §D-B4) — 재귀 조합자
-독립 계보 검증 — IN-1' ~ IN-6'.
+"""L-B (Gate B 완전 완화 후속조건 (i) / `ADC-0024` §D-B4) — 재귀 조합자 독립 계보 검증 — IN-1' ~ IN-6'.
 
-검증 대상 = §16.6 A-IN 5항목(State·Node·Conditional Edge·Loop·값 기반
-Checkpoint/Resume) + Reversibility 필수 불변조건이, L-A(worklist)와도
-LangGraph와도 다른 두 번째 독립 실행 계보(L-B = 재귀 조합자)에서도
-성립하는가. LangGraph(L-LG)는 동치 대조로 유지한다.
-
-IN-6'은 E5 IN-6(정적 import 검사만)의 기계적 복제가 아니다 — 자료구조
-부재(클래스/큐 없음)와 실행 메커니즘 자체(재귀 vs 반복)를 정적 검사 +
-런타임 계측으로 실증한다(승인된 Test Design §2 IN-6'-1/2/3).
-
-범위 밖(mid-node resume, 성능, 실제 엔진, Public Port, Q-E-2, (c) 규범화,
-Gate B/C 판정 선언)은 assert하지 않는다 — E4/E5 Test Design 계승.
+검증 대상 = §16.6 A-IN 5항목(State·Node·Conditional Edge·Loop·값 기반 Checkpoint/Resume) + Reversibility 필수 불변조건이, L-A(worklist)와도 LangGraph와도 다른 두 번째 독립 실행 계보(L-B = 재귀 조합자)에서도 성립하는가. LangGraph(L-LG)는 동치 대조로 유지한다.
 """
 from __future__ import annotations
 
@@ -308,9 +297,7 @@ def test_IN6p_3_advance_is_self_recursive_by_source():
 def test_IN6p_3_recursion_depth_is_deep_not_constant(scenario):
     """L-B의 콜스택 깊이가 그래프 실행 경로 길이에 비례하는 다층 재귀임을 실측한다.
 
-    도메인 경로: dispatch -> analyst(5번째) -> collect -> (bull->bear->judge)x3
-    -> trader -> terminal = 최소 13단 이상의 중첩. 상수(예: 2~3)에 머무르는
-    반복문 기반 스케줄러라면 이 깊이가 나올 수 없다.
+도메인 경로: dispatch -> analyst(5번째) -> collect -> (bull->bear->judge)x3 -> trader -> terminal = 최소 13단 이상의 중첩. 상수(예: 2~3)에 머무르는 반복문 기반 스케줄러라면 이 깊이가 나올 수 없다.
     """
     _, max_depth = rc_adapter.run_full_with_depth(_inputs(scenario))
     assert max_depth >= 12, f"재귀 깊이가 얕음(max_depth={max_depth}) — 재귀 기반이라는 주장과 불일치"

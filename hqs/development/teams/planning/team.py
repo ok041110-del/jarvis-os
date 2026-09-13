@@ -1,7 +1,4 @@
-"""Planning Team — 기존 Stage 02(Planning/Specification) 책임을 그대로
-수행한다(Stage → Team Migration, Kernel/Contract 변경 없음). `stages/
-02_planning_specification/stage_02.py`(Requirements Agent 재사용 포함)를
-그대로 호출한다."""
+"""Planning Team — 기존 Stage 02(Planning/Specification) 책임을 그대로 수행한다(Stage → Team Migration, Kernel/Contract 변경 없음). `stages/ 02_planning_specification/stage_02.py`(Requirements Agent 재사용 포함)를 그대로 호출한다."""
 
 import importlib.util
 import sys

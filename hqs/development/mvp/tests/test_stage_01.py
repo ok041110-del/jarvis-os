@@ -1,9 +1,6 @@
-"""Stage 01(Context Analysis) `run_stage_01()` 검증 (ADR-0008,
-`stages/01_context_analysis/VALIDATION.md`).
+"""Stage 01(Context Analysis) `run_stage_01()` 검증 (ADR-0008, `stages/01_context_analysis/VALIDATION.md`).
 
-기존 mvp 함수(`build_context_bundle`, `collect_relevant_context`,
-`build_function_candidate_index`, `build_dependency_closure`)는
-재구현하지 않았으므로 여기서는 재사용 계약만 검증한다.
+기존 mvp 함수(`build_context_bundle`, `collect_relevant_context`, `build_function_candidate_index`, `build_dependency_closure`)는 재구현하지 않았으므로 여기서는 재사용 계약만 검증한다.
 """
 
 import importlib.util

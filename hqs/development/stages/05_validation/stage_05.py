@@ -162,9 +162,7 @@ def _run_pytest_with_applied_implementation(target, expose_target: bool, impleme
 def _determine_verdict(
     structural_check, specification_check, design_scope_check, test_execution, required_checks=None
 ) -> str:
-    """`required_checks`에 포함된 항목만 판정에 반영한다(기본값은 4개
-    전부 — 이전 동작과 완전히 동일). 포함되지 않은 항목의 raw dict는
-    `None`으로 넘겨 "실행하지 않았다"를 표현할 수 있다."""
+    """`required_checks`에 포함된 항목만 판정에 반영한다(기본값은 4개 전부 — 이전 동작과 완전히 동일). 포함되지 않은 항목의 raw dict는 `None`으로 넘겨 "실행하지 않았다"를 표현할 수 있다."""
     if required_checks is None:
         required_checks = REQUIRED_CHECKS
 
@@ -192,10 +190,7 @@ def _determine_verdict(
 
 
 def _check_result(name: str, raw_check, required_checks) -> dict:
-    """`name`이 `required_checks`에 없으면 실행하지 않았다는 의미로
-    `SKIPPED`를 반환한다(이 경우 raw_check는 `None`이어야 한다) —
-    required_checks 값이 실제로 실행 집합을 바꾼다는 것을 결과에도
-    드러낸다."""
+    """`name`이 `required_checks`에 없으면 실행하지 않았다는 의미로 `SKIPPED`를 반환한다(이 경우 raw_check는 `None`이어야 한다) — required_checks 값이 실제로 실행 집합을 바꾼다는 것을 결과에도 드러낸다."""
     if name not in required_checks:
         return {"name": name, "status": "SKIPPED", "blocking": False, "detail": {}}
 
@@ -205,10 +200,7 @@ def _check_result(name: str, raw_check, required_checks) -> dict:
 
 
 def _build_check_results(structural_check, specification_check, design_scope_check, test_execution, required_checks=None) -> list:
-    """4개 결정적 Capability 결과를 CheckResult 목록(VerificationResult
-    Contract)으로 구조화한다. `_determine_verdict()`와 동일한
-    `_CHECK_EVALUATORS`를 공유하므로 두 결과가 서로 다른 값으로 갈라질
-    수 없다."""
+    """4개 결정적 Capability 결과를 CheckResult 목록(VerificationResult Contract)으로 구조화한다. `_determine_verdict()`와 동일한 `_CHECK_EVALUATORS`를 공유하므로 두 결과가 서로 다른 값으로 갈라질 수 없다."""
     if required_checks is None:
         required_checks = REQUIRED_CHECKS
 
@@ -222,16 +214,10 @@ def _build_check_results(structural_check, specification_check, design_scope_che
 
 
 def run_stage_05(stage_02_output: dict, stage_04_output: dict, required_checks=None) -> dict:
-    """Structural/Specification/Design Scope 검사 -> Test Execution -> Code
-    Review Evidence -> Validation Result. `issue`/`stage_03_output`은 이
-    Stage가 실제로 쓰지 않아 Input에서 제거했다(ImplementationResult/
-    SpecificationResult Contract만 Consume).
+    """Structural/Specification/Design Scope 검사 -> Test Execution -> Code Review Evidence -> Validation Result. `issue`/`stage_03_output`은 이 Stage가 실제로 쓰지 않아 Input에서 제거했다(ImplementationResult/ SpecificationResult Contract만 Consume).
 
-    `required_checks`(생략 시 4개 전부)에 없는 항목은 실행 자체를
-    건너뛰고(SKIPPED) Verdict에도 반영하지 않는다 — required_checks가
-    실행 집합과 Verdict 둘 다에 실제로 인과적인 영향을 준다. 비어 있거나
-    알 수 없는 이름이 섞이면 조용히 넘어가지 않고 즉시 실패한다
-    (`contracts.validate_verification_requirement`)."""
+`required_checks`(생략 시 4개 전부)에 없는 항목은 실행 자체를 건너뛰고(SKIPPED) Verdict에도 반영하지 않는다 — required_checks가 실행 집합과 Verdict 둘 다에 실제로 인과적인 영향을 준다. 비어 있거나 알 수 없는 이름이 섞이면 조용히 넘어가지 않고 즉시 실패한다 (`contracts.validate_verification_requirement`).
+    """
     if required_checks is None:
         required_checks = REQUIRED_CHECKS
     contracts.validate_verification_requirement(required_checks)

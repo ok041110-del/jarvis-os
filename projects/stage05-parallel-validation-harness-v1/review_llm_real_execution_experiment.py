@@ -1,6 +1,4 @@
-"""Stage 05 Review Validator LLM — 실제 3회 실행(OpenRouter Experimental
-Validation Endpoint). Production Stage Engine Routing과 무관 — Contract
-변경 없음, API Key/Credential 탐색·출력 없음(사용자 지시 전문)."""
+"""Stage 05 Review Validator LLM — 실제 3회 실행(OpenRouter Experimental Validation Endpoint). Production Stage Engine Routing과 무관 — Contract 변경 없음, API Key/Credential 탐색·출력 없음(사용자 지시 전문)."""
 
 from __future__ import annotations
 
@@ -77,9 +75,7 @@ def _run_once(ctx, engine_call, run_index: int) -> dict:
 
 
 def _count_findings_in_prose(raw_response: str) -> int:
-    """LLM 응답(자유 형식 prose)에서 finding 개수를 세는 결정론적 규칙 —
-    번호 매김 목록 줄 수를 센다. 파싱 실패 시 0을 반환하지 않고 -1로
-    "파싱 불가"를 명시(추정 금지)."""
+    """LLM 응답(자유 형식 prose)에서 finding 개수를 세는 결정론적 규칙 — 번호 매김 목록 줄 수를 센다. 파싱 실패 시 0을 반환하지 않고 -1로 "파싱 불가"를 명시(추정 금지)."""
     if not raw_response:
         return -1
     import re

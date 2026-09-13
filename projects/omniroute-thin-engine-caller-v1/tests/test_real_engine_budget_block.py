@@ -181,8 +181,7 @@ def real_omniroute_env(tmp_path):
 def _sqlite_exec(db_path, statements):
     """서버가 실행 중인 채로 별도 연결을 열어 statement를 실행한다.
 
-    서버 프로세스를 멈추거나 재기동하지 않는다 — 이것이
-    `EVIDENCE-0004`가 확정한 안전한 방법론의 핵심이다.
+서버 프로세스를 멈추거나 재기동하지 않는다 — 이것이 `EVIDENCE-0004`가 확정한 안전한 방법론의 핵심이다.
     """
     conn = sqlite3.connect(str(db_path), timeout=10)
     try:

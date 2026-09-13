@@ -1,16 +1,6 @@
-"""Kernel Candidate Prototype — Parallel Execution(원시 기법)이 특정 HQ/도메인에
-종속되지 않은 공통 실행 기법인지 검증한다.
+"""Kernel Candidate Prototype — Parallel Execution(원시 기법)이 특정 HQ/도메인에 종속되지 않은 공통 실행 기법인지 검증한다.
 
-검증 대상은 오직 하나: "서로 독립적인 Task를 `ThreadPoolExecutor.submit()`+
-`.result()`로 동시에 `call_engine()` 호출할 수 있는가" — Wave 구조, Checkpointing,
-Team/Workflow, Investment/Dev HQ 도메인 로직은 전부 배제한다.
-
-도메인: 자연 현상에 대한 일반 상식 설명(조수·단풍·발효) — code_review/
-test_execution(Dev HQ)도 Stock/ETF/Dividend Stock(Investment HQ)도 아닌
-제3의 중립 도메인이다. `hqs/development/`, `hqs/investment/`, `core/`
-어디에서도 import하지 않는다(이 디렉터리 안의 `engine_caller.py`만 사용).
-
-사용법: python3 run_prototype.py
+도메인: 자연 현상에 대한 일반 상식 설명(조수·단풍·발효) — code_review/ test_execution(Dev HQ)도 Stock/ETF/Dividend Stock(Investment HQ)도 아닌 제3의 중립 도메인이다. `hqs/development/`, `hqs/investment/`, `core/` 어디에서도 import하지 않는다(이 디렉터리 안의 `engine_caller.py`만 사용).
 """
 
 import json
@@ -56,10 +46,7 @@ def run_parallel() -> dict:
 
 
 def run_exception_propagation_check() -> dict:
-    """정상 Task 2개 + 반드시 실패하는 Task 1개(존재하지 않는 Engine 바이너리
-    호출 — 실제 subprocess 예외, 인위적으로 예외를 던지는 코드가 아니다)를
-    같은 ThreadPoolExecutor에 함께 제출해, 실패가 호출자에게 정상 전파되는지
-    확인한다."""
+    """정상 Task 2개 + 반드시 실패하는 Task 1개(존재하지 않는 Engine 바이너리 호출 — 실제 subprocess 예외, 인위적으로 예외를 던지는 코드가 아니다)를 같은 ThreadPoolExecutor에 함께 제출해, 실패가 호출자에게 정상 전파되는지 확인한다."""
 
     def _call_nonexistent_engine(prompt: str) -> str:
         import subprocess

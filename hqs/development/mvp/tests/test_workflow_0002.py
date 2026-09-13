@@ -1,11 +1,6 @@
 """Characterization tests for `mvp.workflow_0002.run_mvp_0002` (P1-2).
 
-이 테스트는 현재 behavior를 고정(lock)하기 위한 것이며, Production
-code(`workflow_0002.py`)는 이 테스트 작성 과정에서 전혀 수정하지
-않았다. 외부 Engine 호출은 결정적 테스트를 위해 `workflow_0002`의
-`backend_agent_code_review`/`qa_agent_test_execution` 지점에서 전부
-mock/stub한다 — `test_mvp_0001.py`(real-Engine 통합 테스트)와는
-다른 목적의 테스트다.
+이 테스트는 현재 behavior를 고정(lock)하기 위한 것이며, Production code(`workflow_0002.py`)는 이 테스트 작성 과정에서 전혀 수정하지 않았다. 외부 Engine 호출은 결정적 테스트를 위해 `workflow_0002`의 `backend_agent_code_review`/`qa_agent_test_execution` 지점에서 전부 mock/stub한다 — `test_mvp_0001.py`(real-Engine 통합 테스트)와는 다른 목적의 테스트다.
 """
 
 import sys
@@ -72,10 +67,7 @@ def test_no_issues_branch_skips_test_execution_and_strips_marker(monkeypatch):
 
 
 def test_marker_not_on_last_line_is_treated_as_having_issues(monkeypatch):
-    """마커가 리뷰 안에 있지만 마지막 줄이 아니면 분기하지 않는다(현재
-    `NO_ISSUES_MARKER in review` 판단은 위치를 가리지 않으므로 분기는
-    타지만, `_strip_trailing_marker`는 원문을 그대로 반환한다는 것을
-    고정한다)."""
+    """마커가 리뷰 안에 있지만 마지막 줄이 아니면 분기하지 않는다(현재 `NO_ISSUES_MARKER in review` 판단은 위치를 가리지 않으므로 분기는 타지만, `_strip_trailing_marker`는 원문을 그대로 반환한다는 것을 고정한다)."""
     review_with_marker_mid = f"{NO_ISSUES_MARKER}\nBut here is more text after."
 
     def fake_review(code):

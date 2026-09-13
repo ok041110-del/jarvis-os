@@ -1,12 +1,6 @@
 """Risk / Portfolio Boundary Dogfooding — 격리된 Prototype.
 
-`hqs/investment/`는 수정하지 않는다. 새로운 시장 데이터를 만들지
-않는다 — Portfolio State는 이전 두 Dogfooding 문서(Portfolio Need,
-ETF Look-through)에서 이미 쓴 값을 재사용한다. 이번 실험의 핵심은
-Portfolio 질문과 Risk 질문을 **의도적으로 분리된 프롬프트**로 던져,
-같은 입력에서 실제로 다른 판단이 나오는지 관찰하는 것이다 — 한쪽
-프롬프트가 다른 쪽의 언어(Risk 프롬프트에 "매수/매도" 언급, Portfolio
-프롬프트에 "위험" 언급)를 유도하지 않도록 명시적으로 금지한다.
+`hqs/investment/`는 수정하지 않는다. 새로운 시장 데이터를 만들지 않는다 — Portfolio State는 이전 두 Dogfooding 문서(Portfolio Need, ETF Look-through)에서 이미 쓴 값을 재사용한다. 이번 실험의 핵심은 Portfolio 질문과 Risk 질문을 **의도적으로 분리된 프롬프트**로 던져, 같은 입력에서 실제로 다른 판단이 나오는지 관찰하는 것이다 — 한쪽 프롬프트가 다른 쪽의 언어(Risk 프롬프트에 "매수/매도" 언급, Portfolio 프롬프트에 "위험" 언급)를 유도하지 않도록 명시적으로 금지한다.
 """
 
 import sys

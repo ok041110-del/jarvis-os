@@ -1,13 +1,6 @@
 """Execution Layer MVP-0005: ExecutionStateBuilder.
 
-Execution Handle에 대한 Execution State를 만든다. Execution Handle은
-수정하지 않고 상태 메타데이터만 추가한다(handle_id, request_id, state,
-changed_at, artifact_version). State Machine/Transition 규칙은
-다루지 않는다 — `state`가 5개 허용값 중 하나인지만 검증한다.
-
-`handle_id`/`state`/`changed_at`은 Runtime/Scheduler 책임 영역이므로
-호출자가 주입한다. `request_id`만 예외로, Execution Handle의
-`## Handle` 절에서 그대로 읽어 재사용한다(Canonical 참조 유지).
+`handle_id`/`state`/`changed_at`은 Runtime/Scheduler 책임 영역이므로 호출자가 주입한다. `request_id`만 예외로, Execution Handle의 `## Handle` 절에서 그대로 읽어 재사용한다(Canonical 참조 유지).
 """
 
 import re
@@ -38,9 +31,7 @@ def build_execution_state(
 ) -> str:
     """Execution Handle에 대한 Execution State를 만든다.
 
-    텍스트는 그대로 두고 앞에 상태 메타데이터 절(``## State``)만 추가한
-    새 Artifact를 반환한다. ``state``는 `ALLOWED_STATES` 소속 여부만
-    검증한다(전이 규칙 검증 없음).
+텍스트는 그대로 두고 앞에 상태 메타데이터 절(``## State``)만 추가한 새 Artifact를 반환한다. ``state``는 `ALLOWED_STATES` 소속 여부만 검증한다(전이 규칙 검증 없음).
     """
     if state not in ALLOWED_STATES:
         raise InvalidExecutionStateError(

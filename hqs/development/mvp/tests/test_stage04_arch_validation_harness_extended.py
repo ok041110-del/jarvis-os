@@ -1,8 +1,4 @@
-"""Stage 04 Architecture Validation Harness 확장 검증(RFC 요청 — Stage 04
-Architecture Validation을 계속 진행: Design coverage, Quality 구조 신호,
-Ponytail Policy Guardrail, Cost Instrumentation). 전부 결정적 코드
-검사이거나(§4 OmniRoute 없이 가능한 검증), 로컬 loopback double로 재현
-가능한 것만 다룬다 — 실제 OmniRoute를 호출하지 않는다."""
+"""Stage 04 Architecture Validation Harness 확장 검증(RFC 요청 — Stage 04 Architecture Validation을 계속 진행: Design coverage, Quality 구조 신호, Ponytail Policy Guardrail, Cost Instrumentation). 전부 결정적 코드 검사이거나(§4 OmniRoute 없이 가능한 검증), 로컬 loopback double로 재현 가능한 것만 다룬다 — 실제 OmniRoute를 호출하지 않는다."""
 
 import importlib.util
 import json
@@ -37,9 +33,7 @@ variants = _load("arch_val_variants_ext", _HARNESS_DIR / "variants.py")
 
 
 def test_check_dependency_validity_allows_ordinary_builtin_calls():
-    """회귀 테스트: `dir(__builtins__)`가 모듈로 import된 상태에서는 dict가
-    되어 `len`/`print` 같은 평범한 builtin 호출까지 "unresolved call
-    target"으로 오판했던 결함(`import builtins`로 수정)."""
+    """회귀 테스트: `dir(__builtins__)`가 모듈로 import된 상태에서는 dict가 되어 `len`/`print` 같은 평범한 builtin 호출까지 "unresolved call target"으로 오판했던 결함(`import builtins`로 수정)."""
     code = "def f(xs):\n    return len(xs)\n"
     result = deterministic_checks.check_dependency_validity(code, ())
     assert bool(result) is True
@@ -177,9 +171,7 @@ def test_check_no_op_when_gate_passed_flags_unnecessary_modification():
 
 
 def test_verify_policy_passes_for_pure_selection_no_mutation():
-    """현재 ponytail_adapter는 순수 선택만 하고 코드를 수정하지 않는다 —
-    이 경우 정책 7개 중 코드 검사 가능한 항목이 전부 공허하게 만족돼야
-    한다(README의 "0% refinement" 설명과 일치)."""
+    """현재 ponytail_adapter는 순수 선택만 하고 코드를 수정하지 않는다 — 이 경우 정책 7개 중 코드 검사 가능한 항목이 전부 공허하게 만족돼야 한다(README의 "0% refinement" 설명과 일치)."""
     code = "def f():\n    return 1\n"
     result = ponytail_policy.verify_policy(
         target_before=("m", "f"), target_after=("m", "f"),
@@ -292,9 +284,7 @@ def test_failure_policy_0_of_3_fails(runner):
 
 
 def test_variant_b_and_c_generate_identical_candidate_pool_from_same_engine_call():
-    """A/B/C 공정성 재검증 — B와 C는 동일한 engine_call이 주어지면
-    정확히 동일한 3개 후보(코드 내용까지)를 만들어야 한다. C가 Ponytail
-    Adapter를 추가하는 것 외에 다른 변수를 바꾸지 않는지 확인한다."""
+    """A/B/C 공정성 재검증 — B와 C는 동일한 engine_call이 주어지면 정확히 동일한 3개 후보(코드 내용까지)를 만들어야 한다. C가 Ponytail Adapter를 추가하는 것 외에 다른 변수를 바꾸지 않는지 확인한다."""
     def deterministic_engine_call(prompt):
         for agent_id in ("implementation", "consistency", "minimality"):
             if f"[{agent_id}]" in prompt:

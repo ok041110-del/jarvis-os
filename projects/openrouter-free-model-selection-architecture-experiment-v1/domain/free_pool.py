@@ -1,8 +1,4 @@
-"""ADR-0026 §Free Pool — OpenRouter가 실제 제공하는 `:free` 모델
-목록을 메타데이터와 함께 그대로 조회한다. 재정렬·필터링을 하지
-않는다(필터링은 `deterministic_filter.py`의 책임, 이 모듈은 §1
-Free Pool 단계까지만 담당). API Key/Authorization 값은 이 모듈이
-설정하지 않는다 — Egress Proxy 자동 인증만 사용."""
+"""ADR-0026 §Free Pool — OpenRouter가 실제 제공하는 `:free` 모델 목록을 메타데이터와 함께 그대로 조회한다. 재정렬·필터링을 하지 않는다(필터링은 `deterministic_filter.py`의 책임, 이 모듈은 §1 Free Pool 단계까지만 담당). API Key/Authorization 값은 이 모듈이 설정하지 않는다 — Egress Proxy 자동 인증만 사용."""
 
 from __future__ import annotations
 
@@ -38,9 +34,7 @@ class FreePool:
 
 
 def fetch_free_pool(*, timeout: int = 30) -> FreePool:
-    """`:free`로 끝나는 모델을 OpenRouter가 반환한 순서 그대로 가져온다.
-    재정렬·품질 판단 없음 — Free 여부만으로 거른다(이것이 ADR-0026의
-    "Free Pool" 단계 그 자체다, Deterministic Filter는 별도 단계)."""
+    """`:free`로 끝나는 모델을 OpenRouter가 반환한 순서 그대로 가져온다. 재정렬·품질 판단 없음 — Free 여부만으로 거른다(이것이 ADR-0026의 "Free Pool" 단계 그 자체다, Deterministic Filter는 별도 단계)."""
     request = urllib.request.Request(OPENROUTER_MODELS_URL, method="GET")
     opener = urllib.request.build_opener(urllib.request.ProxyHandler())
     try:

@@ -1,14 +1,6 @@
 """Runtime — Scheduling/Isolation 책임만 담당한다(Task의 lifecycle/identity와 분리).
 
-`in-process-async-command` Prototype이 발견한 문제(동일 실제 대상을
-Thread에서 동시 실행하면 `monkeypatch` 상태가 섞여 결과가 오염됨,
-`docs/research/JARVIS-OS-V2.0-INPROCESS-ASYNC-COMMAND-PROTOTYPE-0001.md`
-§8/§12)를 세 가지 실행 전략으로 실제 비교한다.
-
-이 모듈은 "무엇이 실행 중인가"를 모른다 — Task 개념을 전혀 참조하지
-않는다. 오직 "주어진 대상을 어떤 전략으로 실행할 것인가"만 안다.
-Production Runtime API가 아니다 — 세 전략을 비교하기 위한 최소
-Dispatcher.
+`in-process-async-command` Prototype이 발견한 문제(동일 실제 대상을 Thread에서 동시 실행하면 `monkeypatch` 상태가 섞여 결과가 오염됨, `docs/research/JARVIS-OS-V2.0-INPROCESS-ASYNC-COMMAND-PROTOTYPE-0001.md` §8/§12)를 세 가지 실행 전략으로 실제 비교한다.
 """
 
 from __future__ import annotations
@@ -44,9 +36,7 @@ class _ResultCollector:
 
 
 def _run_pytest(target_path: str) -> tuple[int, int, int]:
-    """Thread/Process 양쪽에서 동일하게 호출 가능해야 한다 — Process
-    Worker는 별도 인터프리터이므로 REPO_ROOT를 매번 절대경로로
-    전달한다(부모 프로세스의 sys.path에 의존하지 않는다)."""
+    """Thread/Process 양쪽에서 동일하게 호출 가능해야 한다 — Process Worker는 별도 인터프리터이므로 REPO_ROOT를 매번 절대경로로 전달한다(부모 프로세스의 sys.path에 의존하지 않는다)."""
 
     import sys
 
@@ -80,10 +70,7 @@ _REGISTRY: dict[str, _Execution] = {}
 
 
 def start(strategy: str, target_path: str) -> str:
-    """실행을 시작하고 execution_id를 반환한다. `sequential`은 호출
-    스레드를 블로킹하고 즉시 완료 상태로 등록한다(비동기가 아님 —
-    비교 baseline). `thread`/`process`는 각각의 Executor에 제출하고
-    즉시 반환한다."""
+    """실행을 시작하고 execution_id를 반환한다. `sequential`은 호출 스레드를 블로킹하고 즉시 완료 상태로 등록한다(비동기가 아님 — 비교 baseline). `thread`/`process`는 각각의 Executor에 제출하고 즉시 반환한다."""
 
     if strategy not in _STRATEGIES:
         raise ValueError(f"unknown_strategy: {strategy}")

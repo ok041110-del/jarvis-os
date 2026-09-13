@@ -1,11 +1,6 @@
 """Execution Layer MVP-0003 Dogfooding.
 
-Development HQ가 생성하는 Implementation Specification부터 MVP-0001~0003
-Builder를 통과시켜 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤
-파일도 수정하지 않는다.
-
-`request_id`/`created_at`은 Builder가 생성하지 않으므로(Session/Runtime
-책임 영역) 이 스크립트가 호출자로서 주입한다.
+Development HQ가 생성하는 Implementation Specification부터 MVP-0001~0003 Builder를 통과시켜 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤 파일도 수정하지 않는다.
 """
 
 import hashlib
@@ -42,8 +37,7 @@ OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 def _derive_request_id(prompt_specification: str) -> str:
     """Prompt Specification 내용으로부터 결정론적 request_id를 만든다.
 
-    무작위 발급(uuid4 등)이 아니라 내용 해시이므로, 동일한 Prompt
-    Specification은 항상 동일한 request_id를 만든다.
+무작위 발급(uuid4 등)이 아니라 내용 해시이므로, 동일한 Prompt Specification은 항상 동일한 request_id를 만든다.
     """
     return hashlib.sha256(prompt_specification.encode("utf-8")).hexdigest()[:16]
 

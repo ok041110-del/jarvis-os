@@ -1,13 +1,7 @@
-"""OpenRouter Free Auto Selection Client — `models`(공식 fallback 배열
-파라미터, 실측 확인: `models: [...]` 필드, `docs/guides/routing/
-model-fallbacks.md`)를 그대로 사용한다. `model="openrouter/auto"`는
-실측(HTTP 402 "Insufficient credits")과 공식 문서("표준 요금 부과, free
-전용 아님") 둘 다로 **무료 티어에서 지원되지 않음**을 확인했다 — 이
-Client는 그 방식을 쓰지 않는다(§Governance Boundary 재확인, Evidence
-문서 §5 참조).
+"""OpenRouter Free Auto Selection Client — `models`(공식 fallback 배열 파라미터, 실측 확인: `models: [...]` 필드, `docs/guides/routing/ model-fallbacks.md`)를 그대로 사용한다. `model="openrouter/auto"`는 실측(HTTP 402 "Insufficient credits")과 공식 문서("표준 요금 부과, free 전용 아님") 둘 다로 **무료 티어에서 지원되지 않음**을 확인했다 — 이 Client는 그 방식을 쓰지 않는다(§Governance Boundary 재확인, Evidence 문서 §5 참조).
 
-API Key/Credential은 이 파일이 탐색·설정하지 않는다 — 이 세션 Egress
-Proxy의 자동 인증 주입에만 의존한다(Authorization 헤더 미설정)."""
+API Key/Credential은 이 파일이 탐색·설정하지 않는다 — 이 세션 Egress Proxy의 자동 인증 주입에만 의존한다(Authorization 헤더 미설정).
+"""
 
 from __future__ import annotations
 
@@ -119,11 +113,7 @@ def call_with_auto_selection(
     max_retries: int = 1,
     exclude_failed_model_from_retry_pool: bool = True,
 ) -> AutoSelectionResult:
-    """`models` 배열을 그대로 OpenRouter에 넘기고(자체 순위화 없음),
-    HTTP/malformed/empty/Contract 실패를 구분해 최대 `max_retries`회만
-    재시도한다. Contract 판정은 호출자가 넘긴 기존 parser/validator
-    (`output_contract`)를 그대로 쓴다 — 이 함수는 Contract 판정 로직을
-    갖지 않는다(새 LLM judge 없음, 사용자 지시 §5)."""
+    """`models` 배열을 그대로 OpenRouter에 넘기고(자체 순위화 없음), HTTP/malformed/empty/Contract 실패를 구분해 최대 `max_retries`회만 재시도한다. Contract 판정은 호출자가 넘긴 기존 parser/validator (`output_contract`)를 그대로 쓴다 — 이 함수는 Contract 판정 로직을 갖지 않는다(새 LLM judge 없음, 사용자 지시 §5)."""
     attempts: list[AutoSelectionAttempt] = []
     current_pool = models_pool
     overall_start = time.perf_counter()

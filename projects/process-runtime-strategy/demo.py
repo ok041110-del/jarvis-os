@@ -1,12 +1,5 @@
 """Process Runtime Strategy — 수동 실행 데모(Evidence 문서용).
 
-1) 서로 다른 실제 Dev HQ Validation 3종(ast_context/stage_01/
-   mvp_0001)에 Process 전략을 적용해 정확성·실행시간을 baseline과
-   비교한다.
-2) 동일 Target 동시 실행(Thread 불안정 vs Process 안정) 대 서로
-   다른 Target 동시 실행(Dev HQ 내부, Thread도 안전)을 나란히
-   비교한다.
-
 실행: python3 projects/process-runtime-strategy/demo.py
 """
 

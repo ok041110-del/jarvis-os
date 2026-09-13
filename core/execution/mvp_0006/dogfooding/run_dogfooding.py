@@ -1,15 +1,6 @@
 """Execution Layer MVP-0006 Dogfooding.
 
-Execution Layer MVP-0001~0006을 그대로 통과시켜 전체 Artifact Chain을
-검증한다. 읽기(호출)만 하며 어떤 파일도 수정하지 않는다.
-
-`development-hq/mvp/workflow_0008.run_pipeline()`을 호출하지 않는다 —
-ExecutionResultBuilder는 Execution State(문자열)만 입력받으므로 상위
-Artifact 생성 경로와 무관하다. 대신 고정 샘플에서 시작한다.
-
-`handle_id`/`produced_at`/`results`는 Builder가 생성하지 않으므로
-(Runtime/Scheduler/Engine 책임 영역) 이 스크립트가 주입한다. `results`는
-opaque placeholder 문자열 목록이다.
+Execution Layer MVP-0001~0006을 그대로 통과시켜 전체 Artifact Chain을 검증한다. 읽기(호출)만 하며 어떤 파일도 수정하지 않는다.
 """
 
 import hashlib

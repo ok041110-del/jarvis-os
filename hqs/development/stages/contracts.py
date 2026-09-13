@@ -45,9 +45,7 @@ def require_keys(data: dict, keys: tuple, contract_name: str) -> None:
 
 
 class PrdResult(TypedDict):
-    """Stage 01 PRD/Specification Synthesis 산출 형태 — Producer: Stage 01
-    (`prd` 키, RFC-0034/ADC-0037/ADR-0022). Stage 02는 이 값을 그대로
-    통과시킬 뿐 재생성하지 않는다(ADR-0022)."""
+    """Stage 01 PRD/Specification Synthesis 산출 형태 — Producer: Stage 01 (`prd` 키, RFC-0034/ADC-0037/ADR-0022). Stage 02는 이 값을 그대로 통과시킬 뿐 재생성하지 않는다(ADR-0022)."""
 
     skeleton: dict
     specification: str
@@ -78,11 +76,7 @@ class ImplementationPlan(TypedDict):
 
 
 class SpecificationResult(TypedDict):
-    """Stage 02 Output(`SPECIFICATION.md`) — Producer: Stage 02.
-    `skeleton`/`specification`은 Stage 01의 `prd`를 그대로 통과시킨
-    값이고(`PrdResult`와 동일 형태), `tasks`/`dependencies`/`plan`은
-    Stage 02의 Task & Dependency Agent + Deterministic Layer가 새로
-    산출한다(RFC-0035/ADC-0038/ADR-0023)."""
+    """Stage 02 Output(`SPECIFICATION.md`) — Producer: Stage 02. `skeleton`/`specification`은 Stage 01의 `prd`를 그대로 통과시킨 값이고(`PrdResult`와 동일 형태), `tasks`/`dependencies`/`plan`은 Stage 02의 Task & Dependency Agent + Deterministic Layer가 새로 산출한다(RFC-0035/ADC-0038/ADR-0023)."""
 
     skeleton: dict
     specification: str
@@ -92,12 +86,7 @@ class SpecificationResult(TypedDict):
 
 
 class ContextAnalysisResult(TypedDict):
-    """Stage 01 Output(CONTEXT.md) — Producer: Stage 01. `prd`는
-    RFC-0034/ADC-0037/ADR-0022로 추가된 PRD/Specification Synthesis
-    결과(`PrdResult`, `skeleton`/`specification` 2-key)다 — Stage 02가
-    Task & Dependency Agent + Deterministic Layer로 3개 키를 더 채운
-    `SpecificationResult`(5-key)와는 다른 형태다(RFC-0035/ADC-0038/
-    ADR-0023)."""
+    """Stage 01 Output(CONTEXT.md) — Producer: Stage 01. `prd`는 RFC-0034/ADC-0037/ADR-0022로 추가된 PRD/Specification Synthesis 결과(`PrdResult`, `skeleton`/`specification` 2-key)다 — Stage 02가 Task & Dependency Agent + Deterministic Layer로 3개 키를 더 채운 `SpecificationResult`(5-key)와는 다른 형태다(RFC-0035/ADC-0038/ ADR-0023)."""
 
     directory_structure: object
     context_bundle: dict
@@ -183,10 +172,7 @@ def validate_implementation_result(data: dict) -> None:
 
 
 def validate_verification_requirement(required_checks) -> None:
-    """`required_checks`가 비어 있거나 알 수 없는 이름을 포함하면 조용히
-    통과시키지 않고 즉시 실패시킨다(빈 목록은 "아무 것도 요구하지 않음"이
-    아니라 계약 위반이다 — required_checks가 존재해도 무시되던 이전
-    결함의 재발을 막는 방어선)."""
+    """`required_checks`가 비어 있거나 알 수 없는 이름을 포함하면 조용히 통과시키지 않고 즉시 실패시킨다(빈 목록은 "아무 것도 요구하지 않음"이 아니라 계약 위반이다 — required_checks가 존재해도 무시되던 이전 결함의 재발을 막는 방어선)."""
     if not required_checks:
         raise ContractViolation("VerificationRequirement contract violated — required_checks must not be empty")
     unknown = [name for name in required_checks if name not in KNOWN_CHECK_NAMES]
@@ -195,10 +181,7 @@ def validate_verification_requirement(required_checks) -> None:
 
 
 def validate_verification_result(data: dict) -> None:
-    """필수 키 존재뿐 아니라, `required_checks`에 선언된 항목이 실제로
-    `check_results`에서 실행됐는지(SKIPPED가 아닌지)까지 확인한다 —
-    required_checks가 선언만 되고 실행/판정과 연결되지 않는 상태(decorative
-    mirror)를 Contract 층에서도 차단한다."""
+    """필수 키 존재뿐 아니라, `required_checks`에 선언된 항목이 실제로 `check_results`에서 실행됐는지(SKIPPED가 아닌지)까지 확인한다 — required_checks가 선언만 되고 실행/판정과 연결되지 않는 상태(decorative mirror)를 Contract 층에서도 차단한다."""
     require_keys(data, VERIFICATION_REQUIRED_KEYS, "VerificationResult")
     required_checks = data["required_checks"]
     validate_verification_requirement(required_checks)

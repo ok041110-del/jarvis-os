@@ -1,11 +1,7 @@
 """테스트 전용 로컬 OpenRouter test double(stdlib `http.server`).
 
-실제 OpenRouter가 아니라 `/api/v1/models`(Free Pool 조회, GET)와
-`/api/v1/chat/completions`(POST)의 실제 응답 형태를 흉내 낸 결정론적
-fixture다. `fake_omniroute_server.py`는 POST만 지원해 Free Pool GET
-경로를 검증할 수 없으므로, Production 테스트 전용으로 독립적으로
-둔다(`fake_omniroute_server.py` 자신의 docstring과 동일한 원칙 —
-Experimental 경로를 참조하지 않는다)."""
+실제 OpenRouter가 아니라 `/api/v1/models`(Free Pool 조회, GET)와 `/api/v1/chat/completions`(POST)의 실제 응답 형태를 흉내 낸 결정론적 fixture다. `fake_omniroute_server.py`는 POST만 지원해 Free Pool GET 경로를 검증할 수 없으므로, Production 테스트 전용으로 독립적으로 둔다(`fake_omniroute_server.py` 자신의 docstring과 동일한 원칙 — Experimental 경로를 참조하지 않는다).
+"""
 
 import json
 import threading
@@ -133,10 +129,7 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 class FakeOpenRouterServer:
-    """`with FakeOpenRouterServer(mode="success") as base_url:` 형태로
-    사용한다. GET(`/api/v1/models`)과 POST(`/api/v1/chat/completions`)
-    모드를 독립적으로 지정할 수 있다(`models_mode`가 없으면 POST
-    `mode`와 동일하게 GET도 기본 Pool을 반환한다)."""
+    """`with FakeOpenRouterServer(mode="success") as base_url:` 형태로 사용한다. GET(`/api/v1/models`)과 POST(`/api/v1/chat/completions`) 모드를 독립적으로 지정할 수 있다(`models_mode`가 없으면 POST `mode`와 동일하게 GET도 기본 Pool을 반환한다)."""
 
     def __init__(self, mode="success", models_mode=None):
         self._server = HTTPServer(("127.0.0.1", 0), _Handler)

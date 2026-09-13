@@ -93,10 +93,7 @@ def run_stage_01_multi_agent(
     adapter: GitHubRepositoryAdapter | None = None,
     runner: ParallelRunner | None = None,
 ) -> dict:
-    """Stage 01 Multi-Agent 진입점. `stages/contracts.py::
-    ContextAnalysisResult`의 6-key 출력(`prd` 포함, RFC-0034/ADC-0037/
-    ADR-0022)을 반환한다. `adapter`/`runner`는 테스트에서 대체 가능하도록
-    주입 지점으로 남긴다(GitHub API/스레드풀을 직접 강제하지 않음)."""
+    """Stage 01 Multi-Agent 진입점. `stages/contracts.py:: ContextAnalysisResult`의 6-key 출력(`prd` 포함, RFC-0034/ADC-0037/ ADR-0022)을 반환한다. `adapter`/`runner`는 테스트에서 대체 가능하도록 주입 지점으로 남긴다(GitHub API/스레드풀을 직접 강제하지 않음)."""
     from mvp.parallel_runner import TaskStatus  # 지연 import — 순환 의존 회피
 
     runner = runner or ParallelRunner(max_workers=4)

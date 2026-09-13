@@ -1,8 +1,4 @@
-"""Part 7 — Review LLM latency budget 측정 구조(사용자 지시). 실제 LLM
-호출은 이번 세션에서 수행하지 않는다(별도 승인 없이 Production에
-추가하지 않음, OpenRouter는 Experimental Validation에만 허용되며 이
-스크립트도 기본 실행에서는 호출하지 않는다). `engine_call`을 주입하면
-그대로 측정 가능한 구조만 만든다."""
+"""Part 7 — Review LLM latency budget 측정 구조(사용자 지시). 실제 LLM 호출은 이번 세션에서 수행하지 않는다(별도 승인 없이 Production에 추가하지 않음, OpenRouter는 Experimental Validation에만 허용되며 이 스크립트도 기본 실행에서는 호출하지 않는다). `engine_call`을 주입하면 그대로 측정 가능한 구조만 만든다."""
 
 from __future__ import annotations
 

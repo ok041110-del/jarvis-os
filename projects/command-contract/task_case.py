@@ -1,8 +1,6 @@
 """Case B: User -> Command -> Task -> HQ.
 
-Case A(resolver.py)와 동일한 Command Resolution을 Task로 감싸
-비교한다. Task가 실제로 무엇을 추가하는지 관찰하는 것이 목적이다
-(작업 지시 §9) — Task를 Architecture에 필요하다고 가정하지 않는다.
+Case A(resolver.py)와 동일한 Command Resolution을 Task로 감싸 비교한다. Task가 실제로 무엇을 추가하는지 관찰하는 것이 목적이다 (작업 지시 §9) — Task를 Architecture에 필요하다고 가정하지 않는다.
 """
 
 from __future__ import annotations

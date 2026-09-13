@@ -1,7 +1,4 @@
-"""Architecture Team — 기존 Stage 03(Architecture/Design) 책임을 그대로
-수행한다(Stage → Team Migration, Kernel/Contract 변경 없음). `stages/
-03_architecture_design/stage_03.py`(Design Agent 재사용 포함)를 그대로
-호출한다."""
+"""Architecture Team — 기존 Stage 03(Architecture/Design) 책임을 그대로 수행한다(Stage → Team Migration, Kernel/Contract 변경 없음). `stages/ 03_architecture_design/stage_03.py`(Design Agent 재사용 포함)를 그대로 호출한다."""
 
 import importlib.util
 import sys

@@ -1,9 +1,4 @@
-"""Stage 01 Multi-Agent 진입점 E2E 검증(`stages/01_context_analysis/
-stage_01_multi_agent.py`) — mock 기반: Request -> Multi-Agent Reasoning ->
-Aggregation -> GitHub Snapshot -> Parallel Code Analysis -> Context
-Aggregation -> Stage 01 Output 전체 흐름과, LLM Reasoning/Code Analysis가
-병렬화되지 않고 순차(Reasoning 전체 완료 후 Code Analysis 시작)로 실행되는지
-확인한다. 실제 네트워크/Engine 호출은 하지 않는다."""
+"""Stage 01 Multi-Agent 진입점 E2E 검증(`stages/01_context_analysis/ stage_01_multi_agent.py`) — mock 기반: Request -> Multi-Agent Reasoning -> Aggregation -> GitHub Snapshot -> Parallel Code Analysis -> Context Aggregation -> Stage 01 Output 전체 흐름과, LLM Reasoning/Code Analysis가 병렬화되지 않고 순차(Reasoning 전체 완료 후 Code Analysis 시작)로 실행되는지 확인한다. 실제 네트워크/Engine 호출은 하지 않는다."""
 
 import importlib.util
 import sys
@@ -102,9 +97,7 @@ def test_full_flow_returns_existing_stage_01_contract_shape(monkeypatch):
 
 
 def test_reasoning_fully_completes_before_code_analysis_starts(monkeypatch):
-    """LLM Reasoning과 Code Analysis를 병렬화하지 않는다는 요구사항(§ 중요)을
-    검증한다 — 4개 Agent가 전부 끝난 시각이 GitHub Snapshot 생성 시작 시각보다
-    앞서야 한다."""
+    """LLM Reasoning과 Code Analysis를 병렬화하지 않는다는 요구사항(§ 중요)을 검증한다 — 4개 Agent가 전부 끝난 시각이 GitHub Snapshot 생성 시작 시각보다 앞서야 한다."""
     event_log = []
     _patch_agents(monkeypatch, event_log, delay=0.05)
     _patch_prd_synthesis_engine_call(monkeypatch)

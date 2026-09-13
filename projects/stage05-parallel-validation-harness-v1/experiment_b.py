@@ -1,8 +1,4 @@
-"""Experiment B — Review Case A(disabled)/B(deterministic)/C(llm) 비교
-(사용자 지시 Part 2). LLM Review는 실제 호출 가능한 구조(engine_call
-주입)만 만들고, 기본 실행에서는 호출하지 않는다 — OpenRouter 등 실제
-호출은 이번 작업의 필수 조건이 아니다(사용자 지시 전문). 호출하지
-않은 경우 결과는 "NOT_EXECUTED"로 명시하며, 추정치로 채우지 않는다."""
+"""Experiment B — Review Case A(disabled)/B(deterministic)/C(llm) 비교 (사용자 지시 Part 2). LLM Review는 실제 호출 가능한 구조(engine_call 주입)만 만들고, 기본 실행에서는 호출하지 않는다 — OpenRouter 등 실제 호출은 이번 작업의 필수 조건이 아니다(사용자 지시 전문). 호출하지 않은 경우 결과는 "NOT_EXECUTED"로 명시하며, 추정치로 채우지 않는다."""
 
 from __future__ import annotations
 

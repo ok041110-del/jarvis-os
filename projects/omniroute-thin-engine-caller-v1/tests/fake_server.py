@@ -1,10 +1,6 @@
-"""로컬 HTTP test double — 실제 OmniRoute가 아니라, OmniRoute의
-OpenAI-compatible 응답 형태를 흉내 낸 stdlib 서버다.
+"""로컬 HTTP test double — 실제 OmniRoute가 아니라, OmniRoute의 OpenAI-compatible 응답 형태를 흉내 낸 stdlib 서버다.
 
-정상 응답·오류 코드·지연 응답(cancellation 테스트용)을 결정론적으로
-재현하기 위해서만 쓴다 — "OmniRoute가 실제로 이렇게 동작한다"는
-주장의 근거가 아니다(Caller의 request 구성·response 파싱·lifecycle
-로직만 검증한다).
+정상 응답·오류 코드·지연 응답(cancellation 테스트용)을 결정론적으로 재현하기 위해서만 쓴다 — "OmniRoute가 실제로 이렇게 동작한다"는 주장의 근거가 아니다(Caller의 request 구성·response 파싱·lifecycle 로직만 검증한다).
 """
 
 import json

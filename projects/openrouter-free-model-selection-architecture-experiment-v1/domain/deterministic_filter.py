@@ -1,8 +1,4 @@
-"""ADR-0026 §6 Deterministic Filter — "명백히 판정 가능한 사실"만으로
-후보를 거른다. 판정 불가능한 metadata는 절대 추측하지 않고
-`NOT_DETERMINED`로 기록한다(사용자 지시 §3) — `NOT_DETERMINED`는
-탈락(FAIL)이 아니다: 판정 불가능한 항목 때문에 후보를 임의로
-제외하면 그 자체가 추측이 되기 때문이다."""
+"""ADR-0026 §6 Deterministic Filter — "명백히 판정 가능한 사실"만으로 후보를 거른다. 판정 불가능한 metadata는 절대 추측하지 않고 `NOT_DETERMINED`로 기록한다(사용자 지시 §3) — `NOT_DETERMINED`는 탈락(FAIL)이 아니다: 판정 불가능한 항목 때문에 후보를 임의로 제외하면 그 자체가 추측이 되기 때문이다."""
 
 from __future__ import annotations
 
@@ -95,10 +91,7 @@ def _check_contract_compatibility() -> CheckResult:
 
 
 def apply_deterministic_filter(pool: FreePool, requirement: StageRequirement) -> tuple[ModelFilterResult, ...]:
-    """OpenRouter 응답 순서를 그대로 보존한 채(재정렬 없음) 각 모델에
-    5개 체크를 적용한다. `FAIL`이 하나라도 있으면 `EXCLUDED`,
-    `NOT_DETERMINED`만 있으면 그 항목은 판정을 보류할 뿐 제외 사유가
-    되지 않는다(§Verdict — 추측 배제 원칙)."""
+    """OpenRouter 응답 순서를 그대로 보존한 채(재정렬 없음) 각 모델에 5개 체크를 적용한다. `FAIL`이 하나라도 있으면 `EXCLUDED`, `NOT_DETERMINED`만 있으면 그 항목은 판정을 보류할 뿐 제외 사유가 되지 않는다(§Verdict — 추측 배제 원칙)."""
     results: list[ModelFilterResult] = []
     for model in pool.models:
         checks = (

@@ -1,20 +1,6 @@
 """Risk -> Portfolio 변경 재검증 — 격리된 Prototype.
 
-이전 Risk/Portfolio Boundary Dogfooding(§13 선행조건 2·4)을 그대로
-따른다:
-
-1. 정책을 명시적으로 위반하는 수준의 look-through 노출을 가진
-   Portfolio State를 구성한다(실제 QQQ 공개 비중을 그대로 사용,
-   신규 종목/시장 데이터 생성 없음 — 정책 숫자와 직접 보유 비중만
-   이 실험을 위한 가상 설정값).
-2. Risk 단계에 이번엔 "행동을 추천할 권한"을 명시적으로 부여한다
-   (이전 실험과 반대).
-3. Portfolio를 두 번 분리해서 묻는다 — PASS1(Risk 정보 없이 최초
-   결론) → PASS2(Risk-only, 정책 위반 여부를 명시적으로 계산해
-   확인하고 행동을 추천) → PASS3(PASS1의 결론과 PASS2의 Risk
-   결과만 주고, 결론이 바뀌는지 순수하게 재질문).
-
-`hqs/investment/`는 수정하지 않는다.
+이전 Risk/Portfolio Boundary Dogfooding(§13 선행조건 2·4)을 그대로 따른다:
 """
 
 import sys
