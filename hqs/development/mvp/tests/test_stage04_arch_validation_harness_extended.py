@@ -1,6 +1,5 @@
 """Stage 04 Architecture Validation Harness 확장 검증(RFC 요청 — Stage 04 Architecture Validation을 계속 진행: Design coverage, Quality 구조 신호, Ponytail Policy Guardrail, Cost Instrumentation). 전부 결정적 코드 검사이거나(§4 OmniRoute 없이 가능한 검증), 로컬 loopback double로 재현 가능한 것만 다룬다 — 실제 OmniRoute를 호출하지 않는다."""
 
-import importlib.util
 import json
 import sys
 import threading
@@ -9,17 +8,12 @@ from pathlib import Path
 
 import pytest
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from conftest import load_module_from_path as _load  # noqa: E402
+
 _HARNESS_DIR = (
     Path(__file__).resolve().parents[2] / "stages" / "04_implementation" / "architecture_validation"
 )
-
-
-def _load(name, path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 deterministic_checks = _load("arch_val_deterministic_checks_ext", _HARNESS_DIR / "deterministic_checks.py")

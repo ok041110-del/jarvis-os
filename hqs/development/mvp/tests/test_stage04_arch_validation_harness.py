@@ -1,20 +1,14 @@
 """Stage 04 Architecture Validation Harness 검증(RFC 요청 — Stage 04 Architecture Validation Harness Implementation). 이 Harness 자체는 Production `stage_04.py`/Kernel Architecture를 변경하지 않는다 — 여기서는 (a) Deterministic Gate/comment 정책이 올바르게 판정하는지, (b) 고정 ID 순서가 실행 완료 순서와 무관한지, (c) A/B/C variant가 Contract대로 llm_calls/latency/candidate를 만드는지, (d) Ponytail Adapter가 실제 Supervisor 없이 결정적으로만 동작하는지를 전부 controlled fake로 검증한다 — 실제 Engine을 호출하지 않는다."""
 
-import importlib.util
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from conftest import load_module_from_path as _load  # noqa: E402
 
 _HARNESS_DIR = (
     Path(__file__).resolve().parents[2] / "stages" / "04_implementation" / "architecture_validation"
 )
-
-
-def _load(name, path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 result_schema = _load("arch_val_result_schema", _HARNESS_DIR / "result_schema.py")
