@@ -3,6 +3,8 @@
 
 import json
 import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 # 실제 관찰된 시그니처만(추측 추가 금지) — EVIDENCE.md 재현값.
@@ -77,3 +79,22 @@ def run_step(cp: Checkpointer, step: str, fn, *args) -> str:
         )
     cp.save(step, output, input_len, elapsed)
     return output
+
+
+def run_checkpointed_wave(cp: Checkpointer, jobs: dict) -> tuple[dict, float]:
+    """`jobs`(name -> (fn, arg)) 중 이미 완료된 step은 로드하고, 나머지만
+    `ThreadPoolExecutor`로 동시 실행한다(세 Investment Team이 공유하는
+    "Wave 단위 checkpoint-aware 병렬 실행" 책임). 반환: (name -> 결과, 소요 초)."""
+    t0 = time.monotonic()
+    results = {}
+    pending = {name: value for name, value in jobs.items() if not cp.has(name)}
+    for name in jobs:
+        if cp.has(name):
+            results[name] = cp.load(name)
+    if pending:
+        with ThreadPoolExecutor(max_workers=len(pending)) as pool:
+            futures = {name: pool.submit(run_step, cp, name, fn, arg) for name, (fn, arg) in pending.items()}
+            for name, future in futures.items():
+                results[name] = future.result()
+    elapsed = time.monotonic() - t0
+    return results, elapsed
