@@ -27,7 +27,8 @@ TRADER_DECISION_INSTRUCTION = (
 
 
 class TraderOutputError(ValueError):
-    """REPORT/DECISION 헤더 구조가 없을 때 발생. `run_trader_decision()`을 통해 호출하면 `ContentFailureError`처럼 checkpoint 저장 전에 발생해 다음 실행에서 자동 재시도된다 — `run_step()`에 원본 `trader_decision` 함수를 직접 넘기면 검증이 저장 이후에 일어나 이 보장이 깨진다."""
+    """REPORT/DECISION 헤더가 없을 때 발생. `run_trader_decision()` 경유 시
+    저장 전에 발생해 자동 재시도되지만, `run_step()`에 원본 함수를 직접 넘기면 이 보장이 깨진다."""
 
 
 _REPORT_HEADER = re.compile(r"^##\s*REPORT\s*$", re.MULTILINE)
@@ -50,7 +51,8 @@ def split_report_decision(raw: str) -> tuple[str, str]:
 
 
 def run_trader_decision(cp, trader_decision_fn, bull_case: str, bear_case: str) -> str:
-    """`trader_decision_fn(bull_case, bear_case)` 호출 결과를 checkpoint에 저장하기 전에 `split_report_decision()`으로 형식을 검증한다. 세 Team (`stock_team.py`/`etf_team.py`/`dividend_stock_team.py`)이 각자 `run_step(cp, "trader_decision", trader_decision, ...)`을 직접 호출하지 않고 이 함수를 거쳐야 `TraderOutputError`가 저장 전에 발생해 다음 실행에서 자동 재시도된다."""
+    """저장 전에 `split_report_decision()`으로 형식을 검증한다 — 세 Team은
+    `run_step()`을 직접 호출하지 않고 이 함수를 거쳐야 malformed 출력이 자동 재시도된다."""
 
     def _validated(b: str, c: str) -> str:
         raw = trader_decision_fn(b, c)

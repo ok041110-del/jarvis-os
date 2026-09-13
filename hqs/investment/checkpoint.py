@@ -82,9 +82,8 @@ def run_step(cp: Checkpointer, step: str, fn, *args) -> str:
 
 
 def run_checkpointed_wave(cp: Checkpointer, jobs: dict) -> tuple[dict, float]:
-    """`jobs`(name -> (fn, arg)) 중 이미 완료된 step은 로드하고, 나머지만
-    `ThreadPoolExecutor`로 동시 실행한다(세 Investment Team이 공유하는
-    "Wave 단위 checkpoint-aware 병렬 실행" 책임). 반환: (name -> 결과, 소요 초)."""
+    """완료된 step은 로드하고 나머지만 `ThreadPoolExecutor`로 병렬 실행한다.
+    반환: (name -> 결과, 소요 초)."""
     t0 = time.monotonic()
     results = {}
     pending = {name: value for name, value in jobs.items() if not cp.has(name)}
