@@ -1,6 +1,6 @@
 """Case A — Command 하나에 실행 상태를 직접 담는다(Task 없음).
 
-User Command -> Command Resolver -> Long-running Operation -> Result. Command 자체가 started_at/status/result/error를 보유한다(작업 지시 §6이 예시한 필드). Task를 미리 설계하지 않고, 이 구조가 실제로 막히는 지점을 관찰하는 것이 목적이다.
+Task를 미리 설계하지 않고, 이 구조가 실제로 막히는 지점을 관찰하기 위한 실험이다.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ import operation  # noqa: E402
 
 @dataclass
 class AsyncCommand:
-    """Case A Contract — Command 하나가 요청과 실행 상태를 함께 가진다. `execution_id`는 이 Command가 시작한 Operation을 가리키는 참조일 뿐, 별도 Entity(Task)가 아니다."""
+    """`execution_id`는 이 Command가 시작한 Operation을 가리키는 참조일 뿐, 별도 Entity(Task)가 아니다."""
 
     raw_input: str
     target_hq: str | None = None
@@ -31,8 +31,6 @@ class AsyncCommand:
 
 
 def start(raw_input: str, valid_path: bool = True) -> AsyncCommand:
-    """Command 생성과 동시에 Operation을 시작하고 즉시 반환한다."""
-
     target_hq = _detect_hq(raw_input)
     command = AsyncCommand(raw_input=raw_input, target_hq=target_hq)
 
@@ -47,8 +45,7 @@ def start(raw_input: str, valid_path: bool = True) -> AsyncCommand:
 
 
 def refresh(command: AsyncCommand) -> AsyncCommand:
-    """Command 자신의 상태를 최신화한다 — 별도 조회 대상(Task)이
-    없으므로 Command를 직접 mutate한다."""
+    """별도 조회 대상(Task)이 없으므로 Command를 직접 mutate한다."""
 
     if command.execution_id is None:
         return command

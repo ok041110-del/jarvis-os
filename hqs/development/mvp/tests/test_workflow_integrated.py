@@ -132,7 +132,6 @@ def test_verdict_is_returned_unchanged_not_reinterpreted(monkeypatch):
 
 
 def test_stage_output_missing_required_key_fails_explicitly_not_silently(monkeypatch):
-    """Stage 01이 Contract가 요구하는 키(`candidate_index`)를 채우지 못하면 다음 Stage로 조용히 넘어가지 않고 `failed_at`/`error`로 명시적으로 드러나야 한다."""
     incomplete_stage_01_output = dict(STAGE_01_OUTPUT)
     del incomplete_stage_01_output["candidate_index"]
 

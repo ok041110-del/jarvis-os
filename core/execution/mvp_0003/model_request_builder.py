@@ -10,10 +10,6 @@ MODEL_REQUEST_HEADER = "# Model Request\n\n"
 
 
 def build_model_request(prompt_specification: str, *, request_id: str, created_at: str) -> str:
-    """Prompt Specification을 Model Request로 변환한다.
-
-텍스트는 그대로 두고 앞에 메타데이터 절(``## Metadata``)만 추가한다. ``request_id``/``created_at``은 호출자가 제공해야 한다.
-    """
     metadata_lines = "\n".join(
         [
             f"- request_id: {request_id}",

@@ -1,6 +1,6 @@
 """In-process Async Command Prototype — Functional/Boundary Validation.
 
-`hqs/development/mvp/tests/test_mvp_0001.py`(실측 ~69초)는 자동 테스트 전체에서 단 한 번만 시작한다 — RUNNING 상태와 Investment HQ(빠름)와의 독립적 동시 실행을 같은 테스트에서 함께 확인해 실행 횟수를 최소화한다 (작업 지시 §21이 요구하는 최소 검증을 벗어나지 않으면서 테스트 스위트 실행 시간을 보호하기 위함). in-process 실행은 subprocess와 달리 강제 종료(`terminate()`)가 없으므로, 시작된 Dev HQ 작업은 프로세스 종료 시 Executor가 자연히 완료를 기다린다 — 이는 그 자체로 실제 Evidence다 (operation.py 참조).
+test_mvp_0001.py(실측 ~69초)는 스위트 실행 시간 보호를 위해 전체에서 단 한 번만 시작하고, RUNNING 상태와 Investment HQ와의 독립 동시 실행을 그 안에서 함께 확인한다.
 """
 
 from __future__ import annotations
@@ -105,9 +105,6 @@ def test_retry_reuses_command_and_produces_new_task():
 # --- Command 불변성: Case A vs Case B ----------------------------------------
 
 def test_case_a_command_cannot_stay_frozen():
-    """Case A는 실행 상태를 Command 자체에 담아야 하므로 frozen=True로
-    선언할 수 없다 — 실제로 status가 외부에서도 자유롭게 mutate된다."""
-
     command = case_a.start("Investment HQ 최신 상태를 보여줘")
     command.status = "MANUALLY_TAMPERED"
     assert command.status == "MANUALLY_TAMPERED"

@@ -35,10 +35,7 @@ OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 
 
 def _derive_request_id(prompt_specification: str) -> str:
-    """Prompt Specification 내용으로부터 결정론적 request_id를 만든다.
-
-무작위 발급(uuid4 등)이 아니라 내용 해시이므로, 동일한 Prompt Specification은 항상 동일한 request_id를 만든다.
-    """
+    """내용 기반 결정론적 request_id(SHA-256 해시 앞 16자) — 무작위 발급(uuid4 등)이 아니다."""
     return hashlib.sha256(prompt_specification.encode("utf-8")).hexdigest()[:16]
 
 

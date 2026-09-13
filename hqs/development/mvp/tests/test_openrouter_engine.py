@@ -98,7 +98,7 @@ def test_successful_first_attempt_does_not_retry(monkeypatch):
 
 
 def test_persistent_failure_stops_after_exactly_two_attempts(monkeypatch):
-    """매 attempt가 계속 실패해도 무한 재시도하지 않고 정확히 2번(최초 1회 + bounded retry 1회)만 시도한 뒤 terminal failure로 종료한다 (Gate #9: retry 횟수/종료 조건, terminal failure까지 정상 종료)."""
+    """무한 재시도 방지 확인(Gate #9: retry 횟수/종료 조건)."""
     server = FakeOpenRouterServer(mode="server_error")
     with server as base_url:
         monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
@@ -108,7 +108,8 @@ def test_persistent_failure_stops_after_exactly_two_attempts(monkeypatch):
 
 
 def test_quota_failure_still_attempts_bounded_retry(monkeypatch):
-    """quota(429)는 모델 품질 실패와 분리 분류되지만, 그 자체로 재시도 자체를 건너뛰지는 않는다(다른 원인의 일시적 실패 가능성을 배제하지 않기 위함, `openrouter_engine.py::call_engine_via_openrouter` docstring) — quota 분류가 retry 로직 자체를 바꾸지 않는지 확인한다 (Gate #9/#10 경계 확인)."""
+    """quota(429)는 모델 품질 실패와 분리 분류되지만, 다른 원인의 일시적 실패 가능성을 배제하지 않기 위해
+    재시도 자체는 건너뛰지 않는다(Gate #9/#10 경계 확인)."""
     server = FakeOpenRouterServer(mode="quota")
     with server as base_url:
         monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
@@ -130,8 +131,6 @@ def test_empty_pool_raises_runtime_error_with_zero_candidates_message(monkeypatc
 
 
 def test_small_context_pool_is_filtered_out(monkeypatch):
-    """실제 프롬프트 길이가 요구하는 context보다 작은 모델은 Deterministic
-    Filter가 제외해 결과적으로 candidate가 0개가 된다."""
     with FakeOpenRouterServer(mode="success", models_mode="small_context") as base_url:
         monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
         with pytest.raises(RuntimeError) as exc_info:
@@ -183,7 +182,6 @@ def test_candidate_selection_empty_pool_returns_empty_tuple():
 
 
 def test_five_model_pool_actually_sends_only_three_candidates(monkeypatch):
-    """실제 HTTP 경로 전체(Free Pool 5개 → Filter → Selection → POST)로 최종 `models[]`가 3개로 제한되는지 확인 — 응답의 `model` 필드가 후보 중 하나(Pool 순서상 첫 3개)와 일치해야 한다."""
     with FakeOpenRouterServer(mode="success") as base_url:  # 기본 Pool 5개
         monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
         call_engine_via_openrouter("hi")  # 성공하면 예외 없음 — 서버가 이미 models[0]을 그대로 되돌려줌
@@ -217,7 +215,6 @@ def test_min_context_estimate_scales_with_prompt_length():
 
 
 def test_api_key_read_only_from_env_not_hardcoded():
-    """소스에 실제 API Key 형태의 리터럴이 없는지 정적으로 확인한다."""
     source = Path(__file__).resolve().parent.parent.joinpath("openrouter_engine.py").read_text(encoding="utf-8")
     assert "sk-or-" not in source
     assert 'os.environ.get("OPENROUTER_API_KEY"' in source

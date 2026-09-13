@@ -1,4 +1,6 @@
-"""GitHubRepositoryAdapter — GitHub REST API를 호출해 분석에 필요한 데이터를 RepositorySnapshot으로 변환한다(§6/§7). Architecture상 Repository 접근 방법은 GitHub REST API로 한정한다 — GraphQL/Search/Issues/PR/Actions/Commit History API는 이번 구현 범위 밖이다. 인증은 환경변수(`GITHUB_TOKEN`)로만 받는다 — 코드/테스트 fixture에 하드코드하지 않고, Architecture/Public Contract에도 포함하지 않는다."""
+"""GitHubRepositoryAdapter — GitHub REST API로 RepositorySnapshot을 구성한다(§6/§7).
+Repository 접근은 REST API로 한정한다(GraphQL/Search/Issues/PR/Actions/Commit History는 범위 밖).
+인증은 환경변수(`GITHUB_TOKEN`)로만 받는다 — 코드/fixture에 하드코드하지 않는다."""
 
 import base64
 import json
@@ -15,7 +17,7 @@ MAX_FILE_BYTES = 200_000
 
 
 class GitHubAdapterError(RuntimeError):
-    """GitHub REST API 호출 실패 또는 예상치 못한 응답 형태."""
+    pass
 
 
 @dataclass
@@ -49,8 +51,6 @@ class RepositorySnapshot:
 
 
 class GitHubRepositoryAdapter:
-    """최소 API 범위(§6): 저장소 Metadata, 재귀 Tree, 개별 파일 Contents."""
-
     def __init__(
         self,
         token: Optional[str] = None,
@@ -108,7 +108,8 @@ class GitHubRepositoryAdapter:
         return RepositoryFile(path=path, content=content, size=size, sha=sha, truncated=False)
 
     def build_snapshot(self, owner: str, repo: str, ref: Optional[str], paths_to_fetch: list) -> RepositorySnapshot:
-        """§7 순서: Repository Metadata → Repository Tree → (호출자가 결정한) Relevant Paths → Required File Contents. Repository 전체 파일을 무조건 preload하지 않는다 — `paths_to_fetch`에 있는 파일만 fetch."""
+        """§7 순서(Metadata → Tree → Relevant Paths → Contents)를 따른다.
+        전체 파일을 preload하지 않고 `paths_to_fetch`에 있는 파일만 fetch한다."""
         metadata = self.get_repository_metadata(owner, repo)
         resolved_ref = ref or metadata.get("default_branch", "main")
         commit_sha, tree = self.get_tree(owner, repo, resolved_ref)

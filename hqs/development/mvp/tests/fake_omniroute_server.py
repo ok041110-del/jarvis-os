@@ -48,8 +48,6 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 class FakeOmniRouteServer:
-    """`with FakeOmniRouteServer(mode="success") as base_url:` 형태로 사용."""
-
     def __init__(self, mode="success", slow_seconds=0):
         self._server = HTTPServer(("127.0.0.1", 0), _Handler)
         self._server.mode = mode

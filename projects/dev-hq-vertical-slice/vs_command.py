@@ -1,6 +1,6 @@
 """Command — immutable Value Object. Development HQ 단독 범위(Multi-HQ 없음).
 
-`command-contract` Prototype과 동일한 원칙(불변, 파싱 실패도 Command 자체는 생성됨)을 따르되, 이번엔 HQ 판별이 아니라 "Dev HQ의 어떤 Validation Action을 실행할지"만 판별한다 — 범위가 Dev HQ 하나로 좁혀졌으므로 HQ 판별 로직(`resolver._detect_hq`)은 재사용하지 않는다(불필요한 재사용은 과도한 결합).
+command-contract와 같은 불변 원칙을 따르되, 범위가 Dev HQ로 좁혀졌으므로 HQ 판별 로직(resolver._detect_hq)은 재사용하지 않는다.
 """
 
 from __future__ import annotations

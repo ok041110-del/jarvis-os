@@ -1,6 +1,6 @@
 """Async Command Prototype — 수동 실행 데모(Evidence 문서용).
 
-Dev HQ 전체 테스트 스위트(실측 ~70초)의 완료까지 관찰한다. 자동 테스트 스위트에는 포함하지 않는다(시간이 오래 걸림) — Evidence 문서가 이 스크립트의 실행 결과를 인용한다.
+Dev HQ 전체 테스트 스위트(실측 ~70초) 완료까지 관찰한다 — 오래 걸려 자동 테스트에는 포함하지 않는다.
 """
 
 from __future__ import annotations

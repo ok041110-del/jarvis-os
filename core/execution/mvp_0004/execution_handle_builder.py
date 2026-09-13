@@ -14,7 +14,6 @@ _REQUEST_ID_LINE_PATTERN = re.compile(r"^- request_id: (?P<value>.+)$", re.MULTI
 
 
 def _extract_request_id(model_request: str) -> str:
-    """Model Request의 `## Metadata` 절에서 `request_id` 값을 그대로 읽는다."""
     match = _REQUEST_ID_LINE_PATTERN.search(model_request)
     if not match:
         raise ValueError("model_request에서 request_id를 찾을 수 없다")
@@ -22,10 +21,6 @@ def _extract_request_id(model_request: str) -> str:
 
 
 def build_execution_handle(model_request: str, *, handle_id: str, submitted_at: str) -> str:
-    """Model Request를 Execution Handle로 변환한다.
-
-텍스트는 그대로 두고 앞에 상태 메타데이터 절(``## Handle``)만 추가한다. ``handle_id``/``submitted_at``은 호출자가 제공해야 한다.
-    """
     request_id = _extract_request_id(model_request)
 
     handle_lines = "\n".join(

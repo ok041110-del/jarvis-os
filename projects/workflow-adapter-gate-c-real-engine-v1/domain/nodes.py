@@ -29,9 +29,10 @@ def analyst_news_event(state: dict) -> dict:
 
 
 def analyst_sentiment(state: dict) -> dict:
-    """Gate C(i) 실험 대상 노드 — 실제 Engine 호출(engine_cache 경유).
+    """Gate C(i) 실험 대상 노드 — engine_cache로 캡처한 실제 Engine 호출을 재현성 있게 재생한다.
 
-조건부 분기(conflict 여부)는 시나리오 설정이 그대로 결정한다(업무 분기의 재현성 유지 목적). 실제 Engine 텍스트는 `engine_note` 값으로만 실려 merge/checkpoint/어댑터 교체 전 구간을 관통한다. `engine_mode == "raise"` 시나리오에서는 engine_cache에 미리 캡처된 **실제** 예외를 재발생시킨다(catch-and-encode 검증용).
+    `engine_mode == "raise"` 시나리오에서는 미리 캡처된 실제 예외를 재발생시켜
+    catch-and-encode를 검증한다.
     """
     cfg = scenario_config(state["scenario"])
     if cfg["engine_mode"] == "raise":

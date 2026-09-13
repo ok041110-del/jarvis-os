@@ -6,7 +6,6 @@ from __future__ import annotations
 
 
 def run_drafter(topic: str, *, fail: bool = False) -> dict:
-    """Agent 역할 1 — 초안을 만든다."""
     if fail:
         return {"status": "error", "agent": "drafter", "error": f"draft failed: {topic}"}
     if not topic:
@@ -15,7 +14,6 @@ def run_drafter(topic: str, *, fail: bool = False) -> dict:
 
 
 def run_reviewer(draft_result: dict, *, fail: bool = False) -> dict:
-    """Agent 역할 2 — Agent 1의 결과를 입력으로 받아 검토한다."""
     if draft_result.get("status") != "ok":
         return {"status": "error", "agent": "reviewer", "error": "no valid draft to review"}
     if fail:

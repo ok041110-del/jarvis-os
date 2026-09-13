@@ -35,7 +35,6 @@ class ContractResult:
 
 
 def stage01_contract(raw_response: str) -> ContractResult:
-    """Stage 01 Requirement Agent Contract — 기존 `reasoning.py:: parse_structured_output` + `REQUIREMENT_REQUIRED_KEYS`를 그대로 재사용(재구현 없음)."""
     try:
         parsed = parse_structured_output(raw_response)
     except AgentOutputError as exc:
@@ -45,7 +44,7 @@ def stage01_contract(raw_response: str) -> ContractResult:
 
 
 def stage02_contract(raw_response: str) -> ContractResult:
-    """Stage 02 Task & Dependency Agent Contract — 동일 production 파서(`parse_structured_output`) 재사용, `tasks`/`dependencies` 키 존재만 확인(Deterministic Layer 책임, `task_dependency_agent.py` docstring과 동일 원칙 — 스키마 세부 검증은 Contract 밖)."""
+    """`tasks`/`dependencies` 키 존재만 확인한다 — 스키마 세부 검증은 Deterministic Layer 책임으로 Contract 밖에 둔다."""
     try:
         parsed = parse_structured_output(raw_response)
     except AgentOutputError as exc:
@@ -66,13 +65,13 @@ _STAGE03_REQUIRED_SECTIONS = (
 
 
 def stage03_contract(raw_response: str) -> ContractResult:
-    """Stage 03 Design Contract — `stages/03_architecture_design/stage_03.py:: _DESIGN_INSTRUCTION`이 요구하는 6개 항목의 존재 여부(결정적 문자열 검사, 이전 세션 `OPENROUTER-STAGE-MODEL-SELECTION-0001.md` §3.3이 이미 쓴 것과 동일 기준 재사용 — 새 판정 기준 발명 아님)."""
+    """`_DESIGN_INSTRUCTION`이 요구하는 6개 항목의 존재 여부를 문자열 검사로 확인한다 — 이전 세션(§3.3)이 쓴 기준 재사용."""
     missing = [s for s in _STAGE03_REQUIRED_SECTIONS if s not in raw_response]
     return ContractResult(not missing, {"missing_sections": missing, "response_length": len(raw_response)})
 
 
 def stage04_contract(raw_response: str, *, target_function_name: str) -> ContractResult:
-    """Stage 04 Implementation Contract — AST로 top-level 정의 목록을 확인(코드 fence 제거 후 유효 Python인지, Target 함수가 실제로 존재하는지)만 검사한다. 실제 Design Scope(다른 함수 미변경) 비교는 이 Contract 밖(Stage 05 책임, 사용자 지시 §7 Stage 05 항목과 경계를 맞춤) — 여기서는 "코드로서 유효하고 Target을 포함하는가"만 본다."""
+    """코드로서 유효하고 Target 함수를 포함하는지만 본다 — Design Scope(다른 함수 미변경) 비교는 Stage 05 책임이라 이 Contract 밖이다."""
     import ast
 
     code = raw_response.strip()
@@ -91,7 +90,7 @@ def stage04_contract(raw_response: str, *, target_function_name: str) -> Contrac
 
 
 def stage05_review_contract(raw_response: str) -> ContractResult:
-    """Stage 05 Review(advisory) Contract — 비어있지 않은 prose인지만 확인한다(Review는 애초에 blocking이 아니므로 Contract도 최소한만, 사용자 지시 §7 Stage 05 항목: "LLM Review is experimental/advisory only")."""
+    """비어있지 않은 prose인지만 확인한다 — Review는 blocking이 아니므로 Contract도 최소한만 둔다."""
     non_empty = bool(raw_response and raw_response.strip())
     return ContractResult(non_empty, {"response_length": len(raw_response or "")})
 

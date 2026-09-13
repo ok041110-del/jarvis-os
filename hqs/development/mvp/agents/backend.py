@@ -1,7 +1,6 @@
-"""Backend Agent — code_review/code_generation Capability(Agent Package Refactoring, `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2).
-
-Multi-Engine Architecture(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md` Stage Mapping) 이후 두 Capability가 서로 다른 Engine을 쓸 수 있었으나, `docs/architecture/core/ADR-0027-openrouter-production-engine-migration-adoption.md` Migration으로 두 Capability 모두 3번째 Engine인 OpenRouter Free Model Selection을 사용하도록 연결했다(§Migration Boundary — 어떤 free 모델이 실제로 쓰이는지는 OpenRouter가 결정, 이 파일은 모른다). 이전 Audit (`RFC-0036` §1.4)이 지적한 대로 이 파일이 module-level `call_engine` 이름 하나를 공유하면 Agent-level 경계와 맞지 않아, 두 함수 이름 (`call_engine_review`/`call_engine_generation`)으로 분리한 구조는 그대로 유지한다 — Stage/Agent 코드에는 여전히 Provider-specific 이름을 노출하지 않는다(이 파일 내부에서는 `call_engine_*`로 통일).
-"""
+"""Backend Agent — code_review/code_generation Capability(`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2).
+두 Capability를 `call_engine_review`/`call_engine_generation`으로 분리 유지한다 —
+module-level 이름 하나를 공유하면 Agent-level 경계와 맞지 않는다는 지적(`RFC-0036` §1.4) 때문이다."""
 
 from ..openrouter_engine import call_engine_via_openrouter as call_engine_review
 from ..openrouter_engine import call_engine_via_openrouter as call_engine_generation
@@ -43,8 +42,6 @@ def _strip_code_fence(text: str) -> str:
 
 
 def backend_agent_code_generation(design: str) -> str:
-    """Backend Agent의 code_generation Capability — 코드만 반환하도록 지시하고
-    `_strip_code_fence`로 마크다운 fence를 벗긴다."""
     instruction = (
         "Based on the following design, write the implementation code. "
         "Return only the code, with no surrounding commentary."

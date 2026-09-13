@@ -1,6 +1,6 @@
 """Stage 04/05 Agent Team 격리 재현 — 상위 흐름(caller).
 
-새 Runtime API·Event Bus·Message Contract를 만들지 않는다. Stage 04는 직접 함수 호출 순차 체인(`hqs/development/workflow.py`와 동형), Stage 05의 병렬은 표준 라이브러리 `ThreadPoolExecutor`만 쓴다(`hqs/investment/ teams/stock_team.py`, Phase E `multi-agent-handoff-mvp-v1/caller.py`와 동일 패턴 재사용). 실패는 예외가 아닌 값으로 전파한다.
+새 Runtime/Event Bus를 만들지 않는다 — 순차 함수 호출(Stage 04)과 표준 `ThreadPoolExecutor`(Stage 05)만 재사용한다. 실패는 예외가 아닌 값으로 전파한다.
 """
 from __future__ import annotations
 
@@ -39,8 +39,7 @@ def run_stage04_pipeline(
 
 
 def retry_stage04_implementation_only(design: str, cached_target_result: dict, *, fail_impl: bool = False) -> dict:
-    """부분 재실행 — Target Identification을 다시 실행하지 않고 캐시된
-    성공 결과를 재사용해 Implementation만 재시도한다."""
+    """부분 재실행 — Target Identification은 캐시된 성공 결과를 재사용한다."""
     impl_result = implementation_agent(design, cached_target_result["target"], fail=fail_impl)
     if impl_result["status"] != "ok":
         return {"status": "error", "failed_at": "implementation", "detail": impl_result}
@@ -53,8 +52,7 @@ def retry_stage04_implementation_only(design: str, cached_target_result: dict, *
 def run_stage05_pipeline(
     implementation_code: str, *, fail_review: bool = False, fail_qa: bool = False
 ) -> dict:
-    """Review Agent ∥ QA Agent(ThreadPoolExecutor) -> deterministic Aggregator(Verdict).
-    두 Agent는 서로의 결과에 의존하지 않으므로 동시 실행한다."""
+    """두 Agent는 서로의 결과에 의존하지 않으므로 동시 실행한다."""
     impl_dict = {"status": "ok", "code": implementation_code}
 
     with ThreadPoolExecutor(max_workers=2) as pool:
@@ -78,8 +76,7 @@ def run_stage05_pipeline(
 def retry_stage05_agent_only(
     implementation_code: str, cached_result: dict, *, agent: str, fail: bool = False
 ) -> dict:
-    """부분 재실행 — 실패한 Agent 하나만 재시도하고, 성공했던 다른
-    Agent의 결과는 캐시에서 재사용한다. Verdict는 재종합한다."""
+    """부분 재실행 — 실패한 Agent만 재시도하고 성공한 결과는 캐시에서 재사용한다."""
     if agent == "review":
         review_result = review_agent(implementation_code, fail=fail)
         qa_result = cached_result["qa"]

@@ -1,7 +1,5 @@
-"""OpenRouter Free Model Pool — Stage Policy는 모델 이름을 갖지 않는다 (사용자 지시). 이 모듈이 "지금 존재하는 `:free` 모델 전체"를 조회해 `models`(OpenRouter 공식 fallback 배열 파라미터, `docs/guides/routing/ model-fallbacks.md` 실측 확인)에 그대로 넘길 Pool을 만든다.
-
-**Capability scoring/model ranking을 하지 않는다** — 이 모듈이 하는 유일한 판단은 "이 모델이 plain chat completion 자체를 구조적으로 지원하지 않는다는 실측 Evidence가 있는가"뿐이다(순위/품질 판단 아님). 그 실측 Evidence가 없는 모델은 전부 그대로 Pool에 남긴다 — 추정하지 않는다(사용자 지시).
-"""
+"""OpenRouter Free Model Pool — 존재하는 `:free` 모델 전체를 조회해 `models` 배열에 넘길 Pool을 만든다.
+Capability scoring/ranking은 하지 않는다 — 실측으로 plain chat completion 불가가 확인된 모델만 제외한다."""
 
 from __future__ import annotations
 
@@ -22,8 +20,7 @@ _KNOWN_NONFUNCTIONAL_FOR_PLAIN_CHAT = frozenset(
 
 
 class ModelPoolFetchError(RuntimeError):
-    """`/api/v1/models` 조회 자체가 실패했을 때(단일 예외, 기존 Adapter
-    Contract와 동일 패턴)."""
+    pass
 
 
 # 실측 확인: `models` 배열 4개 이상이면 OpenRouter가 즉시 400을 반환한다
@@ -39,7 +36,7 @@ class ModelPool:
 
 
 def fetch_free_model_pool(*, timeout: int = 20, limit: int = MAX_MODELS_PER_REQUEST) -> ModelPool:
-    """`:free`로 끝나는 모델 id를 OpenRouter가 반환한 순서 그대로 가져와, 앞에서부터 `limit`개만 자른다(재정렬·순위화 없음 — OpenRouter 자신의 응답 순서를 그대로 따를 뿐이다) — `_KNOWN_NONFUNCTIONAL_FOR_PLAIN_CHAT` 만 먼저 제외한 뒤 자른다. `limit`의 기본값(`MAX_MODELS_PER_REQUEST=3`)은 OpenRouter `models` 배열의 실측 상한이다(추정 아님)."""
+    """OpenRouter 응답 순서 그대로(재정렬 없음) `_KNOWN_NONFUNCTIONAL_FOR_PLAIN_CHAT`만 제외한 뒤 `limit`개로 자른다."""
     request = urllib.request.Request(OPENROUTER_MODELS_URL, method="GET")
     opener = urllib.request.build_opener(urllib.request.ProxyHandler())
     try:

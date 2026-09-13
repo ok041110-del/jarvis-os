@@ -35,16 +35,12 @@ def test_generator_does_not_import_hq_code():
 
 
 def test_generator_reuses_unified_dashboard_build_investment_hq_snapshot():
-    """새 Evidence 수집 로직을 만들지 않고 기존 함수 객체를 그대로
-    가져다 쓰는지 확인한다(같은 로직을 복제하지 않았는지 검증)."""
     from snapshot import build_investment_hq_snapshot as canonical
 
     assert gen.build_investment_hq_snapshot is canonical
 
 
 def test_document_teams_match_real_representative_runs():
-    """팀 이름/순서가 snapshot.py의 _TEAM_RUNS 순서와 일치해야 한다
-    (가상 팀 생성/누락 금지)."""
     from snapshot import _TEAM_RUNS
 
     doc = gen.build_document()
@@ -52,8 +48,6 @@ def test_document_teams_match_real_representative_runs():
 
 
 def test_document_teams_have_no_fabricated_status():
-    """status에 "Promoted" 같은 조직 상태를 새로 지어내지 않고,
-    실제 detail 문자열(단계 수/Final Report)만 옮긴 것인지 검증한다."""
     doc = gen.build_document()
     assert doc["teams"], "실제 3개 팀 detail이 있으므로 비어있으면 안 됨"
     for team in doc["teams"]:

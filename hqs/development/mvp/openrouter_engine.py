@@ -1,43 +1,12 @@
-"""OpenRouter를 통한 단일 Engine 호출 함수 — Multi-Engine Architecture의
-3번째 Engine(`docs/architecture/core/ADR-0027-openrouter-production-engine-migration-adoption.md`,
-`docs/architecture/core/RFC-0041-openrouter-production-engine-migration.md`).
+"""OpenRouter Engine 호출 — Multi-Engine Architecture의 3번째 Engine(`ADR-0027`, `RFC-0041`).
+`call_engine()`/`call_engine_via_chatgpt()`와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을
+따르며, Free Model Pool 조회 → Deterministic Filter → 최대 3개 candidate 선정까지만 수행하고
+실제 모델 선택/재시도 판정은 OpenRouter에 위임한다(`ADR-0026` §7) — 모델 품질 추정·우선순위·
+Stage별 모델 고정은 명시적으로 배제한다.
 
-`chatgpt_engine.py::call_engine_via_chatgpt()`/`engine.py::call_engine()`
-과 동일한 외부 계약(단일 함수, `str -> str`, 실패 시 단일 예외
-`RuntimeError`)을 그대로 따른다 — Stage/Agent 코드는 이 계약만 알면
-되고, 어떤 free 모델이 실제로 쓰이는지는 몰라도 된다.
-
-이 모듈 내부는 `ADR-0026`/`ADR-0027`이 확정한 8단계 경로 중 Jarvis가
-책임지는 앞부분만 수행한다:
-
-    Free Model Pool 조회 → Deterministic Filter(free 여부/알려진
-    비기능 모델 제외/context 길이/modality) → 최대 3개 candidate
-    선정(재정렬 없음, tie-break = Pool 응답 순서 그대로) →
-    OpenRouter `models[]`에 위임(실제 모델 선택/failover는 전적으로
-    OpenRouter 책임, `ADR-0026` §7)
-
-이 모듈이 하지 않는 것(`ADR-0026`/`ADR-0027`이 명시적으로 배제):
-모델 품질 추정/scoring, historical performance/latency 기반 우선순위,
-LLM 기반 model judge, Stage별 모델 고정, Central Router/Gateway.
-Provider/Model 최종 선택, Retry 대상 결정 이후의 실제 재시도 판정은
-OpenRouter 자신의 응답(HTTP status)에 따라서만 이뤄진다 — 이 모듈이
-독자적인 품질 판단을 추가하지 않는다.
-
-**오늘 Deployment 상태(ADR-0027 §10 Deviation, 사용자 명시적 승인)**:
-`ADR-0027` §10은 "Validation Gate를 전부 통과하기 전에는 Stage 01~05
-Production 코드를 실제로 변경하지 않는다"고 명시했다. 이 모듈과
-Stage/Agent 호출부의 연결은 그 Gate 실측(내일 별도 수행)이 끝나기
-전에 사용자가 명시적으로 승인한 선(先) 배선이다 — Gate가 통과하기
-전까지 이 경로의 Production 신뢰성(quota 안정성/latency/model
-quality/retry 회복 효과)은 검증된 것으로 간주하지 않는다. 상세:
-`docs/research/OPENROUTER-PRODUCTION-ENGINE-MIGRATION-IMPLEMENTATION-0001.md`.
-
-API Key는 `OPENROUTER_API_KEY` 환경변수가 있을 때만 Authorization
-헤더에 실어 보낸다 — 코드에 하드코딩하지 않고, 로그/예외 메시지 어디
-에도 그 값을 포함하지 않는다. 환경변수가 없으면 헤더를 아예 설정하지
-않는다(자동 인증 주입 환경 — 예: Egress Proxy가 있는 환경 — 을 그대로
-지원하기 위함, `chatgpt_engine.py`가 `OPENAI_API_KEY`를 다루는 방식과
-동일한 원칙)."""
+**선(先) 배선 상태**: `ADR-0027` §10 Deviation으로 사용자가 명시적으로 승인한 배선이며,
+Validation Gate 검증 완료 전까지 Production 신뢰성(quota/latency/model quality)은 검증된 것으로
+간주하지 않는다(상세: `docs/research/OPENROUTER-PRODUCTION-ENGINE-MIGRATION-IMPLEMENTATION-0001.md`)."""
 
 from __future__ import annotations
 
@@ -72,8 +41,7 @@ _KNOWN_NONFUNCTIONAL_FOR_PLAIN_CHAT = frozenset(
 
 
 class OpenRouterEngineConfigError(RuntimeError):
-    """Free Pool 조회 자체가 실패했을 때 — 호출부는 이미 `except
-    Exception`으로 잡아 구조화하므로 별도 처리 불필요."""
+    pass
 
 
 def _resolve_base_url() -> str:
@@ -211,10 +179,9 @@ def _single_chat_call(candidate_ids: tuple[str, ...], prompt: str, timeout: floa
 
 
 def call_engine_via_openrouter(prompt: str) -> str:
-    """단일 OpenRouter 호출 지점. `call_engine()`/`call_engine_via_chatgpt()` 와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따른다 — 호출부가 이미 `except Exception`으로 잡아 `Engine call failed: {exc}`로 구조화하므로 여기서 실패를 삼키지 않는다.
-
-내부적으로 Free Pool 조회 → Deterministic Filter → 최대 3개 candidate 선정 → OpenRouter `models[]` 호출 → 실패 시 bounded retry(최대 1회, 실패 후보를 재시도 Pool에서 제외)를 수행한다. quota(429) 실패는 모델 교체로 회복되지 않을 수 있음을 알고 있다 (계정 단위 제약, 모델별 제약이 아님) — 그래도 재시도 자체는 수행한다(다른 원인의 일시적 실패 가능성을 배제하지 않기 위해).
-    """
+    """단일 OpenRouter 호출 지점. 실패 시 bounded retry(최대 1회, 실패 후보 제외)를 수행한다.
+    quota(429)는 계정 단위 제약이라 모델 교체로 회복되지 않을 수 있지만, 다른 원인의 일시적
+    실패 가능성을 배제하지 않기 위해 재시도 자체는 수행한다."""
     timeout = float(os.environ.get("OPENROUTER_TIMEOUT_SECONDS", OPENROUTER_DEFAULT_TIMEOUT_SECONDS))
 
     pool = _fetch_free_model_pool(timeout)

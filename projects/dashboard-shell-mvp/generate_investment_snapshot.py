@@ -1,6 +1,6 @@
 """Dashboard Shell MVP — Investment HQ Snapshot Generator.
 
-Boundary: `hqs/investment`의 Python 코드를 import하지 않는다(재사용하는 `build_investment_hq_snapshot()` 자체가 이미 이 Boundary를 지킨다 — AST 검증은 `tests/test_generate_investment_snapshot.py` 참조). trader.py 등 Engine/Agent를 호출하지 않는다.
+Boundary: hqs/investment 미import, trader.py 등 Engine/Agent 미호출 — AST 검증은 tests/test_generate_investment_snapshot.py 참조.
 """
 
 from __future__ import annotations

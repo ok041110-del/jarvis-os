@@ -1,6 +1,6 @@
 """Long-running Operation — 실제 Architecture와 연결된 작업.
 
-sleep()으로 가짜 지연을 만들지 않는다(작업 지시 §5). 실제 저장소 테스트 스위트(`pytest <hq test dir> -q`)를 subprocess로 실행한다 — 이는 Dashboard Prototype이 이미 "Latest Validation"으로 인용하는 바로 그 작업이며, Production Workflow를 수정하지 않고 기존 작업을 호출하는 방식(작업 지시 §5)이다. Dev HQ 기준 실측 69.99초 (2026-08-26, 120 passed)
+sleep()으로 가짜 지연을 만들지 않는다 — 실제 저장소 테스트 스위트를 subprocess로 실행한다(Dev HQ 기준 실측 69.99초, 2026-08-26, 120 passed).
 """
 
 from __future__ import annotations
@@ -34,8 +34,6 @@ _REGISTRY: dict[str, _Execution] = {}
 
 
 def start_operation(hq: str, valid_path: bool = True) -> str:
-    """실제 테스트 Subprocess를 시작하고 즉시 반환한다(비동기)."""
-
     if hq not in _HQ_TEST_PATHS:
         raise ValueError(f"unknown_hq: {hq}")
 
@@ -62,10 +60,7 @@ class OperationStatus:
 
 
 def poll(execution_id: str) -> OperationStatus:
-    """실행 중인 Subprocess의 현재 상태를 non-blocking으로 조회한다.
-
-완료 후 재조회(idempotent poll)를 실제로 검증하는 과정에서 발견된 문제: `stdout.read()`는 스트림을 소모하므로 완료 이후 두 번째 poll()에서 재호출하면 빈 문자열을 반환한다 — 완료 시점의 결과를 `_Execution.cached_status`에 캐싱해 해결한다.
-    """
+    """`stdout.read()`는 스트림을 소모하므로, 완료 시점 결과를 `cached_status`에 캐싱해 재조회 시 빈 문자열이 반환되는 문제를 막는다."""
 
     execution = _REGISTRY.get(execution_id)
     if execution is None:
@@ -97,7 +92,7 @@ def wait(execution_id: str, timeout: float | None = None) -> OperationStatus:
 
 
 def terminate(execution_id: str) -> None:
-    """테스트 정리용 — RUNNING 상태만 확인하면 되는 테스트에서 불필요한 CPU 낭비(~70초 전체 완료 대기)를 피하기 위해 Subprocess를 즉시 종료한다. Production Runtime의 취소 기능이 아니다."""
+    """테스트 정리용 — RUNNING 확인만 필요한 테스트에서 완료까지 대기하는 낭비를 피한다. Production 취소 기능이 아니다."""
 
     execution = _REGISTRY.get(execution_id)
     if execution and execution.process.poll() is None:

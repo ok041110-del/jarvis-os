@@ -140,8 +140,6 @@ def test_partial_failure_returns_all_results_runner_does_not_decide_progress():
 
 
 def test_concurrent_tasks_do_not_share_mutable_state_across_isolation_boundary():
-    """각 Task의 `input`이 서로 다른 dict를 참조하면 실행 도중 서로의 값을
-    간섭하지 않아야 한다(concurrent task isolation)."""
 
     def mutate_and_return(payload):
         payload["seen"] = payload["id"]

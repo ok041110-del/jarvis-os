@@ -1,6 +1,6 @@
 """Stage 04/05 Agent Team Experimental PoC — 결정적 검증 (IN-1 ~ IN-14).
 
-목적: `RFC-0030`/Phase F-2 확장이 후보로 선정한 두 구조 — Stage 04(Target Identification -> Implementation 순차 Handoff), Stage 05(Review ∥ QA -> deterministic Aggregator/Verdict) — 를 격리된 `projects/` 영역에서 재현해 성공/실패/의존성/병렬성/결과 종합/부분 재실행 가능성을 결정적으로 확인한다. 새 Runtime/Event Bus/Message Contract는 만들지 않는다(IN-14가 정적으로 확인).
+`RFC-0030`이 선정한 Stage 04/05 구조를 격리된 `projects/` 영역에서 재현해 결정적으로 검증한다.
 """
 from __future__ import annotations
 
@@ -31,8 +31,7 @@ def test_in1_stage04_success_full_pipeline():
 
 
 def test_in2_stage04_target_failure_short_circuits():
-    """Target Identification 실패 시 Implementation Agent가 호출되지
-    않아야 한다 — 순차 의존(F: 이전 결과에 의존)의 직접 증거."""
+    """Target Identification 실패 시 Implementation Agent가 호출되지 않아야 한다(순차 의존의 증거)."""
     calls = []
     original = caller.implementation_agent
 

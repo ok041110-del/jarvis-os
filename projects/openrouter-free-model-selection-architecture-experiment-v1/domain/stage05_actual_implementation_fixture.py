@@ -1,7 +1,5 @@
-"""Stage 05 Review 재실험 전용 — **실제** Stage 04 Implementation을 Review 대상으로 고정한다(이전 실험이 placeholder 텍스트를 전달했던 결함 제거).
-
-**Stage 01~04를 재실행하지 않는다** — 이 세션이 이전에 실제로 성공시킨 Stage 04 결과(`OPENROUTER-AUTO-SELECTION-V1-VALIDATION-0001.md` stage04 run 1)를 원본 JSON에서 그대로 복사해 바이트 단위로 동결(freeze)한 것이며, placeholder/dummy가 아니라 실제 LLM이 생성한 문자열 그 자체다.
-"""
+"""Stage 05 Review 재실험 전용 — 이전 실험의 placeholder 결함을 없애기 위해 **실제** Stage 04 Implementation을 Review 대상으로 고정한다.
+Stage 01~04는 재실행하지 않는다 — 이 세션이 이전에 실제로 성공시킨 Stage 04 결과를 원본 JSON에서 그대로 복사해 동결한 것이다."""
 
 from __future__ import annotations
 

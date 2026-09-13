@@ -1,4 +1,4 @@
-"""Stage 01~05 공통 Fixture — 이전 세션(`OPENROUTER-STAGE-MODEL- SELECTION-0001.md`)이 이미 실측에 쓴 것과 동일한 시나리오("Add input validation to code review agent")를 그대로 재사용한다(새 시나리오 발명 없음, 비교 가능성 유지). Production 파일은 읽기만 한다."""
+"""Stage 01~05 공통 Fixture — 이전 세션이 실측에 쓴 동일 시나리오를 재사용한다(비교 가능성 유지). Production 파일은 읽기만 한다."""
 
 from __future__ import annotations
 

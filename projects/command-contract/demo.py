@@ -1,7 +1,4 @@
-"""Command Contract Prototype — 수동 실행 데모(Evidence 문서용).
-
-실행: python3 projects/command-contract/demo.py
-"""
+"""Command Contract Prototype — 수동 실행 데모(Evidence 문서용)."""
 
 from __future__ import annotations
 

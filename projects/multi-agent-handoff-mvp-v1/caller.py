@@ -10,7 +10,6 @@ from domain.agents import run_drafter, run_reviewer
 
 
 def run_sequential_handoff(topic: str, *, fail_drafter: bool = False, fail_reviewer: bool = False) -> dict:
-    """Agent A(drafter) -> Agent B(reviewer) 순차 전달, 실패 시 즉시 반환(값 기반)."""
     draft_result = run_drafter(topic, fail=fail_drafter)
     if draft_result["status"] != "ok":
         return {"status": "error", "failed_at": "drafter", "detail": draft_result}
@@ -27,8 +26,7 @@ def run_sequential_handoff(topic: str, *, fail_drafter: bool = False, fail_revie
 
 
 def run_parallel_independent_agents(topics: list[str]) -> list[dict]:
-    """독립적인 Drafter 여러 인스턴스를 동시 실행 — 관찰용(§16.4 Multi-Task
-    범위 재확인). 각 결과는 서로 입력 독립·출력 비의존이다."""
+    """독립적인 Drafter 여러 인스턴스를 동시 실행 — Multi-Task 범위 재확인을 위한 관찰용."""
     with ThreadPoolExecutor(max_workers=len(topics)) as pool:
         results = list(pool.map(run_drafter, topics))
     return results

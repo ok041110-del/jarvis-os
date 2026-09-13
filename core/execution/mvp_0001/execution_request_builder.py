@@ -18,16 +18,9 @@ KNOWN_SECTIONS = (
 
 
 def build_execution_request(implementation_specification: str) -> str:
-    """Implementation Specification을 Execution Request로 변환한다.
-
-    입력 텍스트를 변경하지 않고 머리말만 붙인다(Deterministic).
-    """
     return f"{EXECUTION_REQUEST_HEADER}{implementation_specification}"
 
 
 def find_known_sections(text: str) -> dict:
-    """`## {Section}` 마커로 시작하는 8개 알려진 절의 존재 여부만 확인한다.
-
-Artifact Mapping 검증용 보조 함수이며 `build_execution_request()`의 변환 경로에는 관여하지 않는다.
-    """
+    """Artifact Mapping 검증용 보조 함수 — `build_execution_request()`의 변환 경로와는 무관하다."""
     return {section: f"## {section}\n" in text for section in KNOWN_SECTIONS}

@@ -65,7 +65,6 @@ def _import_roots(src: str) -> set[str]:
 
 
 def _defines_self_recursive_function(src: str, func_name: str) -> bool:
-    """`func_name` 함수 정의의 바디 안에 자기 자신을 호출하는 Call 노드가 있는가."""
     tree = ast.parse(src)
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) and node.name == func_name:

@@ -80,8 +80,6 @@ def test_synthesize_prd_skeleton_reflects_context_bundle(monkeypatch):
 
 
 def test_synthesize_prd_input_includes_structured_understanding_not_reasoned_again(monkeypatch):
-    """PRD 생성이 Structured Understanding을 재추론하지 않고 그대로
-    직렬화해 Engine에 전달하는지(Synthesis) 확인한다."""
     seen = {}
 
     def fake_requirement_agent(issue):

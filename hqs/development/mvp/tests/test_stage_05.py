@@ -371,8 +371,6 @@ def _stub_deterministic_checks(monkeypatch, code_review="REVIEW"):
 
 
 def test_excluding_test_execution_from_required_checks_skips_its_actual_execution(monkeypatch):
-    """required_checks에서 `test_execution`을 빼면, 그 검사 함수가 실제로
-    호출되지 않는다(단순 결과 무시가 아니라 실행 자체가 skip됨)."""
     _stub_deterministic_checks(monkeypatch)
     calls = []
 
@@ -393,8 +391,6 @@ def test_excluding_test_execution_from_required_checks_skips_its_actual_executio
 
 
 def test_required_checks_value_changes_verdict_for_same_underlying_state(monkeypatch):
-    """동일한 Stage 04 Output(test_execution이 FAIL할 상태)에서, required_checks에
-    `test_execution`을 포함하느냐 빼느냐에 따라 Verdict가 실제로 달라진다."""
     _stub_deterministic_checks(monkeypatch)
     monkeypatch.setattr(
         stage_05,

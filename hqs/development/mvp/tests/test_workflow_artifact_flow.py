@@ -46,8 +46,6 @@ def test_happy_path_returns_all_four_keys_in_order(monkeypatch):
 
 
 def test_design_receives_original_issue_not_enriched(monkeypatch):
-    """Docstring 계약: Design에는 Context가 섞이지 않은 원본 Issue를
-    그대로 넘긴다."""
     _patch_pre_try_deps(monkeypatch)
     seen = {}
 

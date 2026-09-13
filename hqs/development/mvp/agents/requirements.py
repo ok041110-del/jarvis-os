@@ -1,5 +1,3 @@
-"""Requirements Agent — requirement_analysis Capability(Agent Package Refactoring, `DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2). Multi-Engine Architecture 3번째 Engine인 OpenRouter Free Model Selection (`ADR-0027`)을 사용한다."""
-
 from ..openrouter_engine import call_engine_via_openrouter as call_engine
 
 
