@@ -17,7 +17,7 @@ CHAT_COMPLETIONS_PATH = "/api/v1/chat/completions"
 
 
 class OmniRouteCallError(Exception):
-    """OmniRoute 호출 실패의 기본 예외."""
+    pass
 
 
 class OmniRouteAuthError(OmniRouteCallError):
@@ -33,15 +33,15 @@ class OmniRouteProviderError(OmniRouteCallError):
 
 
 class OmniRouteTimeoutError(OmniRouteCallError):
-    """응답 시간 초과."""
+    pass
 
 
 class OmniRouteConnectionError(OmniRouteCallError):
-    """OmniRoute endpoint에 연결할 수 없음."""
+    pass
 
 
 class OmniRouteCancelledError(OmniRouteCallError):
-    """호출이 취소됨."""
+    pass
 
 
 def _build_request_body(prompt, *, model):
