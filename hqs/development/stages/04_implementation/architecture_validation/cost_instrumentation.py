@@ -1,6 +1,4 @@
-"""Stage 04 Architecture Validation — Cost Instrumentation(§7). Production의
-`call_engine_via_omniroute()`가 `usage`를 버리는 것은 Thin Caller Contract
-(ADC-0031/ADR-0017)를 지키기 위한 의도된 설계이지 버그가 아니다."""
+"""Stage 04 Architecture Validation — Cost Instrumentation(§7). Production의 `call_engine_via_omniroute()`가 `usage`를 버리는 것은 Thin Caller Contract (ADC-0031/ADR-0017)를 지키기 위한 의도된 설계이지 버그가 아니다."""
 
 import http.client
 import json

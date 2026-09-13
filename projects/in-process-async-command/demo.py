@@ -1,8 +1,6 @@
 """In-process Async Command Prototype — 수동 실행 데모(Evidence 문서용).
 
-1) Case B로 Dev HQ(~69초)와 Investment HQ를 동시 실행해 완료까지 관찰한다(자동 테스트 스위트에는 미포함).
-2) 동일 대상을 두 Thread에서 동시 실행했을 때 in-process 실행 자체의 한계를 탐색한다.
-"""
+1) Case B로 Dev HQ(~69초)와 Investment HQ를 동시 실행해 완료까지 관찰한다(자동 테스트 스위트에는 미포함). 2) 동일 대상을 두 Thread에서 동시 실행했을 때 in-process 실행 자체의 한계를 탐색한다."""
 
 from __future__ import annotations
 

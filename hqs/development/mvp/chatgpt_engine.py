@@ -1,6 +1,4 @@
-"""ChatGPT를 통한 단일 Engine 호출 함수 — Multi-Engine Architecture의 Reasoning/Review 측 Engine
-(`ADR-0024`). `omniroute_engine.py::call_engine_via_omniroute()`와 동일한 외부 계약(`str -> str`,
-실패 시 `RuntimeError`)을 따른다."""
+"""ChatGPT를 통한 단일 Engine 호출 함수 — Multi-Engine Architecture의 Reasoning/Review 측 Engine (`ADR-0024`). `omniroute_engine.py::call_engine_via_omniroute()`와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따른다."""
 
 import json
 import os
@@ -45,9 +43,7 @@ def _parse_response(status, body_bytes):
 
 
 def call_engine_via_chatgpt(prompt: str) -> str:
-    """단일 ChatGPT 호출 지점(ENGINE-CONNECT-CHATGPT-0001).
-    `urllib.request`를 사용한다 — Claude Environment의 `HTTPS_PROXY`를 자동으로 경유하기 위함이다
-    (`http.client.HTTPSConnection`은 이 환경변수를 읽지 않아 Agent Egress Proxy를 우회해 버린다)."""
+    """단일 ChatGPT 호출 지점(ENGINE-CONNECT-CHATGPT-0001). `urllib.request`를 사용한다 — Claude Environment의 `HTTPS_PROXY`를 자동으로 경유하기 위함이다 (`http.client.HTTPSConnection`은 이 환경변수를 읽지 않아 Agent Egress Proxy를 우회해 버린다)."""
     base_url, api_key, model, timeout = _resolve_config()
     body = json.dumps({
         "model": model,

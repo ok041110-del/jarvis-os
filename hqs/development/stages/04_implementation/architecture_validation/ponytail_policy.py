@@ -1,9 +1,4 @@
-"""Stage 04 Ponytail Policy Guardrails — 정책 7개 중 코드로 검증 가능한
-항목만 다룬다: 1(Architect 아님)·5(다른 파일 미수정)는 구조적으로 항상
-만족해 코드 검사 대상이 아니다. 2→`check_scope_unchanged`, 3→
-`check_target_unchanged`, 4→`check_no_new_imports`, 6/7→
-`check_no_op_when_gate_passed`. `select_final_candidate()`가 현재
-refinement 없이 순수 선택만 하므로(0%), 이 정책은 항상 공허하게 만족된다."""
+"""Stage 04 Ponytail Policy Guardrails — 정책 7개 중 코드로 검증 가능한 항목만 다룬다: 1(Architect 아님)·5(다른 파일 미수정)는 구조적으로 항상 만족해 코드 검사 대상이 아니다. 2→`check_scope_unchanged`, 3→ `check_target_unchanged`, 4→`check_no_new_imports`, 6/7→ `check_no_op_when_gate_passed`. `select_final_candidate()`가 현재 refinement 없이 순수 선택만 하므로(0%), 이 정책은 항상 공허하게 만족된다."""
 
 import ast
 import sys
@@ -43,8 +38,6 @@ def check_no_new_imports(code_before: str, code_after: str) -> CheckResult:
 
 
 def check_scope_unchanged(code_before: str, code_after: str) -> CheckResult:
-    """refinement 전후로 정의된 최상위 함수 집합이 동일한지 확인한다 —
-    "Design/Contract/Scope를 변경하지 않는다" 정책."""
     try:
         before_defs = {n.name for n in ast.walk(ast.parse(code_before)) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
         after_defs = {n.name for n in ast.walk(ast.parse(code_after)) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
@@ -56,8 +49,6 @@ def check_scope_unchanged(code_before: str, code_after: str) -> CheckResult:
 
 
 def check_no_op_when_gate_passed(code_before: str, code_after: str, gate_passed_before: bool) -> CheckResult:
-    """이미 Deterministic Gate를 통과한("충분히 좋은") 후보는 수정 없이
-    그대로 선택돼야 한다 — 정책 6/7."""
     if gate_passed_before and code_before != code_after:
         return CheckResult(False, "candidate already passed the gate but was modified")
     return CheckResult(True)

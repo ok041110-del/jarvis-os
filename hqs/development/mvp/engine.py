@@ -1,6 +1,4 @@
-"""Claude Code Engine — Multi-Engine Architecture의 Implementation/Execution 측 Engine(`ADR-0024`).
-`disallowedTools`로 filesystem/shell 접근을 전부 차단해 Repository Execution이 아닌
-Text/Reasoning Execution Mode로 제한한다(`ADR-0024` §Non-goal)."""
+"""Claude Code Engine — Multi-Engine Architecture의 Implementation/Execution 측 Engine(`ADR-0024`). `disallowedTools`로 filesystem/shell 접근을 전부 차단해 Repository Execution이 아닌 Text/Reasoning Execution Mode로 제한한다(`ADR-0024` §Non-goal)."""
 
 import subprocess
 import tempfile

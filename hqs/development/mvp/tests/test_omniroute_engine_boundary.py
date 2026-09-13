@@ -1,7 +1,6 @@
 """`omniroute_engine.py` 자신의 Case A(Thin Engine Caller) 경계를 정적으로 확인한다.
 
-**Superseded 안내**: 호출부 전수 검사(Engine 수=1 가정)는 `ADR-0024` Multi-Engine 전환으로 `test_engine_boundary.py`로 이관됐다 —
-이 파일은 `omniroute_engine.py` 자신의 경계(단일 함수, Policy 로직 0줄, `engine.py`와 독립)만 계속 검증한다."""
+**Superseded 안내**: 호출부 전수 검사(Engine 수=1 가정)는 `ADR-0024` Multi-Engine 전환으로 `test_engine_boundary.py`로 이관됐다 — 이 파일은 `omniroute_engine.py` 자신의 경계(단일 함수, Policy 로직 0줄, `engine.py`와 독립)만 계속 검증한다."""
 
 import ast
 import sys

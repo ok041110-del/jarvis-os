@@ -1,6 +1,6 @@
 """Thin Caller의 request 변환·response 파싱·오류 매핑 단위 테스트.
 
-로컬 test double(`fake_server.py`)만 사용한다 — 실제 OmniRoute 서버는 쓰지 않는다(비용/egress 없음). "정상 응답" 테스트는 Caller가 OmniRoute OpenAI-compatible 응답 형태를 올바르게 파싱한다는 것만 증명한다 — 실제 OmniRoute의 동작을 증명하지 않는다.
+로컬 test double만 사용한다(비용/egress 없음) — 실제 OmniRoute의 동작을 증명하지 않는다.
 """
 
 import sys

@@ -1,6 +1,4 @@
-"""Stage 02 Task & Dependency Agent(RFC-0035/ADC-0038/ADR-0023 Decision 2) —
-Task Decomposition과 Dependency Judgment를 별도 Agent로 쪼개지 않는다. 스키마
-검증은 `planning_pipeline.py`(Deterministic Layer) 책임이다."""
+"""Stage 02 Task & Dependency Agent(RFC-0035/ADC-0038/ADR-0023 Decision 2) — Task Decomposition과 Dependency Judgment를 별도 Agent로 쪼개지 않는다. 스키마 검증은 `planning_pipeline.py`(Deterministic Layer) 책임이다."""
 
 import sys
 from pathlib import Path

@@ -1,8 +1,6 @@
 """Process Runtime Strategy — Experimental Validation.
 
-runtime-boundary의 rtb_runtime/rtb_task를 그대로 재사용한다(중복 구현 금지). test_mvp_0001.py(~69초)는 RUNNING 관찰과
-최종 정확성 확인을 같은 테스트에서 함께 수행해 전체에서 단 한 번만 시작한다.
-"""
+runtime-boundary의 rtb_runtime/rtb_task를 그대로 재사용한다(중복 구현 금지). test_mvp_0001.py(~69초)는 RUNNING 관찰과 최종 정확성 확인을 같은 테스트에서 함께 수행해 전체에서 단 한 번만 시작한다."""
 
 from __future__ import annotations
 

@@ -1,8 +1,6 @@
 """Dashboard Shell MVP — 로컬 실행 스크립트.
 
-정적 파일 서빙 외 `/api/command`·`/api/llm-command` 두 경로만 추가한다. `/api/command`는 raw_input을 command-contract의
-`parse_command()`/`resolve()`에 그대로 전달하고(로직 복제 없음), `/api/llm-command`는 그 앞단에 실제 Claude 호출을 한 번 더 거친다.
-"""
+정적 파일 서빙 외 `/api/command`·`/api/llm-command` 두 경로만 추가한다. `/api/command`는 raw_input을 command-contract의 `parse_command()`/`resolve()`에 그대로 전달하고(로직 복제 없음), `/api/llm-command`는 그 앞단에 실제 Claude 호출을 한 번 더 거친다."""
 
 from __future__ import annotations
 

@@ -31,9 +31,7 @@ def analyst_news_event(state: dict) -> dict:
 def analyst_sentiment(state: dict) -> dict:
     """Gate C(i) 실험 대상 노드 — engine_cache로 캡처한 실제 Engine 호출을 재현성 있게 재생한다.
 
-    `engine_mode == "raise"` 시나리오에서는 미리 캡처된 실제 예외를 재발생시켜
-    catch-and-encode를 검증한다.
-    """
+`engine_mode == "raise"` 시나리오에서는 미리 캡처된 실제 예외를 재발생시켜 catch-and-encode를 검증한다."""
     cfg = scenario_config(state["scenario"])
     if cfg["engine_mode"] == "raise":
         raise engine_cache.get_captured_exception(state["scenario"])

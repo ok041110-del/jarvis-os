@@ -1,8 +1,6 @@
 """Phase E — Minimal Multi-Agent 실행 시나리오 검증 (IN-1 ~ IN-7).
 
-ADC-02(Runtime 개념의 존폐) 판단에 필요한 실행 Evidence 확보용 — 현재 Contract(직접 함수 호출)만으로 최소 Multi-Agent 시나리오가
-재현되는지만 관찰하며, Runtime을 채택·구현하지 않는다.
-"""
+ADC-02(Runtime 개념의 존폐) 판단에 필요한 실행 Evidence 확보용 — 현재 Contract(직접 함수 호출)만으로 최소 Multi-Agent 시나리오가 재현되는지만 관찰하며, Runtime을 채택·구현하지 않는다."""
 from __future__ import annotations
 
 import sys

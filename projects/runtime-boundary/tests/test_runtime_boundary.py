@@ -1,8 +1,6 @@
 """Runtime Boundary Prototype — Functional/Boundary Validation.
 
-test_stock_team_integration.py(실측 0.03~0.13초, 2 passed)를 in-process-async-command가 발견한 monkeypatch 오염의
-최소 재현 대상으로 쓴다.
-"""
+test_stock_team_integration.py(실측 0.03~0.13초, 2 passed)를 in-process-async-command가 발견한 monkeypatch 오염의 최소 재현 대상으로 쓴다."""
 
 from __future__ import annotations
 

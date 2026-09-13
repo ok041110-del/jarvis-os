@@ -1,6 +1,4 @@
-"""Stage 02 Deterministic Layer(RFC-0035/ADC-0038/ADR-0023 Decision 3) — LLM
-호출 없이 코드로만 검증/정렬/조립한다. Cycle Detection은 구조적 무결성만
-보장하며, 순환이 아닌 의미적 오류는 걸러내지 못한다(ADR-0023 한계)."""
+"""Stage 02 Deterministic Layer(RFC-0035/ADC-0038/ADR-0023 Decision 3) — LLM 호출 없이 코드로만 검증/정렬/조립한다. Cycle Detection은 구조적 무결성만 보장하며, 순환이 아닌 의미적 오류는 걸러내지 못한다(ADR-0023 한계)."""
 
 
 class PlanningPipelineError(ValueError):

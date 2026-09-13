@@ -1,6 +1,4 @@
-"""Stage 04 Architecture Validation — Ponytail Adapter(§11). **실제 Ponytail
-Supervisor가 아니다** — LLM 판단 없이 결정적 규칙으로 후보를 고르는 controlled
-adapter일 뿐이며, Architecture를 이미 채택한 것처럼 보이게 만들지 않는다."""
+"""Stage 04 Architecture Validation — Ponytail Adapter(§11). **실제 Ponytail Supervisor가 아니다** — LLM 판단 없이 결정적 규칙으로 후보를 고르는 controlled adapter일 뿐이며, Architecture를 이미 채택한 것처럼 보이게 만들지 않는다."""
 
 
 def select_final_candidate(candidates: list) -> dict | None:

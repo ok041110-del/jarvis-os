@@ -100,8 +100,6 @@ def test_missing_context_length_is_not_determined_not_excluded():
 
 
 def test_contract_compatibility_is_always_not_determined_at_filter_stage():
-    """사전 메타데이터로 Contract 준수 여부를 판정할 수 없다는 원칙 —
-    모든 모델에 대해 이 체크는 항상 NOT_DETERMINED여야 한다."""
     model = FreeModelMetadata(
         id="any/model:free",
         context_length=999999,

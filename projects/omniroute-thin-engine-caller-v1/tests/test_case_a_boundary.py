@@ -1,6 +1,4 @@
-"""Thin Caller가 Case A 범위(`ADC-0031` §Q1)를 지키고, Jarvis 자체 Routing/Gateway/Policy 로직이 존재하지 않음을 정적으로 검증한다.
-
-이 테스트는 동작이 아니라 **구조**를 검증한다 — `caller.py` 소스와 저장소 전체를 대상으로, 금지된 패턴이 없는지, production 경로에서 import되지 않는지를 확인한다.
+"""Thin Caller가 Case A 범위(`ADC-0031` §Q1)를 지키는지 정적으로 검증한다 — 동작이 아니라 구조(금지 패턴, production import 여부)를 확인한다.
 """
 
 import ast

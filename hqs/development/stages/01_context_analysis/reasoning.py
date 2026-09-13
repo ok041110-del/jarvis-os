@@ -1,6 +1,4 @@
-"""Stage 01 Multi-Agent Reasoning(RFC-0033/ADC-0036/ADR-0021) — Reasoning 목적
-호출은 OpenRouter Free Model Selection(ADR-0027)을 사용하며, 이 모듈은 Engine
-routing/provider 선택 정책을 소유하지 않는다(실제 쓰이는 모델을 알지 못한다)."""
+"""Stage 01 Multi-Agent Reasoning(RFC-0033/ADC-0036/ADR-0021) — Reasoning 목적 호출은 OpenRouter Free Model Selection(ADR-0027)을 사용하며, 이 모듈은 Engine routing/provider 선택 정책을 소유하지 않는다(실제 쓰이는 모델을 알지 못한다)."""
 
 import json
 import re

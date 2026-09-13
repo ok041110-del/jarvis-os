@@ -1,7 +1,5 @@
 """Unified Dashboard Prototype — snapshot.py 데이터를 frontend가 읽을 JSON으로 내보낸다.
-
-기존 `generate_dashboard.py`(HTML 경로)를 대체하지 않는다 — 이 파일은 같은 `snapshot.py`를 재사용해 두 번째 출력 형식(JSON)만 추가한다. `snapshot.py`와 동일한 Boundary를 유지한다: `hqs/*` Python 모듈을 import하지 않고, Engine/Agent를 호출하지 않는다(`snapshot.py`가 이미 검증된 방식으로 읽은 값을 그대로 직렬화할 뿐이다).
-"""
+`generate_dashboard.py`(HTML 경로)를 대체하지 않고 같은 `snapshot.py`를 재사용해 두 번째 출력 형식만 추가한다 — Boundary(hqs/* 미import, Engine/Agent 미호출)도 동일하게 유지."""
 
 from __future__ import annotations
 

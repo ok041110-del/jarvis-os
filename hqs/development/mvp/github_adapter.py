@@ -1,6 +1,4 @@
-"""GitHubRepositoryAdapter — GitHub REST API로 RepositorySnapshot을 구성한다(§6/§7).
-Repository 접근은 REST API로 한정한다(GraphQL/Search/Issues/PR/Actions/Commit History는 범위 밖).
-인증은 환경변수(`GITHUB_TOKEN`)로만 받는다 — 코드/fixture에 하드코드하지 않는다."""
+"""GitHubRepositoryAdapter — GitHub REST API로 RepositorySnapshot을 구성한다(§6/§7). Repository 접근은 REST API로 한정한다(GraphQL/Search/Issues/PR/Actions/Commit History는 범위 밖). 인증은 환경변수(`GITHUB_TOKEN`)로만 받는다 — 코드/fixture에 하드코드하지 않는다."""
 
 import base64
 import json

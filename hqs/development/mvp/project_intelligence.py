@@ -104,6 +104,7 @@ class IssueValidationError(ValueError):
 
 
 def validate_issue(issue: dict) -> None:
+    """`title`/`description`만 필수 Issue 필드로 검사한다."""
     if not isinstance(issue, dict):
         raise IssueValidationError(f"issue must be a dict, got {type(issue).__name__}")
 

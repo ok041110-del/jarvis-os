@@ -1,6 +1,4 @@
-"""OmniRoute를 통한 단일 Engine 호출 함수 — Thin Engine Caller(Case A, `ADC-0031` §Decision,
-`ADR-0017` §2·§6): 단일 함수가 OmniRoute OpenAI-compatible endpoint 하나만 호출하고,
-Provider/Model 선택·Retry·Fallback은 OmniRoute에 위임한다."""
+"""OmniRoute를 통한 단일 Engine 호출 함수 — Thin Engine Caller(Case A, `ADC-0031` §Decision, `ADR-0017` §2·§6): 단일 함수가 OmniRoute OpenAI-compatible endpoint 하나만 호출하고, Provider/Model 선택·Retry·Fallback은 OmniRoute에 위임한다."""
 
 import http.client
 import json
@@ -45,9 +43,7 @@ def _parse_response(status, body_bytes):
 
 
 def call_engine_via_omniroute(prompt: str) -> str:
-    """단일 OmniRoute 호출 지점(ENGINE-CONNECT-OMNIROUTE-0001).
-    Production에서 쓰려면 운영자가 해당 OmniRoute 인스턴스에 `blockedProviders`/`REQUIRE_API_KEY`를
-    사전 구성해야 한다(`EVIDENCE-0003`~`EVIDENCE-0005`의 zero-config egress 방어 — 이 함수는 대신하지 않는다)."""
+    """단일 OmniRoute 호출 지점(ENGINE-CONNECT-OMNIROUTE-0001). Production에서 쓰려면 운영자가 해당 OmniRoute 인스턴스에 `blockedProviders`/`REQUIRE_API_KEY`를 사전 구성해야 한다(`EVIDENCE-0003`~`EVIDENCE-0005`의 zero-config egress 방어 — 이 함수는 대신하지 않는다)."""
     base_url, api_key, model, timeout = _resolve_config()
     parsed_url = urllib.parse.urlparse(base_url)
     conn_cls = (

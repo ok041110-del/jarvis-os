@@ -1,6 +1,4 @@
-"""Backend Agent — code_review/code_generation Capability(`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2).
-두 Capability를 `call_engine_review`/`call_engine_generation`으로 분리 유지한다 —
-module-level 이름 하나를 공유하면 Agent-level 경계와 맞지 않는다는 지적(`RFC-0036` §1.4) 때문이다."""
+"""Backend Agent — code_review/code_generation Capability(`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2). 두 Capability를 `call_engine_review`/`call_engine_generation`으로 분리 유지한다 — module-level 이름 하나를 공유하면 Agent-level 경계와 맞지 않는다는 지적(`RFC-0036` §1.4) 때문이다."""
 
 from ..openrouter_engine import call_engine_via_openrouter as call_engine_review
 from ..openrouter_engine import call_engine_via_openrouter as call_engine_generation

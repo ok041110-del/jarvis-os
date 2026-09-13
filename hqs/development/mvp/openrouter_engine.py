@@ -1,12 +1,6 @@
-"""OpenRouter Engine 호출 — Multi-Engine Architecture의 3번째 Engine(`ADR-0027`, `RFC-0041`).
-`call_engine()`/`call_engine_via_chatgpt()`와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을
-따르며, Free Model Pool 조회 → Deterministic Filter → 최대 3개 candidate 선정까지만 수행하고
-실제 모델 선택/재시도 판정은 OpenRouter에 위임한다(`ADR-0026` §7) — 모델 품질 추정·우선순위·
-Stage별 모델 고정은 명시적으로 배제한다.
+"""OpenRouter Engine 호출 — Multi-Engine Architecture의 3번째 Engine(`ADR-0027`, `RFC-0041`). `call_engine()`/`call_engine_via_chatgpt()`와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따르며, Free Model Pool 조회 → Deterministic Filter → 최대 3개 candidate 선정까지만 수행하고 실제 모델 선택/재시도 판정은 OpenRouter에 위임한다(`ADR-0026` §7) — 모델 품질 추정·우선순위· Stage별 모델 고정은 명시적으로 배제한다.
 
-**선(先) 배선 상태**: `ADR-0027` §10 Deviation으로 사용자가 명시적으로 승인한 배선이며,
-Validation Gate 검증 완료 전까지 Production 신뢰성(quota/latency/model quality)은 검증된 것으로
-간주하지 않는다(상세: `docs/research/OPENROUTER-PRODUCTION-ENGINE-MIGRATION-IMPLEMENTATION-0001.md`)."""
+**선(先) 배선 상태**: `ADR-0027` §10 Deviation으로 사용자가 명시적으로 승인한 배선이며, Validation Gate 검증 완료 전까지 Production 신뢰성(quota/latency/model quality)은 검증된 것으로 간주하지 않는다(상세: `docs/research/OPENROUTER-PRODUCTION-ENGINE-MIGRATION-IMPLEMENTATION-0001.md`)."""
 
 from __future__ import annotations
 
@@ -179,9 +173,7 @@ def _single_chat_call(candidate_ids: tuple[str, ...], prompt: str, timeout: floa
 
 
 def call_engine_via_openrouter(prompt: str) -> str:
-    """단일 OpenRouter 호출 지점. 실패 시 bounded retry(최대 1회, 실패 후보 제외)를 수행한다.
-    quota(429)는 계정 단위 제약이라 모델 교체로 회복되지 않을 수 있지만, 다른 원인의 일시적
-    실패 가능성을 배제하지 않기 위해 재시도 자체는 수행한다."""
+    """단일 OpenRouter 호출 지점. 실패 시 bounded retry(최대 1회, 실패 후보 제외)를 수행한다. quota(429)는 계정 단위 제약이라 모델 교체로 회복되지 않을 수 있지만, 다른 원인의 일시적 실패 가능성을 배제하지 않기 위해 재시도 자체는 수행한다."""
     timeout = float(os.environ.get("OPENROUTER_TIMEOUT_SECONDS", OPENROUTER_DEFAULT_TIMEOUT_SECONDS))
 
     pool = _fetch_free_model_pool(timeout)

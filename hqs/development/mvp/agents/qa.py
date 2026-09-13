@@ -1,6 +1,4 @@
-"""QA Agent — test_execution Capability(`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2).
-Claude Code Engine을 쓴다 — repository test 실행과 개념적으로 가장 가까운 Capability이기 때문이며,
-Contract는 여전히 텍스트 제안 반환만 한다(실제 test 실행 권한은 없음, `ADR-0024` §Non-goal)."""
+"""QA Agent — test_execution Capability(`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` §2). Claude Code Engine을 쓴다 — repository test 실행과 개념적으로 가장 가까운 Capability이기 때문이며, Contract는 여전히 텍스트 제안 반환만 한다(실제 test 실행 권한은 없음, `ADR-0024` §Non-goal)."""
 
 from ..engine import call_engine
 

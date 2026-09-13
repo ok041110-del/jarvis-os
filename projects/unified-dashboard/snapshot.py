@@ -18,63 +18,8 @@ PresentationState = str  # "NORMAL" | "WORKING" | "BLOCKED" | "DEFERRED" | "UNKN
 
 @dataclass
 class HQSnapshot:
-    """Experimental Prototype Contract — DashboardSnapshot의 최소
-    View Model. 공식 HQDashboardSnapshot(docs/research/JARVIS-OS-V2.0-
-    UNIFIED-DASHBOARD-ARCHITECTURE-0001.md §6)을 Freeze하지 않는다.
-
-    `execution`은 Investment HQ Execution Evidence Vertical Slice로
-    추가된 Experimental 필드다 — 기존 `checkpoints/manifest.json`의
-    `call_log`를 그대로 옮긴 것뿐이며, 이 필드가 있다고 해서
-    `HQSnapshot`이 Public Contract로 승격되는 것은 아니다. 값이 없는
-    HQ(Development HQ 등)는 빈 리스트를 유지한다(가상 데이터 생성 금지).
-
-    `execution[].run`은 Execution Evidence — 전체 History Run 확장
-    Vertical Slice로 추가됐다 — 팀별 대표 run(trader-verify 계열) 1개의
-    call_log만 보이던 것을, `history`와 동일하게 `hqs/investment/
-    dogfooding/`에 실제 존재하는 9개 run(legacy hq-verify 계열 포함)
-    전체로 넓힌 것이다. 값은 `history[].run`과 같은 디렉터리명이므로
-    두 표가 가리키는 run 이름이 서로 어긋나지 않는다.
-
-    `history`는 Investment HQ History Vertical Slice로 추가된
-    Experimental 필드다 — `hqs/investment/dogfooding/` 아래 실제
-    존재하는 run 디렉터리(팀 prefix로 스캔)를 run 단위로 요약한다.
-    파일에 없는 절대 실행 시각·SUCCESS/FAILED 상태는 만들지 않는다.
-    정렬은 디렉터리 스캔 순서(문자열 오름차순)일 뿐이다 — Snapshot
-    Boundary Review(2026-08) 결론에 따라 git commit 순서 조회
-    (subprocess)는 도입하지 않는다: History는 최종 Dashboard 필수
-    기능이 아니라 Prototype 관찰용이고, subprocess는 "Evidence
-    파일을 읽기만 한다"는 이 모듈의 Boundary를 불필요하게 넓히는
-    비용이 이득보다 크다고 판단했다.
-
-    `history[].tasks`는 Investment HQ Tasks/Progress Vertical Slice로
-    추가된 Experimental 필드다 — 기존에 이미 읽던 `manifest.json`의
-    `completed_steps`를 개수뿐 아니라 이름 리스트 그대로 옮긴 것이다.
-    이 배열의 순서는 **완료 도착 순서**다(Wave1의 분석 단계들은
-    `ThreadPoolExecutor`로 병렬 실행되므로 `checkpoint.py`가 저장을
-    마친 순서일 뿐, `hqs/investment/teams/*.py`가 정의한 Wave 실행
-    순서(Wave1→Wave2→Wave3→Wave4)와 다르다) — 가상의 시퀀스를
-    부여하지 않는다.
-
-    `history[].progress_total`/`progress_pct`는 같은 Vertical Slice로
-    추가됐다 — `_TEAM_TOTAL_STEPS`(각 팀의 `teams/*.py`에 실제 존재하는
-    Wave1 분석 역할 수 + 고정 4단계를 문자 그대로 옮긴 리터럴)를
-    분모로 삼는다. 이 분모는 `trader_decision` 단계가 실제로 관측된
-    run(현재 `trader-verify` 계열 패턴)에만 적용한다 — `synthesis`
-    단계를 쓰던 레거시 run(`hq-verify` 등)은 Task 구성 자체가 달라
-    같은 분모를 강제로 적용하면 틀린 값이 되므로, 두 필드 모두
-    `None`으로 남겨 "정확히 계산할 수 없음"을 그대로 드러낸다.
-
-    `history[].trader_decision_detail`은 Investment HQ Trader Decision
-    Rationale/Reassess Vertical Slice로 추가된 Experimental 필드다 —
-    기존 `trader_decision`(Direction 한 단어) 추출에 이미 쓰던 같은
-    `trader_decision.md` 텍스트에서 Rationale/Reassess when을 추가로
-    읽은 것뿐이며, 새 파일이나 새 경로를 열지 않는다. 기존
-    `trader_decision` 필드의 의미(Direction 단어, 하위 호환)는
-    변경하지 않는다. `trader_decision.md`가 없는 run(레거시
-    `hq-verify` 등)은 `None`이다 — 빈 문자열이나 임의값을 채우지
-    않는다. 파일은 있으나 Rationale/Reassess 섹션 중 일부를 정규식이
-    찾지 못한 경우에도 해당 키만 `None`이다(다른 값을 대신 지어내지
-    않는다)."""
+    """Experimental Prototype Contract — 공식 HQDashboardSnapshot(docs/research/JARVIS-OS-V2.0-UNIFIED-DASHBOARD-ARCHITECTURE-0001.md §6)을 Freeze하지 않는다.
+    값이 없는 필드(`execution`/`history`/`trader_decision_detail` 등)는 항상 빈 리스트나 `None`으로 남기고 가상 데이터를 만들지 않는다 — `history`의 정렬·순서는 디렉터리 스캔/저장 완료 순서일 뿐 실제 실행 순서를 의미하지 않는다."""
 
     identity: str
     status: PresentationState
@@ -162,15 +107,13 @@ def _progress_for_run(team_label: str, tasks: list[str]) -> tuple[int | None, fl
 
 
 def _discover_team_run_dirs(dogfooding_dir: Path, prefix: str) -> list[Path]:
-    """ticker prefix(`{prefix}-...`)로 시작하는 실제 존재하는 run
-    디렉터리를 전부 찾는다 — 하드코딩된 이름 하나만 보지 않는다."""
     if not dogfooding_dir.is_dir():
         return []
     return sorted(p for p in dogfooding_dir.iterdir() if p.is_dir() and p.name.startswith(f"{prefix}-"))
 
 
 def _run_family(run_dir_name: str, prefix: str) -> str:
-    """디렉터리명에서 prefix를 뗀 나머지를 그대로 계열명으로 쓴다 — 팀마다 실제 문자열이 다를 수 있으므로(예: efa는 hq-verify가 아니라 2026-08) 억지로 통일하지 않는다(존재하지 않는 의미 추론 금지)."""
+    """계열명은 디렉터리명 그대로 쓴다 — 팀마다 실제 문자열이 다를 수 있어(예: efa는 2026-08) 억지로 통일하지 않는다."""
     return run_dir_name[len(prefix) + 1 :]
 
 

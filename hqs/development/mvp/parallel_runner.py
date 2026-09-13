@@ -1,6 +1,4 @@
-"""ParallelRunner — 재사용 가능한 내부 병렬 실행 인프라(Stage 01 전용 코드가 아니다, RFC-0033/ADC-0036 §Out of Scope).
-책임은 task scheduling·timeout·retry·결과 수집으로 한정하며, Agent/Repository/LLM 선택이나
-semantic correctness 판단은 호출자(Aggregator)의 책임이다."""
+"""ParallelRunner — 재사용 가능한 내부 병렬 실행 인프라(Stage 01 전용 코드가 아니다, RFC-0033/ADC-0036 §Out of Scope). 책임은 task scheduling·timeout·retry·결과 수집으로 한정하며, Agent/Repository/LLM 선택이나 semantic correctness 판단은 호출자(Aggregator)의 책임이다."""
 
 import time
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError

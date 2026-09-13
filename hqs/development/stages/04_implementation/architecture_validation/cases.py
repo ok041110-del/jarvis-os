@@ -1,8 +1,4 @@
-"""Stage 04 Architecture Validation — Test Cases(RFC 요청 §12). 전부 합성
-데이터이며, `target`/`expose_target`을 Case에 고정해 A/B/C가 동일 값을 쓰게
-한다(Controlled Variables). `allowed_function_names`(정의 가능한 최대 범위)와
-`required_function_names`(필수 최소 범위)를 구분해 "재사용만 하고 재정의하지
-않아야 한다"는 요구(`case_c_helper_reuse`)를 표현한다."""
+"""Stage 04 Architecture Validation — Test Cases(RFC 요청 §12). 전부 합성 데이터이며, `target`/`expose_target`을 Case에 고정해 A/B/C가 동일 값을 쓰게 한다(Controlled Variables). `allowed_function_names`(정의 가능한 최대 범위)와 `required_function_names`(필수 최소 범위)를 구분해 "재사용만 하고 재정의하지 않아야 한다"는 요구(`case_c_helper_reuse`)를 표현한다."""
 
 CASES = [
     {
