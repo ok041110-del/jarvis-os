@@ -21,8 +21,6 @@ def is_engine_failure(text: str) -> bool:
 
 
 def run_mvp_0001(code: str) -> dict:
-    """Engine 호출 실패를 잡아 MVP.md의 반환 계약(2개 키)을 유지한 채
-    오류 메시지로 반환한다."""
     try:
         review = backend_agent_code_review(code)
         test_cases = qa_agent_test_execution(code, review)

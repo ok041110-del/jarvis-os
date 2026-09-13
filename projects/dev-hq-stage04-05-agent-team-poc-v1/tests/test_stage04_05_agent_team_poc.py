@@ -58,8 +58,7 @@ def test_in3_stage04_implementation_failure_preserves_upstream_result():
 
 
 def test_in4_stage04_partial_reexecution_only_implementation():
-    """부분 재실행 — Target Identification을 재호출하지 않고 캐시된
-    성공 결과만 재사용해 Implementation만 재시도한다."""
+    """부분 재실행 — Target Identification은 캐시된 성공 결과를 재사용한다."""
     failed = caller.run_stage04_pipeline("design-x", "index-y", fail_impl=True)
     assert failed["status"] == "error"
     cached_target = failed["target"]
@@ -70,8 +69,7 @@ def test_in4_stage04_partial_reexecution_only_implementation():
 
 
 def test_in5_stage04_no_parallelism_by_design():
-    """Target -> Implementation은 병렬화 불가능한 순차 dependency다 —
-    `run_stage04_pipeline`에 ThreadPoolExecutor가 없음을 소스로 확인."""
+    """Target -> Implementation은 순차 dependency다 — ThreadPoolExecutor가 없음을 소스로 확인한다."""
     src = (ROOT / "caller.py").read_text(encoding="utf-8")
     stage04_block = src.split("# ---- Stage 04", 1)[1].split("# ---- Stage 05", 1)[0]
     assert "ThreadPoolExecutor" not in stage04_block
@@ -94,7 +92,7 @@ def test_in7_stage05_review_failure_does_not_block_qa():
 
 
 def test_in8_stage05_verdict_ignores_agent_content():
-    """Aggregator(Verdict)가 review/qa의 텍스트 내용을 반영하지 않는가 — Policy 구현 금지 경계(Phase F-2 확장 §6)의 결정적 재확인. Agent가 둘 다 실패해도 결정적 검사가 PASS면 Verdict는 PASS다."""
+    """Agent가 둘 다 실패해도 결정적 검사가 PASS면 Verdict는 PASS다 — Policy 구현 금지 경계의 재확인."""
     result = caller.run_stage05_pipeline("def f(): return 1", fail_review=True, fail_qa=True)
     assert result["review"]["status"] == "error"
     assert result["qa"]["status"] == "error"
@@ -108,7 +106,7 @@ def test_in9_stage05_deterministic_check_failure_sets_verdict_fail():
 
 
 def test_in10_stage05_actual_parallel_execution_wall_clock():
-    """IN-10: Review/QA가 실제로 동시 실행되는가 — 각 0.2s 지연을 줘 총 소요 시간이 순차 합(0.4s)이 아니라 병렬 시간(~0.2s)에 가까운지 측정. 새 Runtime 없이 `ThreadPoolExecutor`만으로 병렬성이 실제로 나타나는지 확인하는 결정적(시간 기반) 증거."""
+    """각 0.2s 지연 시 총 소요 시간이 순차 합(0.4s)이 아니라 병렬 시간(~0.2s)에 가까운지 측정한다."""
     from concurrent.futures import ThreadPoolExecutor
 
     start = time.monotonic()
@@ -122,8 +120,7 @@ def test_in10_stage05_actual_parallel_execution_wall_clock():
 
 
 def test_in11_stage05_partial_reexecution_only_failed_agent():
-    """부분 재실행 — QA만 실패했을 때 QA만 재시도하고 Review 결과는
-    캐시에서 재사용, Verdict는 결정적 검사 기반으로 그대로 유지."""
+    """부분 재실행 — QA만 재시도하고 Review 결과는 캐시에서 재사용한다."""
     failed = caller.run_stage05_pipeline("def f(): return 1", fail_qa=True)
     assert failed["qa"]["status"] == "error"
     assert failed["review"]["status"] == "ok"
@@ -135,7 +132,6 @@ def test_in11_stage05_partial_reexecution_only_failed_agent():
 
 
 def test_in12_stage05_error_propagates_as_value_not_exception():
-    """실패가 예외로 전파되지 않고 값으로 반환되는가."""
     try:
         result = caller.run_stage05_pipeline("def f(): return 1", fail_review=True, fail_qa=True)
     except Exception as exc:  # noqa: BLE001
@@ -154,8 +150,7 @@ def test_in13_no_production_path_modified():
 
 
 def test_in14_isolation_no_forbidden_dependency():
-    """LangGraph·Kernel/HQ production·새 일반화 Runtime/Event Bus/
-    Message Contract 어휘에 의존하지 않는가 — 정적 소스 검사."""
+    """LangGraph·Kernel/HQ production·새 일반화 Runtime 어휘에 의존하지 않는지 정적 검사한다."""
     src_files = [ROOT / "caller.py", ROOT / "domain" / "agents.py", ROOT / "domain" / "checks.py"]
     forbidden_tokens = [
         "import langgraph",

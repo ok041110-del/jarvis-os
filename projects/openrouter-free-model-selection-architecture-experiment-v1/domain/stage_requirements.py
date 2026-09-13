@@ -1,7 +1,5 @@
-"""Stage 01~05의 "현재 요구조건"을 Deterministic Filter가 판정할 수 있는 형태로 정리한다. 모델명은 어디에도 없다(ADR-0026 §5 Stage Requirement 소유자 = Stage, 모델명 없음).
-
-기존 `openrouter-auto-selection-v1` 프로젝트의 `STAGE_POLICIES` (token_budget/output_contract)와 `fixtures`(실제 프롬프트)를 **읽기 전용으로 재사용**한다 — 이 실험을 위해 새로 발명하지 않는다.
-"""
+"""Stage 01~05의 요구조건을 Deterministic Filter가 판정 가능한 형태로 정리한다. 모델명은 없다(ADR-0026 §5).
+기존 `openrouter-auto-selection-v1`의 `STAGE_POLICIES`/`fixtures`를 읽기 전용으로 재사용한다."""
 
 from __future__ import annotations
 

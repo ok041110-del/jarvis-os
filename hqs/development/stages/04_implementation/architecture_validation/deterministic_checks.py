@@ -123,7 +123,8 @@ def check_design_coverage(code: str, required_function_names: tuple) -> CheckRes
 
 
 def check_comment_docstring_policy(code: str) -> CheckResult:
-    """Jarvis Ponytail Comment/Docstring 정책(§9) — 2줄 초과 항목이 있으면 FAIL. 압축(text compression)은 이 Harness가 자동 수행하지 않는다 — 코드 변경을 유발할 수 있는 자동 리라이트는 정책상 금지된 영역이라 사람/후속 Agent 판단으로 남긴다."""
+    """Ponytail Comment/Docstring 정책(§9) — 2줄 초과 항목이 있으면 FAIL한다.
+    압축은 이 Harness가 자동 수행하지 않는다(코드 변경 유발 리라이트 금지)."""
     entries = find_comments_and_docstrings(code)
     over_limit = [entry for entry in entries if entry["line_count"] > 2]
     if over_limit:
@@ -138,7 +139,8 @@ def run_deterministic_gate(
     allowed_function_names: tuple,
     required_function_names: tuple = None,
 ) -> dict:
-    """§10 Deterministic Gate — syntax/contract/scope/design-coverage/AST/ comment-docstring 순서로 검사하고 각 결과를 담은 dict를 반환한다. `passed`는 전부 PASS일 때만 True다. `required_function_names`을 생략하면 `allowed_function_names`과 동일하게 취급한다(허용 범위 == 요구 범위인 기존 호출부와 하위 호환)."""
+    """§10 Deterministic Gate. `required_function_names`을 생략하면
+    `allowed_function_names`과 동일하게 취급한다(기존 호출부 하위 호환)."""
     if required_function_names is None:
         required_function_names = allowed_function_names
 
