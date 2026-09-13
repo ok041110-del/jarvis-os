@@ -1,12 +1,13 @@
 """Dashboard Shell MVP — 로컬 실행 스크립트.
 
-`POST /api/command`/`POST /api/llm-command` 두 경로만 예외다. `/api/command`는 Dashboard Chat의 raw_input을 `projects/command- contract/resolver.py`의 `parse_command()`/`resolve()`에 그대로 전달한다(같은 로직을 여기 복제하지 않는다). `/api/llm-command`는 그 앞단에 실제 Claude 호출
+`POST /api/command`/`POST /api/llm-command`/`POST /api/openrouter-command` 세 경로만 예외다. `/api/command`는 Dashboard Chat의 raw_input을 `projects/command- contract/resolver.py`의 `parse_command()`/`resolve()`에 그대로 전달한다(같은 로직을 여기 복제하지 않는다). `/api/llm-command`는 그 앞단에 실제 Claude 호출, `/api/openrouter-command`는 같은 앞단을 기존 `hqs/development/mvp/openrouter_engine.py`의 `call_engine_via_openrouter()`(Thin Engine Caller, ADR-0026/0027)로 수행한다 — Dashboard 전용 LLM client를 새로 만들지 않고 기존 Engine 호출 경로를 재사용한다.
 """
 
 from __future__ import annotations
 
 import http.server
 import json
+import re
 import socket
 import subprocess
 import sys
@@ -17,8 +18,16 @@ DASHBOARD_DIR = Path(__file__).resolve().parent
 COMMAND_CONTRACT_DIR = DASHBOARD_DIR.parent / "command-contract"
 sys.path.insert(0, str(COMMAND_CONTRACT_DIR))
 
+# OpenRouter 경로는 Dashboard 전용 client를 만들지 않고 Dev HQ MVP가 이미
+# 쓰는 `mvp/openrouter_engine.py`(단일 함수, str -> str, 단일 RuntimeError)
+# 를 그대로 재사용한다 — `IMPLEMENTATION_RULES.md`의 Engine Gateway/Routing
+# 금지와 동일한 이유다. `hqs/` production path 어디도 수정하지 않는다.
+MVP_DIR = DASHBOARD_DIR.parents[1] / "hqs" / "development"
+sys.path.insert(0, str(MVP_DIR))
+
 from command import Command  # noqa: E402
 from resolver import parse_command, resolve  # noqa: E402
+from mvp.openrouter_engine import call_engine_via_openrouter  # noqa: E402
 
 DEFAULT_PORT = 8765
 MAX_PORT_ATTEMPTS = 20
@@ -38,9 +47,33 @@ _LLM_CLASSIFIER_PROMPT_TEMPLATE = (
 )
 _LLM_TIMEOUT_SEC = 45
 
+# OpenRouter 분류 프롬프트 — 스키마 필드(intent/target_hq)는 Claude 경로와
+# 정확히 같다. 모델 자유 선택(free pool)을 전제로 하므로 영문·JSON-only 지시로
+# 쓴다 — 특정 모델의 말투에 맞춘 프롬프트를 만들지 않는다(모델 독립성 경계).
+_OPENROUTER_CLASSIFIER_PROMPT_TEMPLATE = (
+    'User message: "{raw_input}"\n\n'
+    "You are a classifier that converts a natural language message into a "
+    "JSON object with exactly this schema and no other keys:\n\n"
+    '{{"response": {{"intent": "show_status" | null, '
+    '"target_hq": "development" | "investment" | "trading" | null}}}}\n\n'
+    "Rules:\n"
+    '- For a status-lookup request, set intent="show_status"\n'
+    "- For anything else, set intent=null\n"
+    "- If the message does not point at any HQ, set target_hq=null\n"
+    "- Output exactly one JSON object and nothing else. No markdown, no explanations."
+)
+
+# 테스트가 이 함수 객체를 교체해 mock한다 — 새 env var/설정 체계를 만들지 않고
+# `test_omniroute_engine.py`가 쓰는 것과 같은 "엔진 자리를 바꿔 끼우는" 방식이다.
+_openrouter_engine_call = call_engine_via_openrouter
+
 
 class LLMInterpretError(Exception):
-    """Claude 호출/파싱 실패 — 호출부가 Mock으로 대체하지 않고 그대로 드러내야 함."""
+    """LLM 호출/네트워크 실패 — 호출부가 Mock으로 대체하지 않고 그대로 드러내야 함."""
+
+
+class LLMResponseFormatError(LLMInterpretError):
+    """LLM이 응답했으나 그 텍스트가 {intent, target_hq} JSON 스키마를 지키지 않음 — provider 실패(502)와 구분해 422로 드러낸다."""
 
 
 def _interpret_with_claude(raw_input: str) -> tuple[str | None, str | None]:
@@ -88,14 +121,71 @@ def _interpret_with_claude(raw_input: str) -> tuple[str | None, str | None]:
     return intent, target_hq
 
 
+def _classify_with_openrouter(raw_input: str) -> dict:
+    """`call_engine_via_openrouter()`(기존 Engine 호출 경로, 무수정) 1회로 raw_input을 분류해 구조화한다.
+
+이 함수가 파싱 책임을 전부 진다 — Engine 모듈은 str -> str 계약 그대로 둔다. 자유모델 응답의 실측 편차(markdown fence, 필드 앞 라벨, 모델 별도 텍스트)를 순서대로 벗긴다:
+
+    1. ```json fence 제거
+    2. "intent:" 라벨 형태의 답변은 라벨을 벗겨 정상 JSON으로 복구
+    3. 정상 JSON이면 그대로 사용
+
+모든 단계가 실패하면 `LLMResponseFormatError` — Mock으로 대체하지 않고 호출부가 그대로 드러낸다. 상태 코드(502 provider/timeout vs 422 format)는 호출부가 구분해 응답한다.
+    """
+    prompt = _OPENROUTER_CLASSIFIER_PROMPT_TEMPLATE.format(raw_input=raw_input)
+    try:
+        engine_output = _openrouter_engine_call(prompt)
+    except RuntimeError as exc:
+        # Engine 계약 단일 예외를 그대로 호출부 오류로 옮긴다 — 예외 메시지에
+        # API Key/헤더 값은 포함되지 않는다(openrouter_engine 계약).
+        raise LLMInterpretError(str(exc)) from exc
+
+    stripped = engine_output.strip()
+
+    # 1) markdown fence 제거 — free 모델이 "JSON만 출력" 지시를 무시하고
+    #    감싸는 실측 편차(정확히 감싸진 형태만 벗긴다).
+    lines = stripped.splitlines()
+    if len(lines) >= 2 and lines[0].startswith("```") and lines[-1].strip() == "```":
+        stripped = "\n".join(lines[1:-1]).strip()
+
+    # 2) 라벨형 답변 복구 — 필드 하나당 한 줄을 차지하는 형태만 처리한다.
+    #    (fence 안쪽 필드 줄의 trailing comma는 조립 시 제거한다)
+    if not stripped.startswith("{"):
+        field_lines = [
+            line.strip().rstrip(",")
+            for line in stripped.splitlines()
+            if re.match(r'^\s*"(intent|target_hq)"\s*:', line)
+        ]
+        if len(field_lines) == 2:
+            stripped = "{" + ", ".join(field_lines) + "}"
+
+    # 3) 정상 JSON 파싱 — 실패해도 여기서 끝내지 않고 format error로 옮긴다.
+    try:
+        parsed = json.loads(stripped)
+        if not isinstance(parsed, dict):
+            raise TypeError("응답이 JSON 객체가 아님")
+        intent = parsed.get("intent")
+        target_hq = parsed.get("target_hq")
+        if intent is not None and not isinstance(intent, str):
+            raise TypeError("intent는 string 또는 null이어야 함")
+        if target_hq is not None and not isinstance(target_hq, str):
+            raise TypeError("target_hq는 string 또는 null이어야 함")
+    except (ValueError, TypeError) as exc:
+        raise LLMResponseFormatError("OpenRouter 응답 파싱 실패: " + str(exc)) from exc
+
+    return {"intent": intent, "target_hq": target_hq}
+
+
 class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
-    """정적 파일 서빙(기존과 동일) + `/api/command`·`/api/llm-command` 두 경로만 추가."""
+    """정적 파일 서빙(기존과 동일) + `/api/command`·`/api/llm-command`·`/api/openrouter-command` 세 경로만 추가."""
 
     def do_POST(self):
         if self.path == "/api/command":
             self._handle_command()
         elif self.path == "/api/llm-command":
             self._handle_llm_command()
+        elif self.path == "/api/openrouter-command":
+            self._handle_openrouter_command()
         else:
             self._send_json(http.HTTPStatus.NOT_FOUND, {"error": "알 수 없는 경로: " + self.path})
 
@@ -158,6 +248,49 @@ class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
                 "raw_input": raw_input,
                 "llm_intent": intent,
                 "llm_target_hq": target_hq,
+                "status": result.status,
+                "reason": result.reason,
+                "hq_identity": result.hq_identity,
+                "detail": result.detail,
+            },
+        )
+
+    def _handle_openrouter_command(self):
+        try:
+            raw_input = self._read_raw_input()
+        except (ValueError, KeyError, TypeError) as exc:
+            self._send_json(
+                http.HTTPStatus.BAD_REQUEST,
+                {"error": "잘못된 요청 본문 — raw_input(string) 필드가 필요함: " + str(exc)},
+            )
+            return
+
+        try:
+            classification = _classify_with_openrouter(raw_input)
+        except LLMResponseFormatError as exc:
+            # Provider/네트워크 실패(502)와 응답 형식 실패(422)를 구분해 드러낸다
+            # — 어느 쪽도 Mock으로 대체하지 않는다.
+            self._send_json(http.HTTPStatus.UNPROCESSABLE_ENTITY, {"error": str(exc)})
+            return
+        except LLMInterpretError as exc:
+            self._send_json(http.HTTPStatus.BAD_GATEWAY, {"error": str(exc)})
+            return
+
+        # 기존 `/api/llm-command`와 정확히 같은 후반부 — Command/CommandResult
+        # Contract와 resolve()는 무수정이다. resolver가 지원하지 않는 분류
+        # (예: trading)도 그대로 resolve()에 넘겨 resolver가 거부하게 둔다 —
+        # LLM 분류가 실행 Boundary를 우회하지 않음을 보여주는 지점이다.
+        command = Command(
+            raw_input=raw_input,
+            intent=classification["intent"],
+            target_hq=classification["target_hq"],
+        )
+        result = resolve(command)
+        self._send_json(
+            http.HTTPStatus.OK,
+            {
+                "raw_input": raw_input,
+                "llm": classification,
                 "status": result.status,
                 "reason": result.reason,
                 "hq_identity": result.hq_identity,

@@ -325,6 +325,15 @@ html, body {
 .chat-error .chat-role { color: var(--danger); }
 .chat-llm .chat-role { color: var(--warn); }
 
+.chat-provider {
+  background: var(--panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
 /* Command Result의 detail 목록(줄바꿈으로 구분)을 그대로 살려서 보여준다 —
    기존 한 줄 메시지는 줄바꿈이 없어 영향받지 않는다. */
 .chat-text { white-space: pre-line; }

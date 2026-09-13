@@ -150,7 +150,7 @@ var Render = (function () {
     );
   }
 
-  function chat(messages) {
+  function chat(messages, llmProvider) {
     var list = messages.map(function (m) {
       return '<div class="chat-message chat-' + m.role + '">' +
         '<span class="chat-role">' + m.role + "</span>" +
@@ -158,7 +158,13 @@ var Render = (function () {
       "</div>";
     }).join("");
     return (
-      '<div class="chat-header"><h3>Chat</h3><span class="badge badge-planned">Claude 연결(해석 전용) — Engine 미호출</span></div>' +
+      '<div class="chat-header"><h3>Chat</h3>' +
+        '<select id="chat-provider" class="chat-provider" aria-label="분류 LLM 선택">' +
+          '<option value="claude"' + (llmProvider === "claude" ? " selected" : "") + '>Claude (CLI)</option>' +
+          '<option value="openrouter"' + (llmProvider === "openrouter" ? " selected" : "") + '>OpenRouter (free pool)</option>' +
+        "</select>" +
+        '<span class="badge badge-planned">LLM 연결(해석 전용) — Engine 미호출</span>' +
+      "</div>" +
       '<div class="chat-messages" id="chat-messages">' + list + "</div>" +
       '<form class="chat-input-row" id="chat-form">' +
         '<input type="text" id="chat-input" placeholder="메시지 입력..." autocomplete="off">' +
