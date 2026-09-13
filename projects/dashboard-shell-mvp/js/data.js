@@ -23,10 +23,15 @@
  * 함수도 Mock으로 조용히 대체하지 않는다 — 실패하면 reject한다.
  *
  * `runLLMCommand(rawInput)`은 그 앞단에 실제 Claude 호출을 끼워 넣은
- * `POST /api/llm-command`를 fetch()한다 — Chat이 실제로 쓰는 함수는
- * 이것이다. Claude는 raw_input을 intent/target_hq로 분류만 하고,
- * 실행은 여전히 같은 resolve()가 한다(serve_dashboard.py 주석 참조).
+ * `POST /api/llm-command`를 fetch()한다 — Claude는 raw_input을 intent/target_hq로
+ * 분류만 하고, 실행은 여전히 같은 resolve()가 한다(serve_dashboard.py 주석 참조).
  * Claude 호출/파싱이 실패해도 Mock으로 대체하지 않는다 — reject한다.
+ *
+ * `runOpenRouterCommand(rawInput)`은 그 앞단을 기존
+ * `hqs/development/mvp/openrouter_engine.py`(Thin Engine Caller 재사용,
+ * Dashboard 전용 LLM client 아님)로 수행한 `POST /api/openrouter-command`를
+ * fetch()한다 — 실패 유형이 502(provider/네트워크)와 422(응답 형식)로 구분되며,
+ * 어느 쪽이든 Mock으로 대체하지 않고 reject한다.
  */
 
 var MockData = (function () {
@@ -139,6 +144,23 @@ var MockData = (function () {
     });
   }
 
+  function runOpenRouterCommand(rawInput) {
+    return fetch("/api/openrouter-command", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ raw_input: rawInput })
+    }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) {
+          throw new Error(
+            (body && body.error) || ("OpenRouter Command Resolution 응답 실패: HTTP " + res.status)
+          );
+        }
+        return body;
+      });
+    });
+  }
+
   // ---- Mock 갱신 시뮬레이션 (Mock Data 변경 → UI 재렌더링 검증용) ----
 
   function simulateUpdate() {
@@ -156,6 +178,7 @@ var MockData = (function () {
     getHQSnapshot: getHQSnapshot,
     runCommand: runCommand,
     runLLMCommand: runLLMCommand,
+    runOpenRouterCommand: runOpenRouterCommand,
     simulateUpdate: simulateUpdate
   };
 

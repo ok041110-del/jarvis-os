@@ -12,8 +12,11 @@
 
   var state = {
     activeHQ: DEFAULT_HQ,
+    // 분류 LLM provider 선택 — UI 기본값은 기존 Claude 경로(디폴트 변경 아님),
+    // "OpenRouter"는 기존 hqs/development/mvp/openrouter_engine.py 재사용 경로다.
+    llmProvider: "claude",
     messages: [
-      { role: "system", text: "메시지는 실제 Claude로 해석된 뒤 기존 Command Resolution을 거쳐 실행된다 — Engine/Workflow 호출은 없다(읽기 전용 상태 조회만)." }
+      { role: "system", text: "메시지는 선택한 LLM(Claude/OpenRouter)으로 해석된 뒤 기존 Command Resolution을 거쳐 실행된다 — Engine/Workflow 호출은 없다(읽기 전용 상태 조회만)." }
     ]
   };
 
@@ -93,29 +96,59 @@
       " target_hq=" + (result.llm_target_hq || "null");
   }
 
+  function formatOpenRouterInterpretation(result) {
+    var llm = result.llm || {};
+    return "OpenRouter 해석: intent=" + (llm.intent || "null") +
+      " target_hq=" + (llm.target_hq || "null");
+  }
+
+  // Chat 입력을 "선택한 LLM 분류 → 기존 Command Resolution" 순서로 전달한다.
+  // LLM 해석 결과와 실행 결과를 별도 메시지로 구분해 표시한다 — 실패해도(LLM
+  // 호출/파싱 실패 포함) Mock으로 대체하지 않고 그대로 드러낸다.
+  function runChatCommand(text, provider) {
+    if (provider === "openrouter") {
+      return MockData.runOpenRouterCommand(text).then(function (result) {
+        state.messages.push({ role: "llm", text: formatOpenRouterInterpretation(result) });
+        return result;
+      });
+    }
+    return MockData.runLLMCommand(text).then(function (result) {
+      state.messages.push({ role: "llm", text: formatLLMInterpretation(result) });
+      return result;
+    });
+  }
+
   function renderChat() {
-    el.chat.innerHTML = Render.chat(state.messages);
+    el.chat.innerHTML = Render.chat(state.messages, state.llmProvider);
     var form = document.getElementById("chat-form");
     var input = document.getElementById("chat-input");
+    var providerSelect = document.getElementById("chat-provider");
+    if (providerSelect) {
+      // 재렌더링은 선택을 유지한다 — 상태가 단일 source of truth고, DOM은 그 표상이다.
+      providerSelect.value = state.llmProvider;
+      providerSelect.addEventListener("change", function () {
+        state.llmProvider = providerSelect.value;
+      });
+    }
     form.addEventListener("submit", function (evt) {
       evt.preventDefault();
       var text = input.value.trim();
       if (!text) return;
+      var provider = state.llmProvider;
       state.messages.push({ role: "user", text: text });
       input.value = "";
       renderChat();
       scrollChatToBottom();
 
-      // Chat 입력을 실제 Claude(분류 전용) -> 기존 Command Resolution 순서로
-      // 전달한다. LLM 해석 결과와 실행 결과를 별도 메시지로 구분해 표시한다 —
-      // 실패해도(Claude 호출/파싱 실패 포함) Mock으로 대체하지 않고 그대로
-      // 드러낸다.
-      MockData.runLLMCommand(text)
+      runChatCommand(text, provider)
         .then(function (result) {
-          state.messages.push({ role: "llm", text: formatLLMInterpretation(result) });
           state.messages.push({ role: "command", text: formatCommandResult({
-            intent: result.llm_intent,
-            target_hq: result.llm_target_hq,
+            intent: provider === "openrouter"
+              ? (result.llm && result.llm.intent) || null
+              : result.llm_intent,
+            target_hq: provider === "openrouter"
+              ? (result.llm && result.llm.target_hq) || null
+              : result.llm_target_hq,
             status: result.status,
             reason: result.reason,
             hq_identity: result.hq_identity,
@@ -127,7 +160,7 @@
         .catch(function (err) {
           state.messages.push({
             role: "error",
-            text: "Claude 호출/파싱 실패 — Mock으로 대체하지 않음: " +
+            text: "LLM 호출/파싱 실패 — Mock으로 대체하지 않음: " +
               (err && err.message ? err.message : String(err))
           });
           renderChat();
