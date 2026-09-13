@@ -61,6 +61,11 @@ _CLASSIFICATION_LABELLED = (
     "```"
 )
 _CLASSIFICATION_OTHER_INTENT = '{"intent": "deploy", "target_hq": "development"}'
+# 프롬프트 스키마가 실제로 지시하는 형태 — 모델이 "response"로 감싸 답한
+# 실측 형태(2026-09-13 실제 OpenRouter E2E에서 재현).
+_CLASSIFICATION_RESPONSE_WRAPPED = (
+    '{"response": {"intent": "show_status", "target_hq": "development"}}'
+)
 _RESPONSE_GARBAGE = "I am sorry, I cannot comply with the JSON formatting requirement."
 
 
@@ -104,6 +109,7 @@ class _FakeOpenRouterHandler(http.server.BaseHTTPRequestHandler):
             "success": _CLASSIFICATION_OK,
             "labelled": _CLASSIFICATION_LABELLED,
             "other_intent": _CLASSIFICATION_OTHER_INTENT,
+            "response_wrapped": _CLASSIFICATION_RESPONSE_WRAPPED,
             "garbage": _RESPONSE_GARBAGE,
             "trading": '{"intent": "show_status", "target_hq": "trading"}',
         }
@@ -205,6 +211,22 @@ def test_prose_wrapped_response_is_recovered_and_resolved(monkeypatch):
     assert status == 200
     assert body["llm"] == {"intent": "show_status", "target_hq": "development"}
     assert body["status"] == "ok"
+
+
+def test_response_wrapped_classification_is_unwrapped_and_resolved(monkeypatch):
+    """프롬프트 스키마가 지시한 `{"response": {...}}` wrapper 형태(실제 모델
+    실측)도 unwrap해 intent/target_hq를 정상 추출하고 resolve()까지 통과한다 —
+    unwrap 이전에는 이 형태가 intent/target_hq를 항상 null로 만들어
+    unknown_command로 귀결됐다."""
+    with FakeOpenRouterServer(mode="response_wrapped") as openrouter_url, DashboardServer() as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", openrouter_url)
+        status, body = _post(base_url, "/api/openrouter-command", {"raw_input": "Development HQ 상태를 보여줘"})
+
+    assert status == 200
+    assert body["llm"] == {"intent": "show_status", "target_hq": "development"}
+    assert body["status"] == "ok"
+    assert body["hq_identity"] == "Development HQ"
+    assert body["reason"] != "unknown_command"
 
 
 # ---- 2. 실패 유형 — timeout / provider failure / invalid response ------------
@@ -340,6 +362,37 @@ def test_wrong_field_type_is_format_error():
             serve_dashboard._classify_with_openrouter("Development HQ 상태를 보여줘")
     finally:
         serve_dashboard._openrouter_engine_call = original
+
+
+def test_response_wrapper_is_unwrapped_at_parser_level():
+    """`_OPENROUTER_CLASSIFIER_PROMPT_TEMPLATE`이 지시하는 `{"response": {...}}`
+    스키마 그대로 모델이 답했을 때 `_classify_with_openrouter()`가 wrapper를
+    벗기고 intent/target_hq를 추출하는지 파서 단위에서 직접 검증한다."""
+    original = serve_dashboard._openrouter_engine_call
+    serve_dashboard._openrouter_engine_call = (
+        lambda prompt: '{"response": {"intent": "show_status", "target_hq": "investment"}}'
+    )
+    try:
+        result = serve_dashboard._classify_with_openrouter("Investment HQ 상태를 보여줘")
+    finally:
+        serve_dashboard._openrouter_engine_call = original
+
+    assert result == {"intent": "show_status", "target_hq": "investment"}
+
+
+def test_top_level_classification_without_wrapper_still_works():
+    """wrapper 없이 최상위로 답하는 기존 실측 편차도 계속 지원한다 — unwrap은
+    "response" 키가 있을 때만 적용되고 없으면 그대로 최상위를 읽는다."""
+    original = serve_dashboard._openrouter_engine_call
+    serve_dashboard._openrouter_engine_call = (
+        lambda prompt: '{"intent": "show_status", "target_hq": "development"}'
+    )
+    try:
+        result = serve_dashboard._classify_with_openrouter("Development HQ 상태를 보여줘")
+    finally:
+        serve_dashboard._openrouter_engine_call = original
+
+    assert result == {"intent": "show_status", "target_hq": "development"}
 
 
 def test_label_style_answer_without_fence_is_recovered():
