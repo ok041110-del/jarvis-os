@@ -128,7 +128,8 @@ def _classify_with_openrouter(raw_input: str) -> dict:
 
     1. ```json fence 제거
     2. "intent:" 라벨 형태의 답변은 라벨을 벗겨 정상 JSON으로 복구
-    3. 정상 JSON이면 그대로 사용
+    3. 정상 JSON이면 그대로 사용 — 프롬프트 스키마의 "response" wrapper로
+       답했다면 그 안쪽을 intent/target_hq 추출 대상으로 삼는다
 
 모든 단계가 실패하면 `LLMResponseFormatError` — Mock으로 대체하지 않고 호출부가 그대로 드러낸다. 상태 코드(502 provider/timeout vs 422 format)는 호출부가 구분해 응답한다.
     """
@@ -164,6 +165,10 @@ def _classify_with_openrouter(raw_input: str) -> dict:
         parsed = json.loads(stripped)
         if not isinstance(parsed, dict):
             raise TypeError("응답이 JSON 객체가 아님")
+        # 프롬프트 스키마가 지시한 "response" wrapper를 모델이 그대로 지켰을 때만
+        # 벗긴다 — wrapper 없이 최상위로 답한 경우(기존 실측 편차)는 그대로 둔다.
+        if isinstance(parsed.get("response"), dict):
+            parsed = parsed["response"]
         intent = parsed.get("intent")
         target_hq = parsed.get("target_hq")
         if intent is not None and not isinstance(intent, str):
