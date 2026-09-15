@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Development HQ Command Center (Prototype)</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="css/command-center.css">
+</head>
+<body>
+<div class="cc-shell">
+
+  <header class="cc-topbar">
+    <div class="cc-topbar-left">Development HQ Command Center <span class="cc-proto-badge">PROTOTYPE</span></div>
+    <div class="cc-topbar-right">
+      <a class="cc-topbar-link" href="../index.html">&larr; Dashboard Shell</a>
+    </div>
+  </header>
+
+  <aside class="cc-sidebar" id="cc-sidebar"></aside>
+
+  <section class="cc-workspace">
+    <div class="cc-task-header" id="cc-task-header"></div>
+    <div class="cc-tabbar" id="cc-tabbar"></div>
+    <div class="cc-tab-content" id="cc-tab-content"></div>
+  </section>
+
+  <aside class="cc-inspector" id="cc-inspector"></aside>
+
+  <footer class="cc-statusbar" id="cc-statusbar"></footer>
+
+</div>
+
+<script src="data/adapters/adapters.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

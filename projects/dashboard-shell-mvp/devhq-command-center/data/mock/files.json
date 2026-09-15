@@ -1,0 +1,57 @@
+{
+  "_source": "mock",
+  "_note": "Repository Explorer 표시용 File Tree — 실제 구조를 반영하되, Prototype에서는 정적 스냅샷이다(P1: 실제 file tree 연결 후보).",
+  "tree": [
+    {
+      "name": "hqs",
+      "type": "dir",
+      "children": [
+        {
+          "name": "development",
+          "type": "dir",
+          "children": [
+            { "name": "HANDOVER.md", "type": "file" },
+            { "name": "BASELINE.md", "type": "file" },
+            { "name": "mvp", "type": "dir", "children": [
+              { "name": "agents", "type": "dir", "children": [] },
+              { "name": "omniroute_engine.py", "type": "file" }
+            ] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "projects",
+      "type": "dir",
+      "children": [
+        {
+          "name": "dashboard-shell-mvp",
+          "type": "dir",
+          "children": [
+            { "name": "serve_dashboard.py", "type": "file", "changed": true },
+            { "name": "js", "type": "dir", "children": [
+              { "name": "app.js", "type": "file", "changed": true },
+              { "name": "render.js", "type": "file", "changed": true },
+              { "name": "data.js", "type": "file" }
+            ] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tests",
+      "type": "dir",
+      "children": [
+        { "name": "test_openrouter_command.py", "type": "file", "changed": true }
+      ]
+    },
+    {
+      "name": "docs",
+      "type": "dir",
+      "children": [
+        { "name": "architecture", "type": "dir", "children": [] },
+        { "name": "decisions", "type": "dir", "children": [] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "_source": "mock",
+  "_note": "Task별 Evidence. Development HQ Stage 05 검증 개념(Structural / Specification Scope / Design Scope / Test Execution)과 맞춘 상태값을 사용한다. 상태: PASS | FAIL | INCONCLUSIVE | SKIPPED.",
+  "byTask": {
+    "042": {
+      "checklist": [
+        { "key": "execution", "label": "Execution", "status": "PASS" },
+        { "key": "tests", "label": "Tests", "status": "PASS" },
+        { "key": "diff", "label": "Diff", "status": "PASS" },
+        { "key": "validation", "label": "Validation", "status": "INCONCLUSIVE" },
+        { "key": "final_report", "label": "Final Report", "status": "SKIPPED" }
+      ],
+      "verification": [
+        { "key": "structural", "label": "Structural", "status": "PASS", "detail": "engine.py / omniroute_engine.py 호출 계약 변경 없음" },
+        { "key": "spec_scope", "label": "Specification Scope", "status": "PASS", "detail": "5개 call-site 범위 내 변경만 확인됨" },
+        { "key": "design_scope", "label": "Design Scope", "status": "INCONCLUSIVE", "detail": "Implementation 단계 진행 중 — Architecture 재검토 필요 여부 미확정" },
+        { "key": "test_execution", "label": "Test Execution", "status": "PASS", "detail": "399 passed / 6 skipped / 0 failed" }
+      ],
+      "artifacts": [
+        { "name": "pytest-run-20-38-12.log", "type": "log" },
+        { "name": "diff-serve_dashboard.py.patch", "type": "diff" },
+        { "name": "diff-app.js.patch", "type": "diff" }
+      ]
+    },
+    "041": {
+      "checklist": [
+        { "key": "execution", "label": "Execution", "status": "PASS" },
+        { "key": "tests", "label": "Tests", "status": "PASS" },
+        { "key": "diff", "label": "Diff", "status": "PASS" },
+        { "key": "validation", "label": "Validation", "status": "PASS" },
+        { "key": "final_report", "label": "Final Report", "status": "PASS" }
+      ],
+      "verification": [
+        { "key": "structural", "label": "Structural", "status": "PASS", "detail": "Boundary 무변경" },
+        { "key": "spec_scope", "label": "Specification Scope", "status": "PASS", "detail": "OpenRouter E2E 범위 내" },
+        { "key": "design_scope", "label": "Design Scope", "status": "PASS", "detail": "Architecture 변경 없음" },
+        { "key": "test_execution", "label": "Test Execution", "status": "PASS", "detail": "152 passed / 2 skipped / 0 failed" }
+      ],
+      "artifacts": [
+        { "name": "pytest-run-18-32-40.log", "type": "log" },
+        { "name": "diff-serve_dashboard.py.patch", "type": "diff" },
+        { "name": "final-report-041.md", "type": "report" }
+      ]
+    },
+    "040": {
+      "checklist": [
+        { "key": "execution", "label": "Execution", "status": "FAIL" },
+        { "key": "tests", "label": "Tests", "status": "SKIPPED" },
+        { "key": "diff", "label": "Diff", "status": "SKIPPED" },
+        { "key": "validation", "label": "Validation", "status": "SKIPPED" },
+        { "key": "final_report", "label": "Final Report", "status": "SKIPPED" }
+      ],
+      "verification": [
+        { "key": "structural", "label": "Structural", "status": "FAIL", "detail": "Architecture 단계에서 Scheduler 경계 위반 가능성 발견" },
+        { "key": "spec_scope", "label": "Specification Scope", "status": "SKIPPED", "detail": null },
+        { "key": "design_scope", "label": "Design Scope", "status": "SKIPPED", "detail": null },
+        { "key": "test_execution", "label": "Test Execution", "status": "SKIPPED", "detail": null }
+      ],
+      "artifacts": []
+    },
+    "039": {
+      "checklist": [
+        { "key": "execution", "label": "Execution", "status": "PASS" },
+        { "key": "tests", "label": "Tests", "status": "PASS" },
+        { "key": "diff", "label": "Diff", "status": "PASS" },
+        { "key": "validation", "label": "Validation", "status": "PASS" },
+        { "key": "final_report", "label": "Final Report", "status": "PASS" }
+      ],
+      "verification": [
+        { "key": "structural", "label": "Structural", "status": "PASS", "detail": null },
+        { "key": "spec_scope", "label": "Specification Scope", "status": "PASS", "detail": null },
+        { "key": "design_scope", "label": "Design Scope", "status": "PASS", "detail": null },
+        { "key": "test_execution", "label": "Test Execution", "status": "PASS", "detail": "186 passed / 6 skipped / 0 failed" }
+      ],
+      "artifacts": [ { "name": "final-report-039.md", "type": "report" } ]
+    }
+  }
+}

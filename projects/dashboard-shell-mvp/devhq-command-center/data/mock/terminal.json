@@ -1,0 +1,19 @@
+{
+  "_source": "mock",
+  "_note": "Task별 Terminal 실행 이력. 실제 shell execution은 이번 Prototype 범위 밖이다(P2) — 구조만 실제 연결 가능하게 유지한다.",
+  "byTask": {
+    "042": [
+      { "command": "pytest projects/dashboard-shell-mvp/tests -q", "stdout": "399 passed, 6 skipped in 42.71s", "stderr": "", "exitCode": 0, "duration": "42.7s", "timestamp": "20:38:12" },
+      { "command": "git diff --stat", "stdout": " js/app.js                                       | 12 ++++++------\n js/render.js                                    |  6 ++++--\n serve_dashboard.py                              | 18 ++++++++++++------\n tests/test_openrouter_command.py                | 22 ++++++++++++++++++++++\n 4 files changed, 42 insertions(+), 16 deletions(-)", "stderr": "", "exitCode": 0, "duration": "0.1s", "timestamp": "20:36:04" }
+    ],
+    "041": [
+      { "command": "pytest projects/dashboard-shell-mvp/tests -q", "stdout": "152 passed, 2 skipped in 18.34s", "stderr": "", "exitCode": 0, "duration": "18.3s", "timestamp": "18:32:40" }
+    ],
+    "040": [
+      { "command": "pytest projects/dashboard-shell-mvp/tests -q", "stdout": "", "stderr": "collected 0 items — Architecture blocked, 실행 보류", "exitCode": 1, "duration": "0.4s", "timestamp": "15:49:02" }
+    ],
+    "039": [
+      { "command": "pytest hqs/development/mvp/tests -q", "stdout": "186 passed, 6 skipped in 21.10s", "stderr": "", "exitCode": 0, "duration": "21.1s", "timestamp": "10:23:55" }
+    ]
+  }
+}
