@@ -19,8 +19,6 @@ SRC_DIR = PROJECT_ROOT / "src" / "textkit"
 
 
 def _enrich_with_existing_code(issue: dict, existing_files: list) -> dict:
-    """Appends existing files' verbatim source to the issue description
-    as [Existing Code] context."""
     if not existing_files:
         return dict(issue)
     blocks = []

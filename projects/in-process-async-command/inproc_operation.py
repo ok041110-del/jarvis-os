@@ -1,6 +1,6 @@
 """In-process Long-running Operation — 실제 Architecture와 연결된 작업.
 
-sleep()으로 가짜 지연을 만들지 않는다(작업 지시 §4). subprocess가 아니라 `concurrent.futures.ThreadPoolExecutor`로 프로세스 내부에서 실제 pytest 세션을 실행한다
+sleep()으로 가짜 지연을 만들지 않는다 — subprocess 대신 ThreadPoolExecutor로 프로세스 내부에서 실제 pytest 세션을 실행한다.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ _EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="inprocess-op")
 
 
 class _ResultCollector:
-    """pytest hook으로 결과를 직접 수집한다 — stdout/fd capture를 쓰지 않는다. 두 pytest.main() 세션이 동시에 실행될 때 `capsys`/`capfd`의 OS-level fd 리다이렉션(dup2)은 프로세스 전역 자원이라 충돌 위험이 있기 때문이다(`-s`로 capture 자체를 끈다). Report Hook 수집은 이 충돌을 피한다."""
+    """pytest hook으로 결과를 직접 수집한다 — capsys/capfd의 OS-level fd 리다이렉션은 두 세션 동시 실행 시 충돌하므로 쓰지 않는다."""
 
     def __init__(self) -> None:
         self.passed = 0
@@ -72,7 +72,7 @@ def _run_pytest_inprocess(target_path: str) -> tuple[int, int, int]:
 def start_operation(hq: str, valid_path: bool = True) -> str:
     """실제 pytest 세션을 Worker Thread에서 시작하고 즉시 반환한다(비동기).
 
-subprocess와의 결정적 차이: `future.cancel()`은 아직 시작되지 않은 작업만 취소할 수 있다 — 이미 실행 중인 Thread는 강제 종료할 수 없다 (Python 표준 threading에 안전한 kill이 없다). `async-command` Prototype의 `operation.terminate()`에 대응하는 기능이 in-process 실행에는 존재하지 않는다 — 이 자체가 §9 Runtime 평가에 대한 Evidence다.
+    subprocess와 달리 future.cancel()은 시작 전 작업만 취소 가능하다 — 이미 실행 중인 Thread는 강제 종료할 수 없다(operation.terminate() 대응 기능 없음).
     """
 
     if hq not in _HQ_TEST_PATHS:

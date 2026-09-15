@@ -1,4 +1,4 @@
-"""Stage 02 Task & Dependency Agent — PRD를 Task로 구조화하고 Task 간 Dependency를 판단하는 단일 Engine 호출(RFC-0035/ADC-0038/ADR-0023 Decision 2). Task Decomposition과 Dependency Judgment를 별도 Agent로 쪼개지 않는다. 이 모듈은 Engine 호출과 JSON 추출만 담당하고, tasks/dependencies의 스키마·구조 검증은 `planning_pipeline.py`(Deterministic Layer)가 별도로 수행한다. Multi-Engine Architecture(`ADR-0024`) 이후 이 Reasoning 목적 호출은 3번째 Engine인 OpenRouter Free Model Selection(`ADR-0027`)을 사용한다."""
+"""Stage 02 Task & Dependency Agent(RFC-0035/ADC-0038/ADR-0023 Decision 2) — Task Decomposition과 Dependency Judgment를 별도 Agent로 쪼개지 않는다. 스키마 검증은 `planning_pipeline.py`(Deterministic Layer) 책임이다."""
 
 import sys
 from pathlib import Path
@@ -31,7 +31,8 @@ _INSTRUCTION = (
 
 
 def decompose_tasks_and_dependencies(specification: str) -> dict:
-    """Task & Dependency Agent를 1회 호출해 원시 JSON(dict)을 반환한다. JSON으로 파싱 불가능한 응답만 `AgentOutputError`로 처리하고, tasks/dependencies의 키·타입 검증은 하지 않는다(Deterministic Layer 책임)."""
+    """JSON 파싱 불가능한 응답만 `AgentOutputError`로 처리한다 — 키·타입
+    검증은 하지 않는다(Deterministic Layer 책임)."""
     prompt = _INSTRUCTION.format(specification=specification)
     raw = call_engine(prompt)
     return parse_structured_output(raw)

@@ -2,10 +2,9 @@
 
 import json
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from checkpoint import Checkpointer, run_step
+from checkpoint import Checkpointer, run_checkpointed_wave, run_step
 from engine_client import call_engine
 from trader import TRADER_DECISION_INSTRUCTION, parse_decision, run_trader_decision, split_report_decision
 
@@ -186,18 +185,7 @@ def run(company_label: str, raw_data_path: Path, issue_dir: Path) -> dict:
         "news_event_analysis": (news_analyst_news_event_analysis, f"{sections['[NEWS/EVENT]']}\n\n{limitation}"),
         "sentiment_analysis": (sentiment_analyst_sentiment_analysis, f"{sections['[SENTIMENT]']}\n\n{limitation}"),
     }
-    wave1_t0 = time.monotonic()
-    wave1_results = {}
-    pending = {n: v for n, v in wave1_jobs.items() if not cp.has(n)}
-    for n in wave1_jobs:
-        if cp.has(n):
-            wave1_results[n] = cp.load(n)
-    if pending:
-        with ThreadPoolExecutor(max_workers=len(pending)) as pool:
-            futures = {n: pool.submit(run_step, cp, n, fn, arg) for n, (fn, arg) in pending.items()}
-            for n, fut in futures.items():
-                wave1_results[n] = fut.result()
-    wave1_elapsed = time.monotonic() - wave1_t0
+    wave1_results, wave1_elapsed = run_checkpointed_wave(cp, wave1_jobs)
 
     fundamental = wave1_results["fundamental_analysis"]
     dividend_quality = wave1_results["dividend_quality_analysis"]
@@ -214,19 +202,8 @@ def run(company_label: str, raw_data_path: Path, issue_dir: Path) -> dict:
         f"[SENTIMENT ANALYSIS]\n{sentiment}"
     )
 
-    wave2_t0 = time.monotonic()
     wave2_jobs = {"bull_case": (bull_researcher_bull_case, all_analyses), "bear_case": (bear_researcher_bear_case, all_analyses)}
-    wave2_results = {}
-    pending2 = {n: v for n, v in wave2_jobs.items() if not cp.has(n)}
-    for n in wave2_jobs:
-        if cp.has(n):
-            wave2_results[n] = cp.load(n)
-    if pending2:
-        with ThreadPoolExecutor(max_workers=len(pending2)) as pool:
-            futures = {n: pool.submit(run_step, cp, n, fn, arg) for n, (fn, arg) in pending2.items()}
-            for n, fut in futures.items():
-                wave2_results[n] = fut.result()
-    wave2_elapsed = time.monotonic() - wave2_t0
+    wave2_results, wave2_elapsed = run_checkpointed_wave(cp, wave2_jobs)
 
     bull_case = wave2_results["bull_case"]
     bear_case = wave2_results["bear_case"]

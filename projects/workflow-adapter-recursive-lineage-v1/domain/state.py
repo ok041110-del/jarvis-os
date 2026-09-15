@@ -54,7 +54,6 @@ def json_roundtrip_ok(value) -> bool:
 
 
 def only_plain_types(value) -> bool:
-    """State 값에 라이브러리 타입이 누출되지 않았는지 확인."""
     if isinstance(value, dict):
         return all(isinstance(k, str) and only_plain_types(v) for k, v in value.items())
     if isinstance(value, list):

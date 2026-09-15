@@ -1,6 +1,6 @@
 """Dashboard Shell MVP — Development HQ Snapshot Generator.
 
-Boundary: `hqs/development`의 Python 코드를 import하지 않는다(재사용하는 `build_dev_hq_snapshot()` 자체가 이미 이 Boundary를 지킨다 — AST 검증은 `tests/test_generate_development_snapshot.py` 참조). Engine/Agent를 호출하지 않는다.
+Boundary: hqs/development 미import, Engine/Agent 미호출 — AST 검증은 tests/test_generate_development_snapshot.py 참조.
 """
 
 from __future__ import annotations

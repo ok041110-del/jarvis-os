@@ -1,7 +1,6 @@
 """Runtime Boundary Prototype — Functional/Boundary Validation.
 
-`hqs/investment/tests/test_stock_team_integration.py`(실측 0.03~0.13초, 2 passed)를 오염 재현의 최소 대상으로 쓴다 — in-process-async-command Prototype이 발견한 오염(§8/§12, `hqs/investment/tests` 전체 16개 중 `monkeypatch` 충돌)을 가장 작은 실제 대상으로 재현한다(작업 지시 §1).
-"""
+test_stock_team_integration.py(실측 0.03~0.13초, 2 passed)를 in-process-async-command가 발견한 monkeypatch 오염의 최소 재현 대상으로 쓴다."""
 
 from __future__ import annotations
 
@@ -57,9 +56,6 @@ def test_process_execution_returns_without_blocking():
 # --- 핵심 비교: 동일 대상 동시 실행 — Thread vs Process ------------------------
 
 def test_process_isolation_produces_correct_concurrent_results_on_identical_target():
-    """Process 전략은 OS 프로세스 경계로 격리되므로, 동일 대상을 동시
-    실행해도 오염되지 않아야 한다(여러 번 반복해 안정성을 확인)."""
-
     for _ in range(3):
         t1 = task.start(CONTAMINATION_TARGET, "process")
         t2 = task.start(CONTAMINATION_TARGET, "process")
@@ -70,7 +66,7 @@ def test_process_isolation_produces_correct_concurrent_results_on_identical_targ
 
 
 def test_thread_execution_on_identical_target_can_produce_contaminated_results():
-    """Thread 전략은 동일 프로세스 메모리를 공유하므로, 동일 대상을 동시 실행하면 `monkeypatch` 상태가 섞여 결과가 오염될 수 있다 (in-process-async-command Evidence §8 재확인). 확률적 현상이므로 최대 5회 시도 안에 재현되는지 확인한다 — 5회 안에 재현되지 않으면 이 Prototype이 주장하는 오염 자체가 사실이 아니라는 뜻이므로 테스트를 실패시켜 정직하게 알린다."""
+    """확률적 현상이므로 최대 5회 시도 안에 재현되는지 확인한다 — 재현되지 않으면 테스트를 실패시켜 정직하게 알린다."""
 
     contaminated = False
     for _ in range(5):
@@ -110,8 +106,7 @@ def test_retry_reuses_target_and_strategy_and_produces_new_task():
 
 
 def test_retry_with_valid_target_after_fixing_succeeds():
-    """Retry가 새 Task를 만든다는 것만 확인하는 것이 아니라, 실제로
-    독립적인 새 실행을 만든다는 것을 올바른 대상으로도 확인한다."""
+    """Retry가 새 Task 생성뿐 아니라 실제로 독립적인 새 실행을 만드는지 올바른 대상으로 확인한다."""
 
     t1 = task.start(CONTAMINATION_TARGET, "process")
     _wait_until_done(t1)

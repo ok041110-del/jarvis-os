@@ -52,7 +52,6 @@ def test_review_prompt_actually_contains_implementation_not_placeholder():
 
 
 def test_review_prompt_preserves_input_boundary_sections():
-    """ADR-0025/RFC-0039 §9 Input 경계(Design/Contract/Scope/Immutable Source Snapshot)가 전부 유지되는지 확인 — 이전 구조를 임의로 바꾸지 않았음을 보증."""
     prompt = _build_review_prompt_with_actual_implementation("ORIGINAL_SOURCE_MARKER")
     for marker in ("---STAGE 03 DESIGN---", "---CONTRACT---", "---SCOPE CONTEXT---", "---IMMUTABLE SOURCE SNAPSHOT---", "ORIGINAL_SOURCE_MARKER"):
         assert marker in prompt
@@ -108,8 +107,7 @@ def test_failure_classification_separates_quota_from_other_errors():
 
 
 def test_quota_failure_is_never_classified_as_malformed_or_contract():
-    """429는 반드시 별도 category — Contract/malformed로 오분류되면 안 됨
-    (사용자 지시: "quota failure를 모델 품질 실패로 판정하지 않는다")."""
+    """429는 반드시 별도 category다 — quota failure를 모델 품질 실패(Contract/malformed)로 오분류하면 안 된다."""
     category = _classify_error_detail("some detail", 429)
     assert category == "429_quota"
     assert category not in ("malformed_response", "contract_failure")

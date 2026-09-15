@@ -35,8 +35,6 @@ def test_generator_does_not_import_hq_code():
 
 
 def test_generator_reuses_unified_dashboard_build_dev_hq_snapshot():
-    """새 Evidence 수집 로직을 만들지 않고 기존 함수 객체를 그대로
-    가져다 쓰는지 확인한다(같은 로직을 복제하지 않았는지 검증)."""
     from snapshot import build_dev_hq_snapshot as canonical
 
     assert gen.build_dev_hq_snapshot is canonical

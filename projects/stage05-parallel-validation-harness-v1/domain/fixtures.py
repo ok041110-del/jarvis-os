@@ -1,7 +1,5 @@
-"""Experiment A/B 공통 입력 — 동일한 Stage 04 Implementation을 모든 실행(Single/Parallel, Review Case A/B/C)에서 재사용한다(사용자 지시).
-
-대상은 이전 세션(`OPENROUTER-STAGE-MODEL-SELECTION-0001.md`)이 이미 Stage 05 실제 검증 기준(structural/design_scope/test_execution)으로 PASS를 확인한 것과 동일한 실제 대상(`backend_agent_code_review`, `hqs/development/mvp/agents/backend.py`)을 재사용한다 — 이 모듈은 원본 파일을 **읽기만** 한다(쓰지 않음). Implementation은 원본을 읽어 그 자리에서 문자열 치환으로 구성한다 — 하드코딩된 사본을 별도로 관리하지 않아 원본과 드리프트하지 않는다.
-"""
+"""Experiment A/B 공통 입력 — 동일한 Stage 04 Implementation을 모든 실행에서 재사용한다.
+원본(`hqs/development/mvp/agents/backend.py`)을 읽기만 하고 문자열 치환으로 구성해, 하드코딩 사본을 별도 관리하지 않아 원본과 드리프트하지 않는다."""
 
 from __future__ import annotations
 
@@ -57,7 +55,7 @@ class Stage04ImplementationFixture:
 
 
 def build_fixture(repo_root: Path) -> Stage04ImplementationFixture:
-    """원본 파일을 읽고(쓰지 않음), 검증 로직을 추가한 Implementation을 문자열 치환으로 구성한다. 원본에 마커 문자열이 없으면(파일이 바뀌었다면) 조용히 넘어가지 않고 즉시 실패한다(Evidence 왜곡 방지)."""
+    """원본에 마커 문자열이 없으면(파일이 바뀌었다면) 조용히 넘어가지 않고 즉시 실패한다(Evidence 왜곡 방지)."""
     target_path = Path(repo_root) / TARGET_RELATIVE_PATH
     original = target_path.read_text(encoding="utf-8")
     if _ORIGINAL_DOCSTRING_MARKER not in original:
@@ -70,8 +68,6 @@ def build_fixture(repo_root: Path) -> Stage04ImplementationFixture:
 
 
 def build_validation_context(fixture: Stage04ImplementationFixture):
-    """`Stage04ImplementationFixture` -> `ValidationContext`(Structure/Scope/
-    AST/Dependency가 공유하는 불변 Context, RFC-0039 §5 수정 1)."""
     from .validators import ValidationContext, _import_lines  # noqa: E402 - 순환 참조 방지용 지연 import
 
     return ValidationContext(

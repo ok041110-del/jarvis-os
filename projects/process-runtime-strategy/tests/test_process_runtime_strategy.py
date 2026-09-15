@@ -1,7 +1,6 @@
 """Process Runtime Strategy — Experimental Validation.
 
-`runtime-boundary` Prototype의 `rtb_runtime`/`rtb_task`를 그대로 재사용한다(중복 구현 금지). `hqs/development/mvp/tests/test_mvp_0001.py` (실측 ~69초)는 자동 테스트 전체에서 단 한 번만 시작한다(RUNNING 관찰 + 최종 정확성 확인을 같은 테스트에서 함께 수행).
-"""
+runtime-boundary의 rtb_runtime/rtb_task를 그대로 재사용한다(중복 구현 금지). test_mvp_0001.py(~69초)는 RUNNING 관찰과 최종 정확성 확인을 같은 테스트에서 함께 수행해 전체에서 단 한 번만 시작한다."""
 
 from __future__ import annotations
 
@@ -63,9 +62,6 @@ def test_process_is_accurate_on_identical_target_concurrent_execution():
 
 
 def test_thread_can_still_be_contaminated_on_identical_target():
-    """`runtime-boundary` Evidence의 재확인 — 이 Prototype이 새로
-    깨뜨린 게 아니라 여전히 사실인지 다시 확인한다."""
-
     contaminated = False
     for _ in range(5):
         t1 = task.start(CONTAMINATION_TARGET, "thread")
@@ -82,7 +78,7 @@ def test_thread_can_still_be_contaminated_on_identical_target():
 # --- 작업 지시 §3: 서로 다른 Target 동시 실행은 Thread로도 안전한가? --------
 
 def test_different_dev_hq_targets_are_safe_under_thread_concurrency():
-    """Dev HQ 내부의 서로 다른 두 실제 파일(둘 다 monkeypatch 없음)을 Thread로 동시 실행해도 정확한지 3회 반복 확인 — Process가 "동시 실행" 자체가 아니라 "동일 Target 동시 실행"에서만 필요한지 구분하기 위함."""
+    """Process가 "동시 실행" 자체가 아니라 "동일 Target 동시 실행"에서만 필요한지 구분하기 위한 확인."""
 
     t1_target, t1_expected = DEV_HQ_TARGETS["ast_context"], EXPECTED_PASSED["ast_context"]
     t2_target, t2_expected = DEV_HQ_TARGETS["stage_01"], EXPECTED_PASSED["stage_01"]

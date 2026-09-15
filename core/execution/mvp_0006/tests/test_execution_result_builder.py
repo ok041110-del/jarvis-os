@@ -1,5 +1,3 @@
-"""Execution Layer MVP-0006 Exit Criteria 검증(RFC-0002/ADC-0002/ADR-0001, RFC-0003/ADC-0003/ADR-0002)."""
-
 import sys
 from pathlib import Path
 

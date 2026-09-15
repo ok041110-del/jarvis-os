@@ -1,6 +1,6 @@
 """Async/Long-running Command Prototype — Functional/Boundary Validation.
 
-Dev HQ 실행(hqs/development/mvp/tests, 실측 ~70초)은 자동 테스트에서 완료까지 기다리지 않는다 — "즉시 반환 + RUNNING 관찰"만 자동 검증하고, 전체 완료 관찰은 Evidence 문서에 수동 실행 결과로 기록한다(작업 지시 §20이 요구하는 최소 검증을 벗어나지 않으면서 테스트 스위트 실행 시간을 보호하기 위함). Investment HQ 실행 (hqs/investment/tests, 실측 <1초)으로 전체 lifecycle(RUNNING-> COMPLETED, FAILED->retry->COMPLETED)을 빠르게 검증한다.
+Dev HQ 실행(~70초)은 "즉시 반환 + RUNNING 관찰"만 자동 검증한다 — 전체 완료는 Investment HQ(<1초)로 빠르게 검증한다.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ import operation  # noqa: E402
 # --- Q1: Command가 즉시 결과를 반환하지 않는다 -------------------------------
 
 def test_dev_hq_operation_does_not_return_immediately_with_result():
-    """실제 Dev HQ 테스트 스위트(~70초)를 시작하고, 즉시 poll하면 아직 RUNNING이어야 한다 — sleep()이 아니라 실제 Architecture와 연결된 작업이 비동기로 동작함을 확인한다."""
+    """즉시 poll해도 RUNNING이어야 한다 — sleep()이 아닌 실제 작업이 비동기로 동작함을 확인한다."""
 
     command = case_a.start("Development HQ 상태를 보여줘")
     assert command.status == "RUNNING"
@@ -98,7 +98,7 @@ def test_retry_reuses_command_and_produces_new_task():
 # --- Command 불변성: Case A vs Case B ----------------------------------------
 
 def test_case_a_command_cannot_stay_frozen():
-    """Case A는 Command 자체에 실행 상태를 담아야 하므로 frozen=True로 선언할 수 없다(command.py의 원래 Command Contract 설계와 충돌) — 실제로 status 필드가 외부에서도 자유롭게 mutate된다."""
+    """Case A는 실행 상태를 Command에 담으므로 frozen=True가 불가능하다 — status가 외부에서도 자유롭게 mutate됨을 확인한다."""
 
     command = case_a.start("Investment HQ 최신 상태를 보여줘")
     command.status = "MANUALLY_TAMPERED"  # frozen이 아니므로 외부에서도 변경 가능 — 이것이 문제
@@ -128,7 +128,7 @@ def test_task_lookup_by_id_without_holding_object_reference():
 
 
 def test_case_a_has_no_equivalent_registry():
-    """Case A에는 AsyncCommand를 위한 Registry가 없다 — Command 객체 참조를 버리면 그 Command는 더 이상 조회할 수 없다(비교를 위한 명시적 확인, Case A의 한계를 코드로 증명)."""
+    """Case A에는 Registry가 없다 — Command 참조를 버리면 더 이상 조회할 수 없다는 한계를 증명한다."""
 
     assert not hasattr(case_a, "_COMMAND_REGISTRY")
 

@@ -13,7 +13,6 @@ _REQUEST_ID_LINE_PATTERN = re.compile(r"^- request_id: (?P<value>.+)$", re.MULTI
 
 
 def _extract_request_id(execution_state: str) -> str:
-    """Execution State의 `## State` 절에서 `request_id` 값을 그대로 읽는다."""
     match = _REQUEST_ID_LINE_PATTERN.search(execution_state)
     if not match:
         raise ValueError("execution_state에서 request_id를 찾을 수 없다")
@@ -27,10 +26,6 @@ def build_execution_result(
     produced_at: str,
     results: list[str],
 ) -> str:
-    """Execution State에 대한 Execution Result를 만든다.
-
-텍스트는 그대로 두고 앞에 결과 메타데이터 절(``## Result``)과 산출물 목록 절(``## Results``)만 추가한 새 Artifact를 반환한다.
-    """
     request_id = _extract_request_id(execution_state)
 
     result_lines = "\n".join(

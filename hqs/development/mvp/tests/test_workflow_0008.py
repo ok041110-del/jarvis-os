@@ -41,8 +41,6 @@ def test_happy_path_returns_all_five_keys_in_order(monkeypatch):
 
 
 def test_requirement_analysis_receives_enriched_issue_design_receives_original(monkeypatch):
-    """Docstring이 명시한 계약: Planning은 enriched_issue를, Design은
-    원본 issue를 받는다."""
     _patch_pre_try_deps(monkeypatch)
     seen = {}
 

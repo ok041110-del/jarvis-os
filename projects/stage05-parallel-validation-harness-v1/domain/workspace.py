@@ -1,7 +1,4 @@
-"""Test Workspace — 격리된 pytest 실행 환경(`STAGE05-TEST-ISOLATION- VALIDATION-0001.md` §1.4/§8 실측 결론을 그대로 구현).
-
-이 모듈은 Production `hqs/development/`를 import하지 않는다 — 대상 repository 경로는 호출자가 명시적으로 전달한다(이 Harness가 임의 repository를 가리키게 하지 않기 위한 격리 확인, `projects/` 관례와 동일).
-"""
+"""Test Workspace — 격리된 pytest 실행 환경. Production `hqs/development/`를 import하지 않으며, 대상 repository 경로는 호출자가 명시적으로 전달한다(임의 repository를 가리키지 않기 위한 격리)."""
 
 from __future__ import annotations
 

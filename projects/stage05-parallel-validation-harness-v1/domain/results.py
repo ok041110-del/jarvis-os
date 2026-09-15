@@ -32,7 +32,5 @@ class ValidatorResult:
 
 
 def sort_by_fixed_id_order(results: list[ValidatorResult]) -> list[ValidatorResult]:
-    """실행 완료 순서와 무관하게 항상 `VALIDATOR_ID_ORDER`로 정렬한다
-    (사용자 지시 — 실행/완료 순서가 결과 순서를 결정해서는 안 된다)."""
     order_index = {vid: i for i, vid in enumerate(VALIDATOR_ID_ORDER)}
     return sorted(results, key=lambda r: order_index[r.validator_id])

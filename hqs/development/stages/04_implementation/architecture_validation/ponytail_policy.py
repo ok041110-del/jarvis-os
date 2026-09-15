@@ -1,20 +1,4 @@
-"""Stage 04 Architecture Validation — Ponytail Policy Guardrails. 이번
-작업이 지정한 Ponytail 정책 7개 중 코드로 결정적으로 검증 가능한 항목을
-다룬다:
-
-1. Architect가 아니다 — 코드 검사 대상 아님(역할 제약, README 참고).
-2. Design/Contract/Scope를 변경하지 않는다 — `check_scope_unchanged`.
-3. Target을 변경하지 않는다 — `check_target_unchanged`.
-4. 새로운 기능/의존성을 추가하지 않는다 — `check_no_new_imports`.
-5. 다른 파일을 수정하지 않는다 — 이 Harness는 애초에 파일을 쓰지 않으므로
-   구조적으로 항상 만족(코드 검사 대상 아님).
-6/7. 충분히 좋은 candidate가 있으면 그대로 선택하고, 필요한 경우에만
-   제한적 refinement를 한다 — `check_no_op_when_gate_passed`.
-
-`ponytail_adapter.select_final_candidate()`는 현재 순수 선택만 하고
-코드를 전혀 수정하지 않는다(0% refinement) — 그 경우 이 정책은 항상
-공허하게(vacuously) 만족된다. 실제 refinement가 도입되면 이 모듈의
-체크가 그 refinement를 검증하는 역할을 한다."""
+"""Stage 04 Ponytail Policy Guardrails — 정책 7개 중 코드로 검증 가능한 항목만 다룬다: 1(Architect 아님)·5(다른 파일 미수정)는 구조적으로 항상 만족해 코드 검사 대상이 아니다. 2→`check_scope_unchanged`, 3→ `check_target_unchanged`, 4→`check_no_new_imports`, 6/7→ `check_no_op_when_gate_passed`. `select_final_candidate()`가 현재 refinement 없이 순수 선택만 하므로(0%), 이 정책은 항상 공허하게 만족된다."""
 
 import ast
 import sys
@@ -44,8 +28,6 @@ def _imported_names(code: str) -> set:
 
 
 def check_no_new_imports(code_before: str, code_after: str) -> CheckResult:
-    """refinement 이후 코드가 이전에 없던 import를 추가하지 않았는지
-    확인한다 — "새로운 기능/의존성을 추가하지 않는다" 정책."""
     try:
         added = _imported_names(code_after) - _imported_names(code_before)
     except SyntaxError as exc:
@@ -56,8 +38,6 @@ def check_no_new_imports(code_before: str, code_after: str) -> CheckResult:
 
 
 def check_scope_unchanged(code_before: str, code_after: str) -> CheckResult:
-    """refinement 전후로 정의된 최상위 함수 집합이 동일한지 확인한다 —
-    "Design/Contract/Scope를 변경하지 않는다" 정책."""
     try:
         before_defs = {n.name for n in ast.walk(ast.parse(code_before)) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
         after_defs = {n.name for n in ast.walk(ast.parse(code_after)) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
@@ -69,8 +49,6 @@ def check_scope_unchanged(code_before: str, code_after: str) -> CheckResult:
 
 
 def check_no_op_when_gate_passed(code_before: str, code_after: str, gate_passed_before: bool) -> CheckResult:
-    """이미 Deterministic Gate를 통과한("충분히 좋은") 후보는 수정 없이
-    그대로 선택돼야 한다 — 정책 6/7."""
     if gate_passed_before and code_before != code_after:
         return CheckResult(False, "candidate already passed the gate but was modified")
     return CheckResult(True)

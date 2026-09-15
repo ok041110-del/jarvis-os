@@ -14,7 +14,5 @@ _EXECUTOR = ProcessPoolExecutor(max_workers=4)
 
 
 def run_isolated(func: Callable[..., T], *args, **kwargs) -> T:
-    """`func(*args, **kwargs)`를 격리된 Worker Process에서 실행하고
-    완료까지 블로킹해 결과(또는 예외)를 그대로 반환한다."""
     future = _EXECUTOR.submit(func, *args, **kwargs)
     return future.result()

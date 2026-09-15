@@ -1,20 +1,14 @@
 """Stage 02 Task & Dependency Agent(`task_dependency_agent.py`) 검증(RFC-0035/ ADC-0038/ADR-0023 Decision 2) — Engine 호출 자체는 mock하고, JSON 추출/파싱 동작만 확인한다(스키마 검증은 `planning_pipeline.py` 책임이라 여기서는 검사하지 않는다)."""
 
-import importlib.util
 import sys
 from pathlib import Path
 
 import pytest
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from conftest import load_module_from_path as _load  # noqa: E402
+
 _STAGE_DIR = Path(__file__).resolve().parents[2] / "stages"
-
-
-def _load(name, path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 reasoning = _load("reasoning", _STAGE_DIR / "01_context_analysis" / "reasoning.py")

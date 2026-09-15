@@ -1,7 +1,4 @@
-"""`hqs/development/cli.py`(CLI -> `workflow.py` 진입점) `main()` 검증.
-
-`run_workflow()`는 재구현하지 않았으므로 여기서는 (a) CLI가 사용자 입력(Issue JSON, `--expose-target`)을 정확히 파싱해 `run_workflow()`에 그대로 전달하는지, (b) Workflow 결과를 재해석 없이 출력하는지, (c) Workflow 실패 시 실패 상태를 명확히(stderr + non-zero exit code) 전달하는지만 mock으로 검증한다.
-"""
+"""`cli.py::main()` 검증 — `run_workflow()`는 재구현하지 않고, CLI의 입력 파싱/출력 전달/실패 상태 전파만 mock으로 확인한다."""
 
 import importlib.util
 import json

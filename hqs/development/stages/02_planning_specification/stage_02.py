@@ -1,8 +1,3 @@
-"""Stage 02: Planning & Specification 실행 진입점(ADR-0008 §4, ADR-0023).
-
-Stage 01이 생성한 PRD(`skeleton`/`specification`)는 그대로 통과시키고 (ADR-0022 유지, 재생성하지 않음), Task & Dependency Agent(LLM 1회) + Deterministic Layer(Schema/Graph Validation, Cycle Detection, Topological Ordering, Plan Assembly)로 `tasks`/`dependencies`/`plan`을 새로 산출한다 (RFC-0035/ADC-0038/ADR-0023).
-"""
-
 import sys
 from pathlib import Path
 
@@ -13,7 +8,8 @@ import task_dependency_agent  # noqa: E402
 
 
 def run_stage_02(issue: dict, stage_01_context: dict) -> dict:
-    """`skeleton`/`specification`은 Stage 01의 `prd`를 그대로 전달받는다 (재생성 없음, ADR-0022). Task & Dependency Agent 호출 또는 Deterministic Layer 검증이 실패해도 `skeleton`/`specification`은 영향받지 않고, `tasks`/`dependencies`/`plan`만 안전한 빈 값으로 채워 Contract의 5-key를 항상 만족시킨다."""
+    """Agent/Pipeline 실패 시에도 `tasks`/`dependencies`/`plan`을 빈 값으로
+    채워 Contract 5-key를 항상 만족시킨다(`skeleton`/`specification`은 무관)."""
     prd = stage_01_context["prd"]
     skeleton = prd["skeleton"]
     specification = prd["specification"]

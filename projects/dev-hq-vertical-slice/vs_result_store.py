@@ -1,6 +1,6 @@
 """Result Store — Task 완료 결과를 파일로 영속화한다.
 
-`Task.result`는 프로세스 메모리에만 존재한다 — Registry를 가진 프로세스가 사라지면 함께 사라진다. 이 Prototype은 "Result 저장이 실제로 필요한가"를 검증하는 지점이다: Dashboard가 Task Registry 객체 참조 없이, **파일만으로** 완료된 실행 결과를 관찰할 수 있는지 실제로 확인한다(작업 지시 §6 E2E).
+Task.result는 프로세스 메모리에만 존재해 Registry 프로세스가 사라지면 함께 사라진다 — Dashboard가 파일만으로도 결과를 관찰 가능한지 확인하는 지점.
 """
 
 from __future__ import annotations

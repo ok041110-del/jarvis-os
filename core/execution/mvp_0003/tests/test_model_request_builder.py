@@ -1,5 +1,3 @@
-"""Execution Layer MVP-0003 Exit Criteria 검증."""
-
 import sys
 from pathlib import Path
 

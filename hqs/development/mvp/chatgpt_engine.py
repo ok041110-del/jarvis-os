@@ -1,7 +1,4 @@
-"""ChatGPT를 통한 단일 Engine 호출 함수 — Multi-Engine Architecture의 Reasoning/Review 측 Engine(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`).
-
-`omniroute_engine.py::call_engine_via_omniroute()`와 동일한 형태(단일 함수, `str -> str`, 실패 시 단일 예외 `RuntimeError`)를 그대로 따른다 — `ADR-0024` §Contract Impact가 확정한 대로 새 Request/Result 객체를 만들지 않는다. Provider/Model 선택, Retry, Fallback, Policy 판정은 이 모듈에 없다
-"""
+"""ChatGPT를 통한 단일 Engine 호출 함수 — Multi-Engine Architecture의 Reasoning/Review 측 Engine (`ADR-0024`). `omniroute_engine.py::call_engine_via_omniroute()`와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따른다."""
 
 import json
 import os
@@ -24,7 +21,6 @@ def _resolve_config():
 
 
 def _parse_response(status, body_bytes):
-    """ChatGPT 응답을 응답 텍스트 또는 `RuntimeError`로 옮긴다 — `call_engine_via_omniroute._parse_response`와 동일 구조. 재시도· fallback·provider 재선택은 하지 않는다."""
     try:
         parsed = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
     except (ValueError, UnicodeDecodeError):
@@ -47,10 +43,7 @@ def _parse_response(status, body_bytes):
 
 
 def call_engine_via_chatgpt(prompt: str) -> str:
-    """단일 ChatGPT 호출 지점(ENGINE-CONNECT-CHATGPT-0001). `call_engine()`/ `call_engine_via_omniroute()`와 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따른다 — 호출부가 이미 `except Exception`으로 잡아 `Engine call failed: {exc}`로 구조화하므로 여기서 실패를 삼키지 않는다.
-
-`urllib.request`를 사용한다 — Claude Environment의 `HTTPS_PROXY`를 자동으로 경유하기 위함이다(`http.client.HTTPSConnection`은 이 환경변수를 읽지 않아 Agent Egress Proxy를 우회해 버린다).
-    """
+    """단일 ChatGPT 호출 지점(ENGINE-CONNECT-CHATGPT-0001). `urllib.request`를 사용한다 — Claude Environment의 `HTTPS_PROXY`를 자동으로 경유하기 위함이다 (`http.client.HTTPSConnection`은 이 환경변수를 읽지 않아 Agent Egress Proxy를 우회해 버린다)."""
     base_url, api_key, model, timeout = _resolve_config()
     body = json.dumps({
         "model": model,

@@ -1,18 +1,12 @@
 """Stage 01 → Stage 02 PRD Handoff E2E(RFC-0034/ADC-0037/ADR-0022) — Stage 01 Multi-Agent가 만든 `prd`가 Stage 02를 거쳐 재생성 없이 그대로 `SpecificationResult`(`skeleton`/`specification`)로 나오는지, 그리고 그 결과가 `stages/contracts.py`의 두 Contract를 모두 통과하는지 확인한다. 실제 네트워크/Engine 호출 없이 mock으로 전체 흐름을 검증한다."""
 
-import importlib.util
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from conftest import load_module_from_path as _load  # noqa: E402
+
 _STAGE_DIR = Path(__file__).resolve().parents[2] / "stages"
-
-
-def _load(name, path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 reasoning = _load("reasoning", _STAGE_DIR / "01_context_analysis" / "reasoning.py")

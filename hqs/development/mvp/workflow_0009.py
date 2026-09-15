@@ -36,8 +36,7 @@ def _enrich_issue_with_bundle(issue: dict, bundle: dict) -> dict:
 
 
 def run_issue_to_planning_with_bundle(issue: dict) -> dict:
-    """Planning에는 Context Bundle을 렌더링한 내용만 전달한다. `bundle`은
-    Engine 호출 없이 이미 계산된 값이므로 실패 시에도 그대로 유지한다."""
+    """`bundle`은 Engine 호출 없이 이미 계산된 값이므로 실패 시에도 그대로 유지한다."""
     bundle = build_context_bundle(issue)
     enriched_issue = _enrich_issue_with_bundle(issue, bundle)
 

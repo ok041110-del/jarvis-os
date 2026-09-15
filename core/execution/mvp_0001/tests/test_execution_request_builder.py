@@ -1,5 +1,3 @@
-"""Execution Layer MVP-0001 Exit Criteria 검증. See docs/core/execution-layer/MVP-0001-plan.md"""
-
 import sys
 from pathlib import Path
 

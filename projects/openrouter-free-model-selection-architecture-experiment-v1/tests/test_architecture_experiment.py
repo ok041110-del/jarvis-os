@@ -50,7 +50,6 @@ def test_three_candidates_case_no_tie_break():
 
 
 def test_more_than_three_candidates_applies_deterministic_tie_break():
-    """5개 KEPT -> pool 순서대로 앞 3개만 남아야 한다(재정렬 없음)."""
     results = tuple(_mk_result(f"m{i}:free", "KEPT") for i in range(5))
     r = select_candidates("stage01", results)
     assert r.case == ">3_candidates"
@@ -83,8 +82,6 @@ def _mk_requirement(min_context: int = 1000) -> StageRequirement:
 
 
 def test_missing_context_length_is_not_determined_not_excluded():
-    """context_length 메타데이터가 없으면 NOT_DETERMINED로만 기록하고,
-    이것만으로 후보를 제외하지 않는다(다른 체크가 전부 PASS라면 KEPT)."""
     model = FreeModelMetadata(
         id="mystery/model:free",
         context_length=None,
@@ -103,8 +100,6 @@ def test_missing_context_length_is_not_determined_not_excluded():
 
 
 def test_contract_compatibility_is_always_not_determined_at_filter_stage():
-    """사전 메타데이터로 Contract 준수 여부를 판정할 수 없다는 원칙 —
-    모든 모델에 대해 이 체크는 항상 NOT_DETERMINED여야 한다."""
     model = FreeModelMetadata(
         id="any/model:free",
         context_length=999999,

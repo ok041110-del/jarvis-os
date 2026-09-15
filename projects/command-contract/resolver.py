@@ -1,6 +1,6 @@
 """Command Resolver — Case A: User -> Command -> HQ (Task 없이).
 
-Engine/Agent를 호출하지 않는다. `projects/unified-dashboard/`의 읽기 전용 Snapshot Builder만 재사용한다(Prototype 간 연결, Production External Interface Contract 아님 — 작업 지시 §12).
+Engine/Agent를 호출하지 않는다 — `unified-dashboard`의 읽기 전용 Snapshot Builder만 재사용한다.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def _detect_intent(raw_input: str) -> str | None:
 
 
 def parse_command(raw_input: str) -> Command:
-    """User Input -> Command. 파싱 실패 시에도 Command 자체는 생성된다(intent/target_hq가 None으로 남을 뿐) — 오류 판정은 resolve()가 담당한다."""
+    """파싱 실패 시에도 Command는 생성된다(intent/target_hq가 None) — 오류 판정은 resolve()가 담당한다."""
 
     return Command(
         raw_input=raw_input,
@@ -56,8 +56,7 @@ def parse_command(raw_input: str) -> Command:
 
 
 def resolve(command: Command) -> CommandResult:
-    """Command -> HQ Target -> Read-only Snapshot -> Result.
-    Task 계층을 거치지 않는다(Case A)."""
+    """Task 계층을 거치지 않는다(Case A)."""
 
     if command.intent is None:
         return CommandResult(status="invalid", reason="unknown_command")
@@ -79,6 +78,4 @@ def resolve(command: Command) -> CommandResult:
 
 
 def run_command(raw_input: str) -> CommandResult:
-    """User Input을 한 번에 처리하는 진입점(Case A 전체 흐름)."""
-
     return resolve(parse_command(raw_input))

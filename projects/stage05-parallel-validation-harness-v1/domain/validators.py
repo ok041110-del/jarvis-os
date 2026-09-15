@@ -34,9 +34,6 @@ def _timed(fn):
 
 
 def structure_validator(ctx: ValidationContext) -> ValidatorResult:
-    """Implementation이 기대하는 형태(비어있지 않은 문자열, Engine 실패
-    신호가 아님)를 갖췄는가(RFC-0039 §2.1)."""
-
     def _check():
         impl = ctx.implementation
         valid = isinstance(impl, str) and len(impl.strip()) > 0
@@ -49,9 +46,6 @@ def structure_validator(ctx: ValidationContext) -> ValidatorResult:
 
 
 def scope_validator(ctx: ValidationContext) -> ValidatorResult:
-    """Target이 이미 확정된 Scope Context 안에 있는가(RFC-0039 §2.2) —
-    Scope Validator의 '결과'가 아니라 '정의/Context'만 소비한다."""
-
     def _check():
         in_scope = ctx.target_relative_path in ctx.scope_candidates
         return {"target_in_scope": in_scope}
@@ -71,7 +65,7 @@ def _top_level_defs(source: str) -> dict[str, str]:
 
 
 def ast_validator(ctx: ValidationContext) -> ValidatorResult:
-    """Implementation이 Target 함수 외의 다른 top-level 정의를 바꾸지 않았는가(RFC-0039 §2.3) — 원본은 Context의 읽기 전용 스냅샷에서만 읽는다(Test Workspace를 절대 참조하지 않음)."""
+    """원본은 Context의 읽기 전용 스냅샷에서만 읽는다(Test Workspace를 참조하지 않음)."""
 
     def _check():
         try:
@@ -104,7 +98,7 @@ def _import_lines(source: str) -> frozenset[str]:
 
 
 def dependency_validator(ctx: ValidationContext) -> ValidatorResult:
-    """Implementation이 참조하는 것(import)이 사전에 확정된 Dependency Context(원본 import 집합) 밖으로 새로 추가되지 않았는가(RFC-0039 §2.4) — 새 import 추가 금지는 Stage 04 Ponytail policy(`check_no_new_imports`) 와 동일한 성격의 결정적 검사다."""
+    """새 import 추가 금지는 Stage 04 Ponytail policy(`check_no_new_imports`)와 동일한 성격의 검사다."""
 
     def _check():
         try:

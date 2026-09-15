@@ -1,7 +1,6 @@
 """Dashboard Shell MVP — 로컬 실행 스크립트.
 
-`POST /api/command`/`POST /api/llm-command` 두 경로만 예외다. `/api/command`는 Dashboard Chat의 raw_input을 `projects/command- contract/resolver.py`의 `parse_command()`/`resolve()`에 그대로 전달한다(같은 로직을 여기 복제하지 않는다). `/api/llm-command`는 그 앞단에 실제 Claude 호출
-"""
+정적 파일 서빙 외 `/api/command`·`/api/llm-command` 두 경로만 추가한다. `/api/command`는 raw_input을 command-contract의 `parse_command()`/`resolve()`에 그대로 전달하고(로직 복제 없음), `/api/llm-command`는 그 앞단에 실제 Claude 호출을 한 번 더 거친다."""
 
 from __future__ import annotations
 
@@ -89,8 +88,6 @@ def _interpret_with_claude(raw_input: str) -> tuple[str | None, str | None]:
 
 
 class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
-    """정적 파일 서빙(기존과 동일) + `/api/command`·`/api/llm-command` 두 경로만 추가."""
-
     def do_POST(self):
         if self.path == "/api/command":
             self._handle_command()

@@ -1,7 +1,4 @@
-"""OmniRoute를 통한 단일 Engine 호출 함수 — Thin Engine Caller(Case A).
-
-`docs/architecture/core/ADC-0031-omniroute-thin-engine-caller-boundary.md` §Q1·§Decision, `docs/architecture/core/ADR-0017-omniroute-production-adoption-final-review.md` §2·§6이 확정한 범위 안에서만 존재한다: 단일 함수가 OmniRoute OpenAI-compatible endpoint 하나만 호출하고
-"""
+"""OmniRoute를 통한 단일 Engine 호출 함수 — Thin Engine Caller(Case A, `ADC-0031` §Decision, `ADR-0017` §2·§6): 단일 함수가 OmniRoute OpenAI-compatible endpoint 하나만 호출하고, Provider/Model 선택·Retry·Fallback은 OmniRoute에 위임한다."""
 
 import http.client
 import json
@@ -24,7 +21,6 @@ def _resolve_config():
 
 
 def _parse_response(status, body_bytes):
-    """OmniRoute 응답을 응답 텍스트 또는 `RuntimeError`로 옮긴다 — 이 함수는 어떤 재시도·fallback·provider 재선택도 수행하지 않는다. `call_engine()`과 동일하게 단일 예외 타입(`RuntimeError`)만 externally 노출한다(호출부의 `except Exception` 구조화와 정합)."""
     try:
         parsed = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
     except (ValueError, UnicodeDecodeError):
@@ -47,10 +43,7 @@ def _parse_response(status, body_bytes):
 
 
 def call_engine_via_omniroute(prompt: str) -> str:
-    """단일 OmniRoute 호출 지점(ENGINE-CONNECT-OMNIROUTE-0001). `call_engine()`과 동일한 외부 계약(`str -> str`, 실패 시 `RuntimeError`)을 따른다 — 호출부가 이미 `except Exception`으로 잡아 `Engine call failed: {exc}`로 구조화하므로 여기서 실패를 삼키지 않는다.
-
-Provider/Model 선택은 `model`(기본값 `"auto"`, `OMNIROUTE_MODEL`로 override 가능)로 OmniRoute에 그대로 위임한다 — 이 함수는 어떤 provider/model도 직접 고르지 않는다. Production에서 이 함수를 실제로 사용하려면, 운영자가 그 OmniRoute 인스턴스에 `blockedProviders`/`REQUIRE_API_KEY`를 사전에 구성해야 한다 (`docs/architecture/core/EVIDENCE-0003`~`EVIDENCE-0005`가 식별한 zero-config egress 방어 — 이 함수는 그 설정을 대신하지 않는다).
-    """
+    """단일 OmniRoute 호출 지점(ENGINE-CONNECT-OMNIROUTE-0001). Production에서 쓰려면 운영자가 해당 OmniRoute 인스턴스에 `blockedProviders`/`REQUIRE_API_KEY`를 사전 구성해야 한다(`EVIDENCE-0003`~`EVIDENCE-0005`의 zero-config egress 방어 — 이 함수는 대신하지 않는다)."""
     base_url, api_key, model, timeout = _resolve_config()
     parsed_url = urllib.parse.urlparse(base_url)
     conn_cls = (

@@ -1,23 +1,5 @@
-"""Stage 01 Context Analysis — Multi-Agent 기반 실행 진입점(RFC-0033/
-ADC-0036/ADR-0021, PRD Synthesis는 RFC-0034/ADC-0037/ADR-0022). 기존
-`stage_01.py`(결정적, Engine 미호출)는 변경하지 않고 그대로 유지한다 —
-이 모듈이 신규 진입점이다.
-
-흐름(사용자 지시 순서 그대로, 재정렬하지 않음):
-
-    User Request
-        -> Multi-Agent Reasoning(Intent/Goal/Requirement/Ambiguity, 병렬)
-        -> Reasoning Aggregator -> Structured Understanding
-        -> GitHub Repository Adapter -> RepositorySnapshot(Tree만)
-        -> Code Analysis(Structure/RelevantDiscovery/ASTCandidate, 병렬)
-        -> Dependency Analysis(target이 있을 때만, 조건부)
-        -> PRD/Specification Synthesis(Structured Understanding + Repository
-           Context 종합, 기존 Requirement Agent 1회 재사용)
-        -> Context Aggregator -> Stage 01 Output(6-key Contract, `prd` 포함)
-
-LLM Reasoning과 Code Analysis는 병렬화하지 않는다 — Reasoning 전체가
-끝나야 Code Analysis를 시작한다. PRD Synthesis는 둘 다 끝난 뒤에만
-실행한다(Structured Understanding과 Repository Context 둘 다 필요)."""
+"""Stage 01 Context Analysis — Multi-Agent 기반 신규 진입점(RFC-0033/ADC-0036/
+ADR-0021). 기존 `stage_01.py`(결정적, Engine 미호출)는 변경하지 않고 유지한다."""
 
 import sys
 from pathlib import Path
@@ -92,7 +74,8 @@ def run_stage_01_multi_agent(
     adapter: GitHubRepositoryAdapter | None = None,
     runner: ParallelRunner | None = None,
 ) -> dict:
-    """Stage 01 Multi-Agent 진입점. `stages/contracts.py:: ContextAnalysisResult`의 6-key 출력(`prd` 포함, RFC-0034/ADC-0037/ ADR-0022)을 반환한다. `adapter`/`runner`는 테스트에서 대체 가능하도록 주입 지점으로 남긴다(GitHub API/스레드풀을 직접 강제하지 않음)."""
+    """`adapter`/`runner`는 테스트에서 대체 가능하도록 주입 지점으로 남긴다
+    (GitHub API/스레드풀을 직접 강제하지 않음)."""
     from mvp.parallel_runner import TaskStatus  # 지연 import — 순환 의존 회피
 
     runner = runner or ParallelRunner(max_workers=4)

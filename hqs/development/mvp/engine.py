@@ -1,7 +1,4 @@
-"""Claude Code Engine — Multi-Engine Architecture의 Implementation/ Execution 측 Engine(`docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`). Gateway 추상화·Engine Routing 없음(IMPLEMENTATION_RULES.md).
-
-이 모듈은 `claude` CLI를 텍스트 전용 함수로 감싼다 — `disallowedTools`로 filesystem/shell 도구 접근을 전부 차단하므로, 지금 이 함수는 Repository Execution이 아니라 Text/Reasoning Execution Mode다(`ADR-0024` §Non-goal). 함수 시그니처·구현은 Multi-Engine 전환으로 변경되지 않았다.
-"""
+"""Claude Code Engine — Multi-Engine Architecture의 Implementation/Execution 측 Engine(`ADR-0024`). `disallowedTools`로 filesystem/shell 접근을 전부 차단해 Repository Execution이 아닌 Text/Reasoning Execution Mode로 제한한다(`ADR-0024` §Non-goal)."""
 
 import subprocess
 import tempfile

@@ -16,7 +16,6 @@ def _strip_trailing_marker(review: str, marker: str) -> str:
 
 
 def run_mvp_0002(code: str) -> dict:
-    """Engine 호출 실패 시에도 기존 반환 계약(2개 키)을 유지한다."""
     try:
         review = backend_agent_code_review(code)
 

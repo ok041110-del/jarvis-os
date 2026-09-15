@@ -1,6 +1,6 @@
 """Case B — Command는 불변, Task가 in-process 실행 lifecycle을 소유한다.
 
-Command / Task 필드는 최소한으로 유지한다(작업 지시 §7) — task_id, status, result, error만 사용한다. Result는 passed/failed 튜플로 표현 한다(operation.OperationStatus를 그대로 감싸지 않고 Task 자신의 최소 표현으로 압축 — Task가 Operation 세부 구현을 몰라도 되게 한다).
+Task 필드는 최소한(task_id, status, result, error)만 사용하며, Result는 OperationStatus를 감싸지 않고 passed/failed 튜플로 압축한다.
 """
 
 from __future__ import annotations
@@ -70,9 +70,6 @@ def refresh(task_id: str) -> Task:
 
 
 def retry(task_id: str) -> Task:
-    """원본 immutable Command를 재사용해 새 Task를 만든다 — Command
-    자체는 변경하지 않는다(작업 지시 §17)."""
-
     old_task = _TASK_REGISTRY[task_id]
     new_task = Task(task_id=str(uuid.uuid4()), command=old_task.command)
     _TASK_REGISTRY[new_task.task_id] = new_task

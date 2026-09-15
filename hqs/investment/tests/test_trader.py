@@ -88,14 +88,14 @@ def test_parse_decision_partial_fields():
 
 
 def test_parse_decision_ambiguous_direction_is_deterministic():
-    """Direction 텍스트에 방향 단어가 둘 이상 섞여도(모호한 Engine 응답) `_VALID_ACTIONS` 우선순위(BUY > SELL > HOLD)로 항상 동일한 값을 고른다 — set 순회였을 때는 프로세스 문자열 해시 랜덤화에 따라 달라질 수 있었다."""
+    """방향 단어가 여러 개 섞여도 `_VALID_ACTIONS` 우선순위로 항상 동일한 값을 고른다
+    — 과거 set 순회 시절엔 해시 랜덤화로 결과가 달라질 수 있었다."""
     text = "- Direction: BUY leaning SELL or HOLD\n- Rationale: r.\n- Reassess when: q."
     for _ in range(20):
         assert parse_decision(text)["action"] == "BUY"
 
 
 def test_run_trader_decision_saves_only_after_validation(tmp_path):
-    """형식이 올바른 출력은 검증 후 정상 저장된다."""
     cp = Checkpointer(tmp_path)
 
     def fn(bull_case, bear_case):
@@ -108,7 +108,8 @@ def test_run_trader_decision_saves_only_after_validation(tmp_path):
 
 
 def test_run_trader_decision_malformed_output_is_not_checkpointed(tmp_path):
-    """REPORT/DECISION 헤더가 없는 malformed 출력은 checkpoint 저장 전에 `TraderOutputError`가 발생해야 한다 — 저장 후에 발생하면 다음 실행에서 같은 malformed 텍스트를 그대로 다시 읽어 영구적으로 동일하게 실패한다."""
+    """malformed 출력은 저장 전에 `TraderOutputError`가 발생해야 한다 — 저장 후 발생하면
+    다음 실행에서 같은 텍스트를 다시 읽어 영구히 동일하게 실패한다."""
     cp = Checkpointer(tmp_path)
 
     def fn(bull_case, bear_case):
@@ -122,7 +123,8 @@ def test_run_trader_decision_malformed_output_is_not_checkpointed(tmp_path):
 
 
 def test_run_trader_decision_retries_after_malformed_output(tmp_path):
-    """malformed 출력 이후 재실행하면(같은 issue_dir에서 새 Checkpointer로 재개) `trader_decision_fn`이 다시 호출돼 정상 출력으로 회복된다 — 이 회복이 새 재시도 로직이 아니라 checkpoint의 기존 Resume 동작만으로 성립한다는 것을 확인한다."""
+    """재실행 시 `trader_decision_fn`이 다시 호출돼 회복된다 — 새 재시도 로직이 아니라
+    기존 checkpoint Resume 동작만으로 성립함을 확인한다."""
     cp = Checkpointer(tmp_path)
     calls = {"n": 0}
 

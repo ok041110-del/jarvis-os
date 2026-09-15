@@ -1,7 +1,5 @@
-"""Stage 05 Actual Implementation Revalidation — ADR-0026 경로(Free Pool → Deterministic Filter → Candidate Selection(≤3) → `models[]` → OpenRouter → 실제 selected model → Stage 05 Review)를 **실제 Stage 04 Implementation**으로 재검증한다.
-
-범위(사용자 지시): - Stage 01~04는 재실행하지 않는다 — `domain/stage05_actual_implementation_ fixture.py`가 이 세션이 이전에 실제로 실행해 성공시킨 Stage 04 결과를 동결해 재사용한다. - Stage 05만 실행한다. - 기존 Stage 05 Architecture/Production 코드는 변경하지 않는다. - API Key/Authorization 값은 출력하지 않는다(Egress Proxy 자동 인증만 사용, 이 파일 어디에도 Authorization 헤더 설정 없음). - 실제 코드 전체를 로그로 출력하지 않는다(길이/존재 여부만).
-"""
+"""Stage 05 Actual Implementation Revalidation — ADR-0026 경로를 **실제 Stage 04 Implementation**으로 재검증한다.
+Stage 01~04는 재실행하지 않는다(`stage05_actual_implementation_fixture.py`의 동결 결과 재사용) — Stage 05만 실행하며, 실제 코드 전체는 로그에 남기지 않는다(길이/존재 여부만)."""
 
 from __future__ import annotations
 
@@ -46,7 +44,7 @@ _STAGE04_DESIGN_TEXT = (
 
 
 def _build_review_prompt_with_actual_implementation(original_source: str) -> str:
-    """ADR-0025/RFC-0039 §9가 확정한 Review Input 경계(Design/Contract/ Scope/Immutable Source Snapshot + **실제 Implementation**)를 그대로 따르되, 이전 실험의 결함(placeholder)을 제거하고 §Implementation 자리에 `ACTUAL_STAGE04_IMPLEMENTATION`을 실제로 삽입한다."""
+    """ADR-0025/RFC-0039 §9 Review Input 경계를 따르되, 이전 실험의 placeholder 결함을 없애고 실제 Implementation을 삽입한다."""
     instruction = (
         "You are the Review capability of a validation pipeline. Review the "
         "following code and describe issues in prose (bugs, risks, style) — "
@@ -69,7 +67,7 @@ def _build_review_prompt_with_actual_implementation(original_source: str) -> str
 
 
 def _classify_error_detail(error_detail: str | None, http_status: int | None) -> str:
-    """`auto_selection_client.classify_failure()`는 timeout/connection을 함께 `connection_error`로 묶는다(기존 구현 무수정 원칙 — 이 함수를 고치지 않는다). 이 실험이 요구하는 세분류(429/5xx/timeout/malformed/ contract_failure)를 얻기 위해, 이미 반환된 `error_detail` 문자열만 보고 사후에 한 단계 더 나눈다(재현 가능한 문자열 매칭, 추측 아님)."""
+    """기존 `classify_failure()`(무수정)는 timeout/connection을 `connection_error`로 묶는다 — 이 실험이 요구하는 세분류를 위해 `error_detail` 문자열만 보고 사후 재분류한다."""
     if http_status == 429:
         return "429_quota"
     if http_status is not None and http_status >= 500:

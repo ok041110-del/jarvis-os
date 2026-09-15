@@ -100,7 +100,7 @@ def _directory_structure(max_depth: int = 2) -> list:
 
 
 class IssueValidationError(ValueError):
-    """`issue`에 필수 필드(title/description)가 없거나 빈 값일 때 발생한다."""
+    pass
 
 
 def validate_issue(issue: dict) -> None:

@@ -23,8 +23,6 @@ from domain.stage_policy import STAGE_POLICIES  # noqa: E402
 
 
 def test_stage_policy_has_no_model_field():
-    """StagePolicy 필드 목록 어디에도 모델 이름을 담는 필드가 없다(사용자
-    지시 §4 — "Stage Policy에는 모델 이름을 넣지 않는다")."""
     import dataclasses
 
     from domain.stage_policy import StagePolicy
@@ -92,8 +90,6 @@ def test_stage03_contract_fails_when_sections_missing():
 
 
 def test_retry_count_never_exceeds_policy_max_retries(monkeypatch):
-    """모든 attempt가 실패하도록 fault injection — retry_count가
-    `max_retries`를 절대 넘지 않는지 확인한다."""
     import domain.auto_selection_client as client_module
 
     def _always_fail(*args, **kwargs):
@@ -122,7 +118,7 @@ def test_classify_failure_maps_http_statuses_correctly():
 
 
 def test_contract_failure_excludes_failed_model_from_retry_pool(monkeypatch):
-    """Contract 실패 시, 재시도에서 같은 모델이 다시 응답 모델로 오더라도 Pool에서는 제외된 상태로 다음 호출이 나가는지 확인(사용자 지시 §6 — "retry 시 다른 free model이 선택될 가능성을 고려한다")."""
+    """Contract 실패 모델이 다시 응답으로 와도 재시도 Pool에서는 제외된 채 다음 호출이 나가는지 확인한다."""
     import domain.auto_selection_client as client_module
 
     call_log = []
@@ -221,8 +217,6 @@ def test_attempts_list_preserves_chronological_order_not_reordered(monkeypatch):
 
 
 def test_stage_policies_do_not_share_mutable_pool_state():
-    """Stage마다 별도의 `StagePolicy` 인스턴스이며, 한 Stage의 정책 객체를
-    변경해도 다른 Stage에 영향이 없다(단순 dict/dataclass 격리 확인)."""
     s1 = STAGE_POLICIES["stage01"]
     s2 = STAGE_POLICIES["stage02"]
     assert s1 is not s2
@@ -233,7 +227,6 @@ def test_stage_policies_do_not_share_mutable_pool_state():
 
 
 def test_harness_does_not_import_or_modify_production_engine_modules():
-    """`mvp/chatgpt_engine.py`/`mvp/engine.py`/`stages/05_validation/ stage_05.py`의 실제 Engine 선택 로직을 이 Harness가 import하거나 패치하지 않는지 소스 코드 수준으로 확인한다(정적 검사)."""
     harness_files = list(HARNESS_ROOT.rglob("*.py"))
     forbidden_imports = ("chatgpt_engine", "mvp.engine", "omniroute_engine")
     for path in harness_files:
@@ -245,6 +238,5 @@ def test_harness_does_not_import_or_modify_production_engine_modules():
 
 
 def test_model_pool_cap_matches_openrouter_measured_limit():
-    """OpenRouter `models` 배열의 실측 상한(3개, 이 세션이 HTTP 400으로
-    확인)과 이 Harness의 기본 `limit`이 일치하는지 고정한다 — 회귀 방지."""
+    """OpenRouter `models` 배열의 실측 상한(HTTP 400으로 확인된 3개)과 일치하는지 고정한다 — 회귀 방지."""
     assert MAX_MODELS_PER_REQUEST == 3

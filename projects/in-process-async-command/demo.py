@@ -1,7 +1,6 @@
 """In-process Async Command Prototype — 수동 실행 데모(Evidence 문서용).
 
-1) Case B: Dev HQ(실제 ~69초, in-process)와 Investment HQ(빠름)를 동시에 시작하고 완료까지 관찰한다. Dev HQ 완료까지 기다린다 — 자동 테스트 스위트에는 포함하지 않는다. 2) 동일 대상(Investment HQ tests)을 두 Thread에서 동시에 실행했을 때 실제로 어떤 일이 일어나는지 관찰한다(§9 Runtime 평가를 위한 추가 탐색 — Task/Command 설계와 무관하게 in-process 실행 자체의 한계를 확인하기 위함).
-"""
+1) Case B로 Dev HQ(~69초)와 Investment HQ를 동시 실행해 완료까지 관찰한다(자동 테스트 스위트에는 미포함). 2) 동일 대상을 두 Thread에서 동시 실행했을 때 in-process 실행 자체의 한계를 탐색한다."""
 
 from __future__ import annotations
 
@@ -40,8 +39,6 @@ def part1_concurrent_dev_and_investment() -> None:
 
 
 def part2_identical_target_concurrency_probe() -> None:
-    """동일 대상(hqs/investment/tests)을 두 Thread에서 동시에 실행하면 결과 집계가 정확한지 확인한다 — Task/Command 설계 질문과는 별개로, in-process 실행 자체의 안전성에 대한 탐색적 확인이다."""
-
     print("\n\n=== Part 2: 동일 대상 동시 실행 — 결과 집계 정확성 확인 ===")
     print("baseline(순차, 1회): ", end="")
     baseline_id = operation.start_operation("investment")

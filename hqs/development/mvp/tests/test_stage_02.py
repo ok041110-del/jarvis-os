@@ -3,19 +3,13 @@
 Stage 01의 PRD(`skeleton`/`specification`)는 재생성 없이 그대로 전달되고 (ADR-0022 유지), Task & Dependency Agent(mock) + Deterministic Layer가 `tasks`/`dependencies`/`plan`을 새로 산출하는지 확인한다. PRD Synthesis 자체의 검증은 `test_stage01_prd_synthesis.py` 참조.
 """
 
-import importlib.util
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from conftest import load_module_from_path as _load  # noqa: E402
+
 _STAGE_DIR = Path(__file__).resolve().parents[2] / "stages"
-
-
-def _load(name, path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 reasoning = _load("reasoning", _STAGE_DIR / "01_context_analysis" / "reasoning.py")

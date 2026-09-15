@@ -81,8 +81,6 @@ def test_uses_http_proxy_env_var(monkeypatch):
 
 
 def test_api_key_read_only_from_env_not_hardcoded():
-    """소스에 실제 API Key 형태의 리터럴이 없는지 정적으로 확인한다
-    (`sk-`로 시작하는 OpenAI Key 접두어 부재)."""
     source = Path(__file__).resolve().parent.parent.joinpath("chatgpt_engine.py").read_text(encoding="utf-8")
     assert "sk-" not in source
     assert 'os.environ.get("OPENAI_API_KEY"' in source

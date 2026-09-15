@@ -37,8 +37,6 @@ def test_happy_path_returns_complete_status_and_all_artifacts(monkeypatch):
 
 
 def test_requirement_analysis_receives_raw_issue(monkeypatch):
-    """이 함수는 Project Intelligence를 쓰지 않으므로, Planning은 원본
-    issue를 그대로 받는다(Context enrichment 없음)."""
     seen = {}
 
     def fake_requirement(issue):

@@ -1,7 +1,6 @@
 """Single Sequential Validation vs 6-way Parallel Validation — Experiment A.
 
-Dispatch 정책(Governance 근거, `STAGE05-TEST-ISOLATION-VALIDATION-0001.md` §1.5/§3.2 재확인): - Structure/Scope/AST/Dependency/Review(5개, 파일 mutation 없음) — `ThreadPoolExecutor`(Stage 01 `ParallelRunner` 선례와 동일 계열, I/O-bound Engine 호출·경량 CPU 작업). - Test(파일 mutation 있음, 유일한 공유 가변 자원 후보) — `ProcessPoolExecutor` (`ADC-0015` Thread 금지·Process 1차 원칙, `execution_host.py::run_isolated`와 동일 전략 — 단, Test 자신은 이미 Workspace로 격리돼 있으므로 이 Process 격리는 이중 안전장치다).
-"""
+Structure/Scope/AST/Dependency/Review(파일 mutation 없음)는 ThreadPoolExecutor, Test(파일 mutation 있음, 유일한 공유 가변 자원 후보)만 ProcessPoolExecutor(ADC-0015 Process 우선 원칙) — Test는 이미 Workspace로 격리돼 있어 이 Process 격리는 이중 안전장치다."""
 
 from __future__ import annotations
 
@@ -57,7 +56,6 @@ def _run_test(ctx: ValidationContext, test_config: TestNodeConfig) -> ValidatorR
 
 
 def run_single(ctx: ValidationContext, review_config: ReviewConfig, test_config: TestNodeConfig) -> RunResult:
-    """Structure -> Scope -> AST -> Dependency -> Test -> Review, 순서대로 1개씩. 각 Validator가 다른 Validator의 결과를 실제로 쓰지 않는다는 것(RFC-0039 §2)을 확인하기 위해 순서를 지켜도 각 함수는 `ctx`만 받는다 — 이전 Validator의 출력이 다음 Validator의 입력에 섞이지 않는다."""
     start = time.perf_counter()
     results = [
         _run_structure(ctx),
@@ -78,7 +76,6 @@ def run_single(ctx: ValidationContext, review_config: ReviewConfig, test_config:
 
 
 def run_parallel(ctx: ValidationContext, review_config: ReviewConfig, test_config: TestNodeConfig) -> RunResult:
-    """6개 Validator를 동시에 시작한다. Test만 별도 Process에서, 나머지 5개는 Thread Pool에서 — 실행 완료 순서와 무관하게 결과는 항상 고정 ID 순서로 정렬한다(사용자 지시)."""
     start = time.perf_counter()
     results: list[ValidatorResult] = []
 

@@ -1,4 +1,4 @@
-"""Stage 01 Multi-Agent Reasoning — Intent/Goal/Requirement/Ambiguity Agent + Reasoning Aggregator(RFC-0033/ADC-0036/ADR-0021). 각 Agent는 독립적인 reasoning 책임만 가지며 repository의 파일/함수를 직접 선택하지 않는다. Multi-Engine Architecture(`ADR-0024`) 이후 Reasoning 목적 호출은 3번째 Engine인 OpenRouter Free Model Selection(`ADR-0027`, `mvp/openrouter_engine.py::call_engine_via_openrouter`)을 사용한다 — 이 모듈은 Engine routing/provider 선택/policy를 소유하지 않는다(어떤 free 모델이 실제로 쓰이는지 이 모듈은 모른다)."""
+"""Stage 01 Multi-Agent Reasoning(RFC-0033/ADC-0036/ADR-0021) — Reasoning 목적 호출은 OpenRouter Free Model Selection(ADR-0027)을 사용하며, 이 모듈은 Engine routing/provider 선택 정책을 소유하지 않는다(실제 쓰이는 모델을 알지 못한다)."""
 
 import json
 import re
@@ -24,16 +24,13 @@ AMBIGUITY_REQUIRED_KEYS = (
 
 
 class AgentOutputError(ValueError):
-    """Agent 응답이 유효한 JSON Structured Output이 아닐 때 발생한다 —
-    ParallelRunner가 INVALID_OUTPUT으로 분류하는 신호(재시도 대상 아님)."""
+    """ParallelRunner가 INVALID_OUTPUT으로 분류하는 신호다(재시도 대상 아님)."""
 
 
 _JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
 
 
 def parse_structured_output(raw: str) -> dict:
-    """Engine 응답에서 JSON 객체 하나를 추출한다(markdown fence로 감싸는
-    경우까지 관대하게 처리) — 파싱/키 검증 실패는 `AgentOutputError`."""
     match = _JSON_OBJECT_RE.search(raw or "")
     if not match:
         raise AgentOutputError(f"no JSON object found in agent output: {(raw or '')[:200]}")
@@ -63,8 +60,6 @@ def _run_agent(instruction: str, issue: dict, required_keys: tuple) -> dict:
 
 
 def intent_agent(issue: dict) -> dict:
-    """사용자 요청의 action/target/domain/explicit intent를 구조화한다 —
-    repository 파일/함수를 직접 선택하지 않는다."""
     instruction = (
         "You are the Intent Agent in a software development request analysis "
         "pipeline. Extract the user's action, target, domain, and explicit "
@@ -75,7 +70,6 @@ def intent_agent(issue: dict) -> dict:
 
 
 def goal_agent(issue: dict) -> dict:
-    """desired outcome/success direction/underlying goal을 추론한다."""
     instruction = (
         "You are the Goal Agent. Infer the desired outcome, success direction, "
         "and underlying goal behind the request below. Do not reference "
@@ -85,7 +79,6 @@ def goal_agent(issue: dict) -> dict:
 
 
 def requirement_agent(issue: dict) -> dict:
-    """functional/non-functional requirement, constraint, scope candidate를 구조화한다(scope candidate는 일반 주제/키워드 문자열이며 repository 경로가 아니다)."""
     instruction = (
         "You are the Requirement Agent. Extract functional requirements, "
         "non-functional requirements, constraints, and scope candidates (as "
@@ -96,8 +89,6 @@ def requirement_agent(issue: dict) -> dict:
 
 
 def ambiguity_agent(issue: dict) -> dict:
-    """ambiguous point/missing information/conflicting interpretation/미해결
-    질문을 식별한다."""
     instruction = (
         "You are the Ambiguity/Gap Agent. Identify ambiguous points, missing "
         "information, conflicting interpretations, and unresolved questions "
@@ -130,8 +121,7 @@ def _dedup(items: list) -> list:
 
 
 def _detect_conflicts(intent: dict, requirement: dict) -> list:
-    """intent.action과 requirement.constraints 사이의 명백한 부정 모순만
-    표면화한다 — 임의 해석으로 승자를 정하지 않는다."""
+    """명백한 부정 모순만 표면화한다 — 임의 해석으로 승자를 정하지 않는다."""
     conflicts = []
     if not intent or not requirement:
         return conflicts
@@ -145,7 +135,8 @@ def _detect_conflicts(intent: dict, requirement: dict) -> list:
 
 
 def aggregate_reasoning(batch_result) -> dict:
-    """4개 Agent Task 결과(`ParallelBatchResult`)를 StructuredUnderstanding 으로 통합한다. schema validation은 각 Agent가 이미 수행했으므로(SUCCESS만 통과), 여기서는 normalization/dedup/conflict detection/confidence aggregation/search specification 생성만 담당한다. Agent 간 충돌이 있으면 임의로 하나를 선택하지 않고 `CONFLICT`로 표시한다."""
+    """schema validation은 각 Agent가 이미 수행했으므로 여기서는 normalization/
+    dedup/conflict detection/confidence aggregation만 담당한다."""
     from mvp.parallel_runner import TaskStatus  # 지연 import — 순환 의존 회피
 
     by_id = {result.task_id: result for result in batch_result.results}

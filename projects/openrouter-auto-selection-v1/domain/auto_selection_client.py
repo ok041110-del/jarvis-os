@@ -1,7 +1,5 @@
-"""OpenRouter Free Auto Selection Client — `models`(공식 fallback 배열 파라미터, 실측 확인: `models: [...]` 필드, `docs/guides/routing/ model-fallbacks.md`)를 그대로 사용한다. `model="openrouter/auto"`는 실측(HTTP 402 "Insufficient credits")과 공식 문서("표준 요금 부과, free 전용 아님") 둘 다로 **무료 티어에서 지원되지 않음**을 확인했다 — 이 Client는 그 방식을 쓰지 않는다(§Governance Boundary 재확인, Evidence 문서 §5 참조).
-
-API Key/Credential은 이 파일이 탐색·설정하지 않는다 — 이 세션 Egress Proxy의 자동 인증 주입에만 의존한다(Authorization 헤더 미설정).
-"""
+"""OpenRouter Free Auto Selection Client — `model="openrouter/auto"`는 무료 티어 미지원(실측 HTTP 402)이 확인되어 `models` 배열만 사용한다.
+API Key/Credential은 이 파일이 설정하지 않는다 — Egress Proxy 자동 인증 주입에만 의존한다."""
 
 from __future__ import annotations
 
@@ -86,6 +84,43 @@ def _single_call(models_offered: tuple[str, ...], prompt: str, *, max_tokens: in
     return {"http_status": status, "elapsed_ms": elapsed_ms, "error": None, "parsed": parsed}
 
 
+def _record_attempt(
+    attempts: list[AutoSelectionAttempt],
+    *,
+    attempt_number: int,
+    models_offered: tuple[str, ...],
+    call_result: dict,
+    selected_model: Optional[str] = None,
+    raw_content: Optional[str] = None,
+    usage: Optional[dict] = None,
+    failure_class: Optional[FailureClass] = None,
+    error_detail: Optional[str] = None,
+    contract_passed: Optional[bool] = None,
+    contract_detail: Optional[dict] = None,
+) -> None:
+    attempts.append(
+        AutoSelectionAttempt(
+            attempt_number=attempt_number,
+            models_offered=models_offered,
+            http_status=call_result.get("http_status"),
+            selected_model=selected_model,
+            raw_content=raw_content,
+            usage=usage,
+            api_latency_ms=call_result.get("elapsed_ms"),
+            failure_class=failure_class,
+            error_detail=error_detail,
+            contract_passed=contract_passed,
+            contract_detail=contract_detail,
+        )
+    )
+
+
+def _exclude_model_if_configured(pool: tuple[str, ...], model: Optional[str], exclude: bool) -> tuple[str, ...]:
+    if exclude and model in pool:
+        return tuple(m for m in pool if m != model)
+    return pool
+
+
 def classify_failure(call_result: dict) -> Optional[FailureClass]:
     """호출 1회 결과를 실패 유형으로 분류한다. 성공(재시도 불필요)이면
     `None`을 반환한다."""
@@ -112,7 +147,7 @@ def call_with_auto_selection(
     max_retries: int = 1,
     exclude_failed_model_from_retry_pool: bool = True,
 ) -> AutoSelectionResult:
-    """`models` 배열을 그대로 OpenRouter에 넘기고(자체 순위화 없음), HTTP/malformed/empty/Contract 실패를 구분해 최대 `max_retries`회만 재시도한다. Contract 판정은 호출자가 넘긴 기존 parser/validator (`output_contract`)를 그대로 쓴다 — 이 함수는 Contract 판정 로직을 갖지 않는다(새 LLM judge 없음, 사용자 지시 §5)."""
+    """`models` 배열을 그대로 넘기고 자체 순위화는 하지 않는다 — Contract 판정은 호출자가 넘긴 기존 `output_contract`만 쓴다."""
     attempts: list[AutoSelectionAttempt] = []
     current_pool = models_pool
     overall_start = time.perf_counter()
@@ -122,20 +157,13 @@ def call_with_auto_selection(
         failure_class = classify_failure(call_result)
 
         if failure_class is not None:
-            attempts.append(
-                AutoSelectionAttempt(
-                    attempt_number=attempt_number,
-                    models_offered=current_pool,
-                    http_status=call_result.get("http_status"),
-                    selected_model=None,
-                    raw_content=None,
-                    usage=None,
-                    api_latency_ms=call_result.get("elapsed_ms"),
-                    failure_class=failure_class,
-                    error_detail=call_result.get("error") or json.dumps(call_result.get("parsed"))[:300],
-                    contract_passed=None,
-                    contract_detail=None,
-                )
+            _record_attempt(
+                attempts,
+                attempt_number=attempt_number,
+                models_offered=current_pool,
+                call_result=call_result,
+                failure_class=failure_class,
+                error_detail=call_result.get("error") or json.dumps(call_result.get("parsed"))[:300],
             )
             if failure_class in _NON_RETRYABLE_FAILURE_CLASSES or attempt_number > max_retries:
                 break
@@ -150,65 +178,51 @@ def call_with_auto_selection(
             content = None
 
         if not content:
-            attempts.append(
-                AutoSelectionAttempt(
-                    attempt_number=attempt_number,
-                    models_offered=current_pool,
-                    http_status=call_result["http_status"],
-                    selected_model=selected_model,
-                    raw_content=None,
-                    usage=usage,
-                    api_latency_ms=call_result["elapsed_ms"],
-                    failure_class="empty_response",
-                    error_detail=f"finish_reason={parsed.get('choices', [{}])[0].get('finish_reason')}",
-                    contract_passed=None,
-                    contract_detail=None,
-                )
+            _record_attempt(
+                attempts,
+                attempt_number=attempt_number,
+                models_offered=current_pool,
+                call_result=call_result,
+                selected_model=selected_model,
+                usage=usage,
+                failure_class="empty_response",
+                error_detail=f"finish_reason={parsed.get('choices', [{}])[0].get('finish_reason')}",
             )
-            if exclude_failed_model_from_retry_pool and selected_model in current_pool:
-                current_pool = tuple(m for m in current_pool if m != selected_model)
+            current_pool = _exclude_model_if_configured(current_pool, selected_model, exclude_failed_model_from_retry_pool)
             if attempt_number > max_retries or not current_pool:
                 break
             continue
 
         contract_result = output_contract(content)
         if not contract_result.passed:
-            attempts.append(
-                AutoSelectionAttempt(
-                    attempt_number=attempt_number,
-                    models_offered=current_pool,
-                    http_status=call_result["http_status"],
-                    selected_model=selected_model,
-                    raw_content=content,
-                    usage=usage,
-                    api_latency_ms=call_result["elapsed_ms"],
-                    failure_class="contract_failure",
-                    error_detail=None,
-                    contract_passed=False,
-                    contract_detail=contract_result.detail,
-                )
+            _record_attempt(
+                attempts,
+                attempt_number=attempt_number,
+                models_offered=current_pool,
+                call_result=call_result,
+                selected_model=selected_model,
+                raw_content=content,
+                usage=usage,
+                failure_class="contract_failure",
+                contract_passed=False,
+                contract_detail=contract_result.detail,
             )
-            if exclude_failed_model_from_retry_pool and selected_model in current_pool:
-                current_pool = tuple(m for m in current_pool if m != selected_model)
+            current_pool = _exclude_model_if_configured(current_pool, selected_model, exclude_failed_model_from_retry_pool)
             if attempt_number > max_retries or not current_pool:
                 break
             continue
 
         # 성공
-        attempts.append(
-            AutoSelectionAttempt(
-                attempt_number=attempt_number,
-                models_offered=current_pool,
-                http_status=call_result["http_status"],
-                selected_model=selected_model,
-                raw_content=content,
-                usage=usage,
-                api_latency_ms=call_result["elapsed_ms"],
-                failure_class=None,
-                error_detail=None,
-                contract_passed=True,
-                contract_detail=contract_result.detail,
-            )
+        _record_attempt(
+            attempts,
+            attempt_number=attempt_number,
+            models_offered=current_pool,
+            call_result=call_result,
+            selected_model=selected_model,
+            raw_content=content,
+            usage=usage,
+            contract_passed=True,
+            contract_detail=contract_result.detail,
         )
         total_ms = (time.perf_counter() - overall_start) * 1000
         return AutoSelectionResult(

@@ -15,7 +15,6 @@ SAMPLE_CODE = "def add(a, b):\n    return a + b\n"
 
 
 def test_happy_path_with_issues_returns_review_and_test_cases(monkeypatch):
-    """이슈가 있는 리뷰(마커 없음) -> test_execution이 정상 호출됨."""
     calls = []
 
     def fake_review(code):
@@ -42,8 +41,6 @@ def test_happy_path_with_issues_returns_review_and_test_cases(monkeypatch):
 
 
 def test_no_issues_branch_skips_test_execution_and_strips_marker(monkeypatch):
-    """마커가 리뷰 마지막 줄에 있으면 test_execution을 건너뛰고, 반환되는
-    code_review에서 마커를 제거한다."""
     review_with_marker = f"The code looks good.\n\n{NO_ISSUES_MARKER}"
     test_execution_called = []
 

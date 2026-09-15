@@ -27,7 +27,6 @@ def counted_call_engine(prompt: str) -> str:
 
 
 def capture_once(scenario: str, prompt: str) -> str:
-    """시나리오당 정확히 1회만 실제 Engine을 호출해 캡처한다."""
     if scenario not in _CAPTURED_TEXT:
         _CAPTURED_TEXT[scenario] = counted_call_engine(prompt)
     return _CAPTURED_TEXT[scenario]
@@ -40,9 +39,8 @@ def get_captured(scenario: str) -> str:
 
 
 def capture_exception_once(scenario: str, trigger: Callable[[], None]) -> BaseException:
-    """`trigger()`를 실행해 실제로 발생하는 예외를 캡처한다(시나리오당 1회).
-
-`trigger`가 내부에서 `counted_call_engine`을 쓰면 진짜 실제 호출로 카운트된다(예: 실제 timeout). `trigger`가 `call_engine`을 직접 monkeypatch된 조건 하에 호출하면(예: RuntimeError 재현) 이 함수는 그 사실을 통제하지 않는다 — 호출 카운트 여부는 호출부의 설계에 달림.
+    """`trigger`가 `call_engine`을 직접 monkeypatch해 호출하면(예: RuntimeError 재현)
+    실제 호출 카운트에 반영되지 않는다 — 호출부의 설계에 달림.
     """
     if scenario not in _CAPTURED_EXC:
         try:
