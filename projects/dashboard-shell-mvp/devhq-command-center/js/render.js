@@ -189,7 +189,7 @@ var CCRender = (function () {
       '<div class="chat-panel">' +
       '<div class="chat-messages" id="cc-chat-messages">' + msgs + "</div>" +
       '<form class="chat-input-row" id="cc-chat-form">' +
-      '<input id="cc-chat-input" type="text" placeholder="Task를 생성하거나 진행 상태를 물어보세요 (예: Engine refactor 작업 상태 분석해줘)" autocomplete="off">' +
+      '<input id="cc-chat-input" type="text" placeholder="메시지를 입력하세요 (실제 OpenRouter Engine이 응답한다)" autocomplete="off">' +
       '<button type="submit">Send</button>' +
       "</form></div>"
     );

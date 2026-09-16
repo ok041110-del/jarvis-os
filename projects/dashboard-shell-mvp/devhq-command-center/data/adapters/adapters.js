@@ -196,44 +196,27 @@ var DevHQAdapters = (function () {
     });
   }
 
-  // ---- Task 생성(Chat -> Task) ----
+  // ---- Chat -> 실제 LLM Engine(OpenRouter) ----
   //
-  // 실제 Task Runtime/Orchestrator는 이번 Prototype 범위 밖이다. 사용자
-  // 입력이 기존 Mock Task 제목과 일치하면 그 Task로 전환하고, 아니면
-  // 새 Mock Task(진행률 0%, WAITING)를 즉석에서 만들어 UX만 보여준다 —
-  // 실제 실행이 시작된 것처럼 보이는 문구를 쓰지 않는다.
-  function createOrRouteTaskFromChat(text) {
-    return loadMock("tasks").then(function (json) {
-      var normalized = text.trim();
-      var matched = json.tasks.filter(function (t) {
-        return normalized.indexOf(t.title) !== -1 || t.title.indexOf(normalized) !== -1;
-      })[0];
-      if (matched) {
-        return withSource({ routedExisting: true, task: matched });
-      }
-      var nextId = String(Math.max.apply(null, json.tasks.map(function (t) { return parseInt(t.id, 10); })) + 1).padStart(3, "0");
-      var newTask = {
-        id: nextId,
-        title: normalized,
-        status: "WAITING",
-        currentStage: "context",
-        agent: "Development Agent",
-        currentActivity: null,
-        progress: { overall: 0, workflow: 0, tasks: 0, verification: 0 },
-        stages: [
-          { key: "context", label: "Context", status: "pending", startedAt: null, completedAt: null, duration: null },
-          { key: "planning", label: "Planning", status: "pending", startedAt: null, completedAt: null, duration: null },
-          { key: "architecture", label: "Architecture", status: "pending", startedAt: null, completedAt: null, duration: null },
-          { key: "implementation", label: "Implementation", status: "pending", startedAt: null, completedAt: null, duration: null },
-          { key: "validation", label: "Validation", status: "pending", startedAt: null, completedAt: null, duration: null }
-        ],
-        elapsedSeconds: 0,
-        createdAt: new Date().toTimeString().slice(0, 5),
-        plan: ["(Prototype) 실제 Task Runtime 미연결 — Plan은 아직 생성되지 않음"],
-        _synthetic: true
-      };
-      syntheticTasks[nextId] = newTask;
-      return withSource({ routedExisting: false, task: newTask });
+  // `/api/chat`(Vercel Python Function)을 호출한다 — 그 안에서
+  // `hqs/development/mvp/openrouter_engine.py::call_engine_via_openrouter()`를
+  // 재구현 없이 그대로 호출한다. history는 브라우저 state(state.chatMessages)를
+  // 그대로 실어 보낼 뿐, 여기서/서버에서 별도로 저장하지 않는다. 요청 자체가
+  // 실패하거나 Engine이 실패하면 unavailable을 반환한다(Mock으로 위장하지 않음).
+  function sendChatMessage(message, history) {
+    return fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: message, history: history || [] })
+    }).then(function (res) {
+      return res.json().then(function (json) {
+        if (res.ok && json.status === "ok") {
+          return { source: "real", data: json };
+        }
+        return unavailable(json.reason || ("/api/chat 요청 실패(HTTP " + res.status + ")"));
+      });
+    }).catch(function (err) {
+      return unavailable("/api/chat 요청 실패: " + err.message);
     });
   }
 
@@ -272,7 +255,7 @@ var DevHQAdapters = (function () {
     getFileContent: getFileContent,
     getRepoStatus: getRepoStatus,
     getWorkflowStatus: getWorkflowStatus,
-    createOrRouteTaskFromChat: createOrRouteTaskFromChat,
+    sendChatMessage: sendChatMessage,
     executeCommand: executeCommand
   };
 

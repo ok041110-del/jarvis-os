@@ -378,6 +378,8 @@ html, body {
 .chat-user .chat-role { color: var(--accent); }
 .chat-agent .chat-role { color: var(--ok); }
 .chat-system .chat-role { color: var(--text-dim); }
+.chat-loading .chat-role, .chat-loading .chat-text { color: var(--warn); font-style: italic; }
+.chat-error .chat-role, .chat-error .chat-text { color: var(--danger); }
 .chat-text { white-space: pre-line; }
 
 .chat-input-row { display: flex; gap: 8px; }

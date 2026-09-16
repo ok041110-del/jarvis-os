@@ -35,7 +35,7 @@
     editor: { openTabs: [], activePath: null },
     activeChangePath: null,
     chatMessages: [
-      { role: "system", text: "Prototype — 실제 Task Runtime/Agent Orchestrator는 연결되어 있지 않다. Chat 입력은 Mock Task 데이터를 라우팅하거나, 알려지지 않은 요청이면 새 Mock Task를 즉석 생성한다." }
+      { role: "system", text: "Prototype — Chat은 실제 OpenRouter Engine(call_engine_via_openrouter())을 호출한다. Task Runtime/Agent Orchestrator/Workflow 실행은 연결되어 있지 않다 — 순수 대화이며, 이 세션의 대화 기록은 브라우저에만 남고 새로고침하면 사라진다." }
     ]
   };
 
@@ -280,13 +280,8 @@
     });
   }
 
-  function formatCommandResult(res) {
-    if (res.routedExisting) {
-      return "기존 Task #" + res.task.id + "(" + res.task.title + ")로 이동한다.";
-    }
-    return "새 Mock Task #" + res.task.id + " 생성됨 (실제 Task Runtime 미연결 — 진행률/Evidence는 아직 없음).";
-  }
-
+  // 실제 Engine(`/api/chat` -> `call_engine_via_openrouter()`) 호출 중 보여줄
+  // Loading 메시지 — state.chatMessages 안 위치(reference)로 찾아 응답 도착 시 제거한다.
   function bindChatEvents() {
     var form = document.getElementById("cc-chat-form");
     var scroller = document.getElementById("cc-chat-messages");
@@ -298,20 +293,22 @@
       var text = input.value.trim();
       if (!text) return;
       input.value = "";
+
+      var history = state.chatMessages.slice();
       state.chatMessages.push({ role: "user", text: text });
+      var loadingMessage = { role: "loading", text: "Thinking..." };
+      state.chatMessages.push(loadingMessage);
       renderTabContent();
 
-      DevHQAdapters.createOrRouteTaskFromChat(text).then(function (res) {
-        state.chatMessages.push({ role: "agent", text: formatCommandResult(res.data) });
-        var task = res.data.task;
-        if (!res.data.routedExisting) {
-          state.conversations = state.conversations.concat([{ taskId: task.id, title: "#" + task.id + " " + task.title }]);
+      DevHQAdapters.sendChatMessage(text, history).then(function (res) {
+        var idx = state.chatMessages.indexOf(loadingMessage);
+        if (idx !== -1) state.chatMessages.splice(idx, 1);
+        if (res.source === "real") {
+          state.chatMessages.push({ role: "agent", text: res.data.reply });
+        } else {
+          state.chatMessages.push({ role: "error", text: res.reason || "Engine 호출 실패" });
         }
-        state.activeTaskId = task.id;
-        return loadTaskBundle(task.id).then(function () {
-          state.activeTab = "chat";
-          renderAll();
-        });
+        renderTabContent();
       });
     });
   }
