@@ -1,28 +1,22 @@
 """Vercel Python Function — Command Center Chat을 실제 OpenRouter Engine에 연결한다.
 
 `hqs/development/mvp/openrouter_engine.py::call_engine_via_openrouter()`를
-재구현/래핑 없이 그대로 import해서 호출한다(수정 금지 — 그 파일은 그대로
-둔다). 새 Engine Gateway/Provider abstraction을 만들지 않고, Command
-Contract/Resolver(`command.py`/`resolver.py`)도 거치지 않으며, Workflow
-(`run_workflow()`)도 호출하지 않는다 — 순수 stateless 대화 중계 1개
-endpoint다. 대화 history는 요청 본문으로만 받아 prompt 구성에 쓰고 서버에
-저장하지 않는다(브라우저 state가 유일한 history 저장소, `ADR`/`RFC` 없이
-새 Persistence를 만들지 않는다).
+Vercel build step에서 Function root(`api/`)로 stage한 뒤 그대로 import해서
+호출한다(Engine 구현 자체는 수정하지 않는다). 새 Engine Gateway/Provider
+abstraction을 만들지 않고, Command Contract/Resolver(`command.py`/`resolver.py`)도
+거치지 않으며, Workflow(`run_workflow()`)도 호출하지 않는다 — 순수 stateless
+대화 중계 1개 endpoint다. 대화 history는 요청 본문으로만 받아 prompt 구성에
+쓰고 서버에 저장하지 않는다(브라우저 state가 유일한 history 저장소,
+`ADR`/`RFC` 없이 새 Persistence를 만들지 않는다).
 
-`OPENROUTER_API_KEY`는 `openrouter_engine.py`가 내부적으로 환경변수에서만
+`OPENROUTER_API_KEY`는 staged `openrouter_engine.py`가 내부적으로 환경변수에서만
 읽는다 — 이 Function은 API key를 직접 다루거나 client에 노출하지 않는다.
 """
 
 from __future__ import annotations
 
 import json
-import sys
 from http.server import BaseHTTPRequestHandler
-from pathlib import Path
-
-# api/chat.py -> api/ -> dashboard-shell-mvp/ -> projects/ -> repo root
-REPO_ROOT = Path(__file__).resolve().parents[3]
-MVP_DIR = REPO_ROOT / "hqs" / "development" / "mvp"
 
 MAX_HISTORY_MESSAGES = 20
 
@@ -67,8 +61,6 @@ class handler(BaseHTTPRequestHandler):
         if not isinstance(history, list):
             history = []
 
-        if str(MVP_DIR) not in sys.path:
-            sys.path.insert(0, str(MVP_DIR))
         try:
             from openrouter_engine import call_engine_via_openrouter  # noqa: E402
         except Exception as exc:  # noqa: BLE001 — import 실패 원인을 그대로 전달
