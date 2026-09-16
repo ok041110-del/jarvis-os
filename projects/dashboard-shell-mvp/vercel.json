@@ -1,11 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cp ../../hqs/development/mvp/openrouter_engine.py api/openrouter_engine.py",
   "rewrites": [
     { "source": "/", "destination": "/devhq-command-center/index.html" }
-  ],
-  "functions": {
-    "api/chat.py": {
-      "includeFiles": "../../hqs/development/mvp/openrouter_engine.py"
-    }
-  }
+  ]
 }
