@@ -11,12 +11,20 @@ abstraction을 만들지 않고, Command Contract/Resolver(`command.py`/`resolve
 
 `OPENROUTER_API_KEY`는 staged `openrouter_engine.py`가 내부적으로 환경변수에서만
 읽는다 — 이 Function은 API key를 직접 다루거나 client에 노출하지 않는다.
+
+staged `openrouter_engine.py`는 이 파일과 같은 `api/` 디렉터리에 물리적으로
+존재하지만(Runtime Evidence로 확인됨), Vercel Python Function이 이 파일을
+로드하는 방식은 스크립트를 직접 실행할 때와 달리 자신의 디렉터리를
+`sys.path`에 자동으로 넣어주지 않는다 — 그래서 같은 폴더의 sibling import가
+`ModuleNotFoundError`로 실패했다. import 직전 자신의 디렉터리를 명시적으로
+`sys.path`에 추가해 이 격차만 메운다(그 외 import/실행 방식은 그대로).
 """
 
 from __future__ import annotations
 
 import json
 import os
+import sys
 from http.server import BaseHTTPRequestHandler
 
 MAX_HISTORY_MESSAGES = 20
@@ -42,27 +50,6 @@ def _build_prompt(history: list, message: str) -> str:
     return "\n".join(lines)
 
 
-# 임시 진단 전용 — buildCommand(`cp ../../hqs/development/mvp/openrouter_engine.py
-# api/openrouter_engine.py`)의 staging 결과가 실제 Lambda 파일시스템에 반영됐는지를
-# Vercel Build Log 접근 없이 응답 JSON만으로 판별하기 위한 것이다(A: cp 미실행/오경로,
-# B: cp는 성공했지만 Function bundle에 미포함, C: bundle엔 있으나 import 자체가 실패).
-# 원인 확정 후 이 함수와 호출부는 제거한다 — 정상 응답 스키마·Command Contract는
-# 건드리지 않는다.
-def _import_failure_debug() -> dict:
-    api_dir = os.path.dirname(os.path.abspath(__file__))
-    try:
-        listing = sorted(os.listdir(api_dir))
-    except OSError as exc:
-        listing = [f"<listdir 실패: {exc}>"]
-    staged_path = os.path.join(api_dir, "openrouter_engine.py")
-    return {
-        "debug_file": os.path.abspath(__file__),
-        "debug_api_dir": api_dir,
-        "debug_api_dir_listing": listing,
-        "debug_staged_openrouter_engine_exists": os.path.isfile(staged_path),
-    }
-
-
 class handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         try:
@@ -84,11 +71,10 @@ class handler(BaseHTTPRequestHandler):
             history = []
 
         try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
             from openrouter_engine import call_engine_via_openrouter  # noqa: E402
         except Exception as exc:  # noqa: BLE001 — import 실패 원인을 그대로 전달
-            payload = {"status": "error", "reason": "openrouter_engine import 실패: " + str(exc)}
-            payload.update(_import_failure_debug())
-            self._send_json(502, payload)
+            self._send_json(502, {"status": "error", "reason": "openrouter_engine import 실패: " + str(exc)})
             return
 
         prompt = _build_prompt(history, message)
