@@ -133,6 +133,22 @@ RFC-0043 이후 이 저장소의 관련 Architecture 상태에 실질적 변화�
   기록이 생기는 구조를 전제로 하므로, "실행 중" 상태 조회는 이 RFC의
   Scope 밖이다)
 
+### Live Execution State Boundary
+
+- 본 RFC의 Persistence 대상은 실행 종료 후 사후 조회 가능한 기록이다.
+- 현재 Development HQ Workflow는 동기 실행이며 실행 중 외부 State 조회
+  경로가 없다.
+- 따라서 Live Progress / Live Execution State는 본 RFC의 Persistence
+  Decision에 포함하지 않는다.
+- Background Execution, Live State Streaming, Cancellation, Retry, Resume
+  등의 기능도 본 RFC의 결정으로 허용되지 않는다.
+- 향후 Command Center가 실행 중 State/Progress를 실제로 표시해야 하는
+  경우 별도의 Architecture Question으로 취급한다.
+- 해당 문제는 Runtime/Execution Architecture와 직접적인 관계가 있을 수
+  있으므로 ADC-02와의 정합성을 별도로 검토해야 한다.
+- RFC-0044의 Persistence Decision을 Live Execution Architecture의 근거로
+  자동 확장하지 않는다.
+
 ## 6. Ownership Boundary (D)
 
 ### 6.1 Development HQ Workflow가 생산하는 결과
