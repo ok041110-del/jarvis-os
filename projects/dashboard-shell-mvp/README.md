@@ -69,7 +69,7 @@ HQ 화면에 "Evidence 연결 실패"가 그대로 표시된다 — 반드시 �
 | `generate_development_snapshot.py` | `projects/unified-dashboard/snapshot.py`의 `build_dev_hq_snapshot()`을 재사용해 `data/development-snapshot.json`을 생성하는 CLI |
 | `generate_investment_snapshot.py` | 같은 `snapshot.py`의 `build_investment_hq_snapshot()`을 재사용해 `data/investment-snapshot.json`을 생성하는 CLI |
 | `data/development-snapshot.json`, `data/investment-snapshot.json` | 생성된 Evidence Snapshot(커밋 대상 — `unified-dashboard`의 `output/`·`frontend/public/data/` 선례와 동일) |
-| `serve_dashboard.py` | 로컬 실행 편의 스크립트 — 클릭 한 번으로 열어볼 수 있게 서버를 띄우고 접속 URL을 출력한다. `POST /api/command`(정규식 기반 `parse_command()`/`resolve()` 중계)와 `POST /api/llm-command`(실제 `claude` CLI로 분류 후 같은 `resolve()` 호출) 두 경로만 예외다 — 둘 다 로직 복제 없음 |
+| `serve_dashboard.py` | 로컬 실행 편의 스크립트 — 클릭 한 번으로 열어볼 수 있게 서버를 띄우고 접속 URL을 출력한다. `POST /api/command`(정규식 기반 `parse_command()` + `_resolve_or_execute()`)와 `POST /api/llm-command`(실제 `claude` CLI로 분류 후 같은 `_resolve_or_execute()` 호출) 두 경로만 예외다. `_resolve_or_execute()`는 intent가 `execute_workflow`이고 target_hq가 `development`일 때만 `hqs/development/workflow.py::run_workflow()`를 직접 호출하고(devhq-command-center Command → Workflow E2E v0.1, 아래 "Command Center Terminal → 실제 Workflow 실행" 참조), 그 외는 기존 `resolve()`(무수정)를 그대로 호출한다 — 로직 복제 없음 |
 
 ## Development/Investment HQ Evidence 연결 (실험)
 
@@ -139,6 +139,25 @@ Chat 입력(raw_input)
 그대로 남아 있다 — 삭제하지 않았고 계속 동작한다. Chat이 실제로
 쓰는 것은 새 `/api/llm-command`뿐이다.
 
+## Command Center Terminal → 실제 Workflow 실행 (실험, devhq-command-center)
+
+`devhq-command-center/`(이 Dashboard Shell의 독립 하위 Prototype)의
+Terminal 탭이 `POST /api/command`를 통해 실제 Command를 실행한다 —
+intent가 `execute_workflow`이고 target_hq가 `development`일 때만
+`serve_dashboard.py`가 `hqs/development/workflow.py::run_workflow()`를
+직접 호출한다(Stage 01→05, 재구현 없음). 그 외 intent(`show_status`
+등)는 기존 `resolve()`(무수정)를 그대로 탄다. 상세(Boundary/검증
+Evidence)는 `devhq-command-center/README.md`의 "Command → Workflow
+E2E v0.1" 절 참조 — 이 절은 그 요약만 남긴다.
+
+- `run_workflow()` 호출은 HTTP 요청을 처리하는 스레드 안에서
+  동기적으로 실행되고 완료까지 응답을 보류한다(실측 약 2분, 실제
+  Engine 호출 포함) — 아래 "Next Step 후보"의 "Command가 비동기·
+  장시간 Engine 호출을 대상으로 하는 순간" 조건이 이제 가정이 아니라
+  실제로 발생했다. 이 Prototype은 그 재검증을 하지 않고 동기 호출을
+  그대로 썼다(Task/Runtime/Scheduler 추가 금지 제약 안에서 가능한
+  최소 구현) — 재검증 필요성은 관찰로만 남기고 별도 RFC 대상이다.
+
 ### Credential
 
 - `serve_dashboard.py`는 API Key/OAuth Token을 코드 어디에도 갖고
@@ -184,11 +203,14 @@ Chat 입력(raw_input)
 - `python3 -m http.server`로 띄운 경우 `POST /api/llm-command`가
   `501`을 반환한다 — 이 실험을 쓰려면 `serve_dashboard.py`가
   필요하다.
-- 이번 단계에서 연결하지 않은 것: Engine/Workflow 실제 실행,
-  Task/Conversation Layer(ADC-0018 Defer 상태 그대로 유지, 새 Kernel
-  Component를 만들지 않았다). Claude는 오직 intent/target_hq 분류만
-  하고, HQ 상태를 스스로 조회하거나 답을 지어내지 않는다(Tool 자체가
-  없다).
+- 이번 단계(Chat → 실제 Claude → Command Resolution)에서 연결하지
+  않은 것: Task/Conversation Layer(ADC-0018 Defer 상태 그대로 유지,
+  새 Kernel Component를 만들지 않았다). Claude는 오직 intent/target_hq
+  분류만 하고, HQ 상태를 스스로 조회하거나 답을 지어내지 않는다(Tool
+  자체가 없다). Engine/Workflow 실제 실행은 이 Chat 경로(LLM Command
+  분류) 밖에서, `devhq-command-center`의 Command → Workflow E2E v0.1이
+  `POST /api/command`(`execute_workflow`+`development`) 경로로 별도
+  연결했다 — 아래 "Command Center Terminal → 실제 Workflow 실행" 참조.
 
 ## Responsive
 
@@ -229,9 +251,13 @@ Team 표만 내용이 넓어질 가능성에 대비해 `.table-scroll`로 개별
 - Chat은 이제 실제 Claude를 호출한다 — 단, `--tools ""`로 Tool이
   전부 비활성화된 순수 분류 1회 호출뿐이다. Engine/Workflow 실행,
   Agent 호출, Task/Conversation Layer는 이번에도 만들지 않았다.
-- `serve_dashboard.py`의 `/api/command`·`/api/llm-command` 핸들러
-  모두 `hqs/`·`core/`를 직접 import하지 않는다 — `resolver.py`/
-  `snapshot.py`를 그대로 호출할 뿐이다.
+- `serve_dashboard.py`의 `/api/command`·`/api/llm-command` 핸들러는
+  기본적으로 `resolver.py`/`snapshot.py`만 호출하고 `hqs/`·`core/`를
+  직접 import하지 않는다 — 유일한 예외는 `_resolve_or_execute()`가
+  `execute_workflow`+`development`일 때만 `hqs/development/
+  workflow.py::run_workflow()`를 직접 호출하는 경로다("Command Center
+  Terminal → 실제 Workflow 실행" 절 참조, `resolver.py` 자체는 여전히
+  `hqs/`·`core/`를 import하지 않는다).
 
 ## Next Step 후보 (우선순위 미확정)
 
@@ -242,4 +268,7 @@ Team 표만 내용이 넓어질 가능성에 대비해 `.table-scroll`로 개별
 - Command가 비동기·장시간 Engine 호출을 대상으로 하게 되는 순간
   `command-contract`의 "Task NOT REQUIRED" 결론(read-only 동기 명령
   범위 한정)을 재검증해야 한다(Architecture/Contract 변경 가능성
-  있음, 별도 보고 대상 — 이번에도 구현하지 않았다).
+  있음, 별도 보고 대상) — "Command Center Terminal → 실제 Workflow
+  실행" 절의 `execute_workflow`(약 2분 소요 동기 호출)로 이 조건이
+  이제 실제로 발생했다. 이번에도 재검증(RFC)은 하지 않았다 — 관찰만
+  기록한다.

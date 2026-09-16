@@ -269,7 +269,7 @@ var CCRender = (function () {
       '<div class="terminal-header">TERMINAL ' + mockBadge(source) + '</div>' +
       '<div class="terminal-scroll" id="cc-terminal-scroll">' + (rows || '<div class="hint-text">실행 이력이 없다.</div>') + "</div>" +
       '<form class="terminal-input-row" id="cc-terminal-form">' +
-      '<span>$</span><input id="cc-terminal-input" type="text" placeholder="pytest projects/dashboard-shell-mvp/tests -q" autocomplete="off">' +
+      '<span>$</span><input id="cc-terminal-input" type="text" placeholder="Development HQ 상태를 보여줘 / development workflow 실행해줘" autocomplete="off">' +
       "</form></div>"
     );
   }

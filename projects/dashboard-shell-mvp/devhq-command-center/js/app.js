@@ -235,6 +235,19 @@
     });
   }
 
+  // CommandResult.detail(list[str])을 Terminal stdout으로 펼친다. 단일
+  // 원소가 JSON이면(run_workflow() 결과를 그대로 담은 경우) 읽기 좋게
+  // pretty-print하고, 아니면 줄 단위로 그대로 이어붙인다(재해석 없음).
+  function formatCommandDetail(detail) {
+    var lines = detail || [];
+    if (lines.length === 1) {
+      try {
+        return JSON.stringify(JSON.parse(lines[0]), null, 2);
+      } catch (e) { /* JSON이 아니면 그대로 아래로 */ }
+    }
+    return lines.join("\n");
+  }
+
   function bindTerminalEvents() {
     var form = document.getElementById("cc-terminal-form");
     var scroller = document.getElementById("cc-terminal-scroll");
@@ -246,17 +259,24 @@
       var command = input.value.trim();
       if (!command) return;
       input.value = "";
-      // Prototype — 실제 shell execution은 P2 범위 밖이다. 입력한
-      // 명령을 그대로 echo하고, 이 화면이 Mock임을 명시한다.
-      state.terminal.data = state.terminal.data.concat([{
-        command: command,
-        stdout: "(Prototype) 실제 shell execution은 연결되어 있지 않다 — 이 출력은 Mock이다.",
-        stderr: "",
-        exitCode: 0,
-        duration: "0.0s",
-        timestamp: new Date().toTimeString().slice(0, 8)
-      }]);
-      renderTabContent();
+      var startedAt = Date.now();
+      // 실제 Command Contract/Resolver(`/api/command`)를 호출한다 — 이
+      // 화면은 더 이상 입력을 echo만 하지 않는다(Terminal은 shell이
+      // 아니라 Command Center Command 입력창).
+      DevHQAdapters.executeCommand(command).then(function (res) {
+        var durationLabel = ((Date.now() - startedAt) / 1000).toFixed(1) + "s";
+        var ok = res.source === "real" && res.data && res.data.status === "ok";
+        state.terminal.source = "real";
+        state.terminal.data = state.terminal.data.concat([{
+          command: command,
+          stdout: ok ? formatCommandDetail(res.data.detail) : "",
+          stderr: ok ? "" : "(" + (res.data ? (res.data.reason || "invalid") : res.reason) + ")",
+          exitCode: ok ? 0 : 1,
+          duration: durationLabel,
+          timestamp: new Date().toTimeString().slice(0, 8)
+        }]);
+        renderTabContent();
+      });
     });
   }
 

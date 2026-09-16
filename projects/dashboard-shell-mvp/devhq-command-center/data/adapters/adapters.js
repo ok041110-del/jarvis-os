@@ -237,6 +237,28 @@ var DevHQAdapters = (function () {
     });
   }
 
+  // ---- Command 실행(Terminal -> 기존 Command Contract/Resolver) ----
+  //
+  // `serve_dashboard.py`의 `/api/command`(무수정 경로, 기존
+  // command-contract `parse_command()`/`resolve()`를 그대로 호출하며
+  // `execute_workflow`+`development`일 때만 기존 `run_workflow()`로
+  // 라우팅)를 그대로 호출한다 — 여기서 Command를 다시 해석하지 않는다.
+  // 요청 자체가 실패하면(서버 미기동 등) unavailable을 반환한다(Mock으로
+  // 위장하지 않음).
+  function executeCommand(raw_input) {
+    return fetch("/api/command", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ raw_input: raw_input })
+    }).then(function (res) {
+      return res.json().then(function (json) {
+        return { source: "real", data: json };
+      });
+    }).catch(function (err) {
+      return unavailable("/api/command 요청 실패: " + err.message);
+    });
+  }
+
   return {
     getConversations: getConversations,
     getTaskList: getTaskList,
@@ -250,7 +272,8 @@ var DevHQAdapters = (function () {
     getFileContent: getFileContent,
     getRepoStatus: getRepoStatus,
     getWorkflowStatus: getWorkflowStatus,
-    createOrRouteTaskFromChat: createOrRouteTaskFromChat
+    createOrRouteTaskFromChat: createOrRouteTaskFromChat,
+    executeCommand: executeCommand
   };
 
 })();

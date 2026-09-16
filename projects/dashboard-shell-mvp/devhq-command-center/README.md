@@ -107,14 +107,53 @@ Chat에서 알려진 Task 제목과 일치하지 않는 입력을 보내면, Ada
 - Task Runtime, Conversation Runtime, Agent Orchestrator, Scheduler,
   Registry, Workflow Parser/Engine, Engine Gateway, Policy Layer,
   Memory Service, Event Bus, 신규 Agent/Capability, 신규 LLM
-  Gateway/OpenRouter Client, 새 서버 API(`serve_dashboard.py` 무수정).
+  Gateway/OpenRouter Client, 새 서버 API.
 - Task별 실행 기록(Changes/Tests/Evidence per task) — `workflow.py`가
   영속 저장소 없이 on-demand로만 실행되어 Task ID(#039~042 등)에
   대응하는 실제 기록이 존재하지 않는다(조사로 확인, Real Data Adapter
   v0.1 범위 밖으로 명시적으로 남겨둠).
-- 실제 shell execution(Terminal은 입력을 echo만 한다) — P2 후보로
-  남겨둔다.
+- 실제 shell execution(임의 shell 명령 실행)은 여전히 범위 밖이다 —
+  Terminal이 실제로 호출하는 것은 shell이 아니라 기존 Command
+  Contract/Resolver 하나뿐이다("Command → Workflow E2E v0.1" 절 참조,
+  구 서술 "Terminal은 입력을 echo만 한다"는 이 절로 대체됨).
 - Production `dashboard/`는 이 Prototype과 무관하며 건드리지 않았다.
+
+## Command → Workflow E2E v0.1 — Command Center에서 실제 Workflow 실행
+
+Terminal 탭이 더 이상 입력을 echo만 하지 않는다 — 기존
+`projects/command-contract/`의 `Command`/`CommandResult`/`parse_command()`를
+그대로 쓰고, `serve_dashboard.py`의 `/api/command`(기존 경로, 새 경로
+아님)가 raw_input을 파싱한 뒤 intent가 `execute_workflow`이고
+target_hq가 `development`일 때만 `hqs/development/workflow.py::run_workflow()`를
+직접 호출한다(재구현 없음, Stage 01→05 그대로). 그 외 intent(예:
+`show_status`)는 기존 `resolver.resolve()`를 무수정으로 그대로 탄다 —
+`resolver.py`는 여전히 `hqs/*`·`core/*`를 import하지 않고 Engine을
+호출하지 않는다(자체 Boundary 테스트로 계속 검증됨).
+
+- 새 Command Contract 없음 — `Command`/`CommandResult`(`command.py`)
+  그대로 재사용.
+- 새 Task Architecture/Execution Identity/Execution
+  Manager/Runtime/Scheduler/Persistence/Evidence Store 없음 —
+  `run_workflow()`를 HTTP 요청 스레드 안에서 동기 호출하고 결과를
+  응답으로 그대로 돌려줄 뿐이다.
+- `run_workflow()` 자체는 무변경 — 호출부(`serve_dashboard.py`)만
+  추가됐다.
+- raw_input은 `{"title": raw_input[:80], "description": raw_input}`
+  최소 Issue로만 감싼다(새 Issue Contract 아님).
+- 응답의 `detail`은 `run_workflow()` 반환값(`stage_01`~`stage_05`,
+  `failed_at`, `error`)을 재해석 없이 JSON으로 담는다 — Terminal은 이를
+  pretty-print해서 그대로 보여준다(CLI의 "재해석 없이 출력" 원칙과 동일).
+- 실행 결과는 응답 1회로만 전달되고 어디에도 저장되지 않는다(새로고침하면
+  Terminal 이력에서도 사라짐, MOCK Task별 Evidence와 무관).
+
+**검증(2026-09-16)**: `python3 projects/dashboard-shell-mvp/serve_dashboard.py`로
+서버를 띄운 뒤 `POST /api/command`에
+`{"raw_input": "development workflow 실행해줘: ..."}`를 보내 실제
+`run_workflow()`가 끝까지 실행되고(Stage 01→05, 실제 Engine 호출 포함)
+`CommandResult`(JSON) 로 반환됨을 확인했다 — 자동 테스트
+(`tests/test_serve_dashboard_command.py`)는 매 회 실제 Engine을 호출하지
+않도록 `run_workflow()`를 monkeypatch해 배선(라우팅/Issue 구성/에러
+처리)만 검증한다.
 
 ## 검증
 

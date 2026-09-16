@@ -1,6 +1,6 @@
 """Dashboard Shell MVP — 로컬 실행 스크립트.
 
-정적 파일 서빙 외 `/api/command`·`/api/llm-command` 두 경로만 추가한다. `/api/command`는 raw_input을 command-contract의 `parse_command()`/`resolve()`에 그대로 전달하고(로직 복제 없음), `/api/llm-command`는 그 앞단에 실제 Claude 호출을 한 번 더 거친다."""
+정적 파일 서빙 외 `/api/command`·`/api/llm-command` 두 경로만 추가한다. `/api/command`는 raw_input을 command-contract의 `parse_command()`에 그대로 전달한다(로직 복제 없음). intent가 `execute_workflow`이고 target_hq가 `development`일 때만 `_resolve_or_execute()`가 기존 `hqs/development/workflow.py::run_workflow()`를 직접 호출하고, 그 외 intent는 `resolver.resolve()`(무수정)로 그대로 넘긴다 — `resolver.py`는 여전히 Engine/HQ 코드를 import하지 않는다는 자신의 Boundary를 유지한다. `/api/llm-command`는 그 앞단에 실제 Claude 호출을 한 번 더 거친다."""
 
 from __future__ import annotations
 
@@ -14,13 +14,55 @@ from pathlib import Path
 
 DASHBOARD_DIR = Path(__file__).resolve().parent
 COMMAND_CONTRACT_DIR = DASHBOARD_DIR.parent / "command-contract"
+DEV_HQ_DIR = DASHBOARD_DIR.parents[1] / "hqs" / "development"
 sys.path.insert(0, str(COMMAND_CONTRACT_DIR))
 
-from command import Command  # noqa: E402
+from command import Command, CommandResult  # noqa: E402
 from resolver import parse_command, resolve  # noqa: E402
 
 DEFAULT_PORT = 8765
 MAX_PORT_ATTEMPTS = 20
+
+
+class WorkflowExecutionError(Exception):
+    """`run_workflow()` 호출 자체(Import/실행)가 실패했을 때 — Stage 실패(`failed_at`)와는 다르다."""
+
+
+def _run_development_workflow(raw_input: str) -> dict:
+    """`hqs/development/workflow.py::run_workflow()`를 그대로 호출한다(재구현 없음).
+
+    Command Center raw_input을 최소한의 Issue({"title", "description"})로만
+    감싼다 — 새 Task/Issue Contract를 만들지 않는다.
+    """
+    if str(DEV_HQ_DIR) not in sys.path:
+        sys.path.insert(0, str(DEV_HQ_DIR))
+    try:
+        from workflow import run_workflow  # noqa: E402
+    except Exception as exc:  # noqa: BLE001 — import 실패 원인을 그대로 전달
+        raise WorkflowExecutionError(f"run_workflow import 실패: {exc}") from exc
+
+    issue = {"title": raw_input[:80], "description": raw_input}
+    try:
+        return run_workflow(issue)
+    except Exception as exc:  # noqa: BLE001 — run_workflow() 자체의 미처리 예외
+        raise WorkflowExecutionError(f"run_workflow 실행 실패: {exc}") from exc
+
+
+def _resolve_or_execute(command: Command) -> CommandResult:
+    """`execute_workflow`(Development HQ)만 `run_workflow()`로 라우팅하고, 그 외는 `resolver.resolve()`(무수정) 그대로 사용한다."""
+    if command.intent == "execute_workflow" and command.target_hq == "development":
+        try:
+            result = _run_development_workflow(command.raw_input)
+        except WorkflowExecutionError as exc:
+            return CommandResult(status="invalid", reason=str(exc))
+        reason = None if result["failed_at"] is None else f"workflow_failed_at_{result['failed_at']}"
+        return CommandResult(
+            status="ok",
+            reason=reason,
+            hq_identity="Development HQ",
+            detail=[json.dumps(result, ensure_ascii=False)],
+        )
+    return resolve(command)
 
 # Claude를 raw_input -> {intent, target_hq} 분류기로만 쓴다. 이 스키마는
 # command.py의 Command 필드와 정확히 같다 — 새 Contract를 만들지 않는다.
@@ -115,7 +157,7 @@ class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         command = parse_command(raw_input)
-        result = resolve(command)
+        result = _resolve_or_execute(command)
         self._send_json(
             http.HTTPStatus.OK,
             {
@@ -148,7 +190,7 @@ class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
         # parse_command()의 정규식 분류 대신 Claude의 분류 결과로 Command를
         # 만든다 — Command/CommandResult Contract와 resolve()는 그대로다.
         command = Command(raw_input=raw_input, intent=intent, target_hq=target_hq)
-        result = resolve(command)
+        result = _resolve_or_execute(command)
         self._send_json(
             http.HTTPStatus.OK,
             {
