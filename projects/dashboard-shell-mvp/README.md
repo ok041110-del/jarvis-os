@@ -69,7 +69,7 @@ HQ 화면에 "Evidence 연결 실패"가 그대로 표시된다 — 반드시 �
 | `generate_development_snapshot.py` | `projects/unified-dashboard/snapshot.py`의 `build_dev_hq_snapshot()`을 재사용해 `data/development-snapshot.json`을 생성하는 CLI |
 | `generate_investment_snapshot.py` | 같은 `snapshot.py`의 `build_investment_hq_snapshot()`을 재사용해 `data/investment-snapshot.json`을 생성하는 CLI |
 | `data/development-snapshot.json`, `data/investment-snapshot.json` | 생성된 Evidence Snapshot(커밋 대상 — `unified-dashboard`의 `output/`·`frontend/public/data/` 선례와 동일) |
-| `serve_dashboard.py` | 로컬 실행 편의 스크립트 — 클릭 한 번으로 열어볼 수 있게 서버를 띄우고 접속 URL을 출력한다. `POST /api/command`(정규식 기반 `parse_command()` + `_resolve_or_execute()`)와 `POST /api/llm-command`(실제 `claude` CLI로 분류 후 같은 `_resolve_or_execute()` 호출) 두 경로만 예외다. `_resolve_or_execute()`는 intent가 `execute_workflow`이고 target_hq가 `development`일 때만 `hqs/development/workflow.py::run_workflow()`를 직접 호출하고(devhq-command-center Command → Workflow E2E v0.1, 아래 "Command Center Terminal → 실제 Workflow 실행" 참조), 그 외는 기존 `resolve()`(무수정)를 그대로 호출한다 — 로직 복제 없음 |
+| `serve_dashboard.py` | 로컬 실행 편의 스크립트 — 클릭 한 번으로 열어볼 수 있게 서버를 띄우고 접속 URL을 출력한다. `POST /api/command`(정규식 기반 `parse_command()`)·`POST /api/llm-command`(실제 `claude` CLI로 분류)·`POST /api/openrouter-command`(기존 `mvp/openrouter_engine.py` 재사용 분류) 세 경로만 예외이며, 셋 다 분류 후 같은 `_resolve_or_execute()`를 호출한다. `_resolve_or_execute()`는 intent가 `execute_workflow`이고 target_hq가 `development`일 때만 `hqs/development/workflow.py::run_workflow()`를 직접 호출하고(devhq-command-center Command → Workflow E2E v0.1, 아래 "Command Center Terminal → 실제 Workflow 실행" 참조), 그 외는 기존 `resolve()`(무수정)를 그대로 호출한다 — 로직 복제 없음 |
 
 ## Development/Investment HQ Evidence 연결 (실험)
 
@@ -137,7 +137,50 @@ Chat 입력(raw_input)
 
 이전 절의 `POST /api/command`(정규식 기반 `parse_command()`)는
 그대로 남아 있다 — 삭제하지 않았고 계속 동작한다. Chat이 실제로
-쓰는 것은 새 `/api/llm-command`뿐이다.
+쓰는 것은 `/api/llm-command`(기본)와 아래 절의 `/api/openrouter-command`
+둘 중 Chat 헤더에서 선택한 쪽이다.
+
+## Chat → 기존 OpenRouter Engine 경로 연결 (실험)
+
+Chat 헤더의 provider 선택을 "OpenRouter (free pool)"로 바꾸면 같은
+분류 → resolve() 흐름이 Claude CLI 대신 기존 Engine 호출 경로를
+거친다. Dashboard 전용 LLM client를 만들지 않았다 — `hqs/development/mvp/openrouter_engine.py`의
+`call_engine_via_openrouter()`(Thin Engine Caller, ADR-0026/0027,
+str -> str, 단일 RuntimeError)를 함수 객체 그대로 재사용한다:
+
+```
+Chat 입력(raw_input)
+  → fetch("/api/openrouter-command")                [js/data.js: runOpenRouterCommand]
+  → serve_dashboard.py의 POST /api/openrouter-command 핸들러
+      call_engine_via_openrouter(prompt)             [hqs/development/mvp/openrouter_engine.py, 무수정]
+        → Free Pool 조회 → Deterministic Filter → candidates ≤3 →
+          OpenRouter models[] 호출 (모델 선택은 OpenRouter 책임)
+      _classify_with_openrouter(engine_output)       [fence/라벨형 편차 복구 후 JSON 파싱]
+        → {intent, target_hq}                        ← Claude 경로와 같은 Command 스키마
+      resolve(command)                               [projects/command-contract/resolver.py, 무수정]
+  → Chat에 "OpenRouter 해석"과 "실행 결과"를 별도 메시지로 표시
+```
+
+- **모델 독립성**: Jarvis 코드는 어떤 모델도 고정하지 않는다 — 후보
+  선택(free pool, 최대 3개)과 실제 모델/failover는 전부 기존 Engine
+  모듈과 OpenRouter의 책임이다(ADR-0026 §7 그대로). Claude/Gemini/
+  DeepSeek 등 어떤 free 모델이 선택되든 Dashboard·Command 스키마는
+  변하지 않는다.
+- **Credential**: `OPENROUTER_API_KEY` 환경변수를 읽는 것은 재사용되는
+  Engine 모듈뿐이다 — Dashboard 코드는 Key를 다루지 않고, Key가 없으면
+  Engine 모듈이 기존 규칙대로 Authorization 헤더를 아예 설정하지 않는다.
+- **실패 유형 구분**: provider/네트워크/timeout 실패는 HTTP 502,
+  응답이 {intent, target_hq} 스키마를 지키지 못한 것은 HTTP 422로
+  구분해 드러낸다 — 어느 쪽도 Mock으로 대체하지 않는다(기존 원칙과
+  동일). free 모델의 실측 편차(markdown fence, 필드 라벨형 답변)는
+  복구를 시도하고, 복구 불가분만 422다.
+- **Boundary**: 분류가 resolver가 모르는 HQ(예: trading)나 지원하지
+  않는 intent(예: deploy)를 반환해도 `resolve()`가 그대로 거부한다 —
+  LLM 분류가 실행 Boundary를 우회하지 않는다(테스트가 검증).
+- 이번 단계에서 연결하지 않은 것: 실제 OpenRouter 네트워크 호출(테스트는
+  로컬 test double로 검증, `OPENROUTER_API_KEY`가 있는 환경에서의 실측은
+  미수행), Tool 호출, Dev HQ workflow 실행 — Architecture/Contract 변경
+  없이 가능한 최소 경계만 검증했다.
 
 ## Command Center Terminal → 실제 Workflow 실행 (실험, devhq-command-center)
 
