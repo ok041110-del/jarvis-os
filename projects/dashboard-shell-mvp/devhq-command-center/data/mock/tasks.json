@@ -1,0 +1,87 @@
+{
+  "_source": "mock",
+  "_note": "Prototype Mock Data — 실제 Execution/Evidence와 무관하다. 실제 데이터로 오인하지 말 것.",
+  "tasks": [
+    {
+      "id": "042",
+      "title": "Engine Refactor 작업 상태 분석",
+      "status": "RUNNING",
+      "currentStage": "implementation",
+      "agent": "Development Agent",
+      "currentActivity": "Editing serve_dashboard.py",
+      "progress": { "overall": 82, "workflow": 80, "tasks": 91, "verification": 75 },
+      "stages": [
+        { "key": "context", "label": "Context", "status": "done", "startedAt": "20:15", "completedAt": "20:17", "duration": "02m 14s" },
+        { "key": "planning", "label": "Planning", "status": "done", "startedAt": "20:18", "completedAt": "20:21", "duration": "03m 08s" },
+        { "key": "architecture", "label": "Architecture", "status": "done", "startedAt": "20:21", "completedAt": "20:27", "duration": "05m 42s" },
+        { "key": "implementation", "label": "Implementation", "status": "running", "startedAt": "20:27", "completedAt": null, "duration": "09m 31s" },
+        { "key": "validation", "label": "Validation", "status": "pending", "startedAt": null, "completedAt": null, "duration": null }
+      ],
+      "elapsedSeconds": 1394,
+      "createdAt": "20:14",
+      "plan": [
+        "Engine Refactor 대상 범위(engine.py, omniroute_engine.py) 확인",
+        "기존 call-site 5곳의 호출 계약 정리",
+        "회귀 테스트 기준선(152 passed) 대비 diff 영향 분석",
+        "Validation 단계에서 real Engine E2E 재확인"
+      ]
+    },
+    {
+      "id": "041",
+      "title": "Dashboard OpenRouter E2E",
+      "status": "COMPLETED",
+      "currentStage": "validation",
+      "agent": "Development Agent",
+      "currentActivity": null,
+      "progress": { "overall": 100, "workflow": 100, "tasks": 100, "verification": 100 },
+      "stages": [
+        { "key": "context", "label": "Context", "status": "done", "startedAt": "18:02", "completedAt": "18:05", "duration": "03m 10s" },
+        { "key": "planning", "label": "Planning", "status": "done", "startedAt": "18:05", "completedAt": "18:09", "duration": "04m 02s" },
+        { "key": "architecture", "label": "Architecture", "status": "done", "startedAt": "18:09", "completedAt": "18:14", "duration": "05m 20s" },
+        { "key": "implementation", "label": "Implementation", "status": "done", "startedAt": "18:14", "completedAt": "18:29", "duration": "14m 51s" },
+        { "key": "validation", "label": "Validation", "status": "done", "startedAt": "18:29", "completedAt": "18:33", "duration": "04m 07s" }
+      ],
+      "elapsedSeconds": 1890,
+      "createdAt": "18:02",
+      "plan": ["OpenRouter E2E 커맨드 경로 점검", "실패 케이스 재현", "PR 반영"]
+    },
+    {
+      "id": "040",
+      "title": "Stage 03 병렬화 조사",
+      "status": "FAILED",
+      "currentStage": "implementation",
+      "agent": "Development Agent",
+      "currentActivity": null,
+      "progress": { "overall": 46, "workflow": 60, "tasks": 40, "verification": 0 },
+      "stages": [
+        { "key": "context", "label": "Context", "status": "done", "startedAt": "15:40", "completedAt": "15:43", "duration": "02m 51s" },
+        { "key": "planning", "label": "Planning", "status": "done", "startedAt": "15:43", "completedAt": "15:48", "duration": "05m 12s" },
+        { "key": "architecture", "label": "Architecture", "status": "blocked", "startedAt": "15:48", "completedAt": null, "duration": "—" },
+        { "key": "implementation", "label": "Implementation", "status": "pending", "startedAt": null, "completedAt": null, "duration": null },
+        { "key": "validation", "label": "Validation", "status": "pending", "startedAt": null, "completedAt": null, "duration": null }
+      ],
+      "elapsedSeconds": 480,
+      "createdAt": "15:40",
+      "plan": ["Stage 03 병렬 실행 가능성 조사", "Scheduler 필요 여부 판단"]
+    },
+    {
+      "id": "039",
+      "title": "Dev HQ Validation",
+      "status": "COMPLETED",
+      "currentStage": "validation",
+      "agent": "Development Agent",
+      "currentActivity": null,
+      "progress": { "overall": 100, "workflow": 100, "tasks": 100, "verification": 100 },
+      "stages": [
+        { "key": "context", "label": "Context", "status": "done", "startedAt": "10:00", "completedAt": "10:02", "duration": "02m 00s" },
+        { "key": "planning", "label": "Planning", "status": "done", "startedAt": "10:02", "completedAt": "10:05", "duration": "03m 00s" },
+        { "key": "architecture", "label": "Architecture", "status": "done", "startedAt": "10:05", "completedAt": "10:09", "duration": "04m 00s" },
+        { "key": "implementation", "label": "Implementation", "status": "done", "startedAt": "10:09", "completedAt": "10:20", "duration": "11m 00s" },
+        { "key": "validation", "label": "Validation", "status": "done", "startedAt": "10:20", "completedAt": "10:24", "duration": "04m 00s" }
+      ],
+      "elapsedSeconds": 1440,
+      "createdAt": "10:00",
+      "plan": ["Development HQ MVP Validation 종료 여부 확인"]
+    }
+  ]
+}

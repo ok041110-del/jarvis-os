@@ -1,0 +1,32 @@
+{
+  "_source": "mock",
+  "_note": "Task별 Activity Timeline. 향후 실제 Execution Event로 교체 가능한 독립 data model.",
+  "byTask": {
+    "042": [
+      { "time": "20:14", "text": "Task created" },
+      { "time": "20:15", "text": "Context analysis started" },
+      { "time": "20:17", "text": "Context analysis completed" },
+      { "time": "20:18", "text": "Planning started" },
+      { "time": "20:21", "text": "Planning completed" },
+      { "time": "20:21", "text": "Architecture started" },
+      { "time": "20:27", "text": "Architecture completed" },
+      { "time": "20:27", "text": "Implementation started" },
+      { "time": "20:31", "text": "Editing engine.py" },
+      { "time": "20:36", "text": "Editing serve_dashboard.py" },
+      { "time": "20:38", "text": "Running pytest tests/dashboard-shell-mvp" }
+    ],
+    "041": [
+      { "time": "18:02", "text": "Task created" },
+      { "time": "18:29", "text": "Implementation completed" },
+      { "time": "18:33", "text": "Validation completed — PASS" }
+    ],
+    "040": [
+      { "time": "15:40", "text": "Task created" },
+      { "time": "15:48", "text": "Architecture blocked — Scheduler 경계 확인 필요" }
+    ],
+    "039": [
+      { "time": "10:00", "text": "Task created" },
+      { "time": "10:24", "text": "Validation completed — PASS" }
+    ]
+  }
+}

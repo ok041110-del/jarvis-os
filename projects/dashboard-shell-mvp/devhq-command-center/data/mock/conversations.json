@@ -1,0 +1,10 @@
+{
+  "_source": "mock",
+  "_note": "Recent Conversations 목록 — 실제 저장된 세션 데이터가 없어 Mock으로 표시한다.",
+  "recent": [
+    { "taskId": "042", "title": "#042 Engine Refactor 작업 상태 분석" },
+    { "taskId": "041", "title": "#041 Dashboard OpenRouter E2E" },
+    { "taskId": "040", "title": "#040 Stage 03 병렬화 조사" },
+    { "taskId": "039", "title": "#039 Dev HQ Validation" }
+  ]
+}

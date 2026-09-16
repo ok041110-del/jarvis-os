@@ -1,0 +1,10 @@
+{
+  "_source": "mock",
+  "_note": "Task별 Test 결과. 실제 연결 시 pytest 결과 파싱 Adapter로 교체 가능.",
+  "byTask": {
+    "042": { "pass": 399, "skipped": 6, "failed": 0, "lastRun": "20:38:12", "duration": "42.7s" },
+    "041": { "pass": 152, "skipped": 2, "failed": 0, "lastRun": "18:32:40", "duration": "18.3s" },
+    "040": { "pass": 0, "skipped": 0, "failed": 0, "lastRun": null, "duration": null },
+    "039": { "pass": 186, "skipped": 6, "failed": 0, "lastRun": "10:23:55", "duration": "21.1s" }
+  }
+}

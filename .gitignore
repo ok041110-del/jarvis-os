@@ -19,3 +19,10 @@ venv/
 
 # Claude Code 작업 디렉토리 (실험용 worktree 등, 산출물 아님)
 .claude/worktrees/
+
+# Dev HQ Command Center — export_real_snapshot.py가 생성하는 Real Data
+# Snapshot(실행 시점 스냅샷, stale 가능, content/*.json에는 repository
+# 파일 내용이 포함됨) — 스크립트 자체(export_real_snapshot.py)는 ignore
+# 대상이 아니다.
+projects/dashboard-shell-mvp/devhq-command-center/data/real/*.json
+projects/dashboard-shell-mvp/devhq-command-center/data/real/content/

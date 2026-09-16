@@ -1,0 +1,46 @@
+{
+  "_source": "mock",
+  "_note": "Task별 Changed Files + Diff. 실제 연결 시 git diff 기반 Adapter로 교체 가능.",
+  "byTask": {
+    "042": {
+      "summary": "4 files changed",
+      "files": [
+        {
+          "status": "M",
+          "path": "projects/dashboard-shell-mvp/serve_dashboard.py",
+          "before": "def _interpret_with_claude(raw_input):\n    proc = subprocess.run([\"claude\", \"-p\", prompt])\n    return proc.stdout\n",
+          "after": "def _interpret_with_claude(raw_input: str) -> tuple[str | None, str | None]:\n    proc = subprocess.run(\n        [\"claude\", \"-p\", prompt, \"--tools\", \"\", \"--restricted\"],\n        capture_output=True, text=True, timeout=45,\n    )\n    return _parse_claude_response(proc)\n"
+        },
+        {
+          "status": "M",
+          "path": "js/app.js",
+          "before": "function renderMain() {\n  el.main.innerHTML = Render.main(hqId, snapshot);\n}\n",
+          "after": "function renderMain() {\n  Promise.resolve(MockData.getHQSnapshot(hqId))\n    .then(function (snapshot) {\n      el.main.innerHTML = Render.main(hqId, snapshot);\n    });\n}\n"
+        },
+        {
+          "status": "M",
+          "path": "js/render.js",
+          "before": "function main(hqId, snapshot) {\n  return card(snapshot);\n}\n",
+          "after": "function main(hqId, snapshot) {\n  if (!snapshot) return errorPanel(hqId, 'no snapshot');\n  return card(snapshot);\n}\n"
+        },
+        {
+          "status": "A",
+          "path": "projects/dashboard-shell-mvp/tests/test_openrouter_command.py",
+          "before": "",
+          "after": "def test_llm_command_rejects_trading():\n    result = resolve(Command(raw_input='x', intent='show_status', target_hq='trading'))\n    assert result.status == 'invalid'\n"
+        }
+      ]
+    },
+    "041": {
+      "summary": "2 files changed",
+      "files": [
+        { "status": "M", "path": "projects/dashboard-shell-mvp/serve_dashboard.py", "before": "PORT = 8765\n", "after": "DEFAULT_PORT = 8765\n" },
+        { "status": "A", "path": "projects/dashboard-shell-mvp/tests/test_openrouter_command.py", "before": "", "after": "def test_openrouter_e2e():\n    assert True\n" }
+      ]
+    },
+    "040": { "summary": "0 files changed", "files": [] },
+    "039": { "summary": "1 file changed", "files": [
+      { "status": "M", "path": "hqs/development/HANDOVER.md", "before": "상태: 진행 중\n", "after": "상태: 종료 확정 — Stable v1.0 Freeze\n" }
+    ] }
+  }
+}
