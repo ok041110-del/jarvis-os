@@ -16,6 +16,7 @@ abstraction을 만들지 않고, Command Contract/Resolver(`command.py`/`resolve
 from __future__ import annotations
 
 import json
+import os
 from http.server import BaseHTTPRequestHandler
 
 MAX_HISTORY_MESSAGES = 20
@@ -41,6 +42,27 @@ def _build_prompt(history: list, message: str) -> str:
     return "\n".join(lines)
 
 
+# 임시 진단 전용 — buildCommand(`cp ../../hqs/development/mvp/openrouter_engine.py
+# api/openrouter_engine.py`)의 staging 결과가 실제 Lambda 파일시스템에 반영됐는지를
+# Vercel Build Log 접근 없이 응답 JSON만으로 판별하기 위한 것이다(A: cp 미실행/오경로,
+# B: cp는 성공했지만 Function bundle에 미포함, C: bundle엔 있으나 import 자체가 실패).
+# 원인 확정 후 이 함수와 호출부는 제거한다 — 정상 응답 스키마·Command Contract는
+# 건드리지 않는다.
+def _import_failure_debug() -> dict:
+    api_dir = os.path.dirname(os.path.abspath(__file__))
+    try:
+        listing = sorted(os.listdir(api_dir))
+    except OSError as exc:
+        listing = [f"<listdir 실패: {exc}>"]
+    staged_path = os.path.join(api_dir, "openrouter_engine.py")
+    return {
+        "debug_file": os.path.abspath(__file__),
+        "debug_api_dir": api_dir,
+        "debug_api_dir_listing": listing,
+        "debug_staged_openrouter_engine_exists": os.path.isfile(staged_path),
+    }
+
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         try:
@@ -64,7 +86,9 @@ class handler(BaseHTTPRequestHandler):
         try:
             from openrouter_engine import call_engine_via_openrouter  # noqa: E402
         except Exception as exc:  # noqa: BLE001 — import 실패 원인을 그대로 전달
-            self._send_json(502, {"status": "error", "reason": "openrouter_engine import 실패: " + str(exc)})
+            payload = {"status": "error", "reason": "openrouter_engine import 실패: " + str(exc)}
+            payload.update(_import_failure_debug())
+            self._send_json(502, payload)
             return
 
         prompt = _build_prompt(history, message)
