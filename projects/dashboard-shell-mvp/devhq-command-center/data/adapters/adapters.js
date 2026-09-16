@@ -209,11 +209,21 @@ var DevHQAdapters = (function () {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: message, history: history || [] })
     }).then(function (res) {
-      return res.json().then(function (json) {
-        if (res.ok && json.status === "ok") {
+      // 응답 본문을 먼저 text로 받아 직접 JSON.parse한다 — `/api/chat` 라우트
+      // 자체가 없을 때(Vercel Root Directory 오설정 등) Vercel이 돌려주는
+      // text/plain 404 본문에 res.json()을 바로 걸면 브라우저 JSON 파서가
+      // 던지는 알아보기 힘든 에러 문구가 그대로 사용자에게 노출된다 — 그
+      // 대신 HTTP status를 포함한 명확한 unavailable 사유로 감싼다.
+      return res.text().then(function (text) {
+        var json = null;
+        try { json = JSON.parse(text); } catch (e) { /* JSON이 아니면 아래에서 처리 */ }
+        if (res.ok && json && json.status === "ok") {
           return { source: "real", data: json };
         }
-        return unavailable(json.reason || ("/api/chat 요청 실패(HTTP " + res.status + ")"));
+        if (json && json.reason) {
+          return unavailable(json.reason);
+        }
+        return unavailable("/api/chat 요청 실패(HTTP " + res.status + " " + res.statusText + ")");
       });
     }).catch(function (err) {
       return unavailable("/api/chat 요청 실패: " + err.message);
@@ -234,8 +244,15 @@ var DevHQAdapters = (function () {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ raw_input: raw_input })
     }).then(function (res) {
-      return res.json().then(function (json) {
-        return { source: "real", data: json };
+      // sendChatMessage()와 동일한 이유 — 라우트 자체가 없을 때의 text/plain
+      // 404 본문에 res.json()을 바로 걸지 않는다.
+      return res.text().then(function (text) {
+        var json = null;
+        try { json = JSON.parse(text); } catch (e) { /* JSON이 아니면 아래에서 처리 */ }
+        if (res.ok && json) {
+          return { source: "real", data: json };
+        }
+        return unavailable("/api/command 요청 실패(HTTP " + res.status + " " + res.statusText + ")");
       });
     }).catch(function (err) {
       return unavailable("/api/command 요청 실패: " + err.message);
