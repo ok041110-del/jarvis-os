@@ -343,13 +343,23 @@ html, body {
 
 .hint-text { color: var(--text-dim); font-size: 11px; font-style: italic; }
 
-.badge-mock {
+.badge-mock, .badge-real, .badge-unavailable {
   font-size: 9px;
   font-weight: 700;
-  color: var(--warn);
-  border: 1px solid var(--warn);
   border-radius: 3px;
   padding: 1px 5px;
+}
+.badge-mock { color: var(--warn); border: 1px solid var(--warn); }
+.badge-real { color: var(--ok); border: 1px solid var(--ok); }
+.badge-unavailable { color: var(--text-dim); border: 1px solid var(--border); }
+
+.repo-status-line {
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .plan-list { margin: 0; padding-left: 18px; color: var(--text); }

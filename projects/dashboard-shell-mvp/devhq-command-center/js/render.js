@@ -14,7 +14,10 @@ var CCRender = (function () {
   }
 
   function mockBadge(source) {
-    return source === "mock" ? '<span class="badge badge-mock" title="Prototype Mock Data — 실제 Evidence 아님">MOCK</span>' : "";
+    if (source === "mock") return '<span class="badge badge-mock" title="Prototype Mock Data — 실제 Evidence 아님">MOCK</span>';
+    if (source === "real") return '<span class="badge badge-real" title="실제 저장소 데이터(export_real_snapshot.py 스냅샷)">REAL</span>';
+    if (source === "unavailable") return '<span class="badge badge-unavailable" title="실제 데이터 소스 없음 — Mock으로 대체하지 않음">UNAVAILABLE</span>';
+    return "";
   }
 
   var STATUS_CLASS = {
@@ -60,7 +63,8 @@ var CCRender = (function () {
       return '<div class="tree-dir" ' + indent + '>' + icon("folder") + esc(node.name) + "</div>" + children;
     }
     var dot = node.changed ? '<span class="changed-dot" title="변경됨"></span>' : "";
-    return '<div class="tree-file" data-path="' + esc(node.name) + '" ' + indent + '>' + icon("file") + esc(node.name) + dot + "</div>";
+    var dataPath = node.path || node.name;
+    return '<div class="tree-file" data-path="' + esc(dataPath) + '" ' + indent + '>' + icon("file") + esc(node.name) + dot + "</div>";
   }
 
   function icon(kind) {
@@ -79,9 +83,29 @@ var CCRender = (function () {
     }).join("");
   }
 
-  function sidebar(activeNav, tree, conversations, activeTaskId, treeSource) {
+  // Task와 무관한 저장소 전역 상태(Git branch/변경 파일 수, Dev HQ Workflow
+  // Phase) — `real/git.json`/`real/workflow.json`이 있을 때만 채워진다.
+  // 없으면(export_real_snapshot.py 미실행) UNAVAILABLE 배지만 붙이고 값은
+  // 비워둔다(Mock으로 대체하지 않음).
+  function repoStatusBlock(gitStatus, workflowStatus) {
+    var gitLine = gitStatus && gitStatus.source === "real"
+      ? "Branch " + esc(gitStatus.data.branch || "—") + " · " + esc(gitStatus.data.summary)
+      : "—";
+    var workflowLine = workflowStatus && workflowStatus.source === "real"
+      ? esc((workflowStatus.data.detail || [])[0] || "—")
+      : "—";
+    var badgeSource = gitStatus ? gitStatus.source : "unavailable";
+    return (
+      '<div class="sidebar-section"><div class="sidebar-title">Repository ' + mockBadge(badgeSource) + '</div>' +
+      '<div class="repo-status-line">' + gitLine + "</div>" +
+      '<div class="repo-status-line">' + workflowLine + "</div></div>"
+    );
+  }
+
+  function sidebar(activeNav, tree, conversations, activeTaskId, treeSource, gitStatus, workflowStatus) {
     return (
       '<div class="sidebar-section"><div class="sidebar-title">Navigation</div>' + nav(activeNav) + "</div>" +
+      repoStatusBlock(gitStatus, workflowStatus) +
       '<div class="sidebar-section"><div class="sidebar-title">Explorer ' + mockBadge(treeSource) + '</div>' + explorer(tree) + "</div>" +
       '<div class="sidebar-section sidebar-section-grow"><div class="sidebar-title">Recent Conversations</div>' +
       '<div class="conv-list">' + conversationList(conversations, activeTaskId) + "</div></div>"

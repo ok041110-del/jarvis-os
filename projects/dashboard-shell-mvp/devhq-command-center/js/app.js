@@ -23,6 +23,9 @@
     activeTab: "chat",
     conversations: [],
     fileTree: [],
+    fileTreeSource: "mock",
+    gitStatus: { source: "unavailable", data: null },
+    workflowStatus: { source: "unavailable", data: null },
     task: null,
     activity: { data: [], source: "mock" },
     changes: { data: { summary: "", files: [] }, source: "mock" },
@@ -70,7 +73,10 @@
   // ---- Render orchestration ----
 
   function renderSidebar() {
-    el.sidebar.innerHTML = CCRender.sidebar(state.activeNav, state.fileTree, state.conversations, state.activeTaskId, "mock");
+    el.sidebar.innerHTML = CCRender.sidebar(
+      state.activeNav, state.fileTree, state.conversations, state.activeTaskId,
+      state.fileTreeSource, state.gitStatus, state.workflowStatus
+    );
     bindSidebarEvents();
   }
 
@@ -117,7 +123,7 @@
       case "code":
         el.tabContent.innerHTML = CCRender.codeEditor(
           state.fileTree, state.editor.openTabs, state.editor.activePath,
-          state.editor.activeContent || "", "mock"
+          state.editor.activeContent || "", state.editor.activeContentSource || state.fileTreeSource
         );
         bindEditorEvents();
         break;
@@ -189,7 +195,8 @@
         if (state.editor.openTabs.indexOf(path) === -1) state.editor.openTabs.push(path);
         state.editor.activePath = path;
         DevHQAdapters.getFileContent(state.activeTaskId, path).then(function (res) {
-          state.editor.activeContent = res.data.content;
+          state.editor.activeContent = res.data ? res.data.content : "(" + (res.reason || "unavailable") + ")";
+          state.editor.activeContentSource = res.source;
           renderTabContent();
         });
       });
@@ -200,7 +207,8 @@
         var path = tab.getAttribute("data-editor-tab");
         state.editor.activePath = path;
         DevHQAdapters.getFileContent(state.activeTaskId, path).then(function (res) {
-          state.editor.activeContent = res.data.content;
+          state.editor.activeContent = res.data ? res.data.content : "(" + (res.reason || "unavailable") + ")";
+          state.editor.activeContentSource = res.source;
           renderTabContent();
         });
       });
@@ -323,10 +331,15 @@
   function init() {
     Promise.all([
       DevHQAdapters.getConversations(),
-      DevHQAdapters.getFileTree()
+      DevHQAdapters.getFileTree(),
+      DevHQAdapters.getRepoStatus(),
+      DevHQAdapters.getWorkflowStatus()
     ]).then(function (results) {
       state.conversations = results[0].data;
       state.fileTree = results[1].data;
+      state.fileTreeSource = results[1].source;
+      state.gitStatus = { source: results[2].source, data: results[2].data };
+      state.workflowStatus = { source: results[3].source, data: results[3].data };
       return loadTaskBundle(state.activeTaskId);
     }).then(function () {
       renderAll();
