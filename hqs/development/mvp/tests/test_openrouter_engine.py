@@ -54,6 +54,60 @@ def test_malformed_response_raises_runtime_error(monkeypatch):
             call_engine_via_openrouter("hello")
 
 
+def test_2xx_body_that_is_not_json_classified_as_empty_response_not_malformed(monkeypatch):
+    """`mode="malformed"`는 HTTP 200 + non-JSON 본문이다 — `_classify_failure`
+    기준으로는 `status < 400`이라 실제로는 `"empty_response"`로 분류된다
+    (`"malformed_response"`가 아님, 조사 보고서에서 확인된 이름-의미 불일치).
+    이 테스트는 기존 `test_malformed_response_raises_runtime_error`가 검증하지
+    않던 실제 category 값을 명시적으로 고정한다."""
+    with FakeOpenRouterServer(mode="malformed") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            call_engine_via_openrouter("hello")
+        assert "empty_response" in str(exc_info.value)
+        assert "malformed_response" not in str(exc_info.value)
+
+
+def test_http_4xx_response_classified_as_malformed_response(monkeypatch):
+    """`_classify_failure`가 실제로 `malformed_response`로 분류하는 조건은
+    순수 HTTP 4xx(429 제외)뿐이다 — 이 통합 테스트가 그 경로를
+    `call_engine_via_openrouter()` 전체를 통해 처음으로 검증한다."""
+    with FakeOpenRouterServer(mode="client_error_4xx") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            call_engine_via_openrouter("hello")
+        assert "malformed_response" in str(exc_info.value)
+
+
+def test_http_4xx_retry_does_not_narrow_candidates(monkeypatch):
+    """`malformed_response`(4xx) 경로에서는 `_parse_chat_response`가
+    `selected_model`을 항상 `None`으로 반환하므로, bounded retry가 실패
+    후보를 제외하지 못하고 두 attempt 모두 동일한 candidates로 재요청한다
+    (조사 보고서 §3에서 코드 읽기로 확인한 사실의 실행 증거)."""
+    server = FakeOpenRouterServer(mode="client_error_4xx")
+    with server as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError):
+            call_engine_via_openrouter("hello")
+    assert server._server.call_count == 2
+    received = server._server.received_models_by_call
+    assert len(received) == 2
+    assert received[0] == received[1]
+    assert len(received[0]) == MAX_CANDIDATES
+
+
+def test_http_4xx_error_message_candidates_tried_reflects_untouched_pool(monkeypatch):
+    """4xx 경로는 candidates를 좁히지 않으므로, 최종 예외 메시지의
+    `candidates_tried` 값은 "실제 시도 횟수"가 아니라 "끝까지 제외되지
+    않은 후보 개수"(MAX_CANDIDATES)를 담는다 — 명칭과 실제 의미의
+    불일치를 실행 결과로 고정한다(즉시 수정하지 않음, 조사 보고서 §3)."""
+    with FakeOpenRouterServer(mode="client_error_4xx") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            call_engine_via_openrouter("hello")
+        assert f"candidates_tried={MAX_CANDIDATES}" in str(exc_info.value)
+
+
 def test_empty_content_raises_runtime_error(monkeypatch):
     with FakeOpenRouterServer(mode="empty_content") as base_url:
         monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
