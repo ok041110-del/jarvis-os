@@ -240,8 +240,73 @@ OpenRouter quota 미사용)에 근거하며, 추측이나 코드 미검토 상�
 | 7 | Candidate ≤3 | PASS |
 | 8 | `models[]` 구성 정확성 | PASS |
 | 9 | Retry 정상 동작 | **PASS(본 문서)** |
-| 10 | Failure classification | **PASS(본 문서)** |
+| 10 | Failure classification | **PASS(본 문서, 아래 Post-Hoc Amendment 참조)** |
 | 11 | Stage 05 실제 Implementation Review | PASS |
 | 12 | 전체 E2E 1회 이상 실제 통과 | PASS |
+
+## Post-Hoc Amendment (2026-09-18, PR #199 기반)
+
+이 절은 본 문서 §2("Fault Injection 방식 조사")·§5("Gate #10 검증")의
+기존 서술 중 부정확했던 부분을 사후에 정정한다. 아래 원문(§2 표,
+§5, §"ADR-0027 §10 Validation Gate 전체 현황")은 삭제·수정하지
+않고 그대로 보존하며, 이 절이 그 서술의 정확한 실제 의미를
+덧붙인다 — `ADR-0027` §16이 이미 사용한 것과 동일한 Post-Hoc
+Amendment 방식이다.
+
+**정정 대상 서술**:
+
+- §2 표의 `malformed` 행: "`malformed` | JSON 파싱 불가 응답 |
+  malformed_response 분류(#10)"
+- §5의 "`test_malformed_response_raises_runtime_error` → malformed
+  분류 경로"
+- §"관련 사실"의 "retryable failure 분류(5xx/malformed/empty/
+  connection) 확인"
+
+**실제 확인된 사실(PR #199, `068267e`)**:
+
+1. `fake_openrouter_server.py`의 `mode="malformed"`는 실제로
+   **HTTP 200 상태 + non-JSON 본문**(`b"not json"`)을 반환한다 —
+   4xx 응답이 아니다.
+2. `openrouter_engine.py::_classify_failure(status, connection_error)`
+   는 `status >= 400`일 때만 `"malformed_response"`를 반환한다.
+   HTTP 200은 이 조건을 만족하지 않으므로, `mode="malformed"`가
+   실제로 만들어내는 분류 결과는 **`"malformed_response"`가 아니라
+   `"empty_response"`다.**
+3. 위 §2/§5의 세 서술은 `mode="malformed"`라는 fixture 이름과
+   코드의 카테고리 이름 `"malformed_response"`가 같은 단어를
+   공유해 생긴 혼동으로, **실제 코드 동작과 어긋난 부정확한
+   서술이었다.**
+4. `test_malformed_response_raises_runtime_error` 자신은
+   `pytest.raises(RuntimeError)`만 확인할 뿐 `category` 문자열을
+   검사하지 않으므로, "malformed 분류 경로를 확인했다"는 §5의
+   서술은 이 테스트가 실제로 보장하는 것보다 강하게 서술되어 있었다.
+5. **진짜 `malformed_response`(순수 HTTP 4xx, 429 제외) 경로**는
+   이 문서가 작성된 시점까지 통합 테스트로 검증된 적이 없었다 —
+   `mvp/tests/test_openrouter_engine.py`(PR #199, `068267e`)가
+   `client_error_4xx`라는 신규 fixture mode(HTTP 400)와 4개 신규
+   테스트(`test_2xx_body_that_is_not_json_classified_as_empty_
+   response_not_malformed`, `test_http_4xx_response_classified_
+   as_malformed_response`, `test_http_4xx_retry_does_not_narrow_
+   candidates`, `test_http_4xx_error_message_candidates_tried_
+   reflects_untouched_pool`)로 **처음 이 경로를 실측 검증했다.**
+
+**Gate #10 PASS 판정에 대한 영향**: **판정을 뒤집지 않는다.**
+Gate #10의 요건("quota를 모델 품질 실패와 분리")은 이 문서 §1이
+이미 인용한 `test_classify_failure_separates_quota_from_other_
+categories`/`test_classify_failure_never_conflates_quota_with_
+malformed`(둘 다 `_classify_failure()`를 직접 호출하는 단위
+테스트, 이번 정정과 무관하게 처음부터 정확했다)로 독립적으로
+충족되어 있었다. 이번에 정정하는 것은 §2/§5가 **어떤 테스트가
+무엇을 확인했는지에 대한 서술**이지, quota 분리라는 판정의
+근거 자체가 아니다.
+
+**변경 범위**: 이 절 추가만. §2/§5/"ADR-0027 §10 Validation Gate
+전체 현황" 표의 기존 원문은 무수정(추적성 보존). Production 코드,
+테스트 코드, Architecture, Contract, 다른 Governance 문서는
+이 정정과 무관하며 수정하지 않았다.
+
+**Evidence**: PR #199(`068267e9e88d505226df0e38995f57819885be90`,
+squash merge), 본 세션의 "OpenRouter malformed_response 원인 조사"
+및 "PR #199 병합 확인 및 Gate #10 Evidence 문서 정확성 검토" 작업.
 
 **12개 항목 전부 PASS.**
