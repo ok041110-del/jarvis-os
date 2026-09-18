@@ -84,6 +84,15 @@ class _Handler(BaseHTTPRequestHandler):
             request_body = json.loads(raw.decode("utf-8"))
         except (ValueError, UnicodeDecodeError):
             request_body = {}
+        # bounded retry가 실패 후 candidates를 실제로 좁히는지(narrowing)
+        # 호출별로 받은 models 배열을 남겨 테스트가 비교할 수 있게 한다.
+        self.server.received_models_by_call.append(list(request_body.get("models") or []))  # type: ignore[attr-defined]
+
+        if mode == "client_error_4xx":
+            # 순수 HTTP 4xx(429 아님) — malformed_response 분류 대상.
+            # 민감정보 없는 합성 오류 본문만 사용한다.
+            self._write_json(400, {"error": {"message": "synthetic bad request", "code": 400}})
+            return
 
         if mode == "success":
             self._write_json(
@@ -132,6 +141,7 @@ class FakeOpenRouterServer:
         self._server = HTTPServer(("127.0.0.1", 0), _Handler)
         self._server.mode = models_mode if models_mode else mode
         self._server.call_count = 0
+        self._server.received_models_by_call = []
         self._post_mode = mode
         self._models_mode = models_mode
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
