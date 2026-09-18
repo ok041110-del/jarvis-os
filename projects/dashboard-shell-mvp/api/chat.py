@@ -80,8 +80,9 @@ class handler(BaseHTTPRequestHandler):
         prompt = _build_prompt(history, message)
         try:
             reply = call_engine_via_openrouter(prompt)
-        except Exception as exc:  # noqa: BLE001 — Engine 실패(API key 미설정 포함)를 그대로 드러냄
-            self._send_json(502, {"status": "error", "reason": str(exc)})
+        except Exception as exc:  # noqa: BLE001 — 원본 메시지(API key 등 포함 가능)는 응답/로그에 남기지 않는다
+            print(f"chat.py: OpenRouter 호출 실패 ({type(exc).__name__})", file=sys.stderr)
+            self._send_json(502, {"status": "error", "reason": "OpenRouter request failed"})
             return
 
         self._send_json(200, {"status": "ok", "reply": reply})
