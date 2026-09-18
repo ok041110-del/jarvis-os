@@ -11,11 +11,20 @@ abstraction을 만들지 않고, Command Contract/Resolver(`command.py`/`resolve
 
 `OPENROUTER_API_KEY`는 staged `openrouter_engine.py`가 내부적으로 환경변수에서만
 읽는다 — 이 Function은 API key를 직접 다루거나 client에 노출하지 않는다.
+
+staged `openrouter_engine.py`는 이 파일과 같은 `api/` 디렉터리에 물리적으로
+존재하지만(Runtime Evidence로 확인됨), Vercel Python Function이 이 파일을
+로드하는 방식은 스크립트를 직접 실행할 때와 달리 자신의 디렉터리를
+`sys.path`에 자동으로 넣어주지 않는다 — 그래서 같은 폴더의 sibling import가
+`ModuleNotFoundError`로 실패했다. import 직전 자신의 디렉터리를 명시적으로
+`sys.path`에 추가해 이 격차만 메운다(그 외 import/실행 방식은 그대로).
 """
 
 from __future__ import annotations
 
 import json
+import os
+import sys
 from http.server import BaseHTTPRequestHandler
 
 MAX_HISTORY_MESSAGES = 20
@@ -62,6 +71,7 @@ class handler(BaseHTTPRequestHandler):
             history = []
 
         try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
             from openrouter_engine import call_engine_via_openrouter  # noqa: E402
         except Exception as exc:  # noqa: BLE001 — import 실패 원인을 그대로 전달
             self._send_json(502, {"status": "error", "reason": "openrouter_engine import 실패: " + str(exc)})
