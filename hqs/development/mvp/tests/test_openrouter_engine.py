@@ -293,3 +293,70 @@ def test_no_central_router_or_gateway_abstraction_in_module():
     forbidden = ("class EngineRouter", "class Registry", "class Gateway", "EngineAdapter(", "class Router")
     for token in forbidden:
         assert token not in source
+
+
+# ---- 8. Failure Observability(내부 진단 속성, 외부 계약 무변경) ----------------
+
+
+def test_failure_attempts_diagnostic_preserves_single_runtime_error_and_message(monkeypatch):
+    """진단 속성 추가가 예외 타입(`RuntimeError` 단일)과 기존 메시지
+    형식(category/candidates_tried)을 바꾸지 않는지 확인한다(RFC-0041
+    §Failure Boundary — 새 예외 타입을 Stage 계층에 노출하지 않는다)."""
+    with FakeOpenRouterServer(mode="server_error") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            call_engine_via_openrouter("hello")
+
+    exc = exc_info.value
+    assert type(exc) is RuntimeError
+    assert "category=5xx" in str(exc)
+    assert "candidates_tried=" in str(exc)
+
+
+def test_failure_attempts_records_status_category_and_candidates_per_attempt(monkeypatch):
+    """attempt별 http_status/category/connection_error/requested_candidates가
+    예외 속성(`attempts`)에 보존되는지 확인한다(response body/헤더/API Key는
+    포함하지 않음 — 코드 자체에 그 값을 읽는 경로가 없음)."""
+    with FakeOpenRouterServer(mode="server_error") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            call_engine_via_openrouter("hello")
+
+    attempts = exc_info.value.attempts
+    assert len(attempts) == 2  # 최초 1회 + bounded retry 1회
+    for i, record in enumerate(attempts, start=1):
+        assert record["attempt"] == i
+        assert record["http_status"] == 500
+        assert record["category"] == "5xx"
+        assert record["connection_error"] is False
+        assert isinstance(record["requested_candidates"], tuple)
+        assert len(record["requested_candidates"]) == MAX_CANDIDATES
+        # 5xx 경로는 selected_model을 추출하지 않는다(기존 `_parse_chat_response` 동작 무변경)
+        assert record["selected_model"] is None
+
+
+def test_failure_attempts_does_not_leak_credentials_or_response_body(monkeypatch):
+    """진단 속성 어디에도 API Key/Authorization/response body 원문이
+    포함되지 않는지 확인한다."""
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test-secret-value")
+    with FakeOpenRouterServer(mode="client_error_4xx") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        with pytest.raises(RuntimeError) as exc_info:
+            call_engine_via_openrouter("hello")
+
+    attempts = exc_info.value.attempts
+    serialized = repr(attempts)
+    assert "sk-or-test-secret-value" not in serialized
+    assert "Authorization" not in serialized
+    allowed_keys = {"attempt", "http_status", "requested_candidates", "selected_model", "category", "connection_error"}
+    for record in attempts:
+        assert set(record.keys()) == allowed_keys
+
+
+def test_success_path_returns_content_without_raising(monkeypatch):
+    """성공 시에는 예외 자체가 발생하지 않으므로 `attempts` 진단 속성도
+    관여하지 않는다 — 성공 경로 동작 무변경 확인."""
+    with FakeOpenRouterServer(mode="success") as base_url:
+        monkeypatch.setenv("OPENROUTER_BASE_URL", base_url)
+        result = call_engine_via_openrouter("hello")
+    assert result == "FAKE_OPENROUTER_OK"
