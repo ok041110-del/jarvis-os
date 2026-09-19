@@ -264,6 +264,8 @@ Component가 구현할지는 정하지 않는다**(KP-1).
 | 병합(Merge) | 복수 Source의 Segment 집합을 합친다. 같은 Identifier + 같은 Content는 중복 제거하고, **같은 Identifier + 다른 Content는 오류**다. | Content를 합치거나 요약하지 않는다. Segment 경계를 무너뜨리지 않는다. |
 | 정렬(Order) | Segment 집합에 **전순서**를 부여한다. | — |
 
+**병합 판정은 Segment가 도착한 순서에 의존하지 않는다.**
+
 **정렬의 핵심 조건**: **Ordering Policy는 Builder의 입력이며, Model에
 박힌 분류가 아니다.** 순서 규칙이 Model 안에 들어가면 그것이 곧 계층
 분류가 되어 CM-1을 위반한다. 이 외부화 덕분에, 훗날 계층 분류가
