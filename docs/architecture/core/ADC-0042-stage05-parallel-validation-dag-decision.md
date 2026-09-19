@@ -8,6 +8,25 @@ Validation DAG로 재설계하는 것을 Production Architecture로 채택할지
 공식 Decision을 내린다. `ADC-0040`/`ADC-0041`과 동일한 판정 구조를
 따른다.
 
+> **Amendment(KV-02 Issue 2 재확인, 2026-09-19)**: 이 ADC가 §16.3/§16.4
+> 재확인 대상으로 남긴 조건(아래 Validation Requirements 1·5번)이
+> 이후 실제로 충족됐는지 코드 기준으로 재확인했다 — **충족되지
+> 않았다.** `grep`으로 직접 확인한 사실: (1) `hqs/development/mvp/execution_host.py`는
+> 자신의 단위 테스트(`test_execution_host.py`) 외에는 어디에서도
+> import되지 않는다 — `stage_05.py`/`workflow.py` 어느 것도 이를
+> 사용하지 않는다. (2) `hqs/development/stages/05_validation/stage_05.py`에
+> `ThreadPoolExecutor`/`Process`/동시성 관련 코드가 **전혀 없다** —
+> 현재 Production 코드는 이 ADC가 "잠정 유지"라 부른 Case A(순차
+> 구조) 그대로이며, 6-way Parallel DAG 자체가 아직 코드로 존재하지
+> 않는다. 따라서 §16.3("동일 Target 동시 실행 가능성이 있는 경로")·
+> §16.4/ADC-0016 §Q4("동시 실행되는 각 Task"의 Isolation 사전 확인)의
+> **적용 대상 자체가 Production에 아직 존재하지 않는다** — 이는
+> "조건이 미충족"이 아니라 "조건을 적용할 실행 경로가 아직 도래하지
+> 않았다"는 뜻이다(KV-02 Issue 2 최종 판정: `NOT YET APPLICABLE`).
+> 이 Amendment는 위 원문 Decision·Validation Requirements를 변경하지
+> 않는다 — Production Adoption이 실제로 재논의될 때 그 Requirements가
+> 그대로 다시 적용된다.
+
 ---
 
 ## Q1. Independence 판정은 충분히 근거가 있는가
