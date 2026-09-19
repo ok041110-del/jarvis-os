@@ -1,6 +1,13 @@
 # RFC-0044: Narrow Execution History & Verification Persistence Boundary
 
-**Status**: Proposed (검토 대상, 결정 아님)
+**Status**: ~~Proposed~~ → **Resolved** — `docs/architecture/core/ADC-0046-workflow-execution-history-verification-persistence-ownership-boundary.md`로
+종결됨(**Not Accepted, based on current evidence** — Option B를
+Scoped 예외로 Accept할 근거 불충분, ADR 불필요). 이 RFC 본문(Context/
+Option/Decision Candidate)은 삭제·수정하지 않고 그대로 보존한다 —
+아래 "후속 ADC가 아직 열리지 않았다"(§1)는 **이 RFC 작성 시점** 기준의
+사실이다.(KV-01R-G1 재확인, 2026-09-19)
+
+**Status(원본, 이 RFC 작성 시점)**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (RFC-0043 Architecture Review 후속)
 **대상**: `RFC-0043-execution-history-evidence-persistence-architecture.md`의
 Decision Candidate("Option B의 좁은 부분집합 하나만 여는 후속 RFC")를 이어받아,
