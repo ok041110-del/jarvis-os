@@ -23,10 +23,24 @@ ADR은 ADC 중 NOW로 분류되어 실제로 결정된 사항을 기록하는 �
 `ADR-0002-execution-layer-module-baseline.md` — `docs/01_architecture/BASELINE.md`를
 v1.4 → v1.6으로 갱신).
 
+**Amendment (KV-01R, 2026-09-19 재확인)**: 위 문단은 Kernel 수준 ADR을
+예시 2건(`ADR-0001`, `ADR-0002`)만 인용하며, "이 2건이 전부"라고
+명시적으로 주장하지는 않으나 그렇게 읽히기 쉽다. `Glob`으로 재확인한
+결과 `docs/architecture/core/`에는 **ADR-0001~0028(28건)**이 실제로
+존재한다. 이 README는 Kernel 수준 ADR의 개별 목록을 관리하는 문서가
+아니므로(위 1문단이 이미 "Development HQ 수준 ADR만 다룬다"고 범위를
+밝힘) 28건을 이 표에 개별 등재하지 않는다 — 이는 범위 확대이며 이번
+Amendment의 최소 수정 원칙을 벗어난다. 대신 예시 인용이 총량을
+암시하지 않도록 사실만 기록한다: **Kernel 수준 ADR 총 28건, 이 표는
+그중 다루지 않는다.**
+
 작성된 ADR은 최소 11건이다(ADR-0006/0007은 이전 세션에서 추가됐으나
-이 표에 반영되지 않았던 것을 이번에 함께 갱신함 — D-9류 색인 부채,
-ADR-0009는 여전히 이 표에 없음 — 이번 갱신 범위 밖). 이 표에 등재된
-항목은 전부 Accepted다.
+이 표에 반영되지 않았던 것을 이번에 함께 갱신함 — D-9류 색인 부채).
+**Amendment (KV-01R)**: `docs/decisions/adr/`(Development HQ 수준)의
+실제 파일은 `ADR-0001~0011` 11건 전부이며, 이번에 빠져 있던
+`ADR-0009`를 아래 표에 추가해 11건 전수 등재를 완료했다(파일 원문
+`ADR-0009-stage-data-contract-baseline.md`를 직접 읽어 확인). 이 표에
+등재된 항목은 전부 Accepted다.
 
 | ID | 제목 | 종결시킨 ADC | 상태 |
 |---|---|---|---|
@@ -38,9 +52,10 @@ ADR-0009는 여전히 이 표에 없음 — 이번 갱신 범위 밖). 이 표�
 | ADR-0006 | `hqs/`, `core/execution/` 재배치 및 `docs/` Taxonomy 정리 Migration Decision 확정 | `docs/decisions/adc/ADC-0005-structure-v1-migration-decisions.md` | Accepted |
 | ADR-0007 | Architecture Baseline 문서의 Structure v1.0 위치 확정 | `docs/decisions/adc/ADC-0006-baseline-relocation-decision.md` | Accepted |
 | ADR-0008 | Stage 폴더의 문서+실행 코드 공존 허용(ADR-0001 §2/§6 Supersede) — Architecture Owner 직접 지시, ADC 경유 없음 | 없음(직접 지시) | Accepted |
+| ADR-0009 | Development HQ Stage Data Contract — RFC-0009의 ADC Scoped Accept 판단을 실제 문서 반영으로 옮기는 구현 결정(신규 철학·Architecture 제안 아님) | `docs/governance/adc/ADC-0007.md` | Accepted |
 | ADR-0010 | Outcome-Oriented Governance Model 명칭·RFC-ADC-ADR 역할·Tier/Freeze/Deferred 원칙의 Baseline 반영 결정 | `docs/governance/adc/ADC-0008.md` | Accepted — `docs/governance/README.md`에 신설 절 등재 완료 |
 | ADR-0011 | "Implementation Freedom" 원칙(Evidence는 구현 기술 선택의 사전 허가 조건이 아니라는 것, Freeze/Governance는 선호가 아니라 Invariant를 통제한다는 일반화)의 Baseline 반영 결정 | `docs/governance/adc/ADC-0009.md` | Accepted — `docs/governance/README.md`에 신설 두 원칙 등재 완료 |
 
 ADR-0002 ~ ADR-0005가 `docs/01_architecture/BASELINE.md`를 v1.0 → v1.4로 갱신했다.
 
-`docs/decisions/adc/ADC.md`의 NOW 항목(ADC-02, ADC-09, ADC-10)은 여전히 Open이며, 위 5건 중 어느 것도 그 항목들을 종결시키지 않았다.
+`docs/decisions/adc/ADC.md`의 NOW 항목(ADC-02, ADC-09, ADC-10)은 여전히 Open이며, 위 5건 중 어느 것도 그 항목들을 종결시키지 않았다(이 "5건"이라는 숫자는 이번 Amendment 이전부터 있던 표현이며, 정확히 어느 5건을 가리키는지 원문에 명시되어 있지 않다 — 이번 KV-01R은 이 모호성을 새로 만들지 않았고, 해소도 하지 않는다. 별도 확인 필요).

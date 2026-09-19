@@ -43,6 +43,32 @@ Context Research(T06~T16) 종료 후 추가됨).
 실제 존재 여부로 확인한 상태**다. 개별 RFC 파일 헤더는 이 표 작성으로
 수정하지 않는다.
 
+### Amendment (KV-01R, 2026-09-19 재확인) — 위 "24건" 집계는 낡았다
+
+`Glob`으로 3개 트리 전체를 다시 확인한 결과, 파일 수는 다음과 같다
+(위 "24건" 서술 시점 이후 Kernel 트리에 대량 추가가 있었다).
+
+| Location | 실제 파일 수 | 아래 표에 개별 등재된 수 |
+|---|---|---|
+| `docs/decisions/rfc/` (Development HQ 수준) | 11 (RFC-0001~0011) | 11 — **전수 등재됨** |
+| `docs/architecture/core/` (Kernel 수준) | **44 (RFC-0001~0044)** | 12 (RFC-0001~0012만) — **RFC-0013~0044(32건) 미등재** |
+| `docs/core/execution-layer/` (Execution Layer 수준) | 5 (RFC-0001~0005) | 5 — **전수 등재됨** |
+| **합계** | **60** | 28 |
+
+**이 Amendment가 하는 일과 하지 않는 일**:
+
+- 위 표의 개별 RFC-0001~0012(Kernel) 행 및 Dev HQ·Execution Layer 행은
+  원문 대조로 이미 검증되어 있으므로 그대로 유지한다(수정하지 않음).
+- **RFC-0013~0044(Kernel 트리, 32건)의 개별 상태·후속 ADC/ADR 대응은
+  이번 Amendment로 채우지 않는다** — 각 파일을 원문으로 열어 확인하지
+  않고 상태를 기재하는 것은 검증되지 않은 내용을 Verified로 표시하는
+  것이 되므로 금지된다. 이는 후속 Documentation 정리 작업의 Gap으로
+  남긴다.
+- 따라서 **"실제 Open RFC는 2건"이라는 아래 서술은 Dev HQ·Execution
+  Layer 두 트리에 한해서만 유효하다** — Kernel 트리 RFC-0013~0044 중
+  Open 상태인 항목이 있는지는 **미확인(Undetermined)**이며, 전체
+  저장소 기준 Open RFC 총수는 이 README만으로 확정할 수 없다.
+
 | ID | Location | 제목 | 상태 | 후속 ADC | 후속 ADR |
 |---|---|---|---|---|---|
 | RFC-0001 | `docs/decisions/rfc/` | Kernel Boundary | Resolved | `docs/governance/adc/ADC-0001.md` | 없음(불필요) |

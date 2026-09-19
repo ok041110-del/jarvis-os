@@ -8,6 +8,32 @@
 않는다. 새 Concept·Layer·Component·Boundary·Governance Rule을 만들지
 않는다. **현재까지의 Evidence로 안정화 여부만 판단한다.**
 
+> **Amendment (KV-01R, 2026-09-19)**: 이 문서 §4.2·§6.2가 기록한
+> "Engine Gateway Trigger('Engine 수 ≥ 2') 미충족 / Engine 호출 0회"는
+> **이 문서 작성 시점의 사실이며, 지금은 사실이 아니다.** 이후
+> `docs/governance/rt/RT-0001.md` Candidate 2가 "**Trigger 발동
+> 확정, Multi-Engine으로 전환됨**"으로 갱신되었다(`ADC-0039-multi-engine-re-evaluation.md`
+> Amendment, `ADR-0024-multi-engine-architecture-adoption.md`) —
+> `chatgpt_engine.py`(신규)와 `engine.py`(Claude Code)가 실제로
+> 서로 다른 호출부에서 사용되어 Trigger 원문("Engine 수 ≥ 2")을
+> 그대로 충족했다. 아래 §4.2·§6.2의 표는 **원문 그대로 보존**한다 —
+> 그 시점 판단이 틀렸던 것이 아니라 그 이후 사실이 바뀌었을 뿐이다.
+> **Trigger 발동이 Engine Gateway(Central Router) 구현 승인을
+> 뜻하지는 않는다** — `RT-0001.md` 원문이 "Engine Gateway(Central
+> Router)는 여전히 만들지 않았다"고 명시하며, §4.4가 판정한
+> "Kernel Component Architecture 착수 보류"는 §5의 6개 근거 중
+> 나머지(Kernel Module Defer 3건, ADC-02 Open, Execution Result
+> 미설계 등)가 여전히 유효하므로 **이 Amendment로도 바뀌지 않는다.**
+> 이 Trigger 하나의 상태 변화만 정정한다.
+>
+> **적용 범위**: 이 문서 안에서 "Engine Gateway Trigger 미충족"을
+> 반복하는 모든 위치(§4.2, §6.2 Rule A 표, §7.4, §7.5)가 이
+> Amendment의 대상이다 — 각 위치를 개별적으로 다시 고치지 않고 이
+> 한 곳에서 정정한다. §7.5의 "Rule A 4건 — 3건 미충족"은 이제
+> **"2건 미충족(Agent Registry, Context 전달 메커니즘), 1건
+> 재판단 완료(Task Dispatcher), 1건 발동·전환 완료(Engine
+> Gateway)"**로 읽어야 한다.
+
 ---
 
 # 1. Open RFC가 있는가
