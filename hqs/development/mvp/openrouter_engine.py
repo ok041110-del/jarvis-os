@@ -188,12 +188,23 @@ def call_engine_via_openrouter(prompt: str) -> str:
         )
 
     last_failure_category = None
+    attempts = []  # 내부 진단 전용(str/RuntimeError 외부 계약 무변경, 실패 시 예외 속성으로만 노출)
     for attempt in range(2):  # 최초 1회 + bounded retry 최대 1회
         result = _single_chat_call(candidates, prompt, timeout)
         if result["content"]:
             return result["content"]
 
         last_failure_category = _classify_failure(result["http_status"], result["connection_error"])
+        attempts.append(
+            {
+                "attempt": attempt + 1,
+                "http_status": result["http_status"],
+                "requested_candidates": candidates,
+                "selected_model": result.get("selected_model"),
+                "category": last_failure_category,
+                "connection_error": result["connection_error"],
+            }
+        )
 
         failed_model = result.get("selected_model")
         if failed_model and failed_model in candidates:
@@ -201,7 +212,11 @@ def call_engine_via_openrouter(prompt: str) -> str:
         if not candidates:
             break
 
-    raise RuntimeError(
+    error = RuntimeError(
         f"OpenRouter call failed after retry (category={last_failure_category}, "
         f"candidates_tried={len(candidates) or 'exhausted'})"
     )
+    # 진단 정보는 예외 메시지(외부 계약)를 바꾸지 않고 속성으로만 첨부한다 —
+    # response body/헤더/API Key/프롬프트는 포함하지 않는다(RFC-0041 §Security Boundary).
+    error.attempts = tuple(attempts)
+    raise error
