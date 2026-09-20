@@ -1,4 +1,12 @@
-# ADC-0026: Gate (C) — E7(실제 Engine 호출) 기반 잔여 한계 (i) 판정
+# ADC-0026 — Gate (C): E7(실제 Engine 호출) 기반 잔여 한계 (i) 판정
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | ADC-0026 |
+| Status | Decided — Partial. Architecture/Governance Review PASS(§9). `BASELINE.md`·`GLOSSARY.md`·기존 ADC/ADR 미착수(반영 여부는 후속 별도 절차, §8) |
+| Owner / Scope | Gate (C) 잔여 한계 (i)의 부분 진전 여부만 판정 — Full Discharge는 판정하지 않는다 |
 
 **Status**: Decided — **Partial**. Architecture/Governance Review PASS(§9). `BASELINE.md`·`GLOSSARY.md`·기존 ADC/ADR 미착수(반영 여부는 후속 별도 절차, §8). 이 ADC 파일 자체의 Commit/PR만 진행, Merge는 사용자 승인 후.
 **Author**: Claude Code
@@ -8,9 +16,9 @@
 
 > 이 ADC는 **Gate (C) 잔여 한계 (i)의 부분 진전 여부만** 판정한다. Gate (C)의 전체 지위("부분 충족", `ADR-0010`)를 재론하지 않는다. 잔여 한계 (ii)(대조 계보 단일성 — Gate (B) 축에서 E5/E6으로 이미 별도 판정됨, `ADC-0024`/`ADC-0025`)·**(iii)**(프로덕션 트래픽 미검증)은 이 ADC가 손대지 않는다. **Gate (C)(iii), Gate (B), `ADC-0021` §8 조건 1, LangGraph 채택/평가, Production 구현 착수, `IMPLEMENTATION_RULES.md` 해제 — 어느 것도 판정을 변경하지 않는다.**
 
----
+## 2. Decision Scope & Context
 
-## 1. 목적과 경계
+### 1. 목적과 경계
 
 ### 1.1 이 ADC가 판단하는 것 (둘)
 
@@ -34,7 +42,9 @@
 
 ---
 
-## 2. Evidence
+## 3. Candidates / Options
+
+### 2. Evidence
 
 | # | Evidence | 실제 Engine 호출 | 검증 내용 |
 |---|---|---|---|
@@ -57,7 +67,7 @@
 
 ---
 
-## 3. Alternatives
+### 3. Alternatives
 
 ### 3.1 E7의 기여를 어떻게 볼 것인가 (D-E1)
 
@@ -77,7 +87,9 @@
 
 ---
 
-## 4. Analysis
+## 4. Evaluation
+
+### 4. Analysis
 
 ### 4.1 D-E1 — E7이 실제로 메운 것
 
@@ -106,7 +118,7 @@
 
 ---
 
-## 5. Decision
+## 5. Recommendation & Decision Boundary
 
 **판정: Decided — Partial.**
 
@@ -144,7 +156,7 @@ E7은 Gate (C) 잔여 한계 (i)에 **실재하는 부분 진전**을 제공한�
 
 ---
 
-## 6. Conditions (유지 — 이 ADC가 약화하지 않음)
+### 6. Conditions (유지 — 이 ADC가 약화하지 않음)
 
 1. **`ADC-0019` §Decision 조건 1~6·재검토 조건 (a)(b)(c)** 무변경.
 2. **`ADC-0021` §8 AND 게이트 조건 1·2·3·4** 무변경 — 조건 4(Gate C)는 "부분 충족" 그대로, 이 ADC는 그 아래 잔여 한계 (i) 항목에만 사실을 추가한다.
@@ -155,7 +167,7 @@ E7은 Gate (C) 잔여 한계 (i)에 **실재하는 부분 진전**을 제공한�
 
 ---
 
-## 7. Out of Scope
+### 7. Out of Scope
 
 | 항목 | 근거 |
 |---|---|
@@ -169,13 +181,41 @@ E7은 Gate (C) 잔여 한계 (i)에 **실재하는 부분 진전**을 제공한�
 
 ---
 
-## 8. 후속 절차 (필요 시에만 — 이 ADC가 지시하지 않음)
+## 6. Open Questions
+
+### 8. 후속 절차 (필요 시에만 — 이 ADC가 지시하지 않음)
 
 이 ADC의 결과를 `BASELINE.md` §16.6 잔여 한계 (i) 서술에 반영하려면, `ADR-0010`/`ADR-0013`/`ADR-0014`류 granularity의 Minor ADR 1건이 필요하다(기존 "(i) 노드가 결정론적 stub — 실제 엔진 비결정성·부분 실패율 미검증" 문장 뒤에 "E7로 부분 진전(1개 노드·표본 3회·실제 non-zero exit 미실측 — 완전 해소 아님)" 취지의 짧은 부기, Version Minor 증가). **이 ADC는 그 ADR을 작성하지 않는다** — 반영이 지금 필요한지, 다음 Gate C(iii) 조치와 묶어 나중에 반영할지는 사용자 판단으로 남긴다. 불필요한 Governance 문서 증식을 피하기 위해 이 판단이 내려지기 전까지는 후속 ADR을 만들지 않는다.
 
 ---
 
-## 9. Architecture / Governance Review
+## Related Documents
+
+### 10. Traceability
+
+| 문서 / 절 | 관계 |
+|---|---|
+| `ADR-0010` §Decision 2.1 잔여 한계 (i) | 이 ADC가 판정하는 대상 |
+| `ADC-0021` §8 조건 4(Gate C) | 무변경, 이 ADC는 그 하위 사실만 추가 |
+| `ADC-0024`·`ADR-0013`, `ADC-0025`·`ADR-0014`(Gate B) | 무변경 재확인(§4.3) |
+| E7 `projects/workflow-adapter-gate-c-real-engine-v1/EVIDENCE.md` | D-E1·D-E2의 직접 근거 |
+| E4 `projects/workflow-adapter-reversibility-v2/EVIDENCE.md` | Gate (C) 원 Evidence, 잔여 한계 (i)~(iii) 원 출처 |
+| `hqs/development/mvp/engine.py::call_engine()`(`ENGINE-CONNECT-0001`) | E7이 read-only import한 실제 Engine 경유 지점 — 이 ADC도 무수정 확인 |
+| `docs/00_governance/ARCHITECTURE_GOVERNANCE.md` "Experimental Implementation" | E7의 레인. Evidence는 판정 입력이지 자동 Accept 아님 |
+
+---
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | E7 Evidence 기반 Gate (C) 잔여 한계 (i) 부분 진전 판정 |
+
+---
+
+## 부록: Architecture / Governance Review
+
+> ADC-TEMPLATE.md 6-섹션 구조에 대응 섹션이 없어 원문 그대로 부록으로 보존한다.
 
 ### 9.1 Governance Chain 정합성
 
@@ -215,21 +255,7 @@ E7은 Gate (C) 잔여 한계 (i)에 **실재하는 부분 진전**을 제공한�
 
 ---
 
-## 10. Traceability
-
-| 문서 / 절 | 관계 |
-|---|---|
-| `ADR-0010` §Decision 2.1 잔여 한계 (i) | 이 ADC가 판정하는 대상 |
-| `ADC-0021` §8 조건 4(Gate C) | 무변경, 이 ADC는 그 하위 사실만 추가 |
-| `ADC-0024`·`ADR-0013`, `ADC-0025`·`ADR-0014`(Gate B) | 무변경 재확인(§4.3) |
-| E7 `projects/workflow-adapter-gate-c-real-engine-v1/EVIDENCE.md` | D-E1·D-E2의 직접 근거 |
-| E4 `projects/workflow-adapter-reversibility-v2/EVIDENCE.md` | Gate (C) 원 Evidence, 잔여 한계 (i)~(iii) 원 출처 |
-| `hqs/development/mvp/engine.py::call_engine()`(`ENGINE-CONNECT-0001`) | E7이 read-only import한 실제 Engine 경유 지점 — 이 ADC도 무수정 확인 |
-| `docs/00_governance/ARCHITECTURE_GOVERNANCE.md` "Experimental Implementation" | E7의 레인. Evidence는 판정 입력이지 자동 Accept 아님 |
-
----
-
-## 11. Self-Review
+## 부록: Self-Review
 
 - `ADC-0019`·`ADC-0021`·`ADR-0010`·`ADC-0024`·`ADC-0025`가 확정하지 않은 것을 새로 결정했는가 — **Gate (C) 잔여 한계 (i)의 부분 진전 여부만**. Gate (C)(iii)·Gate (B)·조건 1·LangGraph·Production·`IMPLEMENTATION_RULES`는 §7 Out of Scope.
 - E7의 실제 수치(호출 3회, 12/12 PASS, 실제 timeout, 합성 RuntimeError)를 정확히 반영했는가 — **예**(§2) — E7 `EVIDENCE.md` 원문 수치를 그대로 인용, 가정 없음.
