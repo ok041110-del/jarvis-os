@@ -87,6 +87,41 @@ Segment" 구조가 실제로 구현된 곳이 없어(Kernel Context Builder
 결론이 아니라, 판정에 필요한 선행 조건(완결된 실제 Engine 호출,
 Context Segment 정의)이 갖춰지지 않았다는 뜻이다.
 
+> **Amendment(A 판정 범위 정정 — 저장소 전체 기준 A 충족 확인,
+> 2026-09-20, 후속 세션 조사)**: 위 §4의 "A 판정 — 미충족"은 **이
+> 세션이 이번 검증을 위해 시도한 OpenRouter/OpenAI 경로에 한정된
+> 판정이었다.** 이 Amendment는 그 판정을 좁혀서 정정한다 —
+> §4는 삭제·수정하지 않고 원문 그대로 둔다.
+>
+> 후속 조사에서, 이 저장소에는 **이미 그 이전부터 완결된 실제
+> Engine 호출이 (`claude` CLI 경로로) 존재했음**이 확인됐다.
+>
+> - `docs/architecture/core/ADC-0026-gate-c-real-engine-partial-discharge.md`
+>   §2·§4.1·§5(D-E1) — `hqs/development/mvp/engine.py::call_engine()` →
+>   실제 `claude` CLI(`2.1.220`, 설치·인증 확인) 호출 **3회**
+>   (clean 캡처 1 + data_gap 캡처 1 + 실제 timeout 유도 1), 그중 2회는
+>   실제 생성 텍스트를 확보(예: "가상의 스타트업 '블루문 커머스'는
+>   ... 전반적으로 안정적인 흐름을 유지하고 있다."). 이 ADC 자체가
+>   §9.4에서 **PASS** 판정을 받은, 이미 Decided 상태의 문서다.
+> - `docs/research/ENGINE-CONNECT-0001-call-engine-real-wiring.md`
+>   (더 이전 시점) — 동일 `call_engine()` 경로로 실제 `claude` CLI
+>   호출 2회, 43.7초 소요, 실제 자연어 산문 응답 확보.
+>
+> **정리**:
+> - OpenRouter/OpenAI 실험(§3, 이 세션)에서는 완결된 생성 응답이
+>   없었다 — §4의 판정은 이 범위에서는 그대로 유효하다.
+> - 그러나 기존 `claude` CLI 경로(`ADC-0026`, `ENGINE-CONNECT-0001`)
+>   에서는 완결된 실제 Engine 호출이 **이미 관찰되어 있었다** —
+>   이 사실은 이 세션이 새로 만든 것이 아니라 기존에 커밋되어 있던
+>   Evidence를 재확인한 것이다.
+> - **따라서 `ADC-0003`·`BASELINE.md` §13.6 Owner Amendment의
+>   A(Re-review 개시 조건: 실제 Engine 호출 최소 1회 관찰)는
+>   저장소 전체 기준으로 충족된 것으로 기록한다.**
+> - **B(Stable Prefix 실측 확인)는 이 Amendment로 충족되지 않는다** —
+>   A의 충족이 B의 충족을 함의하지 않는다(§5 논리는 유지). B의 현재
+>   상태에 대한 상세 판단은 `ADC-0003`(종합 문단)·`BASELINE.md`
+>   §13.6의 별도 Re-review Amendment를 참고.
+
 ## 6. 시도하지 않은 것 / 우회하지 않은 것
 
 - API Key 원문을 파일에 기록하거나 셸 명령으로 노출하려는 시도(2회)가

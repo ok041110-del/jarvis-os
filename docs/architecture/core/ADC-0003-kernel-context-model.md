@@ -635,6 +635,40 @@ Context를 비교·재사용하는 사례가 나타나야 판단 가능하다.
 > 이 Amendment는 그 위에 additive하게(추가로만) 얹히는 결정이며,
 > 원문을 대체하지 않는다.
 
+> **Amendment(Re-review 결과 — A 충족 확인에 따른 판단 4·5b·6b
+> 재검토, 2026-09-20)**: 위 Amendment가 정의한 **A(Re-review 개시
+> 조건)가 충족됐음이 확인됐다** — 근거는
+> `docs/architecture/core/EVIDENCE-0014-engine-trigger-condition-a-b-verification-attempt.md`
+> 정정 Amendment, `docs/architecture/core/ADC-0026-gate-c-real-engine-partial-discharge.md`
+> §2·§4.1·§5(D-E1)(실제 `claude` CLI 호출 3회, 완결된 실제 응답
+> 2건), `docs/research/ENGINE-CONNECT-0001-call-engine-real-wiring.md`
+> (실제 `claude` CLI 호출 2회, 완결된 실제 응답)다. 이에 따라 판단
+> 4·5b·6b에 대한 Re-review를 시작하고, 그 결과를 아래와 같이
+> 기록한다. **A 충족만으로 어느 판단의 Defer도 해제하지 않는다.**
+>
+> - **판단 4(Context Boundary)**: A는 충족됐으나 **B(Stable Prefix
+>   경험적 확인)는 여전히 미확정**이다 — `EVIDENCE-0014` §5·정정
+>   Amendment 참고. B 판정은 이 Re-review가 임의로 확정하지 않는다.
+>   **Defer 상태를 그대로 유지한다.**
+> - **판단 5b(Engine별 Renderer)**: A는 충족됐다. 그러나 "각
+>   Engine이 실제로 무엇을 요구하는지"에 대한 관찰이 충분한지는
+>   그 자체로 별도의 실질적 판단이며, 이 Re-review는 그것을 임의로
+>   확정하지 않는다 — 관찰된 것은 `claude` CLI 1개 Engine에 대한
+>   소수(3+2회)의 완결 호출뿐이고, GPT·Gemini 등 다른 Engine에 대한
+>   관찰은 여전히 0건이다. **Defer 상태를 그대로 유지한다.**
+> - **판단 6b(활용 사례 4건 및 실제 통합)**: A는 충족됐다. 그러나
+>   활용 사례(Prompt Cache/Conversation Resume/Context Snapshot/
+>   Memory Restore) 중 어느 것도 여전히 관찰된 바 없고, 실제 HQ
+>   통합도 이뤄지지 않았다 — "Engine 호출이 있었다는 것"과 "활용
+>   사례·실제 통합이 관찰됐다는 것"은 서로 다른 관찰 대상이다.
+>   **Defer 상태를 그대로 유지한다.**
+>
+> 이 Re-review는 A 충족을 사실로 확인·기록할 뿐이다. 5b·6b의
+> Defer 해제 여부를 실제로 판단하려면 "무엇이 충분한 관찰인가"에
+> 대한 별도의 Architecture Owner 판단이 필요하며, 이 Re-review는
+> 그 판단을 대신하지 않는다. 새로운 Architecture/Governance 결정은
+> 내리지 않는다.
+
 ## Self Review
 
 - Evidence만 사용했는가 — **Pass**. RFC-0003과 그것이 인용한 기존

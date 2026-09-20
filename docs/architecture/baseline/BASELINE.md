@@ -377,6 +377,18 @@ Freeze 원칙에 따라, 미결 사항을 같은 자리에 명시한다.
 > 판정에 의존하지 않으므로 A만으로 판단한다. 이 결정은 실제 Engine
 > 호출이나 Stable Prefix 실측이 이미 일어났음을 주장하지 않는다.
 
+> **Amendment(Re-review 결과, 2026-09-20)**: 위 A 조건이 충족됐음이
+> 확인됐다 — 근거: `EVIDENCE-0014`(정정 Amendment), `ADC-0026`
+> §2·§4.1·§5, `ENGINE-CONNECT-0001`(실제 `claude` CLI 완결 호출,
+> 상세는 `ADC-0003` 종합 문단의 대응 Amendment 참고). 이에 따라
+> Context Boundary·Engine별 Renderer·활용 사례 3건에 대한 Re-review를
+> 시작했다. **세 항목 모두 Defer 상태를 그대로 유지한다** — Context
+> Boundary는 B(Stable Prefix 실측)가 여전히 미확정이고, Engine별
+> Renderer·활용 사례는 관찰된 Engine 호출이 `claude` CLI 1개·소수
+> 표본에 그쳐 각 항목이 실제로 요구하는 관찰(다른 Engine의 요구사항,
+> 실제 활용 사례·HQ 통합)이 갖춰지지 않았다. 위 6건의 Defer 목록·
+> 근거 열은 변경하지 않는다.
+
 **Kernel Architecture와 Component Design은 여전히 §10 Out of Scope다.**
 이 절은 Kernel이 무엇을 관리하는지를 정의할 뿐, 그것을 관리할
 Component를 설계하지 않는다(KP-1).
