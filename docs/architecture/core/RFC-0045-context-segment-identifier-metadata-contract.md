@@ -1,5 +1,10 @@
 # RFC-0045: Context Segment Identifier·Metadata Contract — H-5/H-6 설계 쟁점
 
+**Owner Review 결과(2026-09-20)**: `docs/architecture/core/ADC-0047-rfc-0045-adc-promotion-review.md`가
+이 RFC의 ADC 승격 여부를 검토했다 — **Defer(승격하지 않음)**, 이
+RFC는 **Proposed 상태를 그대로 유지**한다. 재검토 조건은 `ADC-0047`
+종합 판단 1을 참고. 본문(§0~§12)은 이 노트로 인해 변경되지 않는다.
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (KV-04 Engine Trigger 조사 후속)
 **상위 근거**: `docs/architecture/baseline/BASELINE.md` §13(Kernel
