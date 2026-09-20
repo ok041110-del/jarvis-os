@@ -1,4 +1,6 @@
-# ADR-0011: Gate (A) v1 `ADR-0007` 결정 2·5·11 Resolution의 Baseline 반영 (ADC-0022 후속)
+# ADR-0011 — Gate (A) v1 `ADR-0007` 결정 2·5·11 Resolution의 Baseline 반영 (ADC-0022 후속)
+
+## 1. Identity & Status
 
 | 필드 | 내용 |
 |---|---|
@@ -23,7 +25,9 @@
 | **이 ADR** | `ADC-0022` §8 지침 중 **D-0·D-2·D-5·D-11·D-11c·D-Gate-A**의 Baseline Governance 반영 — §16.6 본문 갱신, §17 v1.14 → v1.15, `GLOSSARY.md` "Workflow Adapter (Reference)" 절 정정. 잔여 정합성 2건(§16.6 "Production 구현과의 관계" 문단·`GLOSSARY.md` 참조번호)을 함께 정정 |
 | 후속 별도 절차 | 결정 9(`IWorkflowEngine` Port / §14.1 "Task 전달 책임") / §14 승격 / Gate (B)·(C) / (c)의 계약화·HQ 구속 강화 / LangGraph 채택 / Implementation Strategy / `IMPLEMENTATION_RULES.md` Scoped 해제 |
 
-## Out of Scope (이 ADR이 다루지 않는 것)
+## 2. Context & Decision Drivers
+
+### Out of Scope (이 ADR이 다루지 않는 것)
 
 `ADC-0022`가 Decision 범위에서 반영을 지시하지 않은 것, 그리고 사용자
 지시가 명시적으로 배제한 것은 **하나도 반영하지 않는다**(`ADC-0022`
@@ -50,7 +54,7 @@
 
 ---
 
-## Decision
+## 3. Decision
 
 ### 1. 변경 대상 파일
 
@@ -446,7 +450,22 @@ Model 용어" 절(§6 미러링)은 무변경.
 
 ---
 
-## Consequences
+## 4. Rationale & Alternatives
+
+### Rationale
+
+이 ADR은 대안을 비교하지 않는다 — `ADC-0022`가 이미 내린 Decision(D-0~D-Gate-A)을
+Baseline 문서 변경으로 옮기는 구현 결정만 기록한다(위 §1 Identity 표 및
+§2 Out of Scope 참조).
+
+### Rejected Alternatives
+
+해당 없음 — 이 ADR은 이미 확정된 `ADC-0022` Decision의 반영 방식만 다루며,
+새로운 대안을 검토하지 않는다.
+
+## 5. Consequences & Impact
+
+### Consequences
 
 - `docs/architecture/baseline/BASELINE.md`가 v1.14 → v1.15가 되고, §16.6이
   전제하던 "이미 구성된 실행 단위"·그 Lifecycle·그 실행의 State Model이
@@ -494,7 +513,7 @@ Model 용어" 절(§6 미러링)은 무변경.
   `docs/decisions/adc/ADC.md`·`ADC-0008`·`ADC-0021`은 무변경. 커밋은
   별도로 진행한다.
 
-## Architecture / Contract / Kernel 영향
+### Architecture / Contract / Kernel 영향
 
 - **Architecture Impact**: **있음(제한적 — 기존 경계의 서술 확정)** — §16.6이
   가리키는 책임의 범위(A-IN/A-OUT)는 전혀 바뀌지 않는다. "이미 구성된
@@ -513,7 +532,18 @@ Model 용어" 절(§6 미러링)은 무변경.
   HQ Lifecycle뿐이다(§6). "실행 단위"는 §16.6 본문 설명 용어이며 §6
   Concept Model에 등재되지 않는다.
 
-## Governance Chain 검증
+## 6. Architecture Baseline & Implementation
+
+| Item | Description |
+|---|---|
+| Architecture Baseline Impact | 있음(제한적) — `BASELINE.md` §16.6 문단 신설(3)·부기(2)·재작성(1)·참조 정정(1), §17 v1.14 → v1.15(위 §5 Architecture/Contract/Kernel 영향 참조) |
+| Public Contract Impact | 없음 — Kernel Public Contract(§14)는 무변경(위 §5 참조) |
+| Implementation Scope | §3 Decision §1~§8(BASELINE.md/GLOSSARY.md 변경 내용, 이미 실행됨 — Status 참조) |
+| Follow-up Work | 결정 9(`IWorkflowEngine` Port)/§14 승격/Gate (B)·(C)/(c) 계약화/LangGraph 채택/Implementation Strategy/`IMPLEMENTATION_RULES.md` Scoped 해제(위 §1 Identity 표 "후속 별도 절차" 참조) |
+
+## Related Documents
+
+### Governance Chain 검증
 
 `RFC-0021`(Proposed — B-2·B-5·B-11 Boundary Question 개설, 판단은
 `ADC-0022`에 위임) → `ADC-0022`(Decided — Architecture/Governance Review
@@ -544,7 +574,26 @@ D-0·D-2·D-5·D-11·D-11c·D-Gate-A를 `BASELINE.md` §16.6·§17·`GLOSSARY.md
   정합하게 만드는 것이며 새 Architecture Decision이 아니다(§2.7 주석,
   §5.2) — `ADC-0022` §4.3 잔여 판단 옵션 A에 부합.
 
-## Self Review
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0021-workflow-adapter-execution-unit-lifecycle-state-model-boundary.md` | B-2·B-5·B-11 Boundary Question 개설 |
+| ADC | `docs/architecture/core/ADC-0022-workflow-adapter-execution-unit-lifecycle-state-model-resolution.md` | 이 ADR이 구현하는 Decision(D-0~D-Gate-A)의 출처 |
+| ADR | `docs/architecture/core/ADR-0008-scoped-workflow-graph-execution-baseline.md`, `docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md`, `docs/architecture/core/ADR-0010-gate-c-e4-reversibility-partial-fulfillment.md` | 선행 ADR — 이 ADR이 계승(위 §1 Identity 표 "선행 ADR" 참조) |
+| Open Decision | — | 없음 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| 2026-09-04 | 사용자 승인, §3 Decision §8 Migration Strategy 1~4 실행(Status: Accepted) | ADC-0022 D-0~D-Gate-A의 Baseline 반영 |
+
+---
+
+## 부록: Self Review
+
+> ADR-TEMPLATE.md 6-섹션 구조에 대응 섹션이 없어 원문 그대로 부록으로 보존한다.
+
+### Self Review
 
 - `ADC-0022`가 결정하지 않은 것을 반영했는가 — **아니오**. §Out of Scope에
   명시한 항목(결정 9 / §14.1 / §14 승격 / Gate (B) / Gate (C) / Adapter

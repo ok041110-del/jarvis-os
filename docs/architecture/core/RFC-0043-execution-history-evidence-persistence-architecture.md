@@ -1,5 +1,13 @@
 # RFC-0043: Execution History & Evidence Persistence Architecture
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0043 |
+| Status | Proposed (검토 대상, 결정 아님) |
+| Owner / Scope | Development HQ Workflow 실행 결과를 Command Center가 조회할 수 있으려면 필요한 Execution State/History/Evidence Persistence의 Boundary Question |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (Dev HQ Command Center — Execution Boundary Review 후속)
 **대상**: Development HQ Workflow(`hqs/development/workflow.py`) 실행 결과를
@@ -17,13 +25,13 @@ Command Center(`projects/dashboard-shell-mvp/devhq-command-center/`)가 조회�
 > 않는다. 이 RFC는 문제, 제약, Option, Trade-off, Decision Candidate까지만
 > 다룬다 — 최종 Architecture 확정은 후속 ADC → ADR의 책임이다.
 
----
+## 2. Problem & Context
 
-## 1. Status
+### 1. Status
 
 Proposed. 후속 ADC가 아직 열리지 않았다.
 
-## 2. Context
+### 2. Context
 
 `Dev HQ Command Center — Execution Boundary Review`(직전 조사, 코드 변경 없음)가
 다음을 실측으로 확인했다:
@@ -47,7 +55,7 @@ Execution State/History/Evidence를 실제로 제공하려면 무엇이 필요�
 그것이 기존 Architecture(특히 `docs/architecture/baseline/BASELINE.md` §16
 Kernel Modules)와 어떻게 맞물리는지를 분석한다.
 
-## 3. Problem Statement
+### 3. Problem Statement
 
 Command Center는 이미 다음을 UI Contract로 요구한다(`data/adapters/adapters.js`,
 `data/mock/*.json` 구조):
@@ -66,9 +74,9 @@ State, (3) 끝난 실행을 나중에 다시 볼 수 있는 History, (4) Stage 0
 지금 만든다"가 아니라 "그것들을 만들려면 무엇과 충돌하고 무엇을 먼저 결정해야
 하는가"를 분석한다.
 
-## 4. Current Architecture (조사 결과)
+### 4. Current Architecture (조사 결과)
 
-### 4.1 Development HQ 측
+#### 4.1 Development HQ 측
 
 | 문서/코드 | 사실 |
 |---|---|
@@ -78,7 +86,7 @@ State, (3) 끝난 실행을 나중에 다시 볼 수 있는 History, (4) Stage 0
 | `hqs/development/stages/contracts.py` | Stage 간 **필수 키 존재**만 검증(`ContractViolation`). 실행 이력을 저장하지 않음. `KNOWN_CHECK_NAMES`/`required_checks`/`check_results`는 Development HQ Baseline이 **Public Contract**로 못박음(RFC→ADC→ADR 없이 확장 불가) |
 | `hqs/development/workflow.py` | Stage 01→05 순차 함수 호출. Execution Host(§16.3)/Multi-Task(§16.4)/Workflow Adapter(§16.6) 중 **어느 것도 쓰지 않는다** — 순수 Python 함수 체인 |
 
-### 4.2 Jarvis OS Kernel 측 — 이미 존재하는 Scoped Accept
+#### 4.2 Jarvis OS Kernel 측 — 이미 존재하는 Scoped Accept
 
 `docs/architecture/baseline/BASELINE.md` §16(Kernel Modules)은 겉보기와 달리
 이미 상당히 진전돼 있다. 이번 RFC를 위해 처음 확인한 사실이다:
@@ -100,7 +108,7 @@ Production 승인을 받아 도입되더라도, **Checkpoint 값을 실제로 �
 Kernel이 아니라 "호출자"(caller-owned)의 책임으로 남는다.** Workflow Adapter는
 Execution State의 *표현*만 다루고 *영속화*는 다루지 않는다.
 
-### 4.3 Evidence 개념 자체의 부재
+#### 4.3 Evidence 개념 자체의 부재
 
 `docs/architecture/baseline/BASELINE.md` 전체(§1~§17)에 "Evidence"라는
 **Kernel Concept**은 존재하지 않는다(문서 내 "Evidence" 사용은 전부 "Decision을
@@ -111,7 +119,7 @@ Execution State의 *표현*만 다루고 *영속화*는 다루지 않는다.
 Architecture 어디에도 아직 정의된 적이 없는 완전히 새로운 Boundary
 Question이다.**
 
-### 4.4 ADC-02와의 관계 요약
+#### 4.4 ADC-02와의 관계 요약
 
 `docs/decisions/adc/ADC.md`의 ADC-02("Runtime 개념의 존폐")는 **지금도
 Open·NOW**다. 위 §16.3~§16.6의 모든 Scoped Accept는 "ADC-02가 다루는 넓은
@@ -122,7 +130,7 @@ Open·NOW**다. 위 §16.3~§16.6의 모든 Scoped Accept는 "ADC-02가 다루�
 조율, 저장 전 검증 게이트, 그래프 실행 상태 표현)만 개별적으로 Scoped Accept해
 온 것이다.
 
-## 5. Current Limitations
+### 5. Current Limitations
 
 - Execution Identity 없음 (Q2)
 - Task ID ↔ Execution ID mapping 없음 (Q5)
@@ -138,7 +146,9 @@ Open·NOW**다. 위 §16.3~§16.6의 모든 Scoped Accept는 "ADC-02가 다루�
   값을 저장/복원하는가"를 결정해야 한다
 - Historical execution query 불가 (Q4/Q5 결합)
 
-## 6. Requirements (Command Center가 실제로 요구하는 것 — 확정 아님, 서술)
+## 3. Questions & Alternatives
+
+### 6. Requirements (Command Center가 실제로 요구하는 것 — 확정 아님, 서술)
 
 - Task `#042`처럼 "지금 Stage 04, 72%"를 표시하려면: 실행 중 State를 외부에서
   읽을 수 있는 지점이 필요하다.
@@ -148,7 +158,7 @@ Open·NOW**다. 위 §16.3~§16.6의 모든 Scoped Accept는 "ADC-02가 다루�
   Verdict(PASS/FAIL/INCONCLUSIVE/SKIPPED)를 **별도 축**으로 저장해야 한다 —
   하나가 다른 하나로부터 계산되면 안 된다.
 
-## 7. Architecture Constraints (반드시 지켜야 하는 경계)
+### 7. Architecture Constraints (반드시 지켜야 하는 경계)
 
 - `hqs/development/IMPLEMENTATION_RULES.md`의 금지 조항(Workflow Parser/
   Scheduler/Registry/Runtime/Engine Gateway/Policy/Memory Service/Event Bus,
@@ -167,7 +177,7 @@ Open·NOW**다. 위 §16.3~§16.6의 모든 Scoped Accept는 "ADC-02가 다루�
 - Command Center 자신의 원칙(`README.md`): 새 서버 API를 만들지 않는다,
   Mock을 Real로 위장하지 않는다 — 이 RFC의 Option 평가에도 그대로 적용한다.
 
-## 8. Option A — 현재 on-demand 구조 유지 (Execution 비연결)
+### 8. Option A — 현재 on-demand 구조 유지 (Execution 비연결)
 
 Command Center는 계속 Read-only Adapter로만 남고, `run_workflow()`는 지금처럼
 사람이 터미널에서 직접 실행하는 채로 둔다. Task별 Changes/Tests/Evidence는
@@ -178,7 +188,7 @@ Mock으로 유지(이미 Real Data Adapter v0.1이 이렇게 판단·구현함).
 **단점**: Task history 불가, live progress 불가, Evidence persistence 불가 —
 Command Center의 Task-centered UX 절반이 영구히 Mock으로 남는다.
 
-## 9. Option B — Execution Persistence만 추가 (Runtime 없이)
+### 9. Option B — Execution Persistence만 추가 (Runtime 없이)
 
 `run_workflow()` 실행을 감싸는 **최소 wrapper**(새 Server API 아님, 예: 사람이
 직접 실행하는 CLI 확장 또는 별도 스크립트)가 실행 전후로 Execution
@@ -194,7 +204,7 @@ export-snapshot 패턴 재사용(새 서버 API 불필요).
 "중" 조회)는 이 옵션만으로는 안 된다 — 동기 실행이 끝나야 파일이 생기므로.
 Cancel/Retry/Resume은 다루지 않는다.
 
-## 10. Option C — Runtime/Scheduler 중심 Execution Architecture
+### 10. Option C — Runtime/Scheduler 중심 Execution Architecture
 
 Execution State를 실행 중에도 조회 가능하게 만들고(상시 또는 폴링 가능한
 프로세스), Cancel/Retry/Resume까지 지원하는 구조. §16.6 Workflow Adapter를
@@ -209,7 +219,7 @@ Option을 실행하려면 ADC-02 해소가 사실상 선행되어야 한다. §1
 Gate(`ADC-0021` §8 Gate B/C, Reversibility v2 완전 검증)를 통과해야 시작할
 수 있다 — 즉 이 RFC 하나로 열 수 있는 범위가 아니다.
 
-## 11. Option D — Structure-only 확장(신규, 이번 조사로 도출)
+### 11. Option D — Structure-only 확장(신규, 이번 조사로 도출)
 
 Execution/Evidence를 저장하지 않은 채로, Command Center가 표시하는 **정적
 구조**(Stage 이름/순서, `KNOWN_CHECK_NAMES`, Contract 필드명)만 `real/
@@ -223,7 +233,7 @@ unavailable로 유지.
 **단점**: Option A와 실질적으로 큰 차이가 없다 — "진짜 실행 데이터"에 대한
 갈증은 전혀 해소하지 않는다.
 
-## 12. Option Comparison
+### 12. Option Comparison
 
 | 기준 | A (유지) | B (Execution Persistence) | C (Runtime/Scheduler) | D (Structure-only) |
 |---|---|---|---|---|
@@ -235,7 +245,7 @@ unavailable로 유지.
 | Cancel/Retry/Resume | 불가 | 불가 | 가능(단, 별도 설계 필요) | 불가 |
 | 즉시 착수 가능 여부 | 예 | 아니오 | 아니오 | 예 |
 
-## 13. Execution Identity (Q1/Q2)
+### 13. Execution Identity (Q1/Q2)
 
 **Q1 비교**: Workflow Run(=`run_workflow()` 1회 호출) / Task(Command Center
 UX 개념, 현재 실제 대응 없음) / Stage Run(Stage 01~05 각각의 1회 실행,
@@ -263,7 +273,7 @@ Command Center 쪽에서 `execution_id`에 매핑을 얹는 방식이 자연스�
 RFC가 결정하지 않는다** — §16.6이 "Task 전달 책임"을 Kernel Public Contract
 밖(§14.1 #1 트랙)으로 명시적으로 유보한 것과 같은 이유다.
 
-## 14. Execution State (Q3)
+### 14. Execution State (Q3)
 
 Q3 후보 A~F 비교:
 
@@ -297,7 +307,7 @@ Open"이라고 명시해 이 대안도 미완성이다. **어느 쪽이든 Comma
 Live Progress 요구를 충족하려면 ADC-02(또는 그 Scoped 후속)의 추가 해소가
 필요하다** — 이는 이번 RFC가 만들 수 있는 결론이 아니다.
 
-## 15. Persistence (§5 요구사항 대비)
+### 15. Persistence (§5 요구사항 대비)
 
 | 데이터 | 필요성 | 수명 | Source of Truth 후보 | 현재 저장 여부 |
 |---|---|---|---|---|
@@ -311,7 +321,7 @@ Live Progress 요구를 충족하려면 ADC-02(또는 그 Scoped 후속)의 추�
 위치(파일/DB/기존 컴포넌트 확장)를 쓸지 **결정하지 않는다** — Option
 B/C만이 그 결정을 필요로 하며, Option A/D는 이 표를 그대로 둔다.
 
-## 16. Evidence의 의미(§6 요구사항 — Execution History와 구분)
+### 16. Evidence의 의미(§6 요구사항 — Execution History와 구분)
 
 ```
 Execution History  =  무엇을 언제 실행했는가
@@ -334,7 +344,7 @@ RFC-ADC-ADR 절차 없이 바꿀 수 없다 — 이 RFC가 열어야 할 질문�
 검증"만 다루고 "저장 자체"·"보존 기간"·"조회 방법"을 다루지 않은 것과
 정확히 대칭되는 공백이다.
 
-## 17. Task ↔ Execution Relationship(§7 요구사항)
+### 17. Task ↔ Execution Relationship(§7 요구사항)
 
 Command Center UX 모델(Conversation → Task → Plan/Activity/Changes/Tests/
 Evidence/Report)을 실제 Architecture로 승격하는 것은 **이 RFC의 범위가
@@ -350,7 +360,7 @@ Evidence/Report)을 실제 Architecture로 승격하는 것은 **이 RFC의 범�
   아니라 **HQ 또는 Command Center 쪽 도메인 책임일 가능성이 높다** — 다만
   이것도 이 RFC가 확정하지 않는다.
 
-## 18. Progress / Time(§8 요구사항)
+### 18. Progress / Time(§8 요구사항)
 
 `Workflow Progress`(Stage 5개 중 완료 수 기반, 계산 가능 — 이미 `contracts.py`가
 Stage 개수를 고정하므로 분모는 안정적이다), `Task Progress`/`Verification
@@ -368,7 +378,7 @@ INCONCLUSIVE/SKIPPED)는 Stage 완료 여부(Progress 계산의 분자)와 **별
 `workflow.json`에서 `verdict` 유사 정보를 Progress와 분리해 다룬 것과 같은
 방향이다. ETA는 지시사항대로 이 RFC 범위에서 결정하지 않는다.
 
-## 19. Cancel / Retry / Resume(§9 요구사항)
+### 19. Cancel / Retry / Resume(§9 요구사항)
 
 - **Cancel**: 실행 중인 Workflow를 식별할 Execution Identity(§13)가 선행
   조건이다. 동기 함수 호출(`run_workflow()`)에는 애초에 "중단 지점"이 없다 —
@@ -395,7 +405,7 @@ INCONCLUSIVE/SKIPPED)는 Stage 완료 여부(Progress 계산의 분자)와 **별
 
 이번 RFC는 위 네 기능 중 무엇도 구현하지 않는다(지시사항 §9).
 
-## 20. Command Center Boundary(§10 요구사항)
+### 20. Command Center Boundary(§10 요구사항)
 
 ```
 Command Center
@@ -428,7 +438,7 @@ Rendering).
 Prototype 계층에 **우회 구현**하는 것과 동일한 효과를 낸다 — 금지 조항을
 어느 계층에서 어기든 결과는 같다.
 
-## 21. Security / Integrity(§11 요구사항 — Concern만 기록)
+### 21. Security / Integrity(§11 요구사항 — Concern만 기록)
 
 - **실행 결과 변조 방지**: Execution/Verification Record가 파일로 남는다면,
   그 파일이 실행 이후 수정 가능한 위치에 있으면 Evidence로서의 신뢰성이
@@ -450,7 +460,7 @@ Prototype 계층에 **우회 구현**하는 것과 동일한 효과를 낸다 �
 
 이번 RFC는 위 어느 것도 구현하지 않는다(지시사항 §11) — Concern만 기록한다.
 
-## 22. Architecture Principles 기준 평가
+### 22. Architecture Principles 기준 평가
 
 | 원칙 | A (유지) | B (Execution Persistence) | C (Runtime/Scheduler) | D (Structure-only) |
 |---|---|---|---|---|
@@ -465,7 +475,22 @@ Prototype 계층에 **우회 구현**하는 것과 동일한 효과를 낸다 �
 | Mock을 Real로 위장하지 않음 | 이미 실천 중(Real Data Adapter v0.1) | 실천 가능 | 실천 가능하나 구현 복잡도만큼 위반 여지 커짐 | 이미 실천 중 |
 | Progress ≠ Success | 해당 없음(Progress 자체가 Mock) | §18 방법으로 유지 가능 | 유지 가능(더 복잡) | 해당 없음 |
 
-## Recommendation / Decision Candidate
+### Open Questions
+
+1. Execution Record/Stage Record/Verification Record를 저장하는 것이
+   `hqs/development/HANDOVER.md`의 "영속 저장소 금지" 조항의 예외로 인정될
+   수 있는가, 아니면 그 조항 자체의 개정이 필요한가?
+2. Task ID ↔ Execution ID 매핑은 Kernel 책임인가, HQ 책임인가, Command
+   Center(Dashboard Prototype) 책임인가?
+3. Execution Host(§16.3)의 "동일 Target 동시 실행" 조건이 Command Center의
+   단일 실행 조회 요구에도 적용/확장될 수 있는가, 아니면 완전히 별개
+   질문인가?
+4. Evidence를 Kernel Concept으로 신설할 것인가(§16.7류 새 Module 후보), 아니면
+   HQ Public Contract의 저장 형태 문제로만 좁게 다룰 것인가?
+
+## 4. Proposed Direction
+
+### Recommendation / Decision Candidate
 
 이 RFC는 최종 결정을 내리지 않는다. 다만 위 분석에서 다음이 비교적 명확하게
 드러난다:
@@ -493,7 +518,9 @@ Record/Verification Record의 최소 저장(Option B의 좁은 부분집합)"만
 
 ---
 
-## 23. Risks (§19 요구사항 — 별도 기록)
+## 5. Requested Review
+
+### 23. Risks (§19 요구사항 — 별도 기록)
 
 - Option B를 좁게 연다고 선언해도, 실제 구현 단계에서 "History가 있으니
   Retry도 자연스럽게 필요하다"는 압력이 생겨 Scope Creep으로 Option C 영역을
@@ -506,20 +533,7 @@ Record/Verification Record의 최소 저장(Option B의 좁은 부분집합)"만
   Capability 부재로 여전히 미해결"이라 언급)해야 할 압력과 맞물릴 때, 이
   RFC의 좁은 범위(저장 위치)를 벗어나는 요구로 번질 위험.
 
-## Open Questions
-
-1. Execution Record/Stage Record/Verification Record를 저장하는 것이
-   `hqs/development/HANDOVER.md`의 "영속 저장소 금지" 조항의 예외로 인정될
-   수 있는가, 아니면 그 조항 자체의 개정이 필요한가?
-2. Task ID ↔ Execution ID 매핑은 Kernel 책임인가, HQ 책임인가, Command
-   Center(Dashboard Prototype) 책임인가?
-3. Execution Host(§16.3)의 "동일 Target 동시 실행" 조건이 Command Center의
-   단일 실행 조회 요구에도 적용/확장될 수 있는가, 아니면 완전히 별개
-   질문인가?
-4. Evidence를 Kernel Concept으로 신설할 것인가(§16.7류 새 Module 후보), 아니면
-   HQ Public Contract의 저장 형태 문제로만 좁게 다룰 것인가?
-
-## Required ADC / ADR Follow-up
+### Required ADC / ADR Follow-up
 
 - 이 RFC가 후속 ADC로 승격된다면, 그 ADC는 **Option B의 좁은 부분집합
   하나만** Boundary Question으로 열어야 한다(§16.3~§16.6이 각각 그렇게 해온
@@ -531,6 +545,20 @@ Record/Verification Record의 최소 저장(Option B의 좁은 부분집합)"만
 - Live Progress/Cancel/Retry/Resume은 별도의, 더 나중 RFC로 명시적으로
   분리해야 한다 — 이번 RFC의 결론과 동일선상에서, 그 범위는 ADC-02 해소
   이후에나 열 수 있다.
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0044-narrow-execution-history-verification-persistence-boundary.md` | 이 RFC의 Recommendation(Option B 부분집합)을 이어받은 직접 후속 RFC |
+| ADC | `docs/architecture/core/ADC-0046-workflow-execution-history-verification-persistence-ownership-boundary.md` | RFC-0044를 이어받아 판단한 후속 ADC |
+| Open Decision | `docs/decisions/adc/ADC.md` ADC-02 | Runtime 개념의 존폐(Open·NOW) — 이 RFC가 재론·재개하지 않음 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Dev HQ Command Center Execution Boundary Review 후속 분석 |
 
 ---
 
