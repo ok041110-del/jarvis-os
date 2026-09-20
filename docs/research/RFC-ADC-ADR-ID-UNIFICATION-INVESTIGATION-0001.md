@@ -148,20 +148,31 @@ Architecture 범위, 명시적 Related Document 연결, RFC→ADC→ADR 흐름,
 
 ## 6. 번호 충돌(동일 숫자·다른 의사결정 건) 기록 (Issue #206 §3.2)
 
-다음은 "번호는 같지만 다른 결정을 가리키는" 확인된 충돌이다. 이미
-저장소 자신이 각 파일 내부에 disambiguation 문구로 인지하고 있다 —
-신규 발견이 아니라 기존 상태의 재확인이다.
+다음은 "번호는 같지만 다른 결정을 가리키는" 확인된 충돌이다. 이 표는
+2026-09-20 재검증(Issue #206 후속 문서 정정 작업)에서 각 파일을
+전수 재확인한 결과로 갱신되었다 — 최초 조사(아래 각주 참조)는 모든
+충돌 건이 파일 내부 disambiguation 문구로 이미 해소되어 있다고
+기술했으나, 실제로는 **ADR-0002 위치 C 파일이 최초 표에서 누락되어
+있었고, disambiguation 문구는 3개 파일 중 1개(위치 B)에만 존재한다**
+— RFC-0002/ADC-0002는 어느 위치에도 ID 재사용을 명시적으로 해명하는
+문구가 없다(각 파일이 자신의 경로를 항상 fully-qualified로 인용하고
+서로 다른 주제를 다루어 실질적 혼동 위험은 낮으나, "self-disambiguated"
+라는 표현은 부정확했다).
 
 | 충돌 ID | 위치 A | 위치 B | 위치 C | 비고 |
 |---|---|---|---|---|
-| RFC-0002 | `docs/decisions/rfc/` Task Dispatcher Boundary | `docs/architecture/core/` Kernel Definition | `docs/core/execution-layer/` Execution Result Contract | 서로 다른 도메인, 내용 중복 아님 |
-| ADC-0002 | `docs/governance/adc/` Task Dispatcher 승격 | `docs/architecture/core/` Kernel Definition | `docs/core/execution-layer/` Execution Result Contract | 상동 |
-| ADR-0002 | `docs/decisions/adr/ADR-0002-core-to-kernel-terminology-unification.md` | `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` | — | 두 파일 모두 서로를 "네임스페이스로 구분"한다고 본문에 명시 — 이미 self-disambiguated, 추가 조치 불필요 |
+| RFC-0002 | `docs/decisions/rfc/RFC-0002-task-dispatcher-boundary.md` | `docs/architecture/core/RFC-0002-kernel-definition.md` | `docs/core/execution-layer/RFC-0002-execution-result-contract.md` | 서로 다른 도메인, 내용 중복 아님. 세 파일 중 ID 재사용을 명시적으로 해명하는 문구를 가진 파일은 없음(재확인 결과) |
+| ADC-0002 | `docs/governance/adc/ADC-0002.md` | `docs/architecture/core/ADC-0002-kernel-definition.md` | `docs/core/execution-layer/ADC-0002-execution-result-contract.md` | 상동 — 세 파일 모두 ID 재사용 해명 문구 없음(재확인 결과) |
+| ADR-0002 | `docs/decisions/adr/ADR-0002-core-to-kernel-terminology-unification.md` | `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` | `docs/core/execution-layer/ADR-0002-execution-result-item-schema.md` | **최초 조사에서 위치 C 누락됨(정정).** 위치 B만 본문(ID 필드)에 "docs/04_adr/ADR-0002 core-to-kernel-terminology-unification과 다른 문서 — 네임스페이스로 구분"이라는 명시적 해명 문구를 가짐. 위치 A·위치 C에는 해당 문구 없음(위치 A의 "구분" 언급은 Core→Kernel 치환 근거를 다루는 별개 문단이며 ID 재사용 해명이 아님) |
 
 리포지토리 전체에서 리터럴 문자열 `RFC-0002`/`ADC-0002`/`ADR-0002`를
 참조하는 파일은 각각 40건 이상이며, 대부분 "이전 결정을 인용"하는
 정상적 citation chain이다(archive 제외). 위 표에 없는 추가적인
-동일번호·동일도메인 충돌(=진짜 오류)은 발견되지 않았다.
+동일번호·동일도메인 충돌(=진짜 오류)은 발견되지 않았다. 세 ID 모두
+각 파일이 자신의 전체 경로를 fully-qualified로 인용하므로 문서 간
+실질적 혼동이나 잘못된 참조는 관찰되지 않았다 — 정정 대상은 "해명
+문구가 이미 존재한다"는 위 표의 최초 서술 정확도이며, 충돌 자체의
+위험도 평가는 바뀌지 않는다.
 
 ## 7. Open Decision Register와의 관계
 
