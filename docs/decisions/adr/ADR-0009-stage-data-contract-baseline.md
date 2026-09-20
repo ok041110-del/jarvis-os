@@ -1,4 +1,6 @@
-# ADR-0009: Development HQ Stage Data Contract — Public Scope Baseline 반영
+# ADR-0009 — Development HQ Stage Data Contract: Public Scope Baseline 반영
+
+## 1. Identity & Status
 
 | 필드 | 내용 |
 |---|---|
@@ -16,7 +18,9 @@
 기록한다. dc879e5의 코드는 이 ADR로 수정되지 않는다 — 이미 구현되어
 있는 상태를 Governance 관점에서 추인·문서화할 뿐이다.
 
-## Out of Scope (이 ADR이 다루지 않는 것)
+## 2. Context & Decision Drivers
+
+### Out of Scope (이 ADR이 다루지 않는 것)
 
 | 항목 | 근거 |
 |---|---|
@@ -30,7 +34,7 @@
 
 ---
 
-## Decision
+## 3. Decision
 
 ### 1. 변경 대상 파일
 
@@ -138,7 +142,24 @@ Data-API Capability는 이번 PR 범위 밖")과도 일치한다.
 
 ---
 
-## Consequences
+## 4. Rationale & Alternatives
+
+### Rationale
+
+이 ADR은 ADC-0007이 이미 내린 Scoped Accept 판단을 다시 논의하지 않는다.
+새로운 철학이나 Architecture를 제안하지 않는다. ADC-0007이 승인한 Public
+Scope만 실제 문서 변경으로 옮기기 위한 구현 결정만 기록한다. dc879e5의
+코드는 이 ADR로 수정되지 않는다 — 이미 구현되어 있는 상태를 Governance
+관점에서 추인·문서화할 뿐이다.
+
+### Rejected Alternatives
+
+해당 없음 — 이 ADR은 이미 확정된 ADC-0007 Decision의 반영 방식만
+다루며, 새로운 대안을 검토하지 않는다.
+
+## 5. Consequences & Impact
+
+### Consequences
 
 - `hqs/development/BASELINE.md`에 "Stage Data Contract" 절이 신설되고,
   **Development HQ가 외부(Workflow/향후 Dynamic Workflow)에 무엇을
@@ -158,3 +179,34 @@ Data-API Capability는 이번 PR 범위 밖")과도 일치한다.
 - 남는 절차 부채: `contracts.py`가 실제로 Public 표를 위반하는 값을
   반환하지 않는지 지속 검증하는 메커니즘(현재는 테스트 커버리지에
   의존, 별도의 강제 도구는 Defer)은 이 ADR이 다루지 않는다.
+
+## 6. Architecture Baseline & Implementation
+
+| Item | Description |
+|---|---|
+| Architecture Baseline Impact | 있음(제한적) — `hqs/development/BASELINE.md`에 "Stage Data Contract" 절 신설(위 §5 Consequences 참조) |
+| Public Contract Impact | 없음 — Kernel Public Contract(§14)는 한 글자도 변경되지 않는다(위 §3 Decision §6 참조) |
+| Implementation Scope | §3 Decision §1의 변경 대상 파일(`BASELINE.md`, Stage `*.md` 5건) |
+| Follow-up Work | `contracts.py`가 실제로 Public 표를 위반하는 값을 반환하지 않는지 지속 검증하는 메커니즘(현재는 테스트 커버리지 의존, 별도 강제 도구는 Defer) |
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/decisions/rfc/RFC-0009-stage-data-contract.md` | B-1/B-2/B-3 Decision의 출처 |
+| ADC | `docs/governance/adc/ADC-0007.md` | Scoped Accept 판단(§3 Public/Hidden 표) |
+| ADR | `ADR-0004`(Kernel Public Contract Baseline, 원문 인용 — 정확한 경로 미확인, 위 §1 Identity 표 "선례" 필드 그대로) | 형식 선례(Public/Hidden 구분·변경 규칙 형식만 재사용) |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0009 → ADC-0007 Scoped Accept 판단의 Baseline 반영 |
+
+---
+
+## 부록: 검증
+
+> §3 Decision §8(검증)에 이미 포함된 내용이나, ADR-TEMPLATE.md에
+> 별도 검증 섹션이 없어 참조용으로 위치만 표시한다 — 내용은 §3에
+> verbatim으로 존재한다.

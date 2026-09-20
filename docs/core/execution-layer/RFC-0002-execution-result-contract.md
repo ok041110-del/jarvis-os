@@ -1,4 +1,12 @@
-# RFC-0002: Execution Result Contract — 산출물을 묶는 방식
+# RFC-0002 — Execution Result Contract: 산출물을 묶는 방식
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0002 |
+| Status | Resolved — `ADC-0002-execution-result-contract.md` → `ADR-0001-execution-result-contract.md`로 종결됨. 이 라벨은 절차 진행 상태만 반영한다 |
+| Owner / Scope | 여러 Engine 산출물을 하나의 Execution Result로 묶는 방식(3개 후보 중 선택은 하지 않음) |
 
 **Status**: Resolved — `ADC-0002-execution-result-contract.md` → `ADR-0001-execution-result-contract.md`로 종결됨. RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Execution Layer Governance Priority Review 후속)
@@ -14,7 +22,9 @@
 > 실험을 하지 않는다. 새 후보를 만들지 않는다. Architecture를
 > 변경하지 않는다. Execution Layer를 구현하지 않는다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Problem & Context
+
+### 0. 이 RFC가 열린 이유
 
 `docs/core/execution-layer/IMPL-STOP-0001-execution-result.md`는
 Execution Layer의 여섯 번째 Artifact(Execution Result)를 구현하려던
@@ -37,7 +47,7 @@ Contract를 결정할 수 없는 경우")를 발동시키며 중단됐음을 기
 판단하지 않는다"(§9)고 명시했다. 이 RFC는 그 다음 절차로서, 같은
 Evidence를 근거로 정식 Architecture 논의를 연다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 Execution Layer의 Artifact Chain(`ARTIFACT-STANDARD-v1.md`)은 5개
 Builder(Execution Request → Prompt Specification → Model Request →
@@ -59,7 +69,9 @@ Builder 밖에서, Engine(Claude Code)이 실제로 만들어내는 산출물의
 관찰했다. 세 실험 모두 "여러 개별 산출물을 하나의 Execution Result로
 묶는 방식"에 답하지 못한 채 Unknown으로 남겼다는 사실이 반복됐다.
 
-## 2. Evidence Summary
+## 3. Questions & Alternatives
+
+### 2. Evidence Summary
 
 | 실험/문서 | 관찰된 산출물 | Execution Result로의 결합 여부 |
 |---|---|---|
@@ -68,7 +80,7 @@ Builder 밖에서, Engine(Claude Code)이 실제로 만들어내는 산출물의
 | `ENGINE-INTEGRATION-0003` | (동일 계열 산출물) | 여전히 Unknown(244~245행) |
 | `ARTIFACT-STANDARD-v1.md` | 5개 Builder의 metadata 필드 13개 전수 | content 필드 0건 — Execution Result가 참조할 기존 패턴이 없음(`IMPL-STOP-0001` §2 E-1) |
 
-## 3. Pattern
+### 3. Pattern
 
 세 실험과 두 Standard/Stop 문서에서 반복된 사실만 정리한다. 새 사실을
 추가하지 않는다.
@@ -85,7 +97,7 @@ Builder 밖에서, Engine(Claude Code)이 실제로 만들어내는 산출물의
 - `ARTIFACT-STANDARD-v1.md`는 이 질문에 답하는 것을 자신의 범위 밖으로
   이미 명시해 두었다(`IMPL-STOP-0001` §2 E-2).
 
-## 4. Boundary Question
+### 4. Boundary Question
 
 이 RFC는 답을 제시하지 않는다. 다음 질문만 제기한다.
 
@@ -103,7 +115,21 @@ Builder 밖에서, Engine(Claude Code)이 실제로 만들어내는 산출물의
 이 RFC는 이 중 어느 것이 맞는지 판단하지 않는다. 이 질문에 대한 판단은
 ADC로 위임한다.
 
-## Out of Scope
+## 4. Proposed Direction
+
+### Next Step
+
+후속 ADC(신설 예정, 이 RFC의 후속)에서 다음 하나만 판단하도록 제안한다.
+
+1. §4의 3개 후보(단일 불투명 문자열 / 산출물 목록 / 참조만 담고 내용은
+   밖) 중 Execution Result Contract로 채택할 것.
+
+이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance 절차를
+통해 별도로 판단한다.
+
+## 5. Requested Review
+
+### Out of Scope
 
 이번 RFC에서는 다루지 않는다.
 
@@ -116,7 +142,7 @@ ADC로 위임한다.
 - Memory 영역, Runtime, Storage 설계.
 - 새로운 실험(Engine 산출물을 직접 재관찰하는 것 포함).
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 Execution Result Contract를 해결하지 않는다.
 - 이 RFC는 새 실험을 수행하지 않는다 — `IMPL-STOP-0001`,
@@ -130,17 +156,24 @@ ADC로 위임한다.
 - 이 RFC는 ADC, ADR, MVP 문서를 작성하지 않는다.
 - 이 RFC는 위 Boundary Question에 답하지 않는다.
 
-## Next Step
+## Related Documents
 
-후속 ADC(신설 예정, 이 RFC의 후속)에서 다음 하나만 판단하도록 제안한다.
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/core/execution-layer/ADC-0002-execution-result-contract.md` | 이 RFC의 §2/§3/§4를 직접 인용해 판단(4곳, 재확인 완료) |
+| ADR | `docs/core/execution-layer/ADR-0001-execution-result-contract.md` | Contract 형태(list)를 Baseline 반영 |
 
-1. §4의 3개 후보(단일 불투명 문자열 / 산출물 목록 / 참조만 담고 내용은
-   밖) 중 Execution Result Contract로 채택할 것.
+## Change History
 
-이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance 절차를
-통해 별도로 판단한다.
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Execution Layer Governance Priority Review 후속 |
 
-## Self Review
+---
+
+## 부록: Self Review
+
+### Self Review
 
 - Evidence만 사용했는가 — **Pass**. `IMPL-STOP-0001`,
   `ARTIFACT-STANDARD-v1.md`, `ENGINE-INTEGRATION-0001~0003`에 실제로

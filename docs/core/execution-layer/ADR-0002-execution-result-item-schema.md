@@ -1,4 +1,6 @@
-# ADR-0002: Execution Result Item Schema의 Artifact Standard 반영
+# ADR-0002 — Execution Result Item Schema의 Artifact Standard 반영
+
+## 1. Identity & Status
 
 | 필드 | 내용 |
 |---|---|
@@ -16,7 +18,9 @@
 **타입 결정 하나** — 를 `ARTIFACT-STANDARD-v1.md`에 옮기기 위한
 **구현 결정**만 기록한다.
 
-## Out of Scope (이 ADR이 다루지 않는 것)
+## 2. Context & Decision Drivers
+
+### Out of Scope (이 ADR이 다루지 않는 것)
 
 ADC-0003이 명시적으로 판단하지 않은 것은 **하나도 Baseline에
 반영하지 않는다.**
@@ -31,7 +35,7 @@ ADC-0003이 명시적으로 판단하지 않은 것은 **하나도 Baseline에
 
 ---
 
-## Decision
+## 3. Decision
 
 ### 1. 변경 대상 파일
 
@@ -102,7 +106,24 @@ ADC이며, `docs/03_adc/ADC.md`는 Jarvis OS(Kernel) 수준 Open Decision
 
 ---
 
-## Consequences
+## 4. Rationale & Alternatives
+
+### Rationale
+
+이 ADR은 ADC-0003이 이미 내린 결정을 다시 논의하지 않는다. 새로운
+철학이나 Architecture를 제안하지 않는다. ADC-0003이 채택한 것 —
+"Execution Result 목록의 각 항목은 opaque 문자열(`str`)이다"는 타입
+결정 하나 — 를 `ARTIFACT-STANDARD-v1.md`에 옮기기 위한 구현 결정만
+기록한다.
+
+### Rejected Alternatives
+
+해당 없음 — 이 ADR은 이미 확정된 ADC-0003 Decision의 반영 방식만
+다루며, 새로운 대안을 검토하지 않는다.
+
+## 5. Consequences & Impact
+
+### Consequences
 
 - `ARTIFACT-STANDARD-v1.md`가 Execution Result 목록 항목의 **타입**
   (`str`)을 처음으로 반영한다 — "Canonical Fields: 미정"이었던 자리가
@@ -123,7 +144,34 @@ ADC이며, `docs/03_adc/ADC.md`는 Jarvis OS(Kernel) 수준 Open Decision
 - 이 ADR은 **승인되었으며**, §2에 정의된 실제 파일 변경이 이 승인에
   따라 실행된다.
 
-## Self Review
+## 6. Architecture Baseline & Implementation
+
+| Item | Description |
+|---|---|
+| Architecture Baseline Impact | 없음 — `docs/01_architecture/BASELINE.md`(Kernel Architecture Baseline)는 변경하지 않는다(위 §3 Decision §4 참조) |
+| Public Contract Impact | 없음 |
+| Implementation Scope | §3 Decision §1~§2(`ARTIFACT-STANDARD-v1.md` 갱신 내용, 이미 실행됨) |
+| Follow-up Work | Execution Result Builder 구현(코드 미작성) |
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/core/execution-layer/RFC-0003-execution-result-item-schema.md` | 항목 타입 후보 2개 제시 |
+| ADC | `docs/core/execution-layer/ADC-0003-execution-result-item-schema.md` | `list[str]` Accepted 판단 |
+| ADR | `docs/core/execution-layer/ADR-0001-execution-result-contract.md` | Execution Result "형태"를 Baseline에 반영한 선례 — 이 ADR은 그다음 단계인 "항목 타입"을 반영 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0003 → ADC-0003 Decision의 Baseline 반영 |
+
+---
+
+## 부록: Self Review
+
+### Self Review
 
 - ADC-0003이 결정하지 않은 것을 반영했는가 — **아니오**. §Out of
   Scope에 명시한 항목(의미론적 종류 구분, 개수 제한, Builder 구현,
