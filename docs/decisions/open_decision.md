@@ -92,6 +92,7 @@ Open Decision은 최종 결정을 내리지 않고 추적만 하는 문서다
 | Document ID | Title | Type | Target Domain | Status | Decision Group | Parent Documents | Related Documents | Evidence References | Source Path | Last Verified | Verification Confidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | OD-0001 | Decision Group Registry(DG-NNNN, `ADC-0010` 기결) 도입과 이 통합 원장의 Decision Group 필드(`DG-<도메인>-NNNN`)의 관계 | Open Decision | Governance | Open | DG-DEVHQ-GOVERNANCE-0206 | `docs/governance/adc/ADC-0010-decision-group-identifier-scheme.md` | `docs/decisions/rfc.md`, `docs/decisions/adc.md`, `docs/decisions/adr.md`(이 3개 원장이 사용 중인 Decision Group 값 전체) | `docs/decisions/REGISTRATION-CANDIDATES-0001.md`(3차 라운드) | `docs/decisions/REGISTRATION-CANDIDATES-0001.md` | 2026-09-20 | Medium |
+| OD-0002 | `ADR-0028`의 상태 필드("Wave 실행은 NOT YET AUTHORIZED")와 실제 저장소에 존재하는 Wave 0~5 실행 기록 문서 6건 사이의 표기 최신성(Currency) 확인 필요 | Open Decision | Kernel | Open | DG-KERNEL-0042 | `docs/architecture/core/ADR-0028-repository-wide-python-audit-and-refactoring-governance-adoption.md` | `docs/research/PYTHON-AUDIT-WAVE-0-INVENTORY-0001.md`, `docs/research/PYTHON-REFACTOR-WAVE-5-DOCSTRING-SEMANTIC-AUDIT-0001.md` 외 4건(Wave 1~4) | `docs/decisions/REGISTRATION-CANDIDATES-0001.md`(4차 라운드) | `docs/decisions/REGISTRATION-CANDIDATES-0001.md` | 2026-09-20 | Low |
 
 ### OD-0001 — Decision Group Registry와 통합 원장 Decision Group 필드의 관계
 
@@ -142,6 +143,62 @@ Open Question이다: (a) 이 원장의 값을 공식 `DG-NNNN`으로 재발급�
 |---|---|---|
 | ADC | `docs/governance/adc/ADC-0010-decision-group-identifier-scheme.md` | 공식 DG-NNNN 체계를 Scoped Accept로 확정, Registry 신설은 미실행 |
 | Ledger | `docs/decisions/rfc.md`, `docs/decisions/adc.md`, `docs/decisions/adr.md` | 비공식 `DG-<도메인>-NNNN` 값을 이미 사용 중 |
+
+### OD-0002 — ADR-0028 상태 표기와 실제 Wave 실행 기록의 최신성
+
+#### Decision Question
+
+`docs/architecture/core/ADR-0028-repository-wide-python-audit-and-refactoring-governance-adoption.md`
+는 상태 필드에 "실제 Inventory/Audit 실행, 실제 `*.py` 수정은 이
+ADR이 승인하지 않는다 — Wave 단위 별도 사용자 승인을 통해서만
+착수한다(**NOT YET AUTHORIZED**)"라고 명시한다. 그러나 저장소에는
+`docs/research/PYTHON-AUDIT-WAVE-0-INVENTORY-0001.md`부터
+`PYTHON-REFACTOR-WAVE-5-DOCSTRING-SEMANTIC-AUDIT-0001.md`까지 **Wave
+0~5, 6건의 실행 기록 문서**가 실제로 존재하며, `git log`상 이
+Wave들에 대응하는 실제 리팩터링 커밋(`793714a`
+"Python Audit Wave 1 — 456건 Docstring 전수 Semantic Review",
+`ce71a46` "Wave 3 — Docstring 의미 기반 재분류" 등)도 확인된다. Wave
+0 문서 자신은 "착수는 별도 사용자 승인이 필요하다"(274행)고 명시해
+ADR-0028이 요구하는 절차(Wave별 개별 승인)를 그대로 따르려 한 것으로
+보이나, **그 개별 승인이 실제로 이뤄졌는지 이 저장소의 파일만으로는
+확인할 수 없다**(승인은 대화 기록에 있을 수 있으나 이 라운드가
+접근할 수 있는 범위 밖). 따라서 이것이 (a) 정상적으로 매 Wave 개별
+승인을 받고 진행된 것이 사후 ADR-0028 상태 필드 갱신만 누락된
+경우인지, (b) 절차상 문제가 있는 경우인지 이번 라운드는 판단하지
+않는다.
+
+#### Why Open
+
+ADR 원문(`ADR-0028`)을 수정하는 것은 이번 작업 범위(문서 검증·등록)를
+벗어난다 — Wave별 승인 여부는 Governance 판단이 필요한 사실관계
+확인이며, 이 라운드가 자체적으로 "확인됨"이라고 확정할 근거가
+부족하다(§Decision Question 참조). 확정하지 않고 Open으로 남긴다.
+
+#### Required Evidence
+
+- Wave 0~5 각각이 착수 전 별도 사용자 승인을 받았다는 명시적 기록
+  (세션 로그, PR 승인 코멘트 등 이 저장소 파일 밖의 근거).
+- `ADR-0028` 상태 필드를 "Wave 0~5 실행 완료(각각 개별 승인)"로
+  갱신할지, 아니면 원문을 그대로 두고 이 Open Decision으로만
+  추적할지에 대한 Governance 판단.
+
+#### Reconsideration Trigger
+
+`ADR-0028`의 상태 필드가 갱신되거나, Wave 6 이상이 추가로 열려 같은
+질문이 반복되는 시점.
+
+#### Next Action
+
+다음 라운드에서 Wave 0~5 승인 근거를 확인할 수 있는 사용자에게
+직접 확인을 요청하거나, `ADR-0028` 자체를 소급 수정하지 않고 이
+Open Decision만 유지할지 판단한다.
+
+#### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADR | `docs/architecture/core/ADR-0028-repository-wide-python-audit-and-refactoring-governance-adoption.md` | 상태 필드가 "NOT YET AUTHORIZED"로 남아 있는 원본 |
+| Evidence | `docs/research/PYTHON-AUDIT-WAVE-0-INVENTORY-0001.md` 외 5건 | 실제 실행 기록(Wave 0~5) |
 
 ## 7. 검증 기준
 

@@ -485,3 +485,121 @@ open_decision.md`에 **`OD-0001`**로 정식 등록했다(Open Decision —
   그대로 인용).
 - 자동 추론·일괄 등록을 했는가 — **아니오**(34건 비결정 문서는 분류만,
   등록하지 않음).
+
+## 4차 라운드 — PR #214 최종 잔여 항목 처리
+
+3차 라운드가 §6에 남긴 "잔여 Open Issue" 중 실제로 확인 가능한
+항목(Baseline-외 반영처 미대조 8건)을 직접 원문 대조로 마무리했다.
+
+### 1. 교차 트리 ADR 배치 문제 — 재확인(변경 없음)
+
+3차 라운드가 이미 원장 유일 키를 (Document ID, Target Domain,
+Source Path)로 정정했고, 이번 라운드에서 그 스키마가 여전히
+`rfc.md`/`adc.md`/`adr.md`/`open_decision.md` 전체에서 중복 0건을
+유지함을 재확인했다(§4). ADR-0002~0005 교차 트리 물리 배치 자체의
+근본 해소(파일 이동 또는 헤더 주석 추가)는 여전히 사용자 판단이
+필요한 사안이며, 이번 라운드도 실행하지 않는다 — 제안만 유지한다.
+
+### 2. Baseline 반영 여부 — 잔여 8건 원문 대조 완료
+
+3차 라운드가 "미대조"로 남긴 항목을 전부 직접 열람해 대조했다.
+
+| ADR | 확인 방법 | 결과 |
+|---|---|---|
+| ADR-0001(Development HQ) | `hqs/development/STRUCTURE.md`(17행) | **확인됨** — "Stage 정의는 hqs/development/stages/를 참조(ADR-0001, ADR-0008)" |
+| ADR-0006(Development HQ, Structure v1 Migration) | `docs/architecture/baseline/STRUCTURE-V1.0-FROZEN.md`(255행) | **확인됨** — ADR 표 행에 명시 인용 |
+| ADR-0007(Development HQ, Baseline Relocation) | 동일 파일(255행) | **확인됨** |
+| ADR-0008(Development HQ, Stage 폴더 공존) | `hqs/development/STRUCTURE.md`(17~19행), `hqs/development/HANDOVER.md` | **확인됨** |
+| ADR-0009(Development HQ, Stage Data Contract) | `hqs/development/BASELINE.md` §"Stage Data Contract (ADR-0009)"(40행) | **확인됨** |
+| ADR-0016(Kernel, OmniRoute Freeze Relaxation) | `hqs/development/IMPLEMENTATION_RULES.md`(50행) | **확인됨** |
+| ADR-0017(Kernel, OmniRoute Production Adoption) | `docs/architecture/baseline/BASELINE.md` §"Engine 호출 책임"(386·826·828행) | **확인됨** |
+| ADR-0018(Kernel, LangGraph Final Review) | `docs/architecture/baseline/BASELINE.md`(1365행, 1회 인용) | **확인됨** — Not Adopted 판정이므로 신규 Baseline 절 자체가 없는 것이 정상 |
+| ADR-0020(Kernel, Graphify Adoption) | `.claude/docs/integrations/graphify.md`(66·72행) | **확인됨** — 문서 자신이 "BASELINE.md는 전혀 수정되지 않았다"고 명시, 미반영이 설계대로임을 확인 |
+| ADR-0024(Kernel, Multi-Engine Adoption) | `hqs/development/IMPLEMENTATION_RULES.md` §"Multi-Engine Architecture 허용 범위 (Scoped, ADR-0024)"(54~81행) | **확인됨** |
+| ADR-0025(Kernel, Stage05 Parallel Validation) | `projects/stage05-parallel-validation-harness-v1/README.md`(5·60행) | **확인됨**(Scoped 범위 내 — Production Adoption 자체는 여전히 NOT YET DETERMINED, 그 부분은 확정하지 않음) |
+| ADR-0026(Kernel, OpenRouter Free Model Selection) | `hqs/development/mvp/openrouter_engine.py`(실제 코드), `tests/test_openrouter_engine.py` | **확인됨**(Scoped 범위 내) |
+| ADR-0027(Kernel, OpenRouter Production Migration) | 동일 코드 | **확인됨**(Scoped 범위 내) |
+| ADR-0028(Kernel, Python Audit Governance) | `docs/research/PYTHON-AUDIT-WAVE-0~5-*.md`(6건), 대응 커밋 `793714a`·`ce71a46` 등 | **표기 최신성 불일치 발견** — ADR 상태 필드는 "Wave 실행 NOT YET AUTHORIZED"이나 실제로는 Wave 0~5 실행 기록이 존재. 개별 Wave 승인 여부는 파일만으로 확인 불가 — **확정하지 않고 `OD-0002`로 등록**(아래) |
+
+`docs/decisions/adr.md`의 위 13개 행(ADR-0001·0006~0009·0016~0018·
+0020·0024~0027)에 확인된 근거를 채워 넣었다. ADR-0028은 근거가
+"확인됨"과 "불일치 발견"으로 나뉘어 행 자체는 수정하지 않고 Open
+Decision(`OD-0002`)으로만 기록했다 — 확정하지 않는다는 원칙을
+지켰다.
+
+### 3. 미검토 문서 영역 — 재확인(변경 없음)
+
+3차 라운드의 `docs/governance/adc/`(10건 등록) 및 `docs/architecture/
+core/` 비-RFC/ADC/ADR 34건 분류는 이번 라운드에서 파일 존재와 분류
+근거를 다시 대조했고, 변경할 사유를 찾지 못했다 — 그대로 유지한다.
+
+### 4. 최종 검증 — 결과(4차, 누적)
+
+Python 스크립트로 직접 재실행:
+
+- **Front Matter YAML 파싱**: 원장 4개 전부 성공(변경 없음).
+- **Document ID / (Document ID, Target Domain) 중복**: 3차와 동일 —
+  단순 (ID, Domain) 기준 5건 충돌은 실제 구조 반영(버그 아님).
+  **(Document ID, Target Domain, Source Path) 3중 키 기준 중복
+  0건**(이번 라운드가 수정한 13개 행 포함 재검증 — `## 5. 작성 예시`
+  섹션의 견본 행 1개는 실제 등록 표(`## 6. 등록 현황`)와 분리해
+  집계에서 제외했다).
+- **Source Path 존재 검증**: 변경된 13개 행 포함 전체 재확인 — 누락
+  0건.
+- **Related Documents/Evidence References 경로 존재 검증**: 이번
+  라운드가 새로 추가한 인용 경로(`hqs/development/STRUCTURE.md`,
+  `hqs/development/BASELINE.md`, `hqs/development/HANDOVER.md`,
+  `hqs/development/IMPLEMENTATION_RULES.md`,
+  `.claude/docs/integrations/graphify.md`,
+  `hqs/development/mvp/openrouter_engine.py`,
+  `docs/architecture/baseline/STRUCTURE-V1.0-FROZEN.md`,
+  `projects/stage05-parallel-validation-harness-v1/README.md`,
+  `docs/research/PYTHON-AUDIT-WAVE-*`·`PYTHON-REFACTOR-WAVE-*`
+  6건) 전부 실제 존재 확인 — Broken Link 0건.
+- **Markdown 표 컬럼 정합성**: `adr.md`·`open_decision.md` 변경된
+  행 전부 12컬럼 유지 확인.
+- **원본 문서의 비의도적 변경 여부**: `git status --short`/`git diff
+  --stat` 확인 결과, 이번 라운드에서 수정된 파일은
+  `docs/decisions/adr.md`, `docs/decisions/open_decision.md`,
+  `docs/decisions/REGISTRATION-CANDIDATES-0001.md` 3개뿐 —
+  Baseline 반영 확인을 위해 열람한 모든 파일(`BASELINE.md` 2종,
+  `STRUCTURE.md`, `HANDOVER.md`, `IMPLEMENTATION_RULES.md`,
+  `graphify.md`, `openrouter_engine.py`, `STRUCTURE-V1.0-FROZEN.md`,
+  Wave 문서 6건)은 전혀 수정하지 않았다.
+- **Architecture Baseline / Public Contract 변경 여부**: 없음 —
+  Kernel `BASELINE.md`, Dev HQ `BASELINE.md` 둘 다 열람만 했다.
+
+### 5. 등록 현황 요약(누적, 4차 기준)
+
+| 구분 | 1차 | 2차 | 3차 | 4차 | 누적 |
+|---|---|---|---|---|---|
+| RFC | 5 | 38 | 17 | 0 | 60 |
+| ADC | 5 | 40 | 16 | 0 | 61 |
+| ADR | 2 | 28 | 11 | 0(13건 필드 보강만) | 41 |
+| Open Decision | 0 | 0 | 1(OD-0001) | 1(OD-0002) | 2 |
+
+### 6. 잔여 Open Issue (4차 기준, 완료로 표시하지 않음)
+
+- **OD-0001** — Decision Group Registry(공식 `DG-NNNN`) 형식과 이
+  원장의 `DG-<도메인>-NNNN` 형식 간 관계, 여전히 미결정.
+- **OD-0002**(신규) — `ADR-0028` 상태 필드와 실제 Wave 0~5 실행
+  기록의 표기 최신성 불일치, 개별 Wave 승인 근거는 파일 밖 확인
+  필요.
+- **ADR-0002~0005 교차 트리 물리 배치** — 근본 해소는 여전히 사용자
+  판단 필요(제안만 유지, §1).
+- **`docs/governance/DECISION-GROUP-REGISTRY.md` 신규 생성** —
+  여전히 이 PR 범위 밖, OD-0001이 추적.
+- 이번 라운드로 **"Baseline 반영 여부 미대조"로 분류됐던 8건은 전부
+  해소**됐다(위 §2) — 남은 항목은 위 4개뿐이다.
+
+### 7. Self Review(4차)
+
+- 처리 가능한 항목을 후속 PR로 미뤘는가 — **아니오**. 3차가 명시적으로
+  "미대조"라고 남긴 8건(ADR-0006~0009 Dev HQ, ADR-0016·0017·0020·
+  0024~0027 Kernel)을 전부 이번 라운드에서 원문 대조로 마무리했다.
+- 기존 파일을 이동·복사·번호 변경했는가 — **아니오**.
+- Architecture Baseline을 수정했는가 — **아니오**(열람만).
+- 확인되지 않은 사항을 확정했는가 — **아니오**(ADR-0028의 Wave 승인
+  여부는 확정하지 않고 `OD-0002`로 남김).
+- 자동 추론·일괄 등록을 했는가 — **아니오**(전부 개별 grep+원문
+  열람으로 확인 후 반영, 나머지는 그대로 둠).
