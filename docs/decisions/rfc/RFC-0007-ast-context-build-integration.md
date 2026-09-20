@@ -1,4 +1,12 @@
-# RFC-0007: AST 기반 Context 자동 추출의 Production Build Capability 통합
+# RFC-0007 — AST 기반 Context 자동 추출의 Production Build Capability 통합
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0007 |
+| Status | Proposed(원문 판정) — 후속 재평가로 A. INTEGRATION JUSTIFIED(조건부 범위 한정)로 갱신, `docs/governance/adc/ADC-0005.md` 등록. 이 라벨은 절차 진행 상태만 반영한다 |
+| Owner / Scope | Build Capability(`backend_agent_code_generation`)에 실제 프로젝트 소스 Context를 자동으로 제공할지 여부(통합 필요성 판단만, 구현 아님) |
 
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (DEV-HQ-V2.0-T06~T16 Context Research 종료 시점 요청에 대한 RFC)
@@ -12,7 +20,9 @@ Research 문서). 이 RFC 자체는 새로운 실험을 하지 않는다.
 > 변경하지 않는다 — 통합이 필요하다고 판단되더라도 구현은 이 RFC의
 > 범위 밖이며, 필요 시 별도 ADC → 실제 구현 단계로 넘긴다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Problem & Context
+
+### 0. 이 RFC가 열린 이유
 
 T06 Dogfooding은 Design→Build 단계에서 반복적인 정보 손실(잘못된 모듈명,
 잘못된 시그니처, 잘못된 내부 자료구조 가정)을 발견했다. 원인은
@@ -24,7 +34,7 @@ Capability에도 전달되지 않는다는 구조적 사실에 있다(§3 참고
 안전한지를 실증했다. 이 RFC는 그 결과를 근거로 Production 통합
 필요성만 판단한다.
 
-## 1. Evidence 요약 (T06~T16, 새 실험 없이 인용만)
+### 1. Evidence 요약 (T06~T16, 새 실험 없이 인용만)
 
 | 항목 | 결론 | 근거 |
 |---|---|---|
@@ -35,7 +45,9 @@ Capability에도 전달되지 않는다는 구조적 사실에 있다(§3 참고
 | Design 시그니처 제공 효과 | 방향성 있는 개선(표본 각 1개, 일반화 아님) — 실제 함수 시그니처를 Design 입력에 포함하면 존재하지 않는 파일시스템 스캐폴딩 오판이 사라짐 | T15, T16 |
 | Context Research 상태 | CLOSED (T16) — 추가 반복이 위 결론을 바꿀 가능성이 낮다고 판단 | T16 |
 
-## 2. 검토 1 — 현재 Build Capability 구조와 AST Context의 결합 지점
+## 3. Questions & Alternatives
+
+### 2. 검토 1 — 현재 Build Capability 구조와 AST Context의 결합 지점
 
 현재 흐름(`workflow_0008.py` 등 실제 workflow 파일 기준):
 
@@ -67,7 +79,7 @@ Context를 모을 것인가"가 Issue(`title`/`description`)로 이미 주어져
 매번 수동으로 지정했다 — Production에서 이를 자동으로 얻는 방법은
 검증된 바 없다(§7 최소 변경 범위, Open Issues 참고).
 
-## 3. 검토 2 — 기존 Contract 변경 필요 여부
+### 3. 검토 2 — 기존 Contract 변경 필요 여부
 
 **함수 시그니처 수준에서는 변경이 필요 없다.**
 `backend_agent_code_generation(design: str) -> str`은 그대로 유지된다
@@ -82,7 +94,7 @@ Context를 모을 것인가"가 Issue(`title`/`description`)로 이미 주어져
 계약이 넓어지는 것이므로 ADC 수준에서 명시적으로 기록해 둘 가치가
 있다(Contract Impact 참고).
 
-## 4. 검토 3 — Context 생성 책임의 위치
+### 4. 검토 3 — Context 생성 책임의 위치
 
 두 가지 후보가 있다:
 
@@ -106,7 +118,7 @@ Context를 모을 것인가"가 Issue(`title`/`description`)로 이미 주어져
 이 RFC는 둘 중 하나를 결정하지 않는다 — 통합이 승인될 경우 ADC
 단계에서 판단할 사안으로 남긴다.
 
-## 5. 검토 4 — 실패 시 기존 Workflow에 미치는 영향
+### 5. 검토 4 — 실패 시 기존 Workflow에 미치는 영향
 
 AST 폐쇄 계산은 순수 정적 분석(파일 읽기 + `ast.parse`)이며 Engine
 호출을 포함하지 않는다. 실패 모드는 두 가지뿐이다:
@@ -125,7 +137,7 @@ AST 폐쇄 계산은 순수 정적 분석(파일 읽기 + `ast.parse`)이며 Eng
 집합)은 깨지지 않는다 — 이는 새 Workflow 로직이 아니라 기존
 예외 처리 경로에 자연히 편입되기 때문이다.
 
-## 6. 검토 5 — Token / 실행시간 / 유지보수 비용
+### 6. 검토 5 — Token / 실행시간 / 유지보수 비용
 
 - **Token/크기**: T09~T16 전체에서 Automatic 발췌는 Full Source
   대비 일관되게 40~60% 크기였다(예: T14 8,676자 vs 21,954자, T15
@@ -142,7 +154,7 @@ AST 폐쇄 계산은 순수 정적 분석(파일 읽기 + `ast.parse`)이며 Eng
   구하는 부분(§2)이 아직 없다 — 이 부분이 실제로 추가될 유지보수
   대상이다.
 
-## 7. 검토 6 — 기존 Context 전달 방식과의 호환성
+### 7. 검토 6 — 기존 Context 전달 방식과의 호환성
 
 완전히 호환된다. Planning 단계가 이미 "문자열을 만들어 입력 앞/뒤에
 concatenate"하는 방식으로 Context를 전달하고 있고(§2), Build 단계에
@@ -151,7 +163,7 @@ concatenate"하는 방식으로 Context를 전달하고 있고(§2), Build 단�
 Event Bus 등 금지된 개념을 전혀 필요로 하지 않는다
 (`IMPLEMENTATION_RULES.md` 금지 목록과 충돌 없음).
 
-## 8. 검토 7 — Production 적용 시 최소 변경 범위
+### 8. 검토 7 — Production 적용 시 최소 변경 범위
 
 만약 통합이 승인된다면(이 RFC는 승인하지 않는다), 최소 변경 범위는:
 
@@ -172,7 +184,28 @@ Event Bus 등 금지된 개념을 전혀 필요로 하지 않는다
    출력을 diff 형태로 강제하는 후처리를 추가할 것인지는 이 RFC가
    결정하지 않는다.
 
-## Decision
+### Open Issues
+
+- §2: Design의 자유 서술형 출력에서 대상 모듈/함수를 자동으로 얻는
+  방법이 검증되지 않았다 — Production 자동화의 실질적 전제 조건.
+- §8-4: 기존 파일을 수정하는 실제 Task에서 Exposure가 구조적으로
+  불가피한 경우의 재작성 위험(~40%, 확률적) 완화 정책이 없다.
+- 대규모 프로젝트(수십 개 이상 모듈, 순환 참조/동적 import 포함)에서
+  AST 폐쇄 알고리즘의 안전성은 T13에서 "Development HQ Scope 안에
+  실례가 없어 검증 불가(Untestable)"로 남아 있다 — Scope가 커지면
+  재검증이 필요하다.
+- RFC-0005(Development HQ ↔ Execution Layer Boundary)는 Development
+  HQ의 Implementation Capability가 "Implementation Specification"
+  (8항목 텍스트, 코드 아님)만 생성하고 실제 코드 생성/실행은 Execution
+  Layer의 책임이라고 기술한다. 그러나 T06~T16에서 실제로 Dogfooding한
+  `backend_agent_code_generation`(agents.py)은 실제 코드 문자열을
+  직접 생성·반환한다 — 두 기술이 같은 함수를 가리키는지, 서로 다른
+  세대의 구현을 가리키는지는 이 RFC의 범위 밖이며 확인되지 않았다.
+  이 불일치 자체를 별도로 기록해 둔다.
+
+## 4. Proposed Direction
+
+### Decision
 
 > **Role Note**(`docs/research/RFC-ROLE-BOUNDARY-REVIEW-0001.md` §2.1
 > 확인 사항 반영): 아래 판정은 RFC 작성 시점(위 Status: Proposed,
@@ -196,46 +229,7 @@ Full Source를 대체할 수 있다는 정확성 근거, 내용 손상 위험이
    Task에서는 노출이 구조적으로 불가피할 수 있고, 그 경우의 재작성
    위험(~40%, 확률적)을 어떻게 다룰지 정책이 없다.
 
-## Scope
-
-- Build Capability(`backend_agent_code_generation`)에 실제 프로젝트
-  소스 Context를 자동으로 제공할 필요성 여부의 판단.
-- T06~T16 Evidence의 종합과 그로부터 도출 가능한 결합 지점/비용/호환성
-  분석.
-
-## Non-Goals
-
-- 이 RFC는 AST 폐쇄 함수나 Context concatenate 로직을 구현하지 않는다.
-- 이 RFC는 Workflow, Agent, Model, Frozen Architecture를 변경하지
-  않는다.
-- 이 RFC는 §2/§8-4의 선행조건을 해결하지 않는다 — 그 해결 방법(Design
-  출력 구조화 여부 등)은 별도 RFC/ADC 대상이다.
-- 이 RFC는 Context Research(T06~T16)를 재개하거나 새 실험을 추가하지
-  않는다.
-
-## Contract Impact
-
-- **함수 시그니처 변경 없음** — `backend_agent_code_generation(design:
-  str) -> str`은 그대로 유지 가능.
-- **암묵적 입력 계약 확장** — Build 입력이 "Design 서술"에서 "Design
-  서술 + 실제 코드 발췌"로 사실상 넓어진다는 것을 ADC 단계에서
-  명시적으로 기록해 둘 필요가 있다(§3).
-- Design Capability의 출력 계약(자유 서술형 prose)이 그대로면 §2의
-  선행조건이 해결되지 않는다 — Design 출력을 구조화할지 여부는 이
-  RFC 밖의 판단이다.
-
-## Architecture Impact
-
-- **없음(NONE)** — Runtime/Registry/Engine Gateway/Event Bus 등
-  Frozen 금지 목록에 해당하는 어떤 개념도 요구하지 않는다(§7).
-  Project Intelligence가 이미 확립한 "Context를 문자열로 렌더링해
-  concatenate" 패턴의 확장이다.
-- Context 생성 책임의 위치(§4, `project_intelligence.py` 확장 vs
-  신규 모듈)는 Architecture 변경이 아니라 Development HQ 내부 구현
-  선택이다 — 다만 어느 쪽을 택하든 "Project Intelligence는 경로만
-  반환한다"는 현재 관례와의 정합성은 ADC에서 짚어야 한다.
-
-## Implementation Candidate
+### Implementation Candidate
 
 (이 RFC는 구현하지 않는다 — 승인 시 다음이 구현 후보가 된다)
 
@@ -248,26 +242,71 @@ Full Source를 대체할 수 있다는 정확성 근거, 내용 손상 위험이
 3. Target File Exposure 완화 정책(§8-4) 결정.
 4. 위 3가지가 결정된 후에만 실제 workflow 파일에 최소 변경(§8) 적용.
 
-## Open Issues
+## 5. Requested Review
 
-- §2: Design의 자유 서술형 출력에서 대상 모듈/함수를 자동으로 얻는
-  방법이 검증되지 않았다 — Production 자동화의 실질적 전제 조건.
-- §8-4: 기존 파일을 수정하는 실제 Task에서 Exposure가 구조적으로
-  불가피한 경우의 재작성 위험(~40%, 확률적) 완화 정책이 없다.
-- 대규모 프로젝트(수십 개 이상 모듈, 순환 참조/동적 import 포함)에서
-  AST 폐쇄 알고리즘의 안전성은 T13에서 "Development HQ Scope 안에
-  실례가 없어 검증 불가(Untestable)"로 남아 있다 — Scope가 커지면
-  재검증이 필요하다.
-- RFC-0005(Development HQ ↔ Execution Layer Boundary)는 Development
-  HQ의 Implementation Capability가 "Implementation Specification"
-  (8항목 텍스트, 코드 아님)만 생성하고 실제 코드 생성/실행은 Execution
-  Layer의 책임이라고 기술한다. 그러나 T06~T16에서 실제로 Dogfooding한
-  `backend_agent_code_generation`(agents.py)은 실제 코드 문자열을
-  직접 생성·반환한다 — 두 기술이 같은 함수를 가리키는지, 서로 다른
-  세대의 구현을 가리키는지는 이 RFC의 범위 밖이며 확인되지 않았다.
-  이 불일치 자체를 별도로 기록해 둔다.
+### Scope
 
-## Revalidation
+- Build Capability(`backend_agent_code_generation`)에 실제 프로젝트
+  소스 Context를 자동으로 제공할 필요성 여부의 판단.
+- T06~T16 Evidence의 종합과 그로부터 도출 가능한 결합 지점/비용/호환성
+  분석.
+
+### Non-Goals
+
+- 이 RFC는 AST 폐쇄 함수나 Context concatenate 로직을 구현하지 않는다.
+- 이 RFC는 Workflow, Agent, Model, Frozen Architecture를 변경하지
+  않는다.
+- 이 RFC는 §2/§8-4의 선행조건을 해결하지 않는다 — 그 해결 방법(Design
+  출력 구조화 여부 등)은 별도 RFC/ADC 대상이다.
+- 이 RFC는 Context Research(T06~T16)를 재개하거나 새 실험을 추가하지
+  않는다.
+
+### Contract Impact
+
+- **함수 시그니처 변경 없음** — `backend_agent_code_generation(design:
+  str) -> str`은 그대로 유지 가능.
+- **암묵적 입력 계약 확장** — Build 입력이 "Design 서술"에서 "Design
+  서술 + 실제 코드 발췌"로 사실상 넓어진다는 것을 ADC 단계에서
+  명시적으로 기록해 둘 필요가 있다(§3).
+- Design Capability의 출력 계약(자유 서술형 prose)이 그대로면 §2의
+  선행조건이 해결되지 않는다 — Design 출력을 구조화할지 여부는 이
+  RFC 밖의 판단이다.
+
+### Architecture Impact
+
+- **없음(NONE)** — Runtime/Registry/Engine Gateway/Event Bus 등
+  Frozen 금지 목록에 해당하는 어떤 개념도 요구하지 않는다(§7).
+  Project Intelligence가 이미 확립한 "Context를 문자열로 렌더링해
+  concatenate" 패턴의 확장이다.
+- Context 생성 책임의 위치(§4, `project_intelligence.py` 확장 vs
+  신규 모듈)는 Architecture 변경이 아니라 Development HQ 내부 구현
+  선택이다 — 다만 어느 쪽을 택하든 "Project Intelligence는 경로만
+  반환한다"는 현재 관례와의 정합성은 ADC에서 짚어야 한다.
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | — | 선행 RFC 없음(DEV-HQ-V2.0-T06~T16 Context Research 종료 시점 요청) |
+| ADC | `docs/governance/adc/ADC-0005.md` | 재평가 결과(A. INTEGRATION JUSTIFIED) 등록 — §1~§8 개별 절 번호를 직접 인용해 판단(15곳 이상, 재확인 완료) |
+| ADR | — | Development HQ MVP Implementation은 Baseline 범위 밖이라 No ADR Required |
+| Open Decision | — | §2 시작점 식별 문제, §8-4 Exposure 완화 정책 — 둘 다 후속 Research로 검증됨(§Revalidation 참조) |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | DEV-HQ-V2.0 Context Research(T06~T16) 종료 후 Production 통합 필요성 판단 |
+| — | Revalidation 추가 | 두 선행조건 검증 완료, ADC-0005 등록 |
+
+---
+
+## 부록: Revalidation
+
+> 원문 Decision(B. CONDITIONAL)과 마찬가지로 이 절도 재평가의
+> 출발점 기록이므로 수정하지 않고 보존한다.
+
+### Revalidation
 
 두 선행조건 모두 이후 별도 Research로 검증됐다(시작점 식별:
 `DEV-HQ-V2.0-DESIGN-AST-STARTPOINT-IDENTIFICATION-0001.md`,

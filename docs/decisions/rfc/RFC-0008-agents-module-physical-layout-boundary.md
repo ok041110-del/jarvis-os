@@ -1,4 +1,12 @@
-# RFC-0008: AST Context Module Discovery — Dotted Package Path 지원 확장 여부
+# RFC-0008 — AST Context Module Discovery: Dotted Package Path 지원 확장 여부
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0008 |
+| Status | Proposed(검토 대상, 결정 아님) |
+| Owner / Scope | `hqs/development/mvp/ast_context.py`의 module discovery를 평면 module path뿐 아니라 dotted package module path까지 지원하도록 확장하는 것을 허용할 것인가 — 이 하나의 질문만 다룬다 |
 
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (Agent Package Refactoring 작업 중 구현 착수
@@ -20,14 +28,16 @@ path(`mvp/{package}/{module}.py`)까지 지원하도록 확장하는 것을 허�
 > 않는다. ADR도 작성하지 않는다. 이 문서는 RFC이며 결정을 내리지
 > 않는다 — 후속 ADC가 판단할 Decision Candidate만 제시한다.
 
-## 핵심 질문
+## 2. Problem & Context
+
+### 핵심 질문
 
 **Agent Package Refactoring(`mvp/agents.py` → `mvp/agents/{requirements,
 design,backend,qa}.py`)을 위해, AST Context의 module discovery를
 평면 module path뿐 아니라 dotted package module path까지 지원하도록
 확장하는 것을 허용할 것인가?**
 
-## 1. 현재 `agents.py` 기반 AST Context 동작
+### 1. 현재 `agents.py` 기반 AST Context 동작
 
 `ast_context.py`(ADC-0005 §1/§2)는 세 함수 모두 "module 이름 =
 `hqs/development/mvp/` 바로 아래의 평면 `.py` 파일 하나"라는 동일한
@@ -52,7 +62,9 @@ design,backend,qa}.py`)을 위해, AST Context의 module discovery를
   "run_issue_to_design")`가 상대 import(`from .agents import ...`)를
   재귀로 따라가 `agents` 모듈을 폐쇄에 포함시킨다.
 
-## 2. `agents/` package 전환 시 발생하는 Contract 영향
+## 3. Questions & Alternatives
+
+### 2. `agents/` package 전환 시 발생하는 Contract 영향
 
 `agents.py`를 `agents/` 패키지로 바꾸면(코드 변경 없이 가정만 함):
 
@@ -70,7 +82,7 @@ design,backend,qa}.py`)을 위해, AST Context의 module discovery를
   동시에 둘 수 없다 — "패키지 전환 + 평면 파일 겸용 유지"라는 절충은
   존재하지 않는다.
 
-## 3. ADC-0005 Evidence와의 관계
+### 3. ADC-0005 Evidence와의 관계
 
 ADC-0005(RFC-0007 후속)는 이 세 함수(판단 1: Candidate Index, 판단
 2: Dependency Closure)를 **모두 Accept**했으나, 그 Evidence는 다음
@@ -90,7 +102,7 @@ ADC-0005(RFC-0007 후속)는 이 세 함수(판단 1: Candidate Index, 판단
   검증한 범위를 벗어난 새 조건에서 같은 함수를 재사용하겠다는
   요청이므로, 기존 Accept가 자동으로 커버하지 않는다.
 
-## 4. `ast_context.py` 변경 필요성
+### 4. `ast_context.py` 변경 필요성
 
 Dotted package path를 지원하려면 최소한 다음 변경이 필요하다(구현은
 하지 않음, 필요성만 서술):
@@ -108,7 +120,7 @@ Dotted package path를 지원하려면 최소한 다음 변경이 필요하다(�
 90줄 내외 함수)의 **동작 조건을 확장하는 것**이며, 파일 이동이나
 포맷팅 수준의 변경이 아니다.
 
-## 5. 기존 테스트 Contract에 미치는 영향
+### 5. 기존 테스트 Contract에 미치는 영향
 
 `test_ast_context.py`/`test_stage_01.py`의 4개 테스트가 `"agents"`를
 리터럴 모듈 이름으로 mock 없이 사용한다(§1 표와 동일 근거). Dotted
@@ -123,7 +135,7 @@ path 지원을 추가하는 것 자체는 기존 평면 모듈 이름(`"agents"`
 `agents.py` 이동 작업에서 발생**한다 — 이 RFC는 그 이동을 수행하지
 않으므로 이번 Task에서 테스트 변경은 필요하지 않다.
 
-## 6. 대안 비교
+### 6. 대안 비교
 
 | 대안 | 설명 | Frozen 컴포넌트 영향 | 테스트 Contract 영향 | 목표 구조(패키지) 달성 |
 |---|---|---|---|---|
@@ -131,34 +143,9 @@ path 지원을 추가하는 것 자체는 기존 평면 모듈 이름(`"agents"`
 | B. `ast_context.py` package 지원 확장 | 본 RFC의 핵심 질문대로 dotted path 지원을 추가한 뒤 `agents/` 패키지로 이동 | 있음 — ADC-0005 Accept 4건의 검증 조건(평면 구조) 밖으로 로직을 확장 | 있음 — 패키지 이동 시점에 4개 테스트 리터럴 갱신 필요 | 달성 |
 | C. 다른 호환성 방식(예: `agents/` 패키지 + `mvp/agents.py` 위치에 재-export만 하는 최상위 shim 모듈을 별도 이름으로 유지) | Python 제약상 `agents.py`와 `agents/`는 동일 이름 공존 불가하므로, 실제로는 "다른 이름의 평면 shim 파일 1개"를 추가로 유지하는 방식만 가능(예: 실제 함수는 패키지에, `ast_context.py`가 참조할 대표 함수 1~2개만 담은 별도 평면 파일 유지) | 없음(ast_context.py 무변경) | 부분 있음 — 패키지 내 이동된 함수 대부분은 여전히 AST Candidate Index/Closure 밖에 있음 | 부분 달성(shim의 성격에 따라 절충 필요) |
 
-## 7. Architecture Impact
+## 4. Proposed Direction
 
-**NONE으로 잠정 판단** — 대안 B(`ast_context.py` 확장)를 택하더라도
-Runtime/Registry/Event Bus/Engine Gateway 등 `IMPLEMENTATION_RULES.md`
-금지 목록에 해당하는 개념은 추가되지 않는다. 확장 대상은 이미 Kernel
-범위 밖(MVP Implementation, `BASELINE.md` Not Included)으로 확정된
-순수 정적 분석 함수 내부 로직뿐이다. 다만 이 판단은 ADC-0005가
-판단 4에서 사용한 것과 같은 근거 구조를 재사용한 것이며, 실제
-Architecture Drift 여부는 후속 ADC가 다시 명시적으로 재확인해야
-한다.
-
-## 8. Contract Impact
-
-- `agents.py`의 함수 시그니처(`requirements_agent_requirement_
-  analysis` 등), `AGENT_CAPABILITY_MAP`/`HELLO_SDLC_CAPABILITY_MAP`
-  값, Engine 호출 방식, Prompt 문자열 — 이 RFC가 다루는 어떤 대안도
-  이들을 변경하지 않는다.
-- `ast_context.py`의 공개 함수 시그니처(`module_source_path(module:
-  str) -> Path`, `build_dependency_closure(module: str, function:
-  str) -> str`, `build_function_candidate_index() -> str`) 자체는
-  대안 B에서도 변경되지 않는다 — 확장은 내부 구현(모듈 이름 → 경로
-  변환 로직)에 한정되며, 호출부(Stage 01/04)의 호출 방식은 그대로다.
-- 대안 B를 택할 경우 **테스트 Contract**는 §5에서 서술한 대로,
-  `ast_context.py` 확장 시점이 아니라 `agents.py` 이동 시점에
-  변경이 필요해진다 — 이 Contract 영향의 승인 여부는 이 RFC가 아니라
-  후속 ADC(및 필요시 그 이후 별도 Task)에서 다뤄야 한다.
-
-## 9. 권장 Decision (Candidate, 확정 아님)
+### 9. 권장 Decision (Candidate, 확정 아님)
 
 이 RFC는 결정하지 않는다. 후속 ADC가 판단할 Decision Candidate로
 다음을 제시한다.
@@ -183,7 +170,36 @@ Architecture Drift 여부는 후속 ADC가 다시 명시적으로 재확인해�
     경우, 실제 구현 후 최소 1건의 real Engine E2E 재검증을 함께
     요구할 것을 권고한다.
 
-## Out of Scope
+## 5. Requested Review
+
+### 7. Architecture Impact
+
+**NONE으로 잠정 판단** — 대안 B(`ast_context.py` 확장)를 택하더라도
+Runtime/Registry/Event Bus/Engine Gateway 등 `IMPLEMENTATION_RULES.md`
+금지 목록에 해당하는 개념은 추가되지 않는다. 확장 대상은 이미 Kernel
+범위 밖(MVP Implementation, `BASELINE.md` Not Included)으로 확정된
+순수 정적 분석 함수 내부 로직뿐이다. 다만 이 판단은 ADC-0005가
+판단 4에서 사용한 것과 같은 근거 구조를 재사용한 것이며, 실제
+Architecture Drift 여부는 후속 ADC가 다시 명시적으로 재확인해야
+한다.
+
+### 8. Contract Impact
+
+- `agents.py`의 함수 시그니처(`requirements_agent_requirement_
+  analysis` 등), `AGENT_CAPABILITY_MAP`/`HELLO_SDLC_CAPABILITY_MAP`
+  값, Engine 호출 방식, Prompt 문자열 — 이 RFC가 다루는 어떤 대안도
+  이들을 변경하지 않는다.
+- `ast_context.py`의 공개 함수 시그니처(`module_source_path(module:
+  str) -> Path`, `build_dependency_closure(module: str, function:
+  str) -> str`, `build_function_candidate_index() -> str`) 자체는
+  대안 B에서도 변경되지 않는다 — 확장은 내부 구현(모듈 이름 → 경로
+  변환 로직)에 한정되며, 호출부(Stage 01/04)의 호출 방식은 그대로다.
+- 대안 B를 택할 경우 **테스트 Contract**는 §5에서 서술한 대로,
+  `ast_context.py` 확장 시점이 아니라 `agents.py` 이동 시점에
+  변경이 필요해진다 — 이 Contract 영향의 승인 여부는 이 RFC가 아니라
+  후속 ADC(및 필요시 그 이후 별도 Task)에서 다뤄야 한다.
+
+### Out of Scope
 
 - Agent Class/Runtime/Registry/Manager 도입.
 - 신규 Capability 추가.
@@ -193,7 +209,7 @@ Architecture Drift 여부는 후속 ADC가 다시 명시적으로 재확인해�
 - 실제 `ast_context.py` 코드 변경, `agents.py` 이동, 테스트 파일 수정
   — 전부 이 RFC 이후 별도 Task.
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 Development HQ Baseline이나 Jarvis OS Architecture
   Baseline을 변경하지 않는다.
@@ -201,7 +217,7 @@ Architecture Drift 여부는 후속 ADC가 다시 명시적으로 재확인해�
   제시한다.
 - 이 RFC는 Agent Package Refactoring을 대신 완료하지 않는다.
 
-## 다음 절차
+### 다음 절차
 
 1. 이 RFC의 핵심 질문(§핵심 질문)에 대해 `docs/decisions/adc/`에
    Decision Candidate로 등록한다.
@@ -212,3 +228,18 @@ Architecture Drift 여부는 후속 ADC가 다시 명시적으로 재확인해�
 4. ADC가 대안 A 또는 C를 채택하면, Agent Package Refactoring 요청은
    그에 맞춰 범위를 재조정한다(이 RFC는 그 재조정 내용을 미리
    규정하지 않는다).
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/decisions/rfc/RFC-0007-ast-context-build-integration.md` | ADC-0005의 Evidence(T06~T19) 근거를 이어받음 |
+| ADC | `docs/governance/adc/ADC-0005.md` | §1의 세 함수 Accept 근거(평면 구조 조건) |
+| ADC | `docs/governance/adc/ADC-0006.md` | 이 RFC의 §2/§3/§5/§6/§9를 직접 인용해 판단(재확인 완료) |
+| Open Decision | — | §9 권장 Decision Candidate — 후속 ADC가 최종 판단 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Agent Package Refactoring 작업 중 발견한 구조적 충돌에 대한 사용자 지시 |
