@@ -603,3 +603,152 @@ Python 스크립트로 직접 재실행:
   여부는 확정하지 않고 `OD-0002`로 남김).
 - 자동 추론·일괄 등록을 했는가 — **아니오**(전부 개별 grep+원문
   열람으로 확인 후 반영, 나머지는 그대로 둠).
+
+## 5차 라운드 — PR #214 Open Issues 최종 종결 지시
+
+### 1. OD-0001 처리 결과
+
+`docs/governance/DECISION-GROUP-REGISTRY.md`의 실제 존재 여부를
+`git log`로 재확인한 결과, 이 파일은 이미 4차 라운드 이전부터
+존재했다(3차 라운드/PR #208, 커밋 `8481d81`에서 생성, `DG-0001`·
+`DG-0002` 등록, PR #209 커밋 `0fb6dae`에서 보정). 즉 OD-0001의
+3차 라운드 원안이 전제한 "Registry가 아직 생성되지 않았다"는 사실과
+달랐다.
+
+이 사실관계 정정에 근거해 원안의 선택지 (b) — 원장(Ledger)의
+`DG-<도메인>-NNNN` 필드는 행 단위 조회를 위한 원장 내부 인덱스로
+유지하고, `ADC-0010`이 정한 공식 전역 `DG-NNNN` Registry(현재
+`DG-0001`, `DG-0002`만 등록된 증거 기반 부분 등록 상태)는 별개
+네임스페이스로 그대로 둔다 — 를 채택했다. 근거:
+
+1. 두 네임스페이스는 형식(`DG-NNNN` vs `DG-<도메인>-NNNN`)부터
+   달라 충돌하지 않는다.
+2. `ADC-0010`은 Registry를 "point-in-time, evidence-gated"로
+   설계했다 — 원장의 모든 행을 자동으로 Registry에 등록하는 것은
+   그 설계 원칙에 위배된다.
+3. 원장의 `Decision Group` 필드를 Registry 형식으로 강제 변경하면
+   기존 60+61+41개 행을 전부 재작성해야 하며, 이는 "완료 조건"이
+   요구하는 최소 변경 원칙에 반한다.
+4. 원장이 실제로 등록 가치가 있는 fan-out/fan-in 사례를 발견할
+   때마다 Registry에 별도로 근거를 갖춰 추가하는 경로는 이미
+   열려 있다(향후 라운드 과제로 남김, 이번 라운드에서 결정하지
+   않음).
+
+이에 따라 `docs/decisions/rfc.md`·`adc.md`·`adr.md`의 §3 작성
+규칙에 두 네임스페이스가 별개임을 명시하는 문구를 추가했고,
+`docs/decisions/open_decision.md`의 OD-0001 항목을 `Status:
+Reconsidered`로 갱신, Resolution 섹션을 새로 작성했다(원문
+Decision Question은 보존, 원본 ADC-0010/Registry 문서는 수정하지
+않음).
+
+**결론: OD-0001은 Reconsidered로 종결 가능** — 새 ADC/ADR 제정
+없이 기존 문서 재확인만으로 해소되는 사안이었다.
+
+### 2. OD-0002 처리 결과
+
+`ADR-0028`의 상태 필드("Wave 실행은 NOT YET AUTHORIZED")와 실제
+Wave 0~5 실행 기록 6건 사이의 표기 불일치에 대해, 4차 라운드는
+"개별 Wave 승인 여부를 파일만으로 확인할 수 없다"며 판단을 보류했다.
+
+이번 라운드는 `git log --all --merges`로 Wave 관련 커밋들의 병합
+경로를 추적해 다음을 확인했다:
+
+- Wave 0(`1b2c21e`)·Wave 1(`793714a`, `71135e3`)은 **PR #189**
+  (`claude/jarvis-python-audit-wave1-comments`)의 커밋 그래프에
+  포함된다.
+- Wave 2(`0b17ae1`, `969b232`, `93b5683`)·Wave 3(`8f85c08` 외
+  스냅샷 6건, `53a592d`)·Wave 4(`b72dc57`)·Wave 5(`3c1b93e`)는
+  전부 **PR #190**(`claude/jarvis-python-refactor-wave2`, 제목
+  자체가 "Python Refactor Wave 2+3+4+5")의 커밋 그래프에 포함된다.
+
+`mcp__github__pull_request_read`(method `get`)로 두 PR을 직접
+조회해 `state: closed`, `merged: true`, `merged_by:
+ok041110-del`(저장소 소유자 계정)을 확인했다 — git 커밋 존재만으로
+승인을 추정한 것이 아니라 GitHub API로 병합 주체를 직접 확인한
+**직접 증거**다.
+
+이 증거에 근거해 Wave 0~5 전체가 저장소의 실제 승인 메커니즘(PR을
+저장소 소유자가 직접 병합)을 예외 없이 거쳤다고 판단했다. 따라서
+현재 상태는 **Governance 미비가 아니라 문서 표기 오류**(ADR-0028
+상태 필드 텍스트의 사후 갱신 누락)다 — 이는 `DOC-TRIAGE-0001`의
+"D-9 index debt"(해결된 문서의 `Status: Proposed` 헤더를 소급
+갱신하지 않는 기존 관행)와 동일한 패턴이며 새로운 이상 징후가
+아니다.
+
+`ADR-0028` 원문은 이번 라운드에서도 수정하지 않았다 — 상태 필드
+갱신 여부·시점은 별도의 사용자 승인이 필요한 Governance 판단으로
+남겨두고, `docs/decisions/open_decision.md`의 OD-0002 항목을
+`Status: Reconsidered`로 갱신, Resolution 섹션에 위 근거(PR #189/
+#190, `merged_by` 확인)를 기록했다.
+
+**결론: OD-0002는 Reconsidered로 종결 가능** — "승인 근거가
+확인되지 않으면 승인 사실을 추정하지 않는다"는 지시 원칙을
+GitHub API 직접 조회로 충족했고, 확정할 수 없는 부분(ADR-0028
+상태 필드를 실제로 갱신할지 여부)은 여전히 Open Decision에 근거로만
+남기고 확정하지 않았다.
+
+### 3. 최종 정합성 검증(5차)
+
+- **YAML Front Matter**: 4개 원장 전부 `yaml.safe_load` 파싱 성공,
+  스키마 키 12개 동일 확인.
+- **Markdown 표 컬럼 정합성**: "## 6. 등록 현황"의 실제 등록 행
+  기준(원장별 60/61/41/2행) 전부 12컬럼 유지 확인(OD-0001·OD-0002
+  상세 섹션 내부의 3컬럼 "Related Documents" 하위 표는 별개
+  포맷이며 등록 현황 표가 아니므로 정상).
+- **(Document ID, Target Domain, Source Path) 중복 검사**: 4개
+  원장 전체 164행 대상 재실행 — 중복 0건.
+- **Source Path 존재 검증**: 164개 Source Path 인용 전부 파일시스템
+  상 존재 확인 — 누락 0건.
+- **Related Documents/Evidence References 경로**: 이번 라운드가
+  추가한 인용(`docs/governance/DECISION-GROUP-REGISTRY.md`, GitHub
+  PR #189/#190) 확인 — Registry 파일은 실제 존재, PR은 GitHub API로
+  직접 조회해 존재·병합 상태 확인.
+- **Open Decision 상태·상세 섹션 일관성**: OD-0001·OD-0002 모두
+  등록 현황 표의 `Status` 값과 상세 섹션의 결론이 일치(`Reconsidered`
+  ↔ Resolution 섹션 존재). 스키마 허용 값(`Open`/`Reconsidered`/
+  `Closed(→ADC)`/`Closed(→ADR)`) 범위 내에서만 사용했다 — 스키마에
+  없는 "Resolved"는 사용하지 않았다.
+- **원본 문서의 비의도적 변경 여부**: `git status --short` 확인
+  결과 이번 라운드에서 수정된 파일은 `docs/decisions/rfc.md`,
+  `docs/decisions/adc.md`, `docs/decisions/adr.md`,
+  `docs/decisions/open_decision.md`,
+  `docs/decisions/REGISTRATION-CANDIDATES-0001.md` 5개뿐 —
+  `ADR-0028`, `ADC-0010`, `DECISION-GROUP-REGISTRY.md`, Wave 문서
+  6건 등 근거 확인을 위해 열람한 모든 원본 문서는 전혀 수정하지
+  않았다.
+- **Architecture Baseline / Public Contract 변경 여부**: 없음.
+
+### 4. 등록 현황 요약(누적, 5차 기준)
+
+| 구분 | 1차 | 2차 | 3차 | 4차 | 5차 | 누적 |
+|---|---|---|---|---|---|---|
+| RFC | 5 | 38 | 17 | 0 | 0 | 60 |
+| ADC | 5 | 40 | 16 | 0 | 0 | 61 |
+| ADR | 2 | 28 | 11 | 0(13건 필드 보강) | 0 | 41 |
+| Open Decision | 0 | 0 | 1(OD-0001) | 1(OD-0002) | 0(신규 등록 없음, 기존 2건 종결) | 2 |
+
+### 5. 잔여 Open Issue(5차 기준)
+
+- **OD-0001**, **OD-0002** 모두 `Reconsidered`로 종결 — 신규 미해결
+  항목 없음.
+- **ADR-0002~0005 교차 트리 물리 배치** — 여전히 사용자 판단
+  필요(제안만 유지, §1). 이 PR의 범위(Ledger 등록·검증)를 벗어나는
+  별도 결정 사항이므로 이번 라운드에서도 다루지 않았다.
+- **OD-0002 Resolution에서 남긴 잔여 사항**: `ADR-0028` 상태 필드
+  텍스트를 실제로 갱신할지 여부는 별도 사용자 승인이 필요한
+  Governance 판단으로 남아 있다 — 이 PR은 그 판단에 필요한 근거만
+  제공하며, 원문 수정은 포함하지 않는다.
+
+### 6. Self Review(5차)
+
+- 완료되지 않은 항목을 완료로 표시했는가 — **아니오**. OD-0001·
+  OD-0002는 근거가 확인된 만큼만 `Reconsidered`로 표시했고, 스키마에
+  없는 "Resolved"는 쓰지 않았다. `ADR-0028` 상태 필드 자체의 갱신
+  여부는 미결정으로 명시했다.
+- 승인 사실을 추정했는가 — **아니오**. Wave 0~5의 승인 근거는
+  GitHub API로 PR의 `merged`/`merged_by` 필드를 직접 조회해
+  확인했다 — git 커밋 존재만으로 추정하지 않았다.
+- `ADR-0028` 원문을 수정했는가 — **아니오**(열람만, Open Decision
+  으로만 기록).
+- 기존 파일을 이동·복사·번호 변경했는가 — **아니오**.
+- Architecture Baseline을 수정했는가 — **아니오**.

@@ -64,6 +64,9 @@ Kernel 수준 Open Decision 12건을 다루는 기존 문서이며, 이 원장
   Status/Decision Group/Relationship 조회에 집중한다.
 - Status를 Resolved로 바꿀 때는 반드시 Related Documents에 종결 ADR을
   함께 채운다. ADR 없이 Resolved로 표기하지 않는다.
+- **Decision Group 필드는 `docs/governance/DECISION-GROUP-REGISTRY.md`
+  (공식 전역 `DG-NNNN`)를 대체하지 않는다** — 별개 네임스페이스다
+  (`docs/decisions/rfc.md` §3, `OD-0001` Resolution 참조).
 
 ## 4. 문서 템플릿
 

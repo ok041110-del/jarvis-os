@@ -69,6 +69,15 @@ verification_confidence: Medium
   채우지 않는다. 확인되지 않으면 `Undetermined`로 남긴다.
 - 원장 항목을 삭제하지 않는다. 철회(Withdrawn)된 RFC도 상태만 갱신하고
   행은 유지한다.
+- **Decision Group 필드는 `docs/governance/DECISION-GROUP-REGISTRY.md`
+  (`ADC-0010`이 승인한 공식 전역 `DG-NNNN` 레지스트리)를 대체하지
+  않는다.** 이 원장의 `DG-<도메인>-NNNN` 값은 행 단위 조회 편의를
+  위한 원장 내부 인덱스일 뿐이며, 공식 Registry에 실제로 등록된
+  fan-out/fan-in 그룹(현재 `DG-0001`, `DG-0002`)과는 별개의
+  네임스페이스다(`OD-0001` Resolution 참조). 어떤 RFC가 공식
+  Registry에도 등록할 가치가 있는 fan-out/fan-in 사례라고 판단되면,
+  이 원장의 필드를 고치는 대신 별도로 Registry에 근거를 갖춰
+  추가한다.
 
 ## 4. 문서 템플릿
 

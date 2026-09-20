@@ -58,6 +58,9 @@ Architecture Baseline 반영으로 이어지는 문서다. 저장소에는 도�
   못했다면 Status를 `Accepted`로 적지 않고 `Undetermined`로 남긴다.
 - 한 ADR이 다른 ADR을 Supersede하면 두 행 모두 유지하고, Superseded된
   행의 Status만 갱신한다. 행을 삭제하지 않는다.
+- **Decision Group 필드는 `docs/governance/DECISION-GROUP-REGISTRY.md`
+  (공식 전역 `DG-NNNN`)를 대체하지 않는다** — 별개 네임스페이스다
+  (`docs/decisions/rfc.md` §3, `OD-0001` Resolution 참조).
 
 ## 4. 문서 템플릿
 
