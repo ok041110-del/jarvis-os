@@ -49,8 +49,7 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 
 ## 1. Observation — 기존 문서와의 문구 대조
 
-| 명제 | 기존 `docs/governance/README.md`("Outcome-Oriented Governance
-Model" 절)의 대응 문구 | 포함 여부 |
+| 명제 | 기존 `docs/governance/README.md`("Outcome-Oriented Governance Model" 절)의 대응 문구 | 포함 여부 |
 |---|---|---|
 | 1. Evidence 부재 ≠ 구현 기술 선택 금지 | 없음 — 가장 가까운 문구는 "Freeze는 실제 불변에만 사용한다"이나, 이는 Freeze 판단 기준일 뿐 "Evidence가 사전 금지 조건이 아니다"를 일반적으로 선언하지 않는다 | **미포함** |
 | 2. 개발자/사용자/AI의 구현 기술 자유 선택권(Goal·Invariant 범위 내) | 없음 — 어떤 문구도 "구현 기술을 자유롭게 선택할 수 있다"는 긍정 형태의 권리를 서술하지 않는다 | **미포함** |
