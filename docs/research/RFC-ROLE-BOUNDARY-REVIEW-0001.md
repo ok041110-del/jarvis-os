@@ -1,9 +1,13 @@
 # RFC Role 경계 검토 — `## Decision` 절 사용 실태 (Issue #206 후속)
 
-**문서 성격**: READ-ONLY 검토. 이 문서는 `RFC-0007`,
+**문서 성격**: 이 문서 자체는 READ-ONLY 검토이며 대상 RFC 파일을
+직접 수정하지 않는다. §4 작성 시점에는 `RFC-0007`,
 `RFC-0009`/`RFC-0010`/`RFC-0011`, `RFC-0031`/`RFC-0032` 중 어느
-파일도 수정하지 않는다. 발견된 문제의 수정 여부는 이 문서가 결정하지
-않고 §4 "판단"에서 후속 작업으로 분리한다(사용자 지시).
+파일도 수정하지 않았고, 발견된 문제의 수정 여부를 §4 "판단"에서
+후속 작업으로 분리했다(사용자 지시). **갱신**: 이후 별도 세션(RFC-0007
+Role Boundary & HANDOVER Baseline Correction)에서 §4가 요구한 선행
+확인을 마치고 사용자 승인 하에 RFC-0007에 최소 수정을 적용했다 — 상세는
+§5 참고.
 
 ## 1. 배경
 
@@ -134,11 +138,40 @@ Issue #206이 금지하는 "RFC가 최종 결정을 포함"하는 경우에 해�
 - `docs/governance/adc/ADC-0005.md` 원문을 열람해 RFC-0007과의 실제
   후속 관계(Accept/Reject/Defer 4건 판정)를 확인.
 
+## 5. 후속 처리 (RFC-0007 Role Boundary & HANDOVER Baseline Correction 세션)
+
+§4가 요구한 두 선행 확인을 수행했다:
+
+- **(a) 인용 관계 전수 확인**: `grep -rn "B\. CONDITIONAL"` 전체
+  저장소 검색 결과, RFC-0007의 `## Decision` 판정 문구를 그대로
+  인용하는 문서는 RFC-0007 자신, `DEV-HQ-V2.0-RFC-0007-REVALIDATION-0001.md`,
+  `DEV-HQ-V2.0-AST-CANDIDATE-INDEX-REPRODUCTION-0001.md`,
+  그리고 이 문서(§2.1) 4건뿐이다. `ADC-0005.md`는 원문 "B.
+  CONDITIONAL" 판정이 아니라 **Revalidation의 "A. INTEGRATION
+  JUSTIFIED" 재평가**를 근거로 삼는다(ADC-0005 원문 1~9행). 즉
+  실제 최종 결정 경로(RFC-0007 → Revalidation → ADC-0005)의 어느
+  단계도 "B. CONDITIONAL" 판정 문구 자체가 최종 근거로 재인용되지
+  않으므로, 그 문구를 삭제하지 않고 보존해도 인용 무결성이 깨지지
+  않는다.
+- **(b) 수정 방식 결정**: "삭제" 또는 "ADC-0005 인용으로 전면
+  재작성" 대신, `## Decision` 절 원문(B. CONDITIONAL 판정과 근거)은
+  그대로 보존하고 그 앞에 역할을 명확히 하는 짧은 Note만 추가했다 —
+  RFC-TEMPLATE.md(PR #207)이 정한 신규 형식으로 과거 문서를
+  마이그레이션하는 것이 아니라, 기존 Status 필드("결정 아님")와
+  본문 사이의 충돌만 해소하는 최소 수정이다.
+
+**적용**: `docs/decisions/rfc/RFC-0007-ast-context-build-integration.md`
+`## Decision` 절 상단에 "이 판정은 RFC 저자 자체 평가이며 최종
+Governance 판정은 `## Revalidation`/`ADC-0005`를 따른다"는 Note 1개
+추가. B. CONDITIONAL 판정 원문, 근거, 두 선행조건 서술은 한 글자도
+변경하지 않았다. Architecture/Public Contract 영향 없음(문서 서술
+명확화, 판정 내용 무변경).
+
 ## Related Documents
 
 | Type | ID | Relationship |
 |---|---|---|
-| RFC | `docs/decisions/rfc/RFC-0007-ast-context-build-integration.md` | 역할 위반 확인 대상(원문 미수정) |
+| RFC | `docs/decisions/rfc/RFC-0007-ast-context-build-integration.md` | 역할 위반 확인 대상 — §5에서 Role Note 추가로 처리 완료 |
 | ADC | `docs/governance/adc/ADC-0005.md` | RFC-0007의 실제 최종 판정 문서 |
 | Issue | #206 | 이 검토가 응답하는 상위 요청 |
 | Template | `docs/decisions/rfc/RFC-TEMPLATE.md` | 신규 RFC의 역할 경계 기준(PR #207) |
