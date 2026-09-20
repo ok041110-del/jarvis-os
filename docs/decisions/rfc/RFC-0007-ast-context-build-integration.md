@@ -174,6 +174,15 @@ Event Bus 등 금지된 개념을 전혀 필요로 하지 않는다
 
 ## Decision
 
+> **Role Note**(`docs/research/RFC-ROLE-BOUNDARY-REVIEW-0001.md` §2.1
+> 확인 사항 반영): 아래 판정은 RFC 작성 시점(위 Status: Proposed,
+> 결정 아님)의 **RFC 저자 자체 평가**이며, 최종 Governance 판정이
+> 아니다. 실제 최종 판정은 이 문서 하단 "## Revalidation" 절이 인용하는
+> 재평가(`DEV-HQ-V2.0-RFC-0007-REVALIDATION-0001.md`, A. INTEGRATION
+> JUSTIFIED)와 그 결과를 등록한 `docs/governance/adc/ADC-0005.md`를
+> 따른다. 아래 원문은 그 재평가의 출발점이 된 기록이므로 내용을
+> 수정하지 않고 보존한다.
+
 **B. CONDITIONAL** — Production 통합의 방향성(Automatic Excerpt가
 Full Source를 대체할 수 있다는 정확성 근거, 내용 손상 위험이 사실상
 없다는 안전성 근거)은 Evidence로 충분히 뒷받침된다. 그러나 다음 두
