@@ -364,6 +364,19 @@ Freeze 원칙에 따라, 미결 사항을 같은 자리에 명시한다.
 통합)의 재검토 조건은 **실제 Engine 호출이 최소 1회 관찰되는 것**으로
 동일하다.
 
+> **Amendment(Architecture Owner 결정, 2026-09-20, `ADC-0003` 종합
+> 문단 Amendment 참조 — ADC 경유 없음, `ADR-0008` 선례에 따른 직접
+> 지시)**: 이 Amendment는 단순 명료화가 아니라 새로운 Governance
+> 결정이다. 위 문장이 말하는 "재검토 조건"은 **Re-review 개시
+> 조건(A)** — 실제 Engine 호출 최소 1회 관찰 — 을 가리키는 것으로
+> 확정한다. 이 중 **Context Boundary 항목의 Defer를 해제 방향으로
+> 재검토**하려면 A만으로는 부족하며, 그 Engine 호출에서 Stable
+> Prefix가 **경험적으로 확인되는 것(B)**이 추가로 필요하다(상세는
+> `ADC-0003` 판단 4 및 그 종합 문단의 Amendment 참고). Engine별
+> Renderer·활용 사례 2건의 Defer 해제 여부는 Context Boundary
+> 판정에 의존하지 않으므로 A만으로 판단한다. 이 결정은 실제 Engine
+> 호출이나 Stable Prefix 실측이 이미 일어났음을 주장하지 않는다.
+
 **Kernel Architecture와 Component Design은 여전히 §10 Out of Scope다.**
 이 절은 Kernel이 무엇을 관리하는지를 정의할 뿐, 그것을 관리할
 Component를 설계하지 않는다(KP-1).

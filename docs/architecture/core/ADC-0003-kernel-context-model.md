@@ -597,6 +597,44 @@ Layer 코드 재설계를 요구하므로 이 ADC의 권한을 넘는다.
 1회 관찰되는 것. 판단 4·5b·6b는 이 조건에 직접 걸려 있고, 판단 1b는
 Context를 비교·재사용하는 사례가 나타나야 판단 가능하다.
 
+> **Amendment(Architecture Owner 결정, 2026-09-20, ADC 경유 없음 —
+> `ADR-0008` 선례에 따른 직접 지시)**: 이 Amendment는 **단순
+> 명료화가 아니라 새로운 Governance 결정**이다. 위 문단과 판단 4의
+> 재검토 조건 문구("실제 Engine 호출이 최소 1회 관찰되고, 그 호출에서
+> '...안정 구간'이 실측으로 확인되면 이 Defer는 재검토된다")가 서로
+> 다른 표현(단순 조건 vs 복합 조건)을 쓰고 있었음을 확인했다
+> (조사 근거: `docs/architecture/core/EVIDENCE-INVENTORY-0001-validation-v1.md`
+> 및 이 세션의 KV-04 Residual Issue 조사). Architecture Owner는 이
+> 불일치를 다음과 같이 **2단계로 확정**한다.
+>
+> - **A (Re-review 개시 조건)**: 실제 Engine 호출이 최소 1회
+>   관찰되면, 판단 4·5b·6b에 대한 Re-review **절차를 시작한다.**
+>   위 "판단 4·5b·6b는 이 조건에 직접 걸려 있다"는 문장은 이 A를
+>   가리키는 것으로 확정한다.
+> - **B (Context Boundary 판정 종결 조건)**: 판단 4(Context
+>   Boundary)의 Defer를 실제로 해제하는 방향으로 재검토하려면, A로
+>   시작된 Re-review 중 그 Engine 호출에서 "매번 동일하게 앞에
+>   놓이는 Context 구간"(Stable Prefix)이 **경험적으로 확인되어야
+>   한다.** 판단 4 원문의 복합 조건은 이 B를 가리키는 것으로
+>   확정한다. A는 B의 필요조건이지 충분조건이 아니다 — Engine 호출이
+>   관찰되었다는 사실만으로 Context Boundary 판정을 해제 방향으로
+>   재검토할 수는 없다.
+> - 판단 5b·6b(Engine별 Renderer, 활용 사례)는 Context Boundary
+>   판정에 직접 의존하지 않으므로, 그 Defer 자체의 해제 여부는 A만으로
+>   판단 가능하다 — B는 오직 판단 4(Context Boundary)의 해제 판정에만
+>   적용된다.
+>
+> **이 결정이 하지 않는 것**: 실제 Engine 호출이 발생했다고
+> 주장하지 않는다. Stable Prefix가 실측으로 확인되었다고 주장하지
+> 않는다. 판단 4의 Defer 자체를 해제하지 않는다 — 여전히 Defer
+> 상태이며, 이 Amendment는 그 Defer를 **어떤 조건에서 재검토할
+> 것인가**만 확정한다. Kernel Context Builder·Renderer는 구현하지
+> 않는다.
+>
+> 원문(판단 4·6b·이 종합 문단)은 발견 당시 상태 그대로 보존한다 —
+> 이 Amendment는 그 위에 additive하게(추가로만) 얹히는 결정이며,
+> 원문을 대체하지 않는다.
+
 ## Self Review
 
 - Evidence만 사용했는가 — **Pass**. RFC-0003과 그것이 인용한 기존
