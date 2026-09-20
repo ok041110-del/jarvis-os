@@ -174,8 +174,6 @@ Development HQ는 후보로 포함하지 않는다 — RFC-0005가 이미 상류
 
 ## 부록: Self Review
 
-### Self Review
-
 - Evidence만 사용했는가 — **Pass**. `ARTIFACT-STANDARD-v1.md`,
   RFC-0002~ADR-0002, IMPL-STOP-0001·0002, Kernel RFC-0001·ADC-0001,
   RFC-0005, GOVERNANCE-REVIEW-0002에 실제로 기록된 내용만 인용했다.

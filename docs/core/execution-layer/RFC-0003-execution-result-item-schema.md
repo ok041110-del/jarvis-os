@@ -159,8 +159,6 @@ Execution Result 목록의 각 항목은 어떤 타입인가?
 
 ## 부록: Self Review
 
-### Self Review
-
 - Evidence만 사용했는가 — **Pass**. `IMPL-STOP-0002`, `ADC-0002`,
   `ADR-0001`, `ARTIFACT-STANDARD-v1.md`, 5개 Builder 소스에 실제로
   기록된 내용만 인용했다. 새 실험은 수행하지 않았다.

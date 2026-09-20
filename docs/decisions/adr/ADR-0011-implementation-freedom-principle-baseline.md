@@ -89,9 +89,7 @@ Evidence 기반 조건부 해제가 가능함이 실증됨)는 **Architecture �
 
 ### Rationale
 
-이 ADR은 ADC-0009가 이미 내린 Q-1/Q-2 Final Judgment를 다시 논의하지
-않는다. 이 ADR이 하는 일은 그 판단을 실제 문서에 무엇을, 어디에, 어떤
-문구로 반영할 것인지로 구체화하는 것뿐이다.
+위 §1 Identity & Status 문단(ADC-0009 Q-1/Q-2 Final Judgment의 반영 범위) 참고.
 
 ### Rejected Alternatives
 

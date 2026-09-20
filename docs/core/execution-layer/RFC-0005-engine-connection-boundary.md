@@ -190,8 +190,6 @@ Execution Layer의 `results`(Execution Result 목록 항목)를 실제 Engine
 
 ## 부록: Self Review
 
-### Self Review
-
 - Evidence만 사용했는가 — **Pass**. `ARTIFACT-STANDARD-v1.md`, 6개
   Builder + Pipeline 소스, `IMPL-STOP-0002`, `engine.py`,
   `ENGINE-CONNECT-0001`, `ADR-0002-execution-layer-module-baseline.md`,

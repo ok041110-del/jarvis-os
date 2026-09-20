@@ -110,11 +110,7 @@ ADC이며, `docs/03_adc/ADC.md`는 Jarvis OS(Kernel) 수준 Open Decision
 
 ### Rationale
 
-이 ADR은 ADC-0003이 이미 내린 결정을 다시 논의하지 않는다. 새로운
-철학이나 Architecture를 제안하지 않는다. ADC-0003이 채택한 것 —
-"Execution Result 목록의 각 항목은 opaque 문자열(`str`)이다"는 타입
-결정 하나 — 를 `ARTIFACT-STANDARD-v1.md`에 옮기기 위한 구현 결정만
-기록한다.
+위 §1 Identity & Status 문단(ADC-0003 Decision의 반영 범위) 참고.
 
 ### Rejected Alternatives
 
@@ -170,8 +166,6 @@ ADC이며, `docs/03_adc/ADC.md`는 Jarvis OS(Kernel) 수준 Open Decision
 ---
 
 ## 부록: Self Review
-
-### Self Review
 
 - ADC-0003이 결정하지 않은 것을 반영했는가 — **아니오**. §Out of
   Scope에 명시한 항목(의미론적 종류 구분, 개수 제한, Builder 구현,

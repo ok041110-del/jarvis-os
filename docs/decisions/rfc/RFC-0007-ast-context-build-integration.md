@@ -306,8 +306,6 @@ Full Source를 대체할 수 있다는 정확성 근거, 내용 손상 위험이
 > 원문 Decision(B. CONDITIONAL)과 마찬가지로 이 절도 재평가의
 > 출발점 기록이므로 수정하지 않고 보존한다.
 
-### Revalidation
-
 두 선행조건 모두 이후 별도 Research로 검증됐다(시작점 식별:
 `DEV-HQ-V2.0-DESIGN-AST-STARTPOINT-IDENTIFICATION-0001.md`,
 `DEV-HQ-V2.0-AST-CANDIDATE-INDEX-REPRODUCTION-0001.md`; Exposure

@@ -146,11 +146,7 @@ Data-API Capability는 이번 PR 범위 밖")과도 일치한다.
 
 ### Rationale
 
-이 ADR은 ADC-0007이 이미 내린 Scoped Accept 판단을 다시 논의하지 않는다.
-새로운 철학이나 Architecture를 제안하지 않는다. ADC-0007이 승인한 Public
-Scope만 실제 문서 변경으로 옮기기 위한 구현 결정만 기록한다. dc879e5의
-코드는 이 ADR로 수정되지 않는다 — 이미 구현되어 있는 상태를 Governance
-관점에서 추인·문서화할 뿐이다.
+위 §1 Identity & Status 문단(ADC-0007 Scoped Accept 판단의 반영 범위) 참고.
 
 ### Rejected Alternatives
 

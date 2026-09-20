@@ -129,12 +129,7 @@ v2 흐름" 절 다음에 그대로 등재되었다. 등재된 문구는 위 초�
 
 ### Rationale
 
-이 ADR은 ADC-0008이 이미 내린 Q-1/Q-2/Q-3 Final Judgment를 다시 논의하지
-않는다. 이 ADR이 하는 일은 그 판단을 실제 문서에 무엇을, 어디에, 어떤
-문구로 반영할 것인지로 구체화하고, 사용자 승인을 받은 뒤 그 반영을
-실행하는 것이다 — 승인 전 어떤 반영도 실행하지 않는다는 CLAUDE.md
-Frozen Architecture 규칙을 그대로 따랐고, 승인 이후 §3-4의 반영을
-완료했다.
+위 §1 Identity & Status 문단(ADC-0008 Q-1/Q-2/Q-3 Final Judgment의 반영 범위) 참고.
 
 ### Rejected Alternatives
 

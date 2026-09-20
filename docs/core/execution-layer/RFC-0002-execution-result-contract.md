@@ -173,8 +173,6 @@ ADC로 위임한다.
 
 ## 부록: Self Review
 
-### Self Review
-
 - Evidence만 사용했는가 — **Pass**. `IMPL-STOP-0001`,
   `ARTIFACT-STANDARD-v1.md`, `ENGINE-INTEGRATION-0001~0003`에 실제로
   기록된 내용만 인용했다. 새 실험은 수행하지 않았다.
