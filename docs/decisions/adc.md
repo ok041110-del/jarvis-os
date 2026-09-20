@@ -81,14 +81,21 @@ Kernel 수준 Open Decision 12건을 다루는 기존 문서이며, 이 원장
 
 ## 6. 등록 현황
 
-> 이 원장 도입 이후 신규 작성되는 ADC부터 등록한다. 기존 ADC 전체 목록은
-> 여전히 도메인별 원본 문서(`docs/decisions/adc/ADC.md`,
-> `docs/governance/adc/`, `docs/architecture/core/`,
-> `docs/core/execution-layer/`)가 Source of Truth다.
+> 이 원장 도입 이후 신규 작성되는 ADC와, 우선순위 검증을 거쳐 소급
+> 등록된 ADC를 함께 관리한다. 기존 ADC 전체 목록은 여전히 도메인별
+> 원본 문서(`docs/decisions/adc/ADC.md`, `docs/governance/adc/`,
+> `docs/architecture/core/`, `docs/core/execution-layer/`)가 Source of
+> Truth다. `docs/architecture/core/`(Kernel 수준 ADC-0001~0046)는 이번
+> 라운드에서 검증 대상에서 제외했다 — 근거는
+> `docs/decisions/REGISTRATION-CANDIDATES-0001.md` §3.
 
 | Document ID | Title | Type | Target Domain | Status | Decision Group | Parent Documents | Related Documents | Evidence References | Source Path | Last Verified | Verification Confidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| (없음) | | | | | | | | | | | |
+| ADC-0001 | Spec-Repository Artifact Drift — Kernel 책임 여부 판단 | ADC | Execution Layer | Resolved(Not Accepted, No ADR Required) | DG-EXECLAYER-0001 | `docs/core/execution-layer/RFC-0001-artifact-drift-boundary.md` | 없음(ADR 불필요) | 본문 참조(RFC-0001 인용 Evidence 동일) | `docs/core/execution-layer/ADC-0001-artifact-drift-boundary.md` | 2026-09-20 | High |
+| ADC-0002 | Execution Result Contract — 3개 후보 판단 | ADC | Execution Layer | Resolved(Accepted: Candidate 2 — 산출물 목록) | DG-EXECLAYER-0002 | `docs/core/execution-layer/RFC-0002-execution-result-contract.md` | `docs/core/execution-layer/ADR-0001-execution-result-contract.md` | 본문 참조 | `docs/core/execution-layer/ADC-0002-execution-result-contract.md` | 2026-09-20 | High |
+| ADC-0003 | Execution Result Item Schema — 항목 타입 판단 | ADC | Execution Layer | Resolved(Accepted: `list[str]`) | DG-EXECLAYER-0003 | `docs/core/execution-layer/RFC-0003-execution-result-item-schema.md` | `docs/core/execution-layer/ADR-0002-execution-result-item-schema.md` | 본문 참조 | `docs/core/execution-layer/ADC-0003-execution-result-item-schema.md` | 2026-09-20 | High |
+| ADC-0004 | Execution Result Consumer — 결정 가능성 판단 | ADC | Execution Layer | Resolved(Not Accepted, No ADR Required) | DG-EXECLAYER-0004 | `docs/core/execution-layer/RFC-0004-execution-result-consumer.md` | 없음(ADR 불필요) | 본문 참조(Kernel `ADC-0001-core-baseline.md` Module 4 인용) | `docs/core/execution-layer/ADC-0004-execution-result-consumer.md` | 2026-09-20 | High |
+| ADC-0005 | Engine 연결 Boundary — 허용 여부 판단 | ADC | Execution Layer | Resolved(부분 Accept: caller 수준 연결 Q0 Accept / Execution Layer 내부 호출 Q1 Not Accepted, 양쪽 다 No ADR Required) | DG-EXECLAYER-0005 | `docs/core/execution-layer/RFC-0005-engine-connection-boundary.md` | 없음(ADR 불필요) | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md`, `docs/research/ENGINE-CONNECT-0001-call-engine-real-wiring.md` | `docs/core/execution-layer/ADC-0005-engine-connection-boundary.md` | 2026-09-20 | High |
 
 ## 7. 검증 기준
 

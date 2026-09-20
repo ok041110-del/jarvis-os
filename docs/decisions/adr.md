@@ -75,14 +75,18 @@ Architecture Baseline 반영으로 이어지는 문서다. 저장소에는 도�
 
 ## 6. 등록 현황
 
-> 이 원장 도입 이후 신규 작성되는 ADR부터 등록한다. 기존 ADR 전체 목록은
-> 여전히 도메인별 원본 문서(`docs/decisions/adr/README.md`,
-> `docs/architecture/core/`, `docs/core/execution-layer/`)가 Source of
-> Truth다.
+> 이 원장 도입 이후 신규 작성되는 ADR과, 우선순위 검증을 거쳐 소급
+> 등록된 ADR을 함께 관리한다. 기존 ADR 전체 목록은 여전히 도메인별
+> 원본 문서(`docs/decisions/adr/README.md`, `docs/architecture/core/`,
+> `docs/core/execution-layer/`)가 Source of Truth다.
+> `docs/architecture/core/`(Kernel 수준 ADR-0001~0028)는 이번 라운드에서
+> 검증 대상에서 제외했다 — 근거는
+> `docs/decisions/REGISTRATION-CANDIDATES-0001.md` §3.
 
 | Document ID | Title | Type | Target Domain | Status | Decision Group | Parent Documents | Related Documents | Evidence References | Source Path | Last Verified | Verification Confidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| (없음) | | | | | | | | | | | |
+| ADR-0001 | Execution Result Contract(여섯 번째 Artifact)의 Contract 형태(목록형)를 Artifact Standard에 반영 | ADR | Execution Layer | Accepted | DG-EXECLAYER-0002 | `docs/core/execution-layer/ADC-0002-execution-result-contract.md` | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md` §Artifact 6(반영 확인) | 본문 참조 | `docs/core/execution-layer/ADR-0001-execution-result-contract.md` | 2026-09-20 | High |
+| ADR-0002 | Execution Result 목록 항목의 타입(`list[str]`)을 Artifact Standard에 반영 | ADR | Execution Layer | Accepted | DG-EXECLAYER-0003 | `docs/core/execution-layer/ADC-0003-execution-result-item-schema.md` | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md` §Artifact 6(반영 확인) | 본문 참조 | `docs/core/execution-layer/ADR-0002-execution-result-item-schema.md` | 2026-09-20 | High |
 
 ## 7. 검증 기준
 

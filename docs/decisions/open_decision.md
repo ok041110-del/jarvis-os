@@ -81,6 +81,13 @@ Open Decision은 최종 결정을 내리지 않고 추적만 하는 문서다
 > Kernel 수준 Open Decision(ADC-01~12)은 이미
 > `docs/decisions/adc/ADC.md`에서 관리되고 있으며, 이 원장이 그 문서를
 > 대체하지 않는다 — 소급 등록 전 원문 대조가 필요하다.
+>
+> 2026-09-20 검증 라운드(`docs/decisions/REGISTRATION-CANDIDATES-0001.md`)
+> 에서는 `docs/01_mvp/`·`docs/core/execution-layer/` 우선 검토 범위 내에
+> Open Decision으로 확정 등록할 문서가 없었다 — MVP-0052가 관찰한
+> "탐지 재현율 편차"는 그 문서 자신이 "RFC/ADC/ADR 불필요·NEED-DRIVEN
+> DEFER"로 명시했으므로 Open Decision으로 승격하지 않고 후보로만
+> 남겼다(위 후보 문서 §2 참조).
 
 | Document ID | Title | Type | Target Domain | Status | Decision Group | Parent Documents | Related Documents | Evidence References | Source Path | Last Verified | Verification Confidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|

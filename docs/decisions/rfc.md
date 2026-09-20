@@ -89,13 +89,19 @@ verification_confidence: Medium
 
 ## 6. 등록 현황
 
-> 신규 RFC 등록 창구. 아래 표는 이 원장 도입 이후 신규 작성되는 RFC부터
-> 채운다. 과거 RFC 전체 목록은 여전히 `docs/decisions/rfc/README.md`가
-> Source of Truth다 — 이 표가 그 문서를 대체하지 않는다.
+> 신규 RFC 등록 창구. 아래 표는 이 원장 도입 이후 신규 작성되는 RFC와,
+> 우선순위 검증을 거쳐 소급 등록된 RFC를 함께 관리한다. 과거 RFC 전체
+> 목록은 여전히 `docs/decisions/rfc/README.md`가 Source of Truth다 —
+> 이 표가 그 문서를 대체하지 않는다. 소급 등록 근거와 검증 범위는
+> `docs/decisions/REGISTRATION-CANDIDATES-0001.md`를 참조한다.
 
 | Document ID | Title | Type | Target Domain | Status | Decision Group | Parent Documents | Related Documents | Evidence References | Source Path | Last Verified | Verification Confidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| (없음) | | | | | | | | | | | |
+| RFC-0001 | Spec-Repository Artifact Drift — Boundary | RFC | Execution Layer | Resolved(Not Accepted, ADR 불필요) | DG-EXECLAYER-0001 | 없음(논의 시작점) | `docs/core/execution-layer/ADC-0001-artifact-drift-boundary.md` | `docs/research/ENGINE-INTEGRATION-0001-Claude-Code.md`(원문 인용) | `docs/core/execution-layer/RFC-0001-artifact-drift-boundary.md` | 2026-09-20 | High |
+| RFC-0002 | Execution Result Contract — 산출물을 묶는 방식 | RFC | Execution Layer | Resolved | DG-EXECLAYER-0002 | 없음(논의 시작점) | `docs/core/execution-layer/ADC-0002-execution-result-contract.md`, `docs/core/execution-layer/ADR-0001-execution-result-contract.md` | `docs/core/execution-layer/IMPL-STOP-0001-execution-result.md`, `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md` | `docs/core/execution-layer/RFC-0002-execution-result-contract.md` | 2026-09-20 | High |
+| RFC-0003 | Execution Result Item Schema — 목록 항목의 형태 | RFC | Execution Layer | Resolved | DG-EXECLAYER-0003 | 없음(논의 시작점) | `docs/core/execution-layer/ADC-0003-execution-result-item-schema.md`, `docs/core/execution-layer/ADR-0002-execution-result-item-schema.md` | `docs/core/execution-layer/IMPL-STOP-0002-execution-result-builder.md`, `docs/core/execution-layer/ADC-0002-execution-result-contract.md` | `docs/core/execution-layer/RFC-0003-execution-result-item-schema.md` | 2026-09-20 | High |
+| RFC-0004 | Execution Result Consumer — 소비 주체와 방식 | RFC | Execution Layer | Resolved(Not Accepted, ADR 불필요) | DG-EXECLAYER-0004 | 없음(논의 시작점) | `docs/core/execution-layer/ADC-0004-execution-result-consumer.md` | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md`, RFC-0002~ADR-0002 전체(원문 인용) | `docs/core/execution-layer/RFC-0004-execution-result-consumer.md` | 2026-09-20 | High |
+| RFC-0005 | Engine 연결 Boundary — Execution Result에 실제 산출물을 연결하는 경계 | RFC | Execution Layer | Resolved(헤더 라벨은 `Proposed`로 미갱신 — 본문 대조로 ADC-0005 실제 존재·Decision 확인, D-9류 색인 부채) | DG-EXECLAYER-0005 | 없음(논의 시작점) | `docs/core/execution-layer/ADC-0005-engine-connection-boundary.md` | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md`, `docs/research/ENGINE-CONNECT-0001-call-engine-real-wiring.md`, `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` | `docs/core/execution-layer/RFC-0005-engine-connection-boundary.md` | 2026-09-20 | High |
 
 ## 7. 검증 기준
 
