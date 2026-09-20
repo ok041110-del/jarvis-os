@@ -91,7 +91,57 @@ Open Decision은 최종 결정을 내리지 않고 추적만 하는 문서다
 
 | Document ID | Title | Type | Target Domain | Status | Decision Group | Parent Documents | Related Documents | Evidence References | Source Path | Last Verified | Verification Confidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| (없음) | | | | | | | | | | | |
+| OD-0001 | Decision Group Registry(DG-NNNN, `ADC-0010` 기결) 도입과 이 통합 원장의 Decision Group 필드(`DG-<도메인>-NNNN`)의 관계 | Open Decision | Governance | Open | DG-DEVHQ-GOVERNANCE-0206 | `docs/governance/adc/ADC-0010-decision-group-identifier-scheme.md` | `docs/decisions/rfc.md`, `docs/decisions/adc.md`, `docs/decisions/adr.md`(이 3개 원장이 사용 중인 Decision Group 값 전체) | `docs/decisions/REGISTRATION-CANDIDATES-0001.md`(3차 라운드) | `docs/decisions/REGISTRATION-CANDIDATES-0001.md` | 2026-09-20 | Medium |
+
+### OD-0001 — Decision Group Registry와 통합 원장 Decision Group 필드의 관계
+
+#### Decision Question
+
+`ADC-0010`(Scoped Accept)은 fan-out/fan-in을 표현하기 위해 **전역
+단일 네임스페이스** `DG-NNNN`(예: `DG-0001`)을 쓰는
+`docs/governance/DECISION-GROUP-REGISTRY.md`를 "후속 구현 작업"으로
+지정했다(아직 생성되지 않음). 이번 라운드에서 만든
+`docs/decisions/{rfc,adc,adr}.md` 3개 원장은 이미 자체적으로
+`DG-<도메인약어>-NNNN`(예: `DG-KERNEL-0001`, `DG-DEVHQ-0007`) 형식의
+Decision Group 값을 200개 가까이 채워 넣었다 — `ADC-0010`이 정의한
+공식 네임스페이스와 형식이 다르다. 두 체계를 어떻게 정리할지가
+Open Question이다: (a) 이 원장의 값을 공식 `DG-NNNN`으로 재발급하는가,
+(b) 이 원장의 값은 비공식 "그룹 힌트"로 유지하고 공식 Registry는
+별도로 신설하는가, (c) `ADC-0010`을 재검토해 도메인 접두어 형식을
+공식화하는가.
+
+#### Why Open
+
+이 질문은 `ADC-0010` 재검토 없이 이번 작업(단순 문서 검증·등록) 범위
+안에서 임의로 답할 수 없다 — 어느 쪽이든 기존 Governance 절차
+(RFC→ADC→ADR 또는 최소 ADC 재확인)를 거쳐야 한다. 특히 (a)는 이번
+라운드에서 등록한 약 190개 행의 Decision Group 값을 전부 재발급해야
+해서 "일괄 재작업" 금지 원칙과 충돌할 수 있다.
+
+#### Required Evidence
+
+- `docs/governance/DECISION-GROUP-REGISTRY.md`가 실제로 생성될 때
+  그 설계가 도메인 접두어 형식을 허용/금지하는지.
+- 이 원장의 Decision Group 값을 실제로 참조하는 코드나 문서가
+  생기는지(현재는 순수 색인 필드).
+
+#### Reconsideration Trigger
+
+`docs/governance/DECISION-GROUP-REGISTRY.md`가 실제로 생성되는 시점,
+또는 두 체계 간 참조 충돌이 실제로 관찰되는 시점.
+
+#### Next Action
+
+다음 라운드에서 `ADC-0010`의 "후속 구현 작업 목록" 1~2번(Registry
+신설 + 이미 확인된 2개 그룹 최초 등록)을 먼저 진행할지, 이 통합
+원장의 Decision Group 형식을 그대로 유지할지 사용자 판단을 받는다.
+
+#### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/governance/adc/ADC-0010-decision-group-identifier-scheme.md` | 공식 DG-NNNN 체계를 Scoped Accept로 확정, Registry 신설은 미실행 |
+| Ledger | `docs/decisions/rfc.md`, `docs/decisions/adc.md`, `docs/decisions/adr.md` | 비공식 `DG-<도메인>-NNNN` 값을 이미 사용 중 |
 
 ## 7. 검증 기준
 

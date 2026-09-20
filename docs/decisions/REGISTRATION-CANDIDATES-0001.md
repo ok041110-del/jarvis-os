@@ -274,3 +274,214 @@ Baseline 결정 아님)"이라고 명시하고, 대응하는 ADC가 존재하지
 - RFC↔ADC↔ADR 관계를 추정으로 생성했는가 — **아니오**. 번호가 어긋난
   경우(RFC-0021/0022)도 ADR 자신의 표를 근거로만 기록했다.
 - 미해결 항목을 완료로 표시했는가 — **아니오**(§6에 잔여 항목 명시).
+
+---
+
+## 3차 라운드 — 잔여 Open Issue 처리 (PR #214 최종 정리)
+
+2차 라운드가 남긴 잔여 Open Issue를 이번 라운드에서 전부 검토했다.
+후속 PR로 미루지 않고, 처리 가능한 항목은 이번 PR에서 완료했다.
+
+### 1. 교차 트리 ADR 배치 문제 — 처리 완료
+
+RFC/ADC-0002~0007(Kernel Definition~Context Identity)의 실제 종결
+ADR을 조사한 결과, 다음을 확인했다:
+
+- `docs/architecture/core/RFC-0002~0005.md`/`ADC-0002~0005.md`를
+  종결시키는 ADR-0002~0005는 **물리적으로 `docs/decisions/adr/`
+  디렉터리**(`ADR-0002-core-to-kernel-terminology-unification.md`
+  등)에 있다 — 각 ADR 파일 자신의 "관련 RFC"/"관련 ADC" 표가
+  `docs/architecture/core/RFC-000X.md`/`ADC-000X.md`를 직접 인용해
+  확인했다.
+- 이 물리적 배치는 기존 `docs/decisions/rfc/README.md`의 "Open
+  Issues"가 이미 지적한 "동일 번호 ADR-0002가 두 곳에 존재해 대상을
+  특정할 수 없다"는 문제와 같은 뿌리다 — 이번 조사로 그 두 곳이
+  정확히 무엇인지 확인했다: `docs/architecture/core/ADR-0002-
+  execution-layer-module-baseline.md`(Kernel Execution Layer Module)
+  와 `docs/decisions/adr/ADR-0002-core-to-kernel-terminology-
+  unification.md`(Kernel Definition/용어 통합) — **둘 다 내용상
+  Target Domain이 `Kernel`이면서 물리적으로 다른 두 파일**이다.
+  같은 패턴이 ADR-0003·0004·0005에도 반복된다(4건 전부).
+- **원장 등록 방식 검증 결과 — 기존 방식이 부정확했다.** 이전
+  라운드까지 "Document ID + Target Domain 조합이 전역적으로
+  유일하다"고 문서화했으나, 이번 조사로 그 전제가 거짓임이 실측
+  확인됐다(위 4건, 그리고 아래 §3에서 추가로 확인한
+  `docs/governance/adc/ADC-0005.md` vs `docs/decisions/adc/ADC-0005-
+  structure-v1-migration-decisions.md` 사례). **수정 방식**: 파일을
+  이동·복사·재번호화하지 않고(제약사항 준수), 대신 원장 스키마의
+  전역 유일 키 정의를 "Document ID + Target Domain"에서 "Document ID
+  + Target Domain + Source Path"로 정정했다 — `rfc.md`/`adc.md`/
+  `adr.md` §2 필드 설명과 §7 검증 기준에 이 사실과 구체적 충돌
+  사례를 명시했다. 이것은 구조 변경(파일 이동)이 아니라 내가 작성한
+  원장 문서 자신의 스키마 설명을 사실에 맞게 고친 것이다.
+- 이 수정 후 RFC-0002~0007, ADC-0002~0007(Kernel, `docs/architecture/
+  core/` 물리 경로), ADR-0002~0005(Kernel 내용, `docs/decisions/adr/`
+  물리 경로, Source Path로 기존 Kernel ADR-0002~0005와 구분)를 원장에
+  등록했다. 각 행에 교차 트리 관계를 명시적으로 기록했다.
+- **구조 변경 제안(실행하지 않음)**: 근본 해소는 두 방법 중 하나다 —
+  (a) `docs/decisions/adr/ADR-0002~0005-*.md` 4개 파일을
+  `docs/architecture/core/`로 물리 이동(파일명·번호는 유지),
+  (b) 현재 위치를 유지하고 각 파일 헤더에 "이 ADR은 Kernel Target
+  Domain에 속하며 `docs/architecture/core/` 트리와 물리적으로
+  분리되어 있다"는 한 문장을 추가. 두 방법 모두 이번 작업 범위 밖
+  (파일 이동·본문 수정 금지)이라 실행하지 않고 근거만 남긴다 — 사용자
+  판단이 필요하다.
+
+### 2. Baseline 반영 여부 — 처리 완료 (대부분 확인됨)
+
+`docs/architecture/baseline/BASELINE.md` §17 "Version" 절의 변경
+이력 표를 직접 읽어, 이전 라운드에서 "반영 확인 필요"로 남겨뒀던
+항목을 전부 대조했다:
+
+| ADR | Baseline 절 | 버전 | 확인 결과 |
+|---|---|---|---|
+| ADR-0001(Kernel) | §16 | v1.5 | **확인됨** |
+| ADR-0002(Kernel, execution-layer-module) | §16.2 | v1.6 | **확인됨** |
+| ADR-0002(Kernel 내용, decisions/adr 물리 경로) | §11·§12 | v1.1 | **확인됨** |
+| ADR-0003(Kernel, single-execution-unit) | §16.3 | v1.7 | **확인됨** |
+| ADR-0003(Kernel 내용, decisions/adr 물리 경로) | §13 | v1.2 | **확인됨** |
+| ADR-0004(Kernel, execution-host-naming) | §16.3 | v1.8 | **확인됨** |
+| ADR-0004(Kernel 내용, decisions/adr 물리 경로) | §14 | v1.3 | **확인됨** |
+| ADR-0005(Kernel, execution-host-implementation) | §16.3 | v1.9 | **확인됨** |
+| ADR-0005(Kernel 내용, decisions/adr 물리 경로) | §15(및 §10 범위 한정) | v1.4 | **확인됨** |
+| ADR-0006~0014, 0019(Kernel) | §16.4~§16.6 | v1.10~v1.19 | **확인됨**(1·2차 라운드에서 이미 인용, 이번에 버전 이력으로 재대조) |
+| ADR-0021(Kernel, Stage01 Multi-Agent) | `RESPONSIBILITY.md`/`CONTEXT.md`(Baseline 아님) | — | **확인됨**(grep으로 실제 인용 확인) |
+| ADR-0022(Kernel, Stage01 PRD) | `CONTEXT.md`/`RESPONSIBILITY.md`(Baseline 아님) | — | **확인됨** |
+| ADR-0023(Kernel, Stage02 Planning) | `CAPABILITIES.md`/`README.md`(Baseline 아님) | — | **확인됨** |
+| ADR-0010/0011(Development HQ, Governance) | `docs/governance/README.md`(Baseline 아님) | — | **확인됨**(해당 절 제목 grep으로 확인) |
+| ADR-0015~0018, 0020, 0024~0028 | `hqs/development/IMPLEMENTATION_RULES.md` 등(Baseline 아님) | — | **부분 확인**(ADR-0015/OmniRoute만 spot-check, 나머지는 미대조 — 아래 §6 잔여 항목) |
+
+**미반영 확인(Open Issue로 기록, 확정하지 않음)**: `ADR-0015`는
+스스로 "Consolidation Only — Baseline/Rules 문구 미반영, 후속 ADR
+대상"이라고 명시한다 — 이는 미반영을 **문서 자신이 인정**한 것이며,
+Baseline은 수정하지 않았다(제약사항 준수). 이 ADR을 Accepted로
+기록하되 Related Documents에 "문구 반영은 후속 ADR로 이월"이라고
+그대로 남겨 과장하지 않았다.
+
+Architecture Baseline 문서(`BASELINE.md`) 자체는 열람만 했고 한 글자도
+수정하지 않았다(`git diff` 확인, 아래 §4).
+
+### 3. 미검토 문서 영역 — 처리 완료 (등록 + 중요 발견)
+
+**`docs/governance/adc/` 트리(10건)**: 전부 열람해 Decision을
+확인했다 — Dev HQ RFC-0001~0011(`docs/decisions/rfc/`)을 종결시키는
+ADC임을 확인하고 Target Domain=`Development HQ`로 원장에 등록했다
+(ADC-0001~0010). 이 중 **`ADC-0010`(Issue #206 후속, RFC·ADC·ADR
+통합 식별자 체계 도입 판단)은 이번 작업과 직접 관련된 중요한
+선행 결정**이다 — 상세는 아래 "중요 발견" 참조.
+
+**`docs/architecture/core/`의 비-RFC/ADC/ADR 문서(34건)**: 파일명
+패턴과 2건(`DEVELOPMENT-HQ-V1.0-FREEZE-0001`, `DOC-TRIAGE-0001`)의
+직접 대조로 분류했다. 34건 전부 각 문서 자신이 "Architecture 문서가
+아니다"/"Governance 판단(Freeze 선언)"/"Documentation Review" 등으로
+스스로를 RFC/ADC/ADR과 구분하고 있어, **Decision Register 대상이
+아니다**로 판정했다.
+
+| 패턴 | 건수 | 분류 | 근거 |
+|---|---|---|---|
+| `EVIDENCE-*`, `EVIDENCE-INVENTORY-*` | 14 | Research/Evidence | 실행 기록·검증 결과 문서(파일명 자체가 Evidence) |
+| `GOVERNANCE-REVIEW-*` | 8 | Research(Governance 재검토) | 결정이 아니라 기존 결정의 재확인/재평가 기록 |
+| `VALIDATION-*` | 2 | Research/Evidence | 검증 결과 기록 |
+| `CLOSURE-*`, `REFACTORING-TRACK-CLOSURE-*` | 2 | Research(종결 보고) | 트랙 종료 보고, 새 결정 없음 |
+| `*-FREEZE-0001`(Dev HQ v1.0/v2.0, Investment HQ v1.0) | 3 | Governance(Freeze 선언) | `DEVELOPMENT-HQ-V1.0-FREEZE-0001` 직접 대조 — "새 RFC/ADC/ADR 작성하지 않는다" 자기 선언 |
+| `DOC-TRIAGE-0001` | 1 | Documentation Review | 직접 대조 — "Architecture 문서가 아니다" 자기 선언 |
+| `COMPONENT-CANDIDATE-*`, `IMPLEMENTATION-PRIORITY-*`, `IMPL-ENTRY-*`, `EFFICIENCY-AUDIT-*`, `STABILITY-*` | 4 | Research/Audit | 조사·우선순위·감사 기록(RFC/ADC/ADR 형식 아님) |
+
+이 34건은 물리적으로 `docs/research/` 바깥에 있어 Research Index
+(`docs/research/README.md`)의 등록 대상도 아니다(그 Index는 §3에서
+`docs/01_mvp/` Evidence 문서에 대해 이미 같은 원칙을 밝혔다 — 물리
+경로가 `docs/research/`가 아니면 이 Index가 관리하지 않는다). 자동
+추론·일괄 등록은 하지 않았다 — 34건 전부 Decision Register·Research
+Index 어느 쪽에도 등록하지 않고, 이 분류표로만 존재를 기록했다.
+
+**중요 발견 — `ADC-0010`과 이 통합 원장의 Decision Group 필드 충돌**:
+`docs/governance/adc/ADC-0010-decision-group-identifier-scheme.md`
+(Issue #206 후속)은 RFC/ADC/ADR의 fan-out/fan-in 관계를 추적하기
+위해 **전역 단일 네임스페이스** `DG-NNNN`을 쓰는 별도 Registry
+문서(`docs/governance/DECISION-GROUP-REGISTRY.md`)를 Scoped Accept로
+승인했다 — 단, 그 문서 자체는 "후속 구현 작업"으로 지정됐을 뿐 아직
+생성되지 않았다. 반면 이번 세 라운드에 걸쳐 만든
+`docs/decisions/{rfc,adc,adr}.md` 원장은 이미 `DG-<도메인약어>-NNNN`
+(예: `DG-KERNEL-0001`) 형식의 값을 독자적으로 채워 넣었다 — `ADC-0010`
+이 정의한 공식 형식과 다르다. 이 불일치는 `docs/decisions/
+open_decision.md`에 **`OD-0001`**로 정식 등록했다(Open Decision —
+확정하지 않음, 다음 라운드에서 사용자 판단 필요).
+
+### 4. 최종 검증 — 결과
+
+전부 Python 스크립트로 직접 실행:
+
+- **Front Matter YAML 파싱**: 원장 4개 + 이 문서 + Research Index
+  총 6건 전부 성공.
+- **Document ID / (Document ID, Target Domain) 중복**: (Document ID,
+  Target Domain) 단독 기준으로는 5건 충돌이 실측 확인됐다
+  (ADR-0002~0005 Kernel 4건 + ADC-0005 Development HQ 1건) — 이는
+  버그가 아니라 저장소 자체의 실제 구조(같은 도메인 안에 물리적으로
+  독립 채번된 여러 문서가 존재)를 정확히 반영한 것이다. **(Document
+  ID, Target Domain, Source Path) 3중 키 기준으로는 원장 4개 전체
+  (rfc.md 60행, adc.md 61행, adr.md 41행, open_decision.md 2행)에서
+  중복 0건**임을 확인했다 — 원장 스키마를 이 3중 키로 정정했다(§1).
+- **Source Path 존재 검증**: 등록된 모든 행의 Source Path를 `ls`로
+  대조 — 누락 0건.
+- **Related Documents/Evidence References 경로 존재 검증**: 4개
+  원장 + 이 문서에서 인용한 `docs/*.md` 경로 정규식 추출 — 누락으로
+  잡힌 항목은 전부 기존 glob 표기/예시 텍스트이며 실제 Broken Link는
+  0건.
+- **Markdown 표 컬럼 정합성**: 4개 원장 전체 컬럼 수 12로 일치 —
+  불일치 0건.
+- **원본 문서의 비의도적 변경 여부**: `git status`/`git diff
+  --stat`으로 이번 라운드에서 수정된 파일이 `docs/decisions/
+  {rfc,adc,adr,open_decision}.md` 4개(전부 §2/§6 필드 설명·등록
+  현황만) + 이 문서 뿐임을 확인 — Kernel/Dev HQ/Execution Layer의
+  원본 RFC/ADC/ADR/MVP 파일, `BASELINE.md`, `docs/governance/
+  README.md`, `GLOSSARY.md`, `IMPLEMENTATION_RULES.md`,
+  `RESPONSIBILITY.md`/`CONTEXT.md`/`CAPABILITIES.md` 등 Baseline
+  반영 확인을 위해 **열람한** 모든 파일은 전혀 수정하지 않았다.
+- **Architecture Baseline / Public Contract 변경 여부**: 없음 —
+  `BASELINE.md`를 열람만 하고 수정하지 않았다.
+
+### 5. 등록 현황 요약(누적)
+
+| 구분 | 1차(Execution Layer) | 2차(Kernel) | 3차(Dev HQ + Kernel 잔여 + governance/adc) | 누적 |
+|---|---|---|---|---|
+| RFC | 5 | 38 | 17 | 60 |
+| ADC | 5 | 40 | 16 | 61 |
+| ADR | 2 | 28 | 11 | 41 |
+| Open Decision | 0 | 0 | 1(OD-0001) | 1 |
+
+### 6. 잔여 Open Issue (완료로 표시하지 않음)
+
+- **OD-0001**(위 §3) — Decision Group Registry(공식 `DG-NNNN`)와 이
+  원장의 `DG-<도메인>-NNNN` 형식 간 관계 미결정.
+- **ADR-0002~0005 교차 트리 물리 배치**(§1) — 근본 해소(파일 이동
+  또는 헤더 주석 추가)는 사용자 판단 필요, 이번 라운드는 등록 방식
+  정정으로만 대응했다.
+- **ADR-0015~0018, 0020, 0024~0028의 Baseline-외 반영처(§2)** —
+  `IMPLEMENTATION_RULES.md` 등에서 ADR-0015 1건만 spot-check했고
+  나머지는 미대조.
+- **`docs/architecture/core/`의 34건 비-RFC/ADC/ADR 문서**는 분류만
+  했고 Research Index 편입 여부(현재 설계상 `docs/research/` 물리
+  경로만 관리)는 별도 판단이 필요하면 다음 라운드로 넘긴다.
+- **Dev HQ `docs/decisions/rfc/`·`docs/decisions/adr/`의 나머지
+  문서**(예: RFC-0006의 실제 Migration 실행 여부, Dev HQ 자체 Baseline
+  문서 반영 여부)는 이번 라운드가 Parent/Related 필드 채우기 목적으로
+  참조만 했을 뿐, 그 문서들의 Baseline 반영 여부까지 독립적으로
+  재검증하지는 않았다.
+- **`docs/governance/DECISION-GROUP-REGISTRY.md` 신규 생성**은
+  `ADC-0010`이 이미 승인한 후속 구현 작업이지만, 이 PR의 범위(문서
+  검증·등록)를 벗어난 별도 구현 작업이라 이번에 수행하지 않았다 —
+  OD-0001이 이 결정을 추적한다.
+
+### 7. Self Review
+
+- 처리 가능한 항목을 후속 PR로 미뤘는가 — **아니오**. 지시된 4개
+  영역(교차 트리 ADR, Baseline 반영, 미검토 문서, 최종 검증)을 모두
+  이번 PR 브랜치에서 직접 처리했다. 처리 불가능한 항목(파일 이동,
+  Registry 신규 생성)은 실행하지 않고 근거·제안만 남겼다.
+- 기존 파일을 이동·복사·번호 변경했는가 — **아니오**.
+- Architecture Baseline을 수정했는가 — **아니오**.
+- 확인되지 않은 사항을 확정했는가 — **아니오**(ADR-0015~0028 미대조
+  항목은 "확인 필요"로 남김, ADR-0015는 문서 자신의 미반영 인정을
+  그대로 인용).
+- 자동 추론·일괄 등록을 했는가 — **아니오**(34건 비결정 문서는 분류만,
+  등록하지 않음).
