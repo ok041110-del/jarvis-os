@@ -1,6 +1,25 @@
 # RFC-0018: Natural-Language Request → Multi-HQ Task Decomposition
 
-## Status
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0018 |
+| Title | Natural-Language Request → Multi-HQ Task Decomposition |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Concept Model §6, Kernel Modules §16) |
+| Status | Proposed — 원문 `## Status` 절 참고(아래) |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/RFC-0017-multi-task-checkpointer-integrity-boundary.md` → `ADC-0017` → `ADR-0007` |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0018-natural-language-request-multi-hq-task-decomposition.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+
+
+### Status
 
 Proposed
 
@@ -12,7 +31,9 @@ Proposed
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `docs/architecture/core/RFC-0017-multi-task-checkpointer-integrity-boundary.md` →
 `ADC-0017` → `ADR-0007`까지, Kernel Modules는 다음까지 좁혀졌다:
@@ -34,7 +55,7 @@ Boundary Question으로 여는 절차다. **Conversation Layer라는 이름이�
 
 ---
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 지금까지 Accept된 모든 실행 계층 책임(§16.3~§16.5)은 "Task가 이미 있다"를
 전제로 시작한다. 그러나 실제 사용자는 Task 단위로 말하지 않는다 — 하나의 자연어
@@ -55,7 +76,9 @@ Kernel 책임으로 다뤄져야 하는지는 지금까지 열린 적이 없다.
 
 ---
 
-## 2. Existing Architecture
+## 3. Analysis & Decision
+
+### 2. Existing Architecture
 
 이 RFC가 전제로 삼고 절대 뒤집지 않는 기존 확정 경계:
 
@@ -87,7 +110,7 @@ Kernel 책임으로 다뤄져야 하는지는 지금까지 열린 적이 없다.
 
 ---
 
-## 3. Observed Multi-HQ Request Scenario
+### 3. Observed Multi-HQ Request Scenario
 
 다음 자연어 요청을 대표 Evidence/Scenario로 사용한다(실제로 실행하지 않았다 —
 현재 코드가 이런 요청을 애초에 받을 수 있는 입구조차 없기 때문이다):
@@ -125,7 +148,7 @@ Existing Team           Existing Agent
 
 ---
 
-## 4. Existing Responsibility Mapping
+### 4. Existing Responsibility Mapping
 
 아래 7개 책임을 서로 섞지 않고 각각 조사했다. "존재"는 그 책임을 수행하는 코드가
 실제로 존재함을, "미확인"은 조사 범위에서 그런 코드를 찾지 못했음을 뜻한다.
@@ -142,130 +165,14 @@ Existing Team           Existing Agent
 
 ---
 
-## 5. Evidence
-
-### A. Development HQ 진입 구조 — `hqs/development/mvp/cli.py`
-
-```python
-def main() -> None:
-    ...
-    code = f.read()  # 또는 stdin
-    result = run_mvp_0001(code)
-```
-
-CLI는 입력을 그대로 `run_mvp_0001(code)`에 전달한다. 진입자는 이미 "MVP-0001
-Workflow를 실행한다"는 것을 알고 있다 — 어떤 Workflow를 실행할지 자연어에서 판단하는
-코드가 없다.
-
-### B. Development HQ Workflow — `workflow.py`, `workflow_0009.py`
-
-`workflow.py`의 `run_mvp_0001()`은 `backend_agent_code_review` → `qa_agent_test_execution`을
-순서대로 호출하는, 완전히 하드코딩된 2-Task Workflow다(파일 자체 docstring: "직접
-함수 호출로 하드코딩").
-
-`workflow_0009.py`의 `run_comparison(issue: dict)`은 `ThreadPoolExecutor(max_workers=2)`로
-`run_issue_to_planning`과 `run_issue_to_planning_with_bundle`을 병렬 실행한다. 이 두
-분기는 코드에 이미 정의돼 있고, `issue`는 `workflow_0008.py`의 `REAL_ISSUE`(리터럴
-딕셔너리) 또는 그에 준하는 구조화된 값이다 — **자연어 문자열이 아니다**.
-
-→ 이것은 Multi-Task 실행 계층(§16.4)이 존재한다는 Evidence이지, 자연어 요청을
-Task로 분해하는 상위 계층이 존재한다는 Evidence가 아니다.
-
-### C. Development HQ Context Analysis — `project_intelligence.py`
-
-`build_context_bundle(issue: dict)`은 다음을 구성한다:
-
-```python
-def build_context_bundle(issue: dict) -> dict:
-    ...
-```
-
-`validate_issue()`, `collect_relevant_context()`를 거쳐 Goal/Relevant Documents/
-Relevant Code/Relevant Observations/Relevant Decisions/Known Constraints/Open
-Questions를 채운다. 입력은 이미 `{"title": ..., "description": ..., "status": ...}`
-형태로 구조화된 `issue`다.
-
-**핵심 구분**: 이 책임은 "이 HQ가 이 작업을 수행하려면 어떤 Context가 필요한가"(HQ-level)를
-다룬다. "사용자가 무엇을 원하는가"(Conversation-level)를 자연어에서 읽어내는 책임과는
-다르다 — `build_context_bundle()`의 입력 자체가 이미 그 판단이 끝난 `issue`이기 때문이다.
-이 RFC는 이 둘을 혼동하지 않는다.
-
-### D. Development Agent — `hqs/development/mvp/agents/`
-
-`backend.py`, `design.py`, `qa.py`, `requirements.py` 각각 명시적인 함수
-(`backend_agent_code_review`, `qa_agent_test_execution` 등)를 노출한다. 모두 이미
-정해진 입력 형태(코드 문자열, `issue` 딕셔너리 등)를 받아 실행하는 구조다. 자연어
-요청을 직접 해석하는 Agent는 없다 — 새 Agent가 필요하다는 결론은 이 Evidence만으로
-내리지 않는다.
-
-### E. Investment HQ — `hqs/investment/run.py`, `teams/`
-
-```python
-TEAMS = {
-    "stock": stock_team,
-    "etf": etf_team,
-    "dividend_stock": dividend_stock_team,
-}
-
-def main():
-    team_key, company_label, raw_data_path, issue_dir = sys.argv[1:5]
-    ...
-    result = team.run(company_label, Path(raw_data_path), issue_dir_path)
-```
-
-호출자가 `team`(stock/etf/dividend_stock)을 **CLI 인자로 직접 지정**해야 한다.
-"AAPL 투자 분석"이라는 자연어에서 `team_key = "stock"`을 자동으로 판별하는 코드는
-없다 — 사람이 이미 그 판단을 내린 뒤 인자로 넘긴다.
-
-`hqs/investment/STRUCTURE.md`의 금지 사항 표에도 "Multi-HQ 지원 코드 작성 금지"에
-준하는 원칙은 명시돼 있지 않지만, `hqs/development/IMPLEMENTATION_RULES.md`의
-"Multi-HQ 지원 코드 작성 금지 | MVP는 Development HQ 단독 시나리오만 다룬다"(다음
-문단 F 참조)가 Dev HQ MVP 범위 안에서는 이미 명시적으로 이 책임을 배제하고 있다.
-
-### F. `hqs/development/IMPLEMENTATION_RULES.md`의 명시적 금지
-
-```
-| Multi-HQ 지원 코드 작성 금지 | MVP는 Development HQ 단독 시나리오만 다룬다 |
-```
-
-이 금지는 **Development HQ MVP-0001의 자체 범위 선언**이다(파일 자체가 "MVP-0001"에
-self-scoped, `CLAUDE.md`·`hqs/development/BASELINE.md` 참조) — Multi-HQ 조율 책임을
-Kernel 수준에서 금지하는 것이 아니라, 그 책임이 Dev HQ MVP의 몫이 아니라는 뜻이다.
-이 RFC가 여는 질문("공통 책임이 필요한가")은 이 금지와 충돌하지 않는다 — 오히려 이
-금지 자체가 "이 책임은 지금 어디에도 없다"는 것을 뒷받침하는 추가 Evidence다.
-
-### G. 정리 — 사실과 추론의 구분
-
-**사실로 기록할 수 있는 것**:
-- 현재 CLI(`cli.py`)는 특정 Workflow(`run_mvp_0001`)를 직접 호출한다.
-- `run_comparison()`은 이미 정의된 독립 Task 두 개를 병렬 실행한다 — Task 자체를
-  만들어내지 않는다.
-- Dev HQ Context Analysis(`build_context_bundle`)는 존재하지만 입력은 이미 구조화된
-  `issue`다.
-- Agent/Capability(Dev HQ `agents/`, Investment HQ `teams/`)는 존재한다.
-- 자연어 → Multi-HQ → Task를 담당하는 공통 계층은 조사 범위에서 확인되지 않았다.
-- Investment HQ와 Development HQ는 각각 독립적인 실행 구조를 가지며, 서로의 진입점을
-  호출하지 않는다.
-- Dev HQ `IMPLEMENTATION_RULES.md`는 Multi-HQ 지원 코드를 자체 범위 밖으로
-  명시적으로 배제하고 있다.
-
-**아직 Decision이 아닌 것**(이 RFC가 결정하지 않는 것):
-- Conversation Layer가 반드시 필요하다.
-- HQ Router가 반드시 별도 Component여야 한다.
-- Task Planner가 필요하다.
-- Agent Assignment를 자동화해야 한다.
-- 위 7개 책임 중 무엇을 하나로 묶고 무엇을 분리해야 하는지.
-
----
-
-## 6. Boundary Question
+### 6. Boundary Question
 
 이 RFC는 단 하나의 질문만 연다:
 
 > **하나의 자연어 사용자 요청에서 복수 HQ와 독립 Task를 식별하고, 이를 실행 가능한
 > 구조화 요청으로 변환하는 공통 책임이 필요한가?**
 
-### 이 Boundary Question이 명시적으로 제외하는 것
+#### 이 Boundary Question이 명시적으로 제외하는 것
 
 - "Conversation Layer를 만들 것인가?"라는 질문이 **아니다** — 이름도, Component
   존재도 전제하지 않는다.
@@ -277,7 +184,7 @@ Kernel 수준에서 금지하는 것이 아니라, 그 책임이 Dev HQ MVP의 �
 
 ---
 
-## 7. Relationship to Existing Concepts
+### 7. Relationship to Existing Concepts
 
 **Execution Host (§16.3)**: 이 RFC가 여는 책임은 Task가 확정되기 **이전** 단계를
 다룬다. Execution Host는 Task가 이미 확정된 **이후** 단일 실행 단위의 dispatch·격리를
@@ -326,7 +233,127 @@ Agent/Team을 그대로 재사용할 수 있는지는 후속 ADC의 판단 대�
 
 ---
 
-## 8. Out of Scope
+## 4. Evidence & Validation
+
+### 5. Evidence
+
+#### A. Development HQ 진입 구조 — `hqs/development/mvp/cli.py`
+
+```python
+def main() -> None:
+    ...
+    code = f.read()  # 또는 stdin
+    result = run_mvp_0001(code)
+```
+
+CLI는 입력을 그대로 `run_mvp_0001(code)`에 전달한다. 진입자는 이미 "MVP-0001
+Workflow를 실행한다"는 것을 알고 있다 — 어떤 Workflow를 실행할지 자연어에서 판단하는
+코드가 없다.
+
+#### B. Development HQ Workflow — `workflow.py`, `workflow_0009.py`
+
+`workflow.py`의 `run_mvp_0001()`은 `backend_agent_code_review` → `qa_agent_test_execution`을
+순서대로 호출하는, 완전히 하드코딩된 2-Task Workflow다(파일 자체 docstring: "직접
+함수 호출로 하드코딩").
+
+`workflow_0009.py`의 `run_comparison(issue: dict)`은 `ThreadPoolExecutor(max_workers=2)`로
+`run_issue_to_planning`과 `run_issue_to_planning_with_bundle`을 병렬 실행한다. 이 두
+분기는 코드에 이미 정의돼 있고, `issue`는 `workflow_0008.py`의 `REAL_ISSUE`(리터럴
+딕셔너리) 또는 그에 준하는 구조화된 값이다 — **자연어 문자열이 아니다**.
+
+→ 이것은 Multi-Task 실행 계층(§16.4)이 존재한다는 Evidence이지, 자연어 요청을
+Task로 분해하는 상위 계층이 존재한다는 Evidence가 아니다.
+
+#### C. Development HQ Context Analysis — `project_intelligence.py`
+
+`build_context_bundle(issue: dict)`은 다음을 구성한다:
+
+```python
+def build_context_bundle(issue: dict) -> dict:
+    ...
+```
+
+`validate_issue()`, `collect_relevant_context()`를 거쳐 Goal/Relevant Documents/
+Relevant Code/Relevant Observations/Relevant Decisions/Known Constraints/Open
+Questions를 채운다. 입력은 이미 `{"title": ..., "description": ..., "status": ...}`
+형태로 구조화된 `issue`다.
+
+**핵심 구분**: 이 책임은 "이 HQ가 이 작업을 수행하려면 어떤 Context가 필요한가"(HQ-level)를
+다룬다. "사용자가 무엇을 원하는가"(Conversation-level)를 자연어에서 읽어내는 책임과는
+다르다 — `build_context_bundle()`의 입력 자체가 이미 그 판단이 끝난 `issue`이기 때문이다.
+이 RFC는 이 둘을 혼동하지 않는다.
+
+#### D. Development Agent — `hqs/development/mvp/agents/`
+
+`backend.py`, `design.py`, `qa.py`, `requirements.py` 각각 명시적인 함수
+(`backend_agent_code_review`, `qa_agent_test_execution` 등)를 노출한다. 모두 이미
+정해진 입력 형태(코드 문자열, `issue` 딕셔너리 등)를 받아 실행하는 구조다. 자연어
+요청을 직접 해석하는 Agent는 없다 — 새 Agent가 필요하다는 결론은 이 Evidence만으로
+내리지 않는다.
+
+#### E. Investment HQ — `hqs/investment/run.py`, `teams/`
+
+```python
+TEAMS = {
+    "stock": stock_team,
+    "etf": etf_team,
+    "dividend_stock": dividend_stock_team,
+}
+
+def main():
+    team_key, company_label, raw_data_path, issue_dir = sys.argv[1:5]
+    ...
+    result = team.run(company_label, Path(raw_data_path), issue_dir_path)
+```
+
+호출자가 `team`(stock/etf/dividend_stock)을 **CLI 인자로 직접 지정**해야 한다.
+"AAPL 투자 분석"이라는 자연어에서 `team_key = "stock"`을 자동으로 판별하는 코드는
+없다 — 사람이 이미 그 판단을 내린 뒤 인자로 넘긴다.
+
+`hqs/investment/STRUCTURE.md`의 금지 사항 표에도 "Multi-HQ 지원 코드 작성 금지"에
+준하는 원칙은 명시돼 있지 않지만, `hqs/development/IMPLEMENTATION_RULES.md`의
+"Multi-HQ 지원 코드 작성 금지 | MVP는 Development HQ 단독 시나리오만 다룬다"(다음
+문단 F 참조)가 Dev HQ MVP 범위 안에서는 이미 명시적으로 이 책임을 배제하고 있다.
+
+#### F. `hqs/development/IMPLEMENTATION_RULES.md`의 명시적 금지
+
+```
+| Multi-HQ 지원 코드 작성 금지 | MVP는 Development HQ 단독 시나리오만 다룬다 |
+```
+
+이 금지는 **Development HQ MVP-0001의 자체 범위 선언**이다(파일 자체가 "MVP-0001"에
+self-scoped, `CLAUDE.md`·`hqs/development/BASELINE.md` 참조) — Multi-HQ 조율 책임을
+Kernel 수준에서 금지하는 것이 아니라, 그 책임이 Dev HQ MVP의 몫이 아니라는 뜻이다.
+이 RFC가 여는 질문("공통 책임이 필요한가")은 이 금지와 충돌하지 않는다 — 오히려 이
+금지 자체가 "이 책임은 지금 어디에도 없다"는 것을 뒷받침하는 추가 Evidence다.
+
+#### G. 정리 — 사실과 추론의 구분
+
+**사실로 기록할 수 있는 것**:
+- 현재 CLI(`cli.py`)는 특정 Workflow(`run_mvp_0001`)를 직접 호출한다.
+- `run_comparison()`은 이미 정의된 독립 Task 두 개를 병렬 실행한다 — Task 자체를
+  만들어내지 않는다.
+- Dev HQ Context Analysis(`build_context_bundle`)는 존재하지만 입력은 이미 구조화된
+  `issue`다.
+- Agent/Capability(Dev HQ `agents/`, Investment HQ `teams/`)는 존재한다.
+- 자연어 → Multi-HQ → Task를 담당하는 공통 계층은 조사 범위에서 확인되지 않았다.
+- Investment HQ와 Development HQ는 각각 독립적인 실행 구조를 가지며, 서로의 진입점을
+  호출하지 않는다.
+- Dev HQ `IMPLEMENTATION_RULES.md`는 Multi-HQ 지원 코드를 자체 범위 밖으로
+  명시적으로 배제하고 있다.
+
+**아직 Decision이 아닌 것**(이 RFC가 결정하지 않는 것):
+- Conversation Layer가 반드시 필요하다.
+- HQ Router가 반드시 별도 Component여야 한다.
+- Task Planner가 필요하다.
+- Agent Assignment를 자동화해야 한다.
+- 위 7개 책임 중 무엇을 하나로 묶고 무엇을 분리해야 하는지.
+
+---
+
+## 5. Consequences & Risks
+
+### 8. Out of Scope
 
 이 RFC는 다음을 결정하지 않는다:
 
@@ -355,7 +382,7 @@ Decomposition + Agent Assignment를 모두 담당한다"고 이 RFC는 결정하
 
 ---
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 §6의 Boundary Question에 답하지 않는다.
 - 이 RFC는 Production Code를 작성·수정하지 않는다.
@@ -367,7 +394,9 @@ Decomposition + Agent Assignment를 모두 담당한다"고 이 RFC는 결정하
 
 ---
 
-## 9. Open Questions for ADC
+## 6. Open Questions & Change History
+
+### 9. Open Questions for ADC
 
 후속 ADC(가칭 ADC-0018)가 판단할 항목:
 
@@ -407,7 +436,7 @@ Conversation-level 책임과 분리할 수 있는가? — (§5.C·§7 Evidence: 
 
 ---
 
-## 10. Next Step
+### 10. Next Step
 
 이 RFC는 Decision을 내리지 않는다. §6의 Boundary Question에 대한 판단(Accept/
 Defer/Reject)과 §9의 Open Questions는 모두 후속 ADC(가칭 ADC-0018)로 넘긴다. ADC가
@@ -416,7 +445,34 @@ Accept/Reject하는 것도 모두 ADC의 권한이다 — 이 RFC는 그 판단�
 
 ---
 
-## Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0017-multi-task-checkpointer-integrity-boundary.md` | 선행 RFC(§16.5 Result Store 체인) |
+| ADR | `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` | §2 Existing Architecture 근거(Execution Host, §16.3) |
+| ADR | `docs/architecture/core/ADR-0004-execution-host-naming-baseline.md` | §2 근거(명칭) |
+| ADR | `docs/architecture/core/ADR-0005-execution-host-implementation-strategy-baseline.md` | §2 근거(구현 전략) |
+| ADR | `docs/architecture/core/ADR-0006-multi-task-minimal-responsibility-baseline.md` | §2 근거(Multi-Task, §16.4) |
+| ADR | `docs/architecture/core/ADR-0007-multi-task-result-store-integrity-baseline.md` | §2 근거(Result Store, §16.5) |
+| Reference | `hqs/development/mvp/cli.py` | §5.A Evidence |
+| Reference | `hqs/development/mvp/workflow_0009.py` | §5.B Evidence |
+| Reference | `hqs/development/mvp/project_intelligence.py` | §5.C Evidence |
+| Reference | `hqs/investment/run.py` | §5.E Evidence |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | §5.F Evidence(Multi-HQ 금지 조항) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0017→ADC-0017→ADR-0007 후속 — 자연어 요청의 Multi-HQ Task 분해 Boundary Question 개설 |
+
+---
+
+## 부록: Self Review
 
 - [x] §4의 책임 매핑 7개 항목 모두 실제 파일 근거(§5)로 뒷받침됐다.
 - [x] "존재/미확인/부분 존재" 판정은 관찰(코드 읽기)에 기반하며, 추론(Component가

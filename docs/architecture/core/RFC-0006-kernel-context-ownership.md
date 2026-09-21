@@ -1,5 +1,22 @@
 # RFC-0006: Kernel Context Ownership — Kernel은 Kernel Context를 어디까지 소유하는가
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0006 |
+| Title | Kernel Context Ownership — Kernel은 Kernel Context를 어디까지 소유하는가 |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Reference Layer — Kernel Context Ownership) |
+| Status | Resolved — `ADC-0006.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/VALIDATION-0001-kernel-reference-architecture.md`(V-1) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0006-kernel-context-ownership.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Resolved — `ADC-0006.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Version**: Draft
 **Author**: Claude Code (VALIDATION-0001 Major Finding V-1 후속)
@@ -16,21 +33,23 @@ V-1 (Major) — *"Kernel Context의 Identifier·Metadata 입력 경로가
 
 ---
 
-## 0. 이 RFC의 범위
+## 2. Context & Problem
 
-### 0.1 다루는 것
+### 0. 이 RFC의 범위
+
+#### 0.1 다루는 것
 
 VALIDATION-0001의 Major Finding 중 **V-1 하나만** 다룬다. V-2(Merge의
 순서 무관성)를 포함한 나머지 발견 사항은 이 RFC의 범위가 아니다.
 
-### 0.2 다루지 않는 것
+#### 0.2 다루지 않는 것
 
 Identifier 생성 방법 / Metadata 생성 방법 / Assembler 구현 / Renderer
 구현 / Runtime / Scheduler / Registry / Memory / Event Bus / API /
 Execution Layer / Context 저장 방식 / Component Design /
 Implementation.
 
-### 0.3 "Ownership"은 새 Concept인가 — 먼저 답한다
+#### 0.3 "Ownership"은 새 Concept인가 — 먼저 답한다
 
 이 RFC는 새 Concept를 만들지 않는다. 그 근거를 문서 첫머리에 밝힌다.
 
@@ -58,7 +77,7 @@ Implementation.
 
 ---
 
-## 1. 문제 — V-1이 실제로 무엇을 드러냈는가
+### 1. 문제 — V-1이 실제로 무엇을 드러냈는가
 
 VALIDATION-0001 V-1은 표면적으로 "배선도에 화살표 하나가 빠졌다"는
 지적이었다. 그러나 그 빠진 화살표를 그리려면 먼저 답해야 하는 질문이
@@ -80,7 +99,9 @@ VALIDATION-0001 V-1은 표면적으로 "배선도에 화살표 하나가 빠졌�
 
 ---
 
-## 2. Ownership과 Responsibility는 다르다 (검토 사항 4)
+## 3. Analysis & Decision
+
+### 2. Ownership과 Responsibility는 다르다 (검토 사항 4)
 
 **이 구분이 이 RFC의 나머지 전부를 결정하므로 먼저 정의한다.**
 
@@ -108,7 +129,7 @@ Kernel Context를 소유한다"가 따라 나오지 않는다.** V-1이 드러�
 
 ---
 
-## 3. Ownership을 세 층으로 나눈다 (검토 사항 1)
+### 3. Ownership을 세 층으로 나눈다 (검토 사항 1)
 
 "Kernel은 Context를 소유하는가, 전달만 하는가"는 **이분법으로는 답할
 수 없다.** 무엇에 대한 소유인지가 셋으로 갈리기 때문이다.
@@ -119,7 +140,7 @@ Kernel Context를 소유한다"가 따라 나오지 않는다.** V-1이 드러�
 | **O-2 형식(Form)** | 무엇이 유효한 Kernel Context인가 — 구조·정합성·순서·불변식 | **Kernel** | §13.1 Model, §13.2 검증·병합·정렬, §13.3 A-1~A-5·O-1~O-4, §14.3 G-1~G-7 |
 | **O-3 인스턴스(Instance)** | 만들어진 그 값을 누가 들고 있고 언제 버리는가 | **호출자** | §13.1(값), §14.2 PR-1(돌려준다), G-7, §15.2(영속화 지점 없음), N-4 |
 
-### 3.1 이 세 층으로 답하면 원래 질문이 해소된다
+#### 3.1 이 세 층으로 답하면 원래 질문이 해소된다
 
 > **Kernel은 Context 자체를 소유하는가, 전달만 하는가?**
 >
@@ -130,7 +151,7 @@ Kernel Context를 소유한다"가 따라 나오지 않는다.** V-1이 드러�
 **무엇이 유효한 Kernel Context인지를 결정하는 유일한 주체**다. 그것이
 O-2 소유의 의미다.
 
-### 3.2 O-2 소유가 실제로 뜻하는 것
+#### 3.2 O-2 소유가 실제로 뜻하는 것
 
 Kernel이 형식을 소유한다는 것은 다음을 뜻한다.
 
@@ -143,7 +164,7 @@ Kernel이 형식을 소유한다는 것은 다음을 뜻한다.
 **반대로 Kernel이 할 수 없는 것**: 만들어진 값을 붙잡아 두기, 나중에
 바꾸기, 폐기 시점 정하기. 그것은 O-3이며 호출자의 것이다.
 
-### 3.3 왜 O-3이 호출자의 것인가 — 이것은 이 RFC의 발명이 아니다
+#### 3.3 왜 O-3이 호출자의 것인가 — 이것은 이 RFC의 발명이 아니다
 
 §15.2가 이미 문장으로 기록했다.
 
@@ -156,9 +177,9 @@ Non-Goal)가 같은 방향을 가리킨다. Kernel이 인스턴스를 소유하�
 
 ---
 
-## 4. Boundary — 생성 / 유지 / 전달 중 어디까지인가 (검토 사항 2)
+### 4. Boundary — 생성 / 유지 / 전달 중 어디까지인가 (검토 사항 2)
 
-### 4.1 세 단어를 먼저 구분해야 한다
+#### 4.1 세 단어를 먼저 구분해야 한다
 
 **"전달"이라는 단어가 이 저장소에서 두 가지를 뜻하고 있다.** 그 사실을
 먼저 드러낸다.
@@ -172,7 +193,7 @@ Non-Goal)가 같은 방향을 가리킨다. Kernel이 인스턴스를 소유하�
 후보로 Memory를 적었고, Memory Module은 Kernel ADC-0001에서
 **Defer**되었다.
 
-### 4.2 답
+#### 4.2 답
 
 | 책임 | Kernel의 것인가 | 근거 |
 |---|---|---|
@@ -189,11 +210,11 @@ Defer와 직결되며, 여는 순간 이 RFC의 범위를 벗어난다.
 
 ---
 
-## 5. Lifecycle (검토 사항 3)
+### 5. Lifecycle (검토 사항 3)
 
 **정의만 한다. 구현하지 않는다.**
 
-### 5.1 두 개의 구간을 구분해야 한다
+#### 5.1 두 개의 구간을 구분해야 한다
 
 ```
       호출자                          Kernel                         호출자
@@ -218,7 +239,7 @@ Defer와 직결되며, 여는 순간 이 RFC의 범위를 벗어난다.
 | **Kernel의 책임 구간** | 입력이 Kernel 경계를 넘어온 시점(①의 입력) | Kernel Context가 경계를 넘어 반환된 시점 |
 | **Kernel Context의 존재 구간** | ⑤Assemble이 값을 확정한 시점 | **Kernel이 알지 못한다** — 호출자가 그 값을 버릴 때 |
 
-### 5.2 값은 책임보다 오래 산다
+#### 5.2 값은 책임보다 오래 산다
 
 **이것이 Lifecycle의 핵심이며, §13.1이 Context를 "값"으로 정한 결과다.**
 
@@ -230,7 +251,7 @@ Defer와 직결되며, 여는 순간 이 RFC의 범위를 벗어난다.
 Artifact는 전부 생성 후 하류에서 변경되지 않으며, 그 사실이 4건의
 테스트로 고정되어 있다(`ARTIFACT-STANDARD-v1.md`).
 
-### 5.3 Lifecycle은 값 단위가 아니라 호출 단위다
+#### 5.3 Lifecycle은 값 단위가 아니라 호출 단위다
 
 G-7(Context 경로에서 호출 간 상태 없음)의 직접적 귀결이다.
 
@@ -242,16 +263,16 @@ G-7(Context 경로에서 호출 간 상태 없음)의 직접적 귀결이다.
 **따라서 Kernel Context에는 "Kernel이 관리하는 생명주기"가 없다.**
 생성 시점만 Kernel이 관여하고, 그 이후는 값의 문제다.
 
-### 5.4 폐기(Disposal)
+#### 5.4 폐기(Disposal)
 
 Kernel은 폐기하지 않는다. 폐기할 대상을 들고 있지 않기 때문이다
 (§5.1, G-7). 폐기는 O-3(인스턴스 소유)에 속하며 호출자의 것이다.
 
 ---
 
-## 6. 이 답이 V-1에 미치는 영향
+### 6. 이 답이 V-1에 미치는 영향
 
-### 6.1 Identifier 후보가 좁혀진다 — 그러나 결정되지 않는다
+#### 6.1 Identifier 후보가 좁혀진다 — 그러나 결정되지 않는다
 
 VALIDATION-0001은 Identifier의 출처 후보를 셋으로 정리했다. Ownership이
 정해지면 그중 하나가 **제거되고**, 남은 둘의 성격이 달라진다.
@@ -269,7 +290,7 @@ VALIDATION-0001은 Identifier의 출처 후보를 셋으로 정리했다. Owners
 Context Metadata도 동일하다 — Context 수준 Metadata는 인스턴스에 대한
 서술이므로 같은 두 후보를 갖는다.
 
-### 6.2 V-1은 이 RFC만으로 완전히 닫히지 않는다 — 정직하게 기록한다
+#### 6.2 V-1은 이 RFC만으로 완전히 닫히지 않는다 — 정직하게 기록한다
 
 V-1이 요구한 것은 **§15.1 경계표에 입력 경로가 나타나는 것**이었다.
 이 RFC는 "그 경로가 어느 쪽일 수 있는가"를 두 후보로 좁혔을 뿐,
@@ -284,7 +305,9 @@ V-1이 요구한 것은 **§15.1 경계표에 입력 경로가 나타나는 것*
 
 ---
 
-## 7. Reference 적합성 자체 점검 (검토 사항 5)
+## 4. Evidence & Validation
+
+### 7. Reference 적합성 자체 점검 (검토 사항 5)
 
 | 확인 | 결과 |
 |---|---|
@@ -304,7 +327,9 @@ V-1이 요구한 것은 **§15.1 경계표에 입력 경로가 나타나는 것*
 
 ---
 
-## 8. 영향받는 문서 (검토 사항 6) — **수정하지 않는다**
+## 5. Consequences & Risks
+
+### 8. 영향받는 문서 (검토 사항 6) — **수정하지 않는다**
 
 이 RFC는 어떤 문서도 수정하지 않는다. 아래는 **후속 ADC/ADR이
 승인될 경우** 영향을 받을 문서 목록이다.
@@ -329,38 +354,60 @@ V-1이 요구한 것은 **§15.1 경계표에 입력 경로가 나타나는 것*
 
 ---
 
-## 9. Open Questions
+### Out of Scope
+
+- Identifier·Metadata의 생성·파생 알고리즘.
+- Context 저장 방식, Memory Service, 영속화.
+- Assembler·Renderer의 구현, Component Design.
+- Registry / Runtime / Scheduler / Engine Gateway / Event Bus.
+- API, 함수 시그니처, 자료형.
+- Execution Layer의 문서·코드.
+- VALIDATION-0001의 V-2 및 나머지 발견 사항.
+
+### Non-goals
+
+- 이 RFC는 V-1을 완전히 닫지 않는다 — 후보를 둘로 좁힐 뿐이다(§6.2).
+- 이 RFC는 OQ-1~OQ-6에 답하지 않는다.
+- 이 RFC는 새 Concept·Layer·Component를 만들지 않는다.
+- 이 RFC는 §13.6·§14.7의 Defer를 해제하지 않는다 — 특히 H-5(Identifier
+  파생 규칙)와 Memory Module의 Defer를 그대로 둔다.
+- 이 RFC는 어떤 문서도 수정하지 않는다(§8).
+- 이 RFC는 Baseline을 변경하지 않는다.
+
+## 6. Open Questions & Change History
+
+### 9. Open Questions
 
 이 RFC가 답하지 않는 질문을 나열만 한다.
 
-### OQ-1. Kernel Context의 Identifier는 호출자 주입인가, 형식으로부터의 파생인가
+#### OQ-1. Kernel Context의 Identifier는 호출자 주입인가, 형식으로부터의 파생인가
 
 §6.1이 후보를 둘로 좁혔다. 선택은 H-5(파생 규칙, **Defer**)와
 맞물린다. **Ownership만으로는 결정되지 않는다** — 둘 다 정합적이다.
 
-### OQ-2. Context 수준 Metadata의 출처는 Identifier와 같아야 하는가
+#### OQ-2. Context 수준 Metadata의 출처는 Identifier와 같아야 하는가
 
 둘 다 인스턴스에 대한 서술이므로 같은 후보를 갖지만, 반드시 같은
 선택이어야 하는지는 별개다.
 
-### OQ-3. "Context 전달 책임"(§11 대응표)의 두 뜻을 문서에서 구분해야 하는가
+#### OQ-3. "Context 전달 책임"(§11 대응표)의 두 뜻을 문서에서 구분해야 하는가
 
 §4.1이 반환과 운반·영속이라는 두 뜻을 드러냈다. 구분을 §11에 반영할
 것인지, 아니면 이 RFC의 기록으로 충분한지.
 
-### OQ-4. 운반·영속 전달은 Kernel의 책임인가
+#### OQ-4. 운반·영속 전달은 Kernel의 책임인가
 
 §4.2가 **미결**로 남긴 행이다. Memory Module의 Defer(Kernel ADC-0001)와
 직결되며, 그 Defer의 재검토 조건이 충족되어야 열린다.
 
-### OQ-5. Ownership을 Baseline의 어휘로 등재할 것인가
+#### OQ-5. Ownership을 Baseline의 어휘로 등재할 것인가
 
 §0.3은 Ownership이 새 Concept가 아니라 기존 결정들에 붙인 이름이라고
 밝혔다. 그렇더라도 Baseline에 **어휘로 등재할지**는 별개의 판단이다.
 등재하지 않고 기존 어휘(책임/값/경계)만으로 §13.5를 보강하는 선택지도
 있다.
 
-### OQ-6. 호출자가 Kernel Context를 오래 보관한 뒤 사용하는 경우의 유효성
+#### OQ-6. 호출자가 Kernel Context를 오래 보관한 뒤 사용하는 경우의 유효성
 
 §5.2가 "값은 책임보다 오래 산다"고 했다. 그렇다면 오래된 Kernel
 Context를 나중에 ⑥Render에 넣는 것이 항상 유효한가 — 그 값이 참조하는
@@ -370,9 +417,9 @@ Context를 나중에 ⑥Render에 넣는 것이 항상 유효한가 — 그 값�
 
 ---
 
-## 10. ADC가 필요한가
+### 10. ADC가 필요한가
 
-### **필요하다.**
+#### **필요하다.**
 
 `ARCHITECTURE_GOVERNANCE.md`의 ADC 채택 기준 2개 중 **기준 1을
 만족한다.**
@@ -388,7 +435,7 @@ Context를 나중에 ⑥Render에 넣는 것이 항상 유효한가 — 그 값�
 Component 제안이 서로 다른 Ownership을 암묵적으로 가정하게 되고 그
 차이는 나중에야 드러난다.
 
-### ADC가 판단해야 할 것 (제안)
+#### ADC가 판단해야 할 것 (제안)
 
 이 RFC는 ADC의 판단 항목을 **제안만** 한다.
 
@@ -409,27 +456,28 @@ Component 제안이 서로 다른 Ownership을 암묵적으로 가정하게 되�
 
 ---
 
-## Out of Scope
+### Related Documents
 
-- Identifier·Metadata의 생성·파생 알고리즘.
-- Context 저장 방식, Memory Service, 영속화.
-- Assembler·Renderer의 구현, Component Design.
-- Registry / Runtime / Scheduler / Engine Gateway / Event Bus.
-- API, 함수 시그니처, 자료형.
-- Execution Layer의 문서·코드.
-- VALIDATION-0001의 V-2 및 나머지 발견 사항.
 
-## Non-goals
+| Type | ID | Relationship |
+|---|---|---|
+| Reference | `docs/architecture/core/VALIDATION-0001-kernel-reference-architecture.md`(V-1) | 이 RFC의 직접 계기(Major Finding) |
+| ADC | `docs/architecture/core/ADC-0006-kernel-context-ownership.md` | 이 RFC를 종결(ADR 불필요) |
+| Reference | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md` | §2 근거(caller-supplied identity 관행) |
+| Reference | `docs/core/execution-layer/RFC-0001-artifact-drift-boundary.md` | §9 OQ-6 근거(Artifact Drift 연결) |
+| Reference | `docs/00_governance/GLOSSARY.md` | §8 영향 예상 목록 |
 
-- 이 RFC는 V-1을 완전히 닫지 않는다 — 후보를 둘로 좁힐 뿐이다(§6.2).
-- 이 RFC는 OQ-1~OQ-6에 답하지 않는다.
-- 이 RFC는 새 Concept·Layer·Component를 만들지 않는다.
-- 이 RFC는 §13.6·§14.7의 Defer를 해제하지 않는다 — 특히 H-5(Identifier
-  파생 규칙)와 Memory Module의 Defer를 그대로 둔다.
-- 이 RFC는 어떤 문서도 수정하지 않는다(§8).
-- 이 RFC는 Baseline을 변경하지 않는다.
 
-## Self Review
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | VALIDATION-0001 V-1 후속 — Kernel Context Ownership 질문 개설 |
+
+---
+
+## 부록: Self Review
 
 - 질문 하나만 답했는가 — **예.** Ownership 외의 V-1 후속 작업(배선표
   갱신)은 §6.2에서 범위 밖으로 명시했다.

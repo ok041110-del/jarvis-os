@@ -1,5 +1,22 @@
 # RFC-0007: Kernel Context Identity — Identity는 Reference의 문제인가, Component의 문제인가
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0007 |
+| Title | Kernel Context Identity — Identity는 Reference의 문제인가, Component의 문제인가 |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Reference Layer — Kernel Context Identity) |
+| Status | Resolved — `ADC-0007.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/VALIDATION-0001-kernel-reference-architecture.md`(V-1), `docs/architecture/core/ADC-0006-kernel-context-ownership.md`(OQ-1·OQ-8) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0007-kernel-context-identity.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Resolved — `ADC-0007.md`로 종결됨(ADR 불필요, STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Version**: Draft
 **Author**: Claude Code (VALIDATION-0001 V-1 / ADC-0006 OQ-1·OQ-8 후속)
@@ -18,9 +35,11 @@ OQ-1(Identifier 출처)이 전제이며 H-5 Defer와 맞물린다"*
 
 ---
 
-## 0. 범위와 제약
+## 2. Context & Problem
 
-### 0.1 이 RFC가 다시 결정하지 않는 것
+### 0. 범위와 제약
+
+#### 0.1 이 RFC가 다시 결정하지 않는 것
 
 | 항목 | 이미 결정된 곳 |
 |---|---|
@@ -29,7 +48,7 @@ OQ-1(Identifier 출처)이 전제이며 H-5 Defer와 맞물린다"*
 | Ownership 3층의 명명·구조화 | ADC-0006 판단 6b (**Defer**) |
 | §11 문언 변경 | ADC-0006 판단 7 (**Reject**) |
 
-### 0.2 ADC-0006 판단 5의 Defer를 어떻게 존중하는가
+#### 0.2 ADC-0006 판단 5의 Defer를 어떻게 존중하는가
 
 ADC-0006은 "Ownership"을 **Baseline 어휘로 등재하지 않기로**
 Defer했다. 따라서 이 RFC는 **Ownership을 어휘로 사용하지 않는다.**
@@ -43,13 +62,13 @@ Defer했다. 따라서 이 RFC는 **Ownership을 어휘로 사용하지 않는�
 | 형식은 Kernel의 것 | **무엇이 유효한 Kernel Context인지는 Kernel이 판정한다**(§13.2·§13.3) |
 | 인스턴스는 호출자의 것 | 만들어진 값은 호출자가 들고 있다(§15.2) |
 
-### 0.3 다루지 않는 것
+#### 0.3 다루지 않는 것
 
 Identifier 생성 방식 / UUID / Hash / Composite Key / Metadata 구조 /
 Memory / Registry / Scheduler / Execution Layer / API / Component
 Design / Implementation.
 
-### 0.4 새 Concept를 도입하는가 — 먼저 답한다
+#### 0.4 새 Concept를 도입하는가 — 먼저 답한다
 
 **도입하지 않는다.** "Identity"가 가리키는 것은 `BASELINE.md`에 이미
 문언으로 존재한다.
@@ -64,12 +83,14 @@ Defer한 선례가 있으므로, 어휘 등재 여부는 후속 ADC의 판단 �
 
 ---
 
-## 1. Q2를 먼저 답해야 한다 — Identity와 Identifier는 같은 개념인가
+## 3. Analysis & Decision
+
+### 1. Q2를 먼저 답해야 한다 — Identity와 Identifier는 같은 개념인가
 
 **Q1~Q6 중 Q2를 첫 번째로 다룬다.** 나머지 질문이 전부 이 구분 위에서
 갈리기 때문이다.
 
-### 1.1 구분
+#### 1.1 구분
 
 | | Identity (동일성) | Identifier (식별자) |
 |---|---|---|
@@ -81,7 +102,7 @@ Defer한 선례가 있으므로, 어휘 등재 여부는 후속 ADC의 판단 �
 **핵심**: Identifier는 Identity를 **표현하는 수단**이지 Identity
 **자체**가 아니다.
 
-### 1.2 Baseline은 이 둘을 한 이름으로 묶고 있다 — 이것이 V-1의 뿌리다
+#### 1.2 Baseline은 이 둘을 한 이름으로 묶고 있다 — 이것이 V-1의 뿌리다
 
 `BASELINE.md`가 "Context Identifier"에 대해 말하는 두 문장을 나란히
 놓으면 성격이 다르다.
@@ -106,7 +127,7 @@ Defer한 선례가 있으므로, 어휘 등재 여부는 후속 ADC의 판단 �
 선택지였다.** 값의 출처를 고르는 문제로 보였던 것이 실은 판정 기준을
 고르는 문제였다.
 
-### 1.3 제안하는 답 (Q2)
+#### 1.3 제안하는 답 (Q2)
 
 > **Identity와 Identifier는 다른 개념이다.** Identity는 판정 기준이고,
 > Identifier는 그 기준을 표현하는 값이다.
@@ -115,11 +136,11 @@ Defer한 선례가 있으므로, 어휘 등재 여부는 후속 ADC의 판단 �
 
 ---
 
-## 2. Q5 — 현재 Baseline은 Identity를 암묵적으로 가정하고 있는가
+### 2. Q5 — 현재 Baseline은 Identity를 암묵적으로 가정하고 있는가
 
 **Evidence를 수집한다. 새 Evidence를 만들지 않는다.**
 
-### 2.1 Baseline 안의 암묵적 가정 (전수)
+#### 2.1 Baseline 안의 암묵적 가정 (전수)
 
 | # | 문언 | 무엇을 가정하는가 |
 |---|---|---|
@@ -139,7 +160,7 @@ Defer한 선례가 있으므로, 어휘 등재 여부는 후속 ADC의 판단 �
 "같은 Content"가 바이트 동일인지, 정규화 후 동일인지, 그 외인지가
 Baseline에 없다.
 
-### 2.2 코드에 이미 존재하는 동일성 판정
+#### 2.2 코드에 이미 존재하는 동일성 판정
 
 | Evidence | 내용 | 출처 |
 |---|---|---|
@@ -150,7 +171,7 @@ Baseline에 없다.
 **즉 동일성 판정은 이미 실물로 쓰이고 있으며, 그 기준은 우연히
 "문자열 동일"이었다.** 선택된 것이 아니라 기본값이었다.
 
-### 2.3 Q5의 답
+#### 2.3 Q5의 답
 
 > **가정하고 있다.** Baseline 8개 지점과 코드 3개 지점이 동일성 판정
 > 위에서 동작하며, 그 기준은 명시된 적이 없다.
@@ -160,9 +181,9 @@ Baseline 안에서 작동 중이며, 다만 이름과 정의가 없을 뿐이다
 
 ---
 
-## 3. Q1 — Identity는 본질적 속성인가, 외부에서 부여되는가
+### 3. Q1 — Identity는 본질적 속성인가, 외부에서 부여되는가
 
-### 3.1 질문을 정확히 나눈다
+#### 3.1 질문을 정확히 나눈다
 
 §1의 구분을 적용하면 이 질문은 하나가 아니라 둘이다.
 
@@ -171,7 +192,7 @@ Baseline 안에서 작동 중이며, 다만 이름과 정의가 없을 뿐이다
 | Q1-a | **판정 기준**은 어디에 속하는가 |
 | Q1-b | **표기 값**은 어디서 오는가 |
 
-### 3.2 제안 — 둘은 서로 다른 곳에 속한다
+#### 3.2 제안 — 둘은 서로 다른 곳에 속한다
 
 **Q1-a (판정 기준)**: ADC-0006 판단 6a가 *"무엇이 유효한 Kernel
 Context인지는 Kernel이 판정한다"*를 재진술로 Accept했다. 동일성 판정은
@@ -186,7 +207,7 @@ ADC-0006 판단 6a의 *"만들어진 값은 호출자가 들고 있다"*와 같�
 
 > **표기 값은 Kernel이 만들지 않는다.**
 
-### 3.3 두 답은 모순되지 않는다
+#### 3.3 두 답은 모순되지 않는다
 
 **기준을 정하는 것과 값을 만드는 것은 다른 일이다.** 이 구분은 이
 저장소에 실물로 존재한다.
@@ -198,7 +219,7 @@ ADC-0006 판단 6a의 *"만들어진 값은 호출자가 들고 있다"*와 같�
 
 같은 형태다. 기준은 안에, 값은 밖에.
 
-### 3.4 Q1의 답 (제안)
+#### 3.4 Q1의 답 (제안)
 
 > Identity의 **판정 기준**은 Kernel에 속하는 본질적 속성이고,
 > Identifier의 **표기 값**은 외부에서 온다.
@@ -207,9 +228,9 @@ ADC-0006 판단 6a의 *"만들어진 값은 호출자가 들고 있다"*와 같�
 
 ---
 
-## 4. Q6 — Identity가 새 Layer·Component·Runtime·API·Service를 암시하는가
+### 4. Q6 — Identity가 새 Layer·Component·Runtime·API·Service를 암시하는가
 
-### 4.1 판정 기준으로서의 Identity — 암시하지 않는다
+#### 4.1 판정 기준으로서의 Identity — 암시하지 않는다
 
 동등 관계는 **Model의 성질**이지 실행되는 무엇이 아니다. §13.2의
 검증·병합이 이미 그것을 사용하고 있으므로, 명시한다고 해서 새로
@@ -223,7 +244,7 @@ ADC-0006 판단 6a의 *"만들어진 값은 호출자가 들고 있다"*와 같�
 | 새 Service | 없음 |
 | 새 API | 없음 |
 
-### 4.2 그러나 한 방향은 Component를 암시한다 — 이것을 드러낸다
+#### 4.2 그러나 한 방향은 Component를 암시한다 — 이것을 드러낸다
 
 **§3.2의 Q1-b를 반대로 택하면**, 즉 *"Kernel이 Identifier 값을
 부여한다"*는 방향을 택하면 다음이 따라온다.
@@ -240,7 +261,7 @@ CM-3이 *"Kernel은 Identifier를 생성하지 않는다"*로 이미 이 방향�
 Identity 관점에서 설명할 수 있다는 것**이며, 새 제약을 만들지
 않는다.
 
-### 4.3 Q6의 답
+#### 4.3 Q6의 답
 
 > **판정 기준으로서의 Identity는 아무것도 암시하지 않는다.**
 > 다만 "Kernel이 값을 부여한다"는 방향은 Registry·Runtime을
@@ -248,16 +269,16 @@ Identity 관점에서 설명할 수 있다는 것**이며, 새 제약을 만들�
 
 ---
 
-## 5. Q3 — Identity는 Reference Layer에서 정의 가능한가
+### 5. Q3 — Identity는 Reference Layer에서 정의 가능한가
 
-### 5.1 두 부분으로 갈린다
+#### 5.1 두 부분으로 갈린다
 
 | 대상 | 어느 Layer의 문제인가 | 근거 |
 |---|---|---|
 | **동일성 판정 기준**(무엇이 같은 것인가) | **Reference** | §13.2 검증·병합이 이미 이것에 의존한다(E-1~E-3). Reference가 답하지 않으면 그 두 책임이 정의되지 않은 채 남는다 |
 | **표기 값의 생성 방식**(UUID·Hash·Composite 등) | **Component / Implementation** | H-5가 이미 Hidden으로 두었고, ADC-0003 판단 1b가 **Defer**했다 |
 
-### 5.2 판별 기준
+#### 5.2 판별 기준
 
 이 저장소가 반복해 사용한 기준을 그대로 적용한다 — **"외부가 의존해도
 되는가"**(§14.4).
@@ -271,24 +292,24 @@ Identity 관점에서 설명할 수 있다는 것**이며, 새 제약을 만들�
 **따라서 경계는 정확히 §14.4의 Public/Hidden 경계와 일치한다** —
 기준은 Public(Reference), 생성 방식은 Hidden(Component 이하).
 
-### 5.3 Q3의 답 (제안)
+#### 5.3 Q3의 답 (제안)
 
 > **동일성 판정 기준은 Reference Layer의 문제다.**
 > **표기 값의 생성 방식은 Reference Layer의 문제가 아니다.**
 
 ---
 
-## 6. Q4 — Identity를 Reference에서 정의하지 않으면 V-1은 닫히는가
+### 6. Q4 — Identity를 Reference에서 정의하지 않으면 V-1은 닫히는가
 
 **"닫힌다"의 기준에 따라 답이 갈린다. 두 기준을 모두 검토한다.**
 
-### 6.1 기준 A — "경계표에 행이 생기는가"
+#### 6.1 기준 A — "경계표에 행이 생기는가"
 
 **닫힌다.** ADC-0006 판단 4가 확인한 대로, 경계표에 행 하나를
 추가하면 형식 요건은 충족된다. 예컨대 *"Kernel Context의 Identifier:
 Kernel이 생성하지 않는다(CM-3). 주입 또는 파생"*이라고 쓸 수 있다.
 
-### 6.2 기준 B — "Assemble 책임의 입력이 정의되는가"
+#### 6.2 기준 B — "Assemble 책임의 입력이 정의되는가"
 
 **닫히지 않는다.**
 
@@ -311,13 +332,13 @@ VALIDATION-0001 항목 8이 V-1을 Component RFC의 차단 요인으로 판정�
 그리고 §1.2에서 보였듯 **그 선택은 Identity 없이는 할 수 없다** —
 동일성이 구조적이면 파생이 성립하고, 지명적이면 주입이 필요하다.
 
-### 6.3 Q4의 답
+#### 6.3 Q4의 답
 
 > **기준 B에서 닫히지 않는다.** 그리고 VALIDATION-0001이 V-1을
 > 차단 요인으로 판정한 근거가 기준 B이므로, **실질적으로는 닫히지
 > 않는다.**
 
-### 6.4 ADC-0006 판단 4와 모순되지 않는다
+#### 6.4 ADC-0006 판단 4와 모순되지 않는다
 
 ADC-0006 판단 4는 *"V-1은 Ownership 없이도 닫을 수 있다"*고 했고,
 이 RFC는 *"Identity 없이는 닫히지 않는다"*고 한다. 겉보기에 반대로
@@ -333,21 +354,9 @@ ADC-0006 판단 4는 *"V-1은 Ownership 없이도 닫을 수 있다"*고 했고,
 
 ---
 
-## 7. 이 RFC가 결정하지 않는 것
+## 4. Evidence & Validation
 
-- Identity의 **내용** — 무엇이 동일성 기준이 되어야 하는지(구조적/
-  지명적/그 외)를 정하지 않는다. **경계만 확인한다.**
-- Identifier의 **생성 방식** — UUID·Hash·Composite Key 어느 것도
-  다루지 않는다.
-- Content의 동일성 기준(§2.1 E-1·E-2가 드러낸 공백) — 존재를 지적할
-  뿐 정하지 않는다.
-- H-5(Identifier 파생 규칙, **Defer**)를 해제하지 않는다.
-- "Identity"를 Baseline 어휘로 등재할지 — ADC의 판단 대상이다(§0.4).
-- V-1을 닫는 실제 문언 — 후속 단계다.
-
----
-
-## 8. Evidence Summary
+### 8. Evidence Summary
 
 **새로 만든 Evidence는 없다.** 전부 기존 문서·소스에 기록되어 있던
 사실이다.
@@ -376,21 +385,23 @@ Identifier") 아래 Identity 문언과 Identifier 제약이 함께 놓여 있다
 
 ---
 
-## 9. Open Questions
+## 5. Consequences & Risks
 
-| ID | 질문 | 성격 |
-|---|---|---|
-| **OQ-1'** | 동일성 판정 기준은 **구조적**인가(같은 내용 = 같은 것) **지명적**인가(같다고 부르면 같은 것) | ADC-0006 OQ-1의 **재정식화.** 원래 질문(주입인가 파생인가)은 이 질문의 **귀결**이다 |
-| **OQ-9** | **"같은 Content"란 무엇인가** — 바이트 동일인가, 정규화 후 동일인가 | **신규.** §2.1 E-1·E-2가 드러낸 공백. 현재 코드는 문자열 동일을 기본값으로 쓰고 있으나 선택된 적이 없다(E-10, E-11) |
-| **OQ-10** | Identifier의 **전순서**(O-2 tie-break)는 어떤 기준인가 — 동등 관계보다 강한 가정이 필요하다 | **신규.** E-4 |
-| **OQ-11** | "Identity"를 Baseline 어휘로 등재할 것인가 | ADC-0006 판단 5(Ownership 어휘 Defer)와 같은 종류의 판단 |
-| OQ-2 | Context Metadata의 출처 | ADC-0006에서 이월 |
-| OQ-6 | 오래 보관된 Kernel Context의 유효성 | ADC-0006에서 이월. **OQ-1'과 직결된다** — 동일성이 구조적이면 시점과 무관하다 |
-| OQ-8 | V-1을 닫는 최소 변경 | **§6이 부분적으로 답했다** — 기준 B에서는 Identity 확정 없이 닫을 수 없다 |
+### 7. 이 RFC가 결정하지 않는 것
+
+- Identity의 **내용** — 무엇이 동일성 기준이 되어야 하는지(구조적/
+  지명적/그 외)를 정하지 않는다. **경계만 확인한다.**
+- Identifier의 **생성 방식** — UUID·Hash·Composite Key 어느 것도
+  다루지 않는다.
+- Content의 동일성 기준(§2.1 E-1·E-2가 드러낸 공백) — 존재를 지적할
+  뿐 정하지 않는다.
+- H-5(Identifier 파생 규칙, **Defer**)를 해제하지 않는다.
+- "Identity"를 Baseline 어휘로 등재할지 — ADC의 판단 대상이다(§0.4).
+- V-1을 닫는 실제 문언 — 후속 단계다.
 
 ---
 
-## 10. 영향받는 문서 — **수정하지 않는다**
+### 10. 영향받는 문서 — **수정하지 않는다**
 
 이 RFC는 어떤 문서도 수정하지 않는다. 아래는 **후속 ADC/ADR이
 승인될 경우** 영향을 받을 문서다.
@@ -415,9 +426,46 @@ ADC의 판단 대상이 된다.
 
 ---
 
-## 11. ADC가 필요한가
+### Out of Scope
 
-### **필요하다.**
+- Identifier 생성 방식 — UUID·Hash·Composite Key·그 외.
+- Metadata 구조.
+- Memory / Registry / Scheduler / Runtime / Event Bus / Engine Gateway.
+- Execution Layer, Kernel API, Component Design, Implementation.
+- Identity의 **내용** — 구조적인지 지명적인지(OQ-1').
+- Content 동일성 기준의 **내용**(OQ-9).
+- VALIDATION-0001의 V-2 및 나머지 발견 사항.
+
+### Non-goals
+
+- 이 RFC는 Identifier를 정의하지 않는다.
+- 이 RFC는 Identity를 정의하지 않는다 — **Boundary만 확인한다.**
+- 이 RFC는 Ownership·Responsibility를 다시 결정하지 않는다.
+- 이 RFC는 ADC-0006이 Defer한 Ownership 어휘를 사용하지 않는다(§0.2).
+- 이 RFC는 새 Concept·Layer·Component·Service를 도입하지 않는다.
+- 이 RFC는 H-5를 비롯한 어떤 Defer도 해제하지 않는다.
+- 이 RFC는 어떤 문서도 수정하지 않는다.
+- 이 RFC는 V-1을 닫지 않는다.
+
+## 6. Open Questions & Change History
+
+### 9. Open Questions
+
+| ID | 질문 | 성격 |
+|---|---|---|
+| **OQ-1'** | 동일성 판정 기준은 **구조적**인가(같은 내용 = 같은 것) **지명적**인가(같다고 부르면 같은 것) | ADC-0006 OQ-1의 **재정식화.** 원래 질문(주입인가 파생인가)은 이 질문의 **귀결**이다 |
+| **OQ-9** | **"같은 Content"란 무엇인가** — 바이트 동일인가, 정규화 후 동일인가 | **신규.** §2.1 E-1·E-2가 드러낸 공백. 현재 코드는 문자열 동일을 기본값으로 쓰고 있으나 선택된 적이 없다(E-10, E-11) |
+| **OQ-10** | Identifier의 **전순서**(O-2 tie-break)는 어떤 기준인가 — 동등 관계보다 강한 가정이 필요하다 | **신규.** E-4 |
+| **OQ-11** | "Identity"를 Baseline 어휘로 등재할 것인가 | ADC-0006 판단 5(Ownership 어휘 Defer)와 같은 종류의 판단 |
+| OQ-2 | Context Metadata의 출처 | ADC-0006에서 이월 |
+| OQ-6 | 오래 보관된 Kernel Context의 유효성 | ADC-0006에서 이월. **OQ-1'과 직결된다** — 동일성이 구조적이면 시점과 무관하다 |
+| OQ-8 | V-1을 닫는 최소 변경 | **§6이 부분적으로 답했다** — 기준 B에서는 Identity 확정 없이 닫을 수 없다 |
+
+---
+
+### 11. ADC가 필요한가
+
+#### **필요하다.**
 
 `ARCHITECTURE_GOVERNANCE.md`의 ADC 채택 기준 **1을 만족한다.**
 
@@ -435,7 +483,7 @@ ADC의 판단 대상이 된다.
 기준)이다. **이 주장이 성립하는지 자체가 ADC의 첫 판단 대상이
 되어야 한다.**
 
-### ADC가 판단해야 할 것 (제안)
+#### ADC가 판단해야 할 것 (제안)
 
 | # | 판단 대상 |
 |---|---|
@@ -450,28 +498,28 @@ ADC의 판단 대상이 된다.
 
 ---
 
-## Out of Scope
+### Related Documents
 
-- Identifier 생성 방식 — UUID·Hash·Composite Key·그 외.
-- Metadata 구조.
-- Memory / Registry / Scheduler / Runtime / Event Bus / Engine Gateway.
-- Execution Layer, Kernel API, Component Design, Implementation.
-- Identity의 **내용** — 구조적인지 지명적인지(OQ-1').
-- Content 동일성 기준의 **내용**(OQ-9).
-- VALIDATION-0001의 V-2 및 나머지 발견 사항.
 
-## Non-goals
+| Type | ID | Relationship |
+|---|---|---|
+| Reference | `docs/architecture/core/VALIDATION-0001-kernel-reference-architecture.md`(V-1) | 상위 근거 |
+| ADC | `docs/architecture/core/ADC-0006-kernel-context-ownership.md` | 직접 계기(판단 8), §0.1/§0.2/§6.4/§11 근거 |
+| ADC | `docs/architecture/core/ADC-0007-kernel-context-identity.md` | 이 RFC를 종결(ADR 불필요) |
+| Reference | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md` | §2.2/§3.3 Evidence(E-9, E-14) |
+| Reference | `hqs/development/mvp/project_intelligence.py`(원문은 `development-hq/mvp/` 구 경로로 인용) | §2.2 Evidence(E-10) |
 
-- 이 RFC는 Identifier를 정의하지 않는다.
-- 이 RFC는 Identity를 정의하지 않는다 — **Boundary만 확인한다.**
-- 이 RFC는 Ownership·Responsibility를 다시 결정하지 않는다.
-- 이 RFC는 ADC-0006이 Defer한 Ownership 어휘를 사용하지 않는다(§0.2).
-- 이 RFC는 새 Concept·Layer·Component·Service를 도입하지 않는다.
-- 이 RFC는 H-5를 비롯한 어떤 Defer도 해제하지 않는다.
-- 이 RFC는 어떤 문서도 수정하지 않는다.
-- 이 RFC는 V-1을 닫지 않는다.
 
-## Self Review
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | VALIDATION-0001 V-1 / ADC-0006 OQ-1·OQ-8 후속 — Kernel Context Identity Boundary 확인 |
+
+---
+
+## 부록: Self Review
 
 - Identifier를 정의했는가 — **아니오**. 생성 방식·알고리즘을 다루지
   않았고, §7이 이를 명시했다.
