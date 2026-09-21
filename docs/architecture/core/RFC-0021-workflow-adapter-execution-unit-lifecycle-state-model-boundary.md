@@ -1,5 +1,22 @@
 # RFC-0021: Workflow Adapter가 소비하는 실행 단위·생명주기·State Model — Team/Division 부재 하의 v2 재설계 Boundary (ADC-0019 Next Step 5 후속)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0021 |
+| Title | Workflow Adapter가 소비하는 실행 단위·생명주기·State Model — Team/Division 부재 하의 v2 재설계 Boundary (ADC-0019 Next Step 5 후속) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Workflow Adapter, §16.6 v1→v2 재설계 Boundary) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md`(§Decision 조건 5·§Next Step 5), `docs/architecture/core/ADC-0021-workflow-adapter-implementation-strategy.md`(§8 Gate A) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0021-workflow-adapter-execution-unit-lifecycle-state-model-boundary.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md`
@@ -35,7 +52,9 @@ Boundary Question으로 연다.
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `RFC-0019` §5는 v1 `ADR-0007`의 12개 결정을 v2로 옮길 수 있는지 검토하고,
 대부분(1·3·4·6·8·10·12)은 이식 가능하나 **4개(2·5·9·11)는 재설계가
@@ -63,7 +82,7 @@ Boundary Question으로 묶어** 정식 절차에 올린다. 결정 9는 원인�
 ↔ 결정 9"의 2분할은 이 RFC가 새로 판단하는 것이 아니라 `RFC-0019` §5와
 `ADC-0019` §Q7이 이미 수행한 것을 그대로 계승한다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 §16.6은 Workflow Adapter의 책임을 "**HQ가 이미 정의한 Workflow 그래프와
 이미 구성된 실행 단위를 입력으로 받아**, 그 그래프가 기술하는 State 보유·
@@ -102,65 +121,9 @@ OS가 책임지지 않는 것으로, "내부 조직 구조 결정"을 HQ의 책�
 착수하면, 어댑터가 "무엇을 받아 무엇의 상태를 진행시키는지" 규정되지 않은
 계약이 된다(`ADC-0019` §Risks "빈 상자" 위험).
 
-## 2. Evidence Summary — 이미 기록된 것만 인용
+## 3. Analysis & Decision
 
-### 2.1 v1 결정 2·5·11 원문 (`archive/v1/docs/adr/0007-workflow-execution-model.md`)
-
-- **결정 2**: "전이 순서 강제(`assert`로 위반 시 예외)는 Core에 남는다.
-  Workflow Engine Adapter가 무엇이든 이 전이 규칙을 우회하거나 재구현할
-  수 없다. Workflow Engine의 역할은 '언제 `activate()`를 호출하고, 언제
-  `complete()`를 호출할지'의 타이밍과 순서를 그래프/노드로 표현하는
-  것이다 — 상태값 자체를 새로 만들거나 전이 조건을 바꾸는 것이 아니다."
-  대안 B(Adapter가 상태 전이 규칙을 자체 재구현) 기각.
-- **결정 5**: "Division Selection(`HQ.select_division()`)은 Workflow Engine이
-  개입하기 **이전** 단계다. Workflow Engine은 Division이 이미 선택된 뒤,
-  그 Division의 `agent_catalog`를 바탕으로 Team을 조립하는 지점부터
-  시작한다. … Workflow Engine은 Division을 생성/소멸시키지 않는다."
-- **결정 11**: "`WorkflowStatus`는 '그 생명주기가 어떻게 끝났는가'를
-  나타내고, `TeamState`는 '지금 어느 단계에 있는가'를 나타낸다. 두 개념은
-  서로 다른 축이다. … 이 State Model 역시 HQ Lifecycle·Connector
-  Lifecycle처럼 Core의 Domain 개념이며, 특정 Adapter(LangGraph)의 내부
-  상태가 아니다."
-
-### 2.2 v2 재해석 (`RFC-0019` §5 표 — 이 RFC가 확정하지 않음)
-
-| v1 결정 | v2 재해석 (RFC-0019 §5) | v2에서 달라지는 점 |
-|---|---|---|
-| 결정 2 | Adapter가 소비할 대상은 HQ 내부에서 정의한 Agent/Task 단위의 전이이지 Kernel이 정의한 Team 상태 머신이 아니다 | "v2 Kernel에는 이 '소비할 생명주기'가 아직 없다 — HQ마다 다를 수 있음. **이 자체가 후속 Open Question**" |
-| 결정 5 | v2에 대응 개념 없음(§5가 Division/Team을 Kernel이 모르는 HQ 내부 구조로 명시) | "이 결정 자체를 v2로 이식할 수 없다. Workflow Adapter는 **HQ가 이미 만든 실행 단위(내부에 Team/Division이 있든 없든)만 받는다**는 형태로 재정의해야 함" |
-| 결정 11 | v2에 `TeamState` 대응 없음(결정 5와 동일 사유) | "**Team 대신 무엇의 상태를 나타낼지** 후속 절차 대상" |
-
-### 2.3 이미 부분적으로 흡수된 것 (BASELINE v1.14 §16.6)
-
-- **A-IN**: "HQ가 이미 정의한 Workflow 그래프와 **이미 구성된 실행 단위**를
-  입력으로 받아", 개입 구간을 "HQ가 실행 단위를 구성한 이후 ~ 그 실행이
-  모두 끝나는 시점"으로 한정. → 결정 5의 "Division Selection 이후부터
-  개입"의 v2 등가물이 **이미 §16.6에 있다**.
-- **A-OUT**: "HQ Routing/Registry, … Domain Lifecycle 전이 규칙(HQ/Agent의
-  상태 전이 자체 — HQ가 소유하는 Domain 로직을 Adapter가 재구현하지
-  않는다, v1 `ADR-0007` 결정 2·대안 B 기각과 동일 원칙)"을 명시 제외. →
-  결정 2의 "전이 규칙을 재구현하지 않는다"의 v2 등가물이 **이미 §16.6에
-  있다** — 단, "그렇다면 v2에서 소비할 생명주기가 존재하는가"의 긍정적
-  답은 없다.
-- **A-IN**: "실행 결과(성공/실패/취소에 준하는 상태)는 예외가 아닌 값으로
-  표현한다(§14.3 G-6)" + Adapter Contract 부속 명세 **(b)**. → 결정 11의
-  `WorkflowStatus{SUCCESS, FAILURE, CANCELLED}` 축의 v2 등가물이 **부분적으로
-  §16.6에 있다** — 단, "그 상태값이 무엇의 상태인가(A-IN(a) 공유 실행
-  State와의 관계, `TeamState` 대체 축의 부재)"는 없다.
-
-### 2.4 결정 11과 결합 대기 중인 항목 ((c) reducer 규약)
-
-`ADC-0020` §Q-D는 후보 절 **(c)**(병렬 fan-out 노드의 disjoint key /
-reducer 규약)를 **Defer**하며, §4.3·§Decision 4에서 그 이유를 "(c)는
-§16.6에 없는 신규 표면이고, reducer 선언 위치(HQ 스키마 vs 어댑터 내부)가
-**v1 `ADR-0007` 결정 11(State Model)의 v2 재설계와 얽힌다**"고 밝혔다.
-`ADR-0009` §3은 "(c)의 (i) 계약화 여부, (ii) 배치, (iii) HQ State 설계
-구속 여부는 후속 Implementation Strategy ADC 또는 별도 Governance 단계가
-v1 `ADR-0007` 결정 11과 결합해 판정한다"고 기록했다. 즉 이 RFC가 결정
-11의 v2 재설계를 정식 절차에 올리는 것은 (c)의 후속 판정이 걸려 있는
-바로 그 전제 조건이다.
-
-## 3. v1 개념과 v2의 불일치 정리
+### 3. v1 개념과 v2의 불일치 정리
 
 | v1 개념 | v1에서의 지위 | v2에서의 상태 | 이 RFC와의 관계 |
 |---|---|---|---|
@@ -170,9 +133,9 @@ v1 `ADR-0007` 결정 11과 결합해 판정한다"고 기록했다. 즉 이 RFC�
 | **WorkflowStatus** | Core Domain State Model, `TeamState`와 별개 축 | 결과-상태-값 부분은 §16.6 A-IN·Adapter Contract (b)에 흡수. 구조적 State Model·별개 축 프레이밍은 공백 | v2 Workflow 실행 State Model의 형태·소유·(c) 결합(B-11) |
 | **WorkflowResult** | 결정 9의 반환 타입, `WorkflowStatus` 포함 | Port 자체가 §14.1 미결로 공백 | **이 RFC 범위 밖** — 결정 9 / §14 트랙(§7) |
 
-## 4. 결정별 v2 공백 분석
+### 4. 결정별 v2 공백 분석
 
-### 4.1 B-2 — 결정 2 (Core 소유 Lifecycle 소비)
+#### 4.1 B-2 — 결정 2 (Core 소유 Lifecycle 소비)
 
 **v1이 확정한 것**: Workflow Engine은 Team 생명주기 전이 규칙의 소유자가
 아니라 소비자다. 전이 규칙은 Core에, 호출 순서·타이밍은 Workflow Engine에.
@@ -190,7 +153,7 @@ v1 `ADR-0007` 결정 11과 결합해 판정한다"고 기록했다. 즉 이 RFC�
 단위 전이(HQ 도메인 로직)를 Adapter가 호출만 하고 재구현하지 않는다는
 원칙을 A-OUT의 금지에 대응하는 긍정형으로 명문화. (iii) 둘의 조합.
 
-### 4.2 B-5 — 결정 5 (Team/Division 경계)
+#### 4.2 B-5 — 결정 5 (Team/Division 경계)
 
 **v1이 확정한 것**: Workflow Engine은 Division Selection 이후, 이미 선택된
 Division의 Agent Catalog로 Team을 조립하는 지점부터 개입한다. Division을
@@ -209,7 +172,7 @@ Routing/Registry" 제외) + §7(HQ 내부 조직 구조 = HQ 책임)이 결합�
 Team/Division 유무가 갈릴 때 Adapter 입력 계약이 그 차이에 영향받지 않아야
 한다는) 잔여 불변조건이 필요한지가 판단 대상이다.
 
-### 4.3 B-11 — 결정 11 (Workflow State Model)
+#### 4.3 B-11 — 결정 11 (Workflow State Model)
 
 **v1이 확정한 것**: `WorkflowStatus{SUCCESS, FAILURE, CANCELLED}`는
 `TeamState`와 별개 축의 Core Domain State Model이다.
@@ -234,7 +197,7 @@ Team/Division 유무가 갈릴 때 Adapter 입력 계약이 그 차이에 영향
    **이 RFC는 (c)의 규범 내용을 확정하지 않는다** — 결합 판정의 무대를
    여는 것까지만이다.
 
-## 5. §16.6이 이미 부분적으로 메운 것 — 이 RFC가 새로 만들지 않는 것
+### 5. §16.6이 이미 부분적으로 메운 것 — 이 RFC가 새로 만들지 않는 것
 
 | 결정 | §16.6/§7이 이미 담은 것 | 이 RFC가 여는 것 |
 |---|---|---|
@@ -246,7 +209,7 @@ Team/Division 유무가 갈릴 때 Adapter 입력 계약이 그 차이에 영향
 "부분 흡수 + 명시되지 않은 잔여"이며, 이 RFC는 그 잔여만 Boundary
 Question으로 올린다.
 
-## 6. Boundary Question
+### 6. Boundary Question
 
 **v2 Meta Architecture(§5)가 Team/Division을 Kernel 밖 HQ 내부 구조로
 배제한 상태에서, §16.6 Workflow Adapter가 전제하는 "이미 구성된 실행
@@ -270,7 +233,7 @@ A-IN/A-OUT·§7로 흡수되었고 어느 부분이 추가 확정을 요구하�
   "끝난 방식 vs 현재 단계" 대비를 어떻게 다시 세우는가. (c) reducer 규약의
   결합 판정을 이 축에서 열 수 있는가.
 
-### 이 Boundary Question이 명시적으로 제외하는 것
+#### 이 Boundary Question이 명시적으로 제외하는 것
 
 - **v1 결정 9(`IWorkflowEngine` Port)** — `ADC-0019` G3이 분리한 별개의
   상위 트랙. 공백 원인이 Team 부재가 아니라 §14.1 "Task 전달 책임"의
@@ -290,7 +253,69 @@ A-IN/A-OUT·§7로 흡수되었고 어느 부분이 추가 확정을 요구하�
 - **`hqs/investment/`·`hqs/development/`의 team 코드 재구성** — 관찰
   대상이지 변경 대상이 아니다.
 
-## 7. Out of Scope
+## 4. Evidence & Validation
+
+### 2. Evidence Summary — 이미 기록된 것만 인용
+
+#### 2.1 v1 결정 2·5·11 원문 (`archive/v1/docs/adr/0007-workflow-execution-model.md`)
+
+- **결정 2**: "전이 순서 강제(`assert`로 위반 시 예외)는 Core에 남는다.
+  Workflow Engine Adapter가 무엇이든 이 전이 규칙을 우회하거나 재구현할
+  수 없다. Workflow Engine의 역할은 '언제 `activate()`를 호출하고, 언제
+  `complete()`를 호출할지'의 타이밍과 순서를 그래프/노드로 표현하는
+  것이다 — 상태값 자체를 새로 만들거나 전이 조건을 바꾸는 것이 아니다."
+  대안 B(Adapter가 상태 전이 규칙을 자체 재구현) 기각.
+- **결정 5**: "Division Selection(`HQ.select_division()`)은 Workflow Engine이
+  개입하기 **이전** 단계다. Workflow Engine은 Division이 이미 선택된 뒤,
+  그 Division의 `agent_catalog`를 바탕으로 Team을 조립하는 지점부터
+  시작한다. … Workflow Engine은 Division을 생성/소멸시키지 않는다."
+- **결정 11**: "`WorkflowStatus`는 '그 생명주기가 어떻게 끝났는가'를
+  나타내고, `TeamState`는 '지금 어느 단계에 있는가'를 나타낸다. 두 개념은
+  서로 다른 축이다. … 이 State Model 역시 HQ Lifecycle·Connector
+  Lifecycle처럼 Core의 Domain 개념이며, 특정 Adapter(LangGraph)의 내부
+  상태가 아니다."
+
+#### 2.2 v2 재해석 (`RFC-0019` §5 표 — 이 RFC가 확정하지 않음)
+
+| v1 결정 | v2 재해석 (RFC-0019 §5) | v2에서 달라지는 점 |
+|---|---|---|
+| 결정 2 | Adapter가 소비할 대상은 HQ 내부에서 정의한 Agent/Task 단위의 전이이지 Kernel이 정의한 Team 상태 머신이 아니다 | "v2 Kernel에는 이 '소비할 생명주기'가 아직 없다 — HQ마다 다를 수 있음. **이 자체가 후속 Open Question**" |
+| 결정 5 | v2에 대응 개념 없음(§5가 Division/Team을 Kernel이 모르는 HQ 내부 구조로 명시) | "이 결정 자체를 v2로 이식할 수 없다. Workflow Adapter는 **HQ가 이미 만든 실행 단위(내부에 Team/Division이 있든 없든)만 받는다**는 형태로 재정의해야 함" |
+| 결정 11 | v2에 `TeamState` 대응 없음(결정 5와 동일 사유) | "**Team 대신 무엇의 상태를 나타낼지** 후속 절차 대상" |
+
+#### 2.3 이미 부분적으로 흡수된 것 (BASELINE v1.14 §16.6)
+
+- **A-IN**: "HQ가 이미 정의한 Workflow 그래프와 **이미 구성된 실행 단위**를
+  입력으로 받아", 개입 구간을 "HQ가 실행 단위를 구성한 이후 ~ 그 실행이
+  모두 끝나는 시점"으로 한정. → 결정 5의 "Division Selection 이후부터
+  개입"의 v2 등가물이 **이미 §16.6에 있다**.
+- **A-OUT**: "HQ Routing/Registry, … Domain Lifecycle 전이 규칙(HQ/Agent의
+  상태 전이 자체 — HQ가 소유하는 Domain 로직을 Adapter가 재구현하지
+  않는다, v1 `ADR-0007` 결정 2·대안 B 기각과 동일 원칙)"을 명시 제외. →
+  결정 2의 "전이 규칙을 재구현하지 않는다"의 v2 등가물이 **이미 §16.6에
+  있다** — 단, "그렇다면 v2에서 소비할 생명주기가 존재하는가"의 긍정적
+  답은 없다.
+- **A-IN**: "실행 결과(성공/실패/취소에 준하는 상태)는 예외가 아닌 값으로
+  표현한다(§14.3 G-6)" + Adapter Contract 부속 명세 **(b)**. → 결정 11의
+  `WorkflowStatus{SUCCESS, FAILURE, CANCELLED}` 축의 v2 등가물이 **부분적으로
+  §16.6에 있다** — 단, "그 상태값이 무엇의 상태인가(A-IN(a) 공유 실행
+  State와의 관계, `TeamState` 대체 축의 부재)"는 없다.
+
+#### 2.4 결정 11과 결합 대기 중인 항목 ((c) reducer 규약)
+
+`ADC-0020` §Q-D는 후보 절 **(c)**(병렬 fan-out 노드의 disjoint key /
+reducer 규약)를 **Defer**하며, §4.3·§Decision 4에서 그 이유를 "(c)는
+§16.6에 없는 신규 표면이고, reducer 선언 위치(HQ 스키마 vs 어댑터 내부)가
+**v1 `ADR-0007` 결정 11(State Model)의 v2 재설계와 얽힌다**"고 밝혔다.
+`ADR-0009` §3은 "(c)의 (i) 계약화 여부, (ii) 배치, (iii) HQ State 설계
+구속 여부는 후속 Implementation Strategy ADC 또는 별도 Governance 단계가
+v1 `ADR-0007` 결정 11과 결합해 판정한다"고 기록했다. 즉 이 RFC가 결정
+11의 v2 재설계를 정식 절차에 올리는 것은 (c)의 후속 판정이 걸려 있는
+바로 그 전제 조건이다.
+
+## 5. Consequences & Risks
+
+### 7. Out of Scope
 
 - v1 결정 2·5·11의 v2 대안 **설계**(구체 개념·필드·상태 목록·다이어그램).
   이 RFC는 Boundary Question만 연다.
@@ -307,7 +332,7 @@ A-IN/A-OUT·§7로 흡수되었고 어느 부분이 추가 확정을 요구하�
   제외한 `docs/architecture/`·`docs/decisions/` 파일.
 - Multi-HQ, 자연어 요청 분해(`ADC-0018`, Defer) 범위로의 확장.
 
-## 8. Non-goals
+### 8. Non-goals
 
 - 이 RFC는 결정 2·5·11 중 어느 것도 "v2에서 불필요"라고 **미리 결론짓지
   않는다** — B-5가 "완전 흡수, 잔여 없음"으로 종결될 가능성을 §4.2·§6에서
@@ -320,7 +345,9 @@ A-IN/A-OUT·§7로 흡수되었고 어느 부분이 추가 확정을 요구하�
   §14.1 트랙의 별개 RFC(또는 Kernel Public Contract 확장 절차)가 다룰
   사안이며, 그 착수 여부·시점은 이 RFC가 정하지 않는다.
 
-## 9. Governance Chain / 번호 관계
+## 6. Open Questions & Change History
+
+### 9. Governance Chain / 번호 관계
 
 - **선행**: `RFC-0019`→`ADC-0019`→`ADR-0008`(§16.6 존재 Accept, 조건 5로
   결정 2/5/9/11 이월) · `RFC-0020`→`ADC-0020`→`ADR-0009`(명칭 + Adapter
@@ -338,7 +365,7 @@ A-IN/A-OUT·§7로 흡수되었고 어느 부분이 추가 확정을 요구하�
   B-2·B-5·B-11을 판정 → 필요 시 ADR → `BASELINE.md` §16.6(및 필요 시
   §5·§6·§7) Update. 이 RFC 자체는 그 판단을 내리지 않는다.
 
-## 10. Next Step
+### 10. Next Step
 
 후속 ADC(신설 예정, `ADC-0022`)에서 다음을 판단하도록 제안한다.
 
@@ -360,7 +387,31 @@ A-IN/A-OUT·§7로 흡수되었고 어느 부분이 추가 확정을 요구하�
 이 RFC 자체는 위 판단을 내리지 않는다. Architecture Governance
 절차(RFC → ADC → ADR → Baseline Update)를 통해 별도로 진행한다.
 
-## 11. Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md` | 이 RFC의 직접 계기(§Decision 조건 5·§Next Step 5) |
+| ADC | `docs/architecture/core/ADC-0021-workflow-adapter-implementation-strategy.md` | Gate (A) 명명 근거(§8) |
+| RFC | `docs/architecture/core/RFC-0019-langgraph-scoped-workflow-adapter-runtime-existence-boundary.md` | §2.2 Evidence(v1 12개 결정 v2 재해석 표) |
+| ADC | `docs/architecture/core/ADC-0020-workflow-adapter-naming-and-contract-boundary.md` | §2.4 Evidence(Q-D (c) Defer) |
+| ADR | `docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md` | §2.4 Evidence(§3) |
+| Reference | `archive/v1/docs/adr/0007-workflow-execution-model.md` | §2.1 Evidence(v1 결정 2·5·11 원문) |
+| Reference | `docs/architecture/baseline/BASELINE.md` | §2.3 Evidence(§16.6 A-IN/A-OUT) |
+| Reference | `hqs/investment/teams/stock_team.py` | §1 Evidence(v2 team 구성 관찰) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADC-0019 §Decision 조건 5·§Next Step 5 후속 — v1 결정 2·5·11 v2 재설계 Boundary Question 개설 |
+
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. v1 `ADR-0007`(Accepted 그대로 인용),
   `RFC-0019` §5, `ADC-0019`/`ADC-0020`/`ADR-0009`/`ADC-0021`, `BASELINE.md`,

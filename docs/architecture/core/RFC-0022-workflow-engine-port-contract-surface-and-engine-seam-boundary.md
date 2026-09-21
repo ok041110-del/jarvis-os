@@ -1,5 +1,22 @@
 # RFC-0022: v1 `ADR-0007` 결정 9의 잔여 계약 표면 — Workflow Adapter 호출 seam·입력 시그니처·결과 반환 타입과 §14.1의 경계 (ADC-0019 G3 / ADC-0022 D-9 후속)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0022 |
+| Title | v1 `ADR-0007` 결정 9의 잔여 계약 표면 — Workflow Adapter 호출 seam·입력 시그니처·결과 반환 타입과 §14.1의 경계 (ADC-0019 G3 / ADC-0022 D-9 후속) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Workflow Adapter, 결정 9 잔여 계약 표면) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md`(G3), `docs/architecture/core/ADC-0022-workflow-adapter-execution-unit-lifecycle-state-model-resolution.md`(§D-9) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0022-workflow-engine-port-contract-surface-and-engine-seam-boundary.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md`
@@ -58,7 +75,9 @@ Contract, §14와 분리) · `hqs/development/IMPLEMENTATION_RULES.md` line
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `RFC-0019` §5는 v1 `ADR-0007`의 12개 결정 중 4개(2·5·9·11)를 "v2 재설계가
 필요한 진짜 공백"으로 식별하고, 그 공백 원인이 하나로 묶이지 않음을 명시했다.
@@ -84,9 +103,9 @@ Port 정의는 §14.1 'Task 전달 책임' 트랙(별도 RFC → ADC → ADR)이
 `RFC-0019` §5 · `ADC-0019` §Q7 · `RFC-0021` §5·§7 · `ADC-0022` §4.6이 이미
 수행한 것을 그대로 계승한다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
-### 1.1 v1 결정 9가 확정한 것 (`archive/v1/docs/adr/0007-workflow-execution-model.md`)
+#### 1.1 v1 결정 9가 확정한 것 (`archive/v1/docs/adr/0007-workflow-execution-model.md`)
 
 결정 9 = **`IWorkflowEngine` Port (Domain Interface, Core 소속)**:
 
@@ -109,7 +128,7 @@ class IWorkflowEngine(ABC):
 정확한 필드 구성·Cancellation API 형태는 "구현 세부, Implementation Plan"으로
 명시 이연됐다.
 
-### 1.2 결정 2·5·11 해소로 이미 v2에 닫힌 부분 (재론하지 않음)
+#### 1.2 결정 2·5·11 해소로 이미 v2에 닫힌 부분 (재론하지 않음)
 
 | 결정 9 요소 | v2 처리 (전제) |
 |---|---|
@@ -119,7 +138,7 @@ class IWorkflowEngine(ABC):
 | Workflow ≠ Plugin (결정 12) | §16.6 A-OUT "Registry/Discovery 일반화 미포함" + 실측 `TEAMS` 리터럴 딕셔너리 → 흡수됨 |
 | `WorkflowStatus{SUCCESS,FAILURE,CANCELLED}` enum / State가 담는 정보 | `ADC-0022` §D-11 — Kernel enum·타입 미도입, State 내용·어휘 = HQ 도메인 → Resolved(서술 종결) |
 
-### 1.3 결정 9에 **남은** 잔여 계약 표면
+#### 1.3 결정 9에 **남은** 잔여 계약 표면
 
 결정 2·5·11이 "실행 단위" 절반·Fail-Closed·Core-구현체 격리·non-Plugin을
 닫은 뒤, 결정 9에 남은 것은 **계약 표면(§14) 질문 세 조각**이다.
@@ -137,7 +156,7 @@ class IWorkflowEngine(ABC):
   닫았으나, "실행 결과를 **호출자에게 돌려주는 반환 타입**(`WorkflowResult`
   대응)"은 §16.6이 명시적으로 "§14.1 트랙에 남는다"로 이연했다.
 
-### 1.4 공백을 방치할 때의 위험
+#### 1.4 공백을 방치할 때의 위험
 
 세 조각을 규정하지 않은 채 §16.6을 §14로 승격하거나 Production 구현에
 착수하면, 어댑터를 "어떻게 호출하고 무엇을 돌려받는지"가 계약에 없는 상태로
@@ -146,9 +165,188 @@ seam이 고정된다. 반대로 이 조각들을 서둘러 §14 Public 항목으
 Out of Scope(Component Design)를 우회하게 된다. 이 RFC는 그 사이에서
 **어느 형태의 해소가 절차상 정당한지**를 질문으로만 연다.
 
-## 2. Evidence Summary — 이미 기록된 것만 인용
+## 3. Analysis & Decision
 
-### 2.1 Governance 문서가 결정 9에 대해 확정해 둔 것
+### 3. v1 개념과 v2의 불일치 정리
+
+| v1 개념 | v1에서의 지위 | v2에서의 상태 | 이 RFC와의 관계 |
+|---|---|---|---|
+| **`IWorkflowEngine`** | Core 소속 Domain Interface, direct construction | §16.6 Reversibility seam은 존재하나 "부속 명세 / 개념 수준", **비-§14**. Public Port 정의 = "이 Accept 밖" | seam을 §14 항목으로 승격할지 / 비-§14로 존속시킬지 / HQ별 관례로 둘지(F-9a) |
+| **`IWorkflowEngine`의 "Engine"** | workflow 실행 엔진 | v2 "Engine 호출 책임"·"Engine Adapter"(§16.2)는 Model/LLM 호출을 지칭 — 다른 seam | 결정 9가 하나의 질문인지 두 개로 쪼개지는지(F-9b) |
+| **입력 `team`** | Core Domain Model | `ADC-0022` §D-2·§D-5 → 불투명 HQ 입력으로 **Resolved** | 재론 안 함(§7) |
+| **입력 `dispatch: TaskDispatch`** | Kernel의 Task 전달 산물 | §14.1 #1 "Task 전달 책임" = 미결. 실측 HQ별 시그니처 | Kernel 표준 입력 형태가 있는가 / 영구 HQ별인가(F-9c) |
+| **반환 `WorkflowResult`** | `WorkflowStatus` 포함 Domain Model, 예외 없음 | 값-표현·예외 비전파 = §14.3 G-6 + Adapter Contract (b)로 흡수. **반환 타입 자체**는 §14.1 트랙 | 반환 타입이 Kernel envelope / caller-owned Checkpoint 값 / HQ 타입 중 무엇인가(F-9d) |
+| **§7 "Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"** | — (v2 문서) | §14.1은 "Engine 호출 책임 = 미결, 계약 범위 밖". `ADC-0010`은 Engine Caller 위치를 Not Accepted | "책임 소재"(§7)와 "계약 표면"(§14.1)의 층위 관계(F-9e) |
+| **Gate (A)의 결정 9 절반** | — | `ADC-0021` §8 · `ADC-0019` 조건 5가 "결정 9 해소 이후에만 §14 승격·구현" | "해소"의 최소 조건이 무엇인가(F-9f) |
+
+### 4. 계약 표면별 v2 공백 분석
+
+#### 4.1 Port 존재 — seam의 지위와 정체
+
+**v1이 확정한 것**: Core 소속 `ABC`, direct construction, Core는 구현체를
+모름.
+
+**v2 상태 — seam은 있으나 지위가 비-§14**: §16.6 Reversibility 필수
+불변조건이 "어떤 구현체를 제거하고 다른 구현체(최소한 순차 함수 호출)로
+교체해도 Kernel·HQ 코드 한 줄도 수정되지 않아야 한다"를 요구하므로, 교체
+가능한 seam은 **개념적으로 이미 존재**한다. 그러나 §16.6 Adapter Contract는
+그 seam을 "§16.6 A-IN 부속 명세이며 그 위의 새 계층이 아니다", "Public
+Surface가 아니고", "'Port'/'Public'/'Guarantee'/'Interface' 어휘를 쓰지
+않으며, §14에는 어떤 항목도 추가되지 않는다"로 못박았다(`ADC-0020` §Q-C,
+`ADR-0009` §Decision 4).
+
+**잔여 공백**: v1 결정 9의 "Port가 존재해야 한다"는 계약이 v2에서 (a) §14
+Extension Point(X-*)로 **승격**되는지, (b) §16.6 비-§14 개념 수준 부속
+명세로 **영구 존속**하는지, (c) HQ별 관례(§7 도메인 내용)로 **위임**되는지가
+미결이다. §16.6·`ADC-0019` 조건 5·`ADC-0021` §8이 "§14 승격은 결정 9 해소
+이후"라고 전제하므로, 이 세 갈래 중 어느 것이 "해소"에 해당하는지도 함께
+미결이다.
+
+#### 4.2 입력 시그니처
+
+**v1이 확정한 것**: `run(team, dispatch: TaskDispatch)`.
+
+**v2 상태**: `team`(실행 단위) 절반은 `ADC-0022`로 Resolved — 어댑터는
+불투명한 HQ 입력을 받고 Kernel은 그 형태를 타입하지 않는다. `dispatch`
+절반은 v1에서 "Kernel의 Task 전달 책임 산물"이었고, §14.1 #1이 "Task 전달
+책임"을 계약 범위 밖으로 둔다. 실측은 HQ마다 다르다(`run_mvp_0001(code)`,
+`team.run(company_label, path, dir)`).
+
+**잔여 공백**: 실행 메커니즘 호출의 입력이 (i) Kernel이 규정하는 표준
+형태를 갖는지, (ii) 실측대로 **영구히 HQ별**인지가 미결이다. (ii)가
+결론이라면 "§14.1 #1 'Task 전달 책임'은 Kernel 책임이 아니다"라는 **명시적
+부정**으로 §14.1 표의 해당 행이 닫히는지, 아니면 미결로 남되 결정 9와는
+분리되는지도 함께 판단 대상이다.
+
+#### 4.3 결과 반환 타입
+
+**v1이 확정한 것**: `-> WorkflowResult`(≥ `status`/`error`, 예외 없음).
+
+**v2 상태 — 형식은 흡수, 타입은 공백**: 실행 결과를 "예외가 아닌 값으로"
+표현하는 **형식 제약**은 §14.3 G-6 + §16.6 Adapter Contract (b)가 담는다.
+그 값의 **내용·어휘**는 `ADC-0022` §D-11이 "HQ 도메인 책임, Kernel이
+규정하지 않음"으로 종결했다. 그러나 "실행 결과를 호출자에게 **어떤 타입의
+무엇으로 돌려주는가**"는 §16.6이 명시적으로 "§14.1 트랙에 남는다"로
+이연했다.
+
+**잔여 공백**: 반환 타입이 (i) Kernel-typed envelope(v1 `WorkflowResult`의
+Kernel 수준 대응), (ii) caller-owned Checkpoint 값(Adapter Contract (a))에
+흡수되어 별도 반환 타입이 없음, (iii) HQ 정의 타입(`VerificationResult`
+선례처럼 HQ Public Contract) 중 무엇인지가 미결이다.
+
+#### 4.4 세 조각에 공통으로 걸린 정합성·gate 문제
+
+- **§7 ↔ §14.1**: §7이 "Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"을
+  Jarvis OS 책임으로 이미 등재하는데 §14.1은 "미결, 계약 범위 밖"이다.
+  §7의 서술이 §14.1보다 앞서가 있는 것인지, 아니면 §7은 "책임 소재",
+  §14.1은 "계약 표면"이라는 서로 다른 층위인지, `ADC-0010`(Engine Caller
+  위치 Not Accepted)이 이 관계에 어떤 제약을 주는지가 미결이다.
+- **gate 개방 조건**: §16.6·`ADC-0019` 조건 5·`ADC-0021` §8이 "결정 9
+  해소 이후에만 §14 승격·Production 구현 착수 가능"이라 한다. 결정 9의
+  "해소"가 §14 확장 / 명시적 부정 결론 / Workflow Adapter에 한정한 좁은
+  비-§14 seam 계약 중 무엇으로도 성립하는지 — 즉 gate를 여는 **최소
+  조건**이 무엇인지가 미결이다.
+
+### 5. §16.6·§14가 이미 부분적으로 메운 것 — 이 RFC가 새로 만들지 않는 것
+
+| 계약 표면 | §16.6/§14가 이미 담은 것 | 이 RFC가 여는 것 |
+|---|---|---|
+| Port 존재 | Reversibility 필수 불변조건 + Adapter Contract (비-§14, 개념 수준) | 그 seam의 §14 승격 / 비-§14 존속 / HQ 위임 중 무엇인지 |
+| 입력 시그니처 | `team` 절반 = 불투명 HQ 입력(`ADC-0022` §D-2·§D-5) | `dispatch` 절반 = Kernel 표준 형태인지 영구 HQ별인지, §14.1 #1의 처리 |
+| 결과 반환 타입 | 값-표현·예외 비전파 = §14.3 G-6 + Adapter Contract (b); 내용·어휘 = HQ 도메인(`ADC-0022` §D-11) | 호출자가 결과를 돌려받는 **타입**(Kernel envelope / Checkpoint 값 / HQ 타입) |
+
+이 표는 이 RFC의 범위를 **좁힌다**: 세 조각 모두 "완전 공백"이 아니라
+"부분 흡수 + 명시되지 않은 잔여"이며, 이 RFC는 그 잔여만 Boundary
+Question으로 올린다. 어떤 조각에 대해서도 해소 형태를 **선택하지 않는다**.
+
+### 6. Boundary Question
+
+**v1 `ADR-0007` 결정 9(`IWorkflowEngine` Port / 입력 시그니처 /
+`WorkflowResult` 반환 타입)의 v2 잔여 계약 표면 — 결정 2·5·11이 실행 단위
+입력·Lifecycle·State를 Resolved한 뒤 남은 것 — 은, §14.1이 "계약 범위
+밖"으로 둔 "Task 전달 책임"·"Engine 호출 책임" 및 §7이 "Jarvis OS
+책임"으로 등재한 "Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"와
+어떤 관계이며, Port 존재·입력 시그니처·결과 반환 타입 각각이 어떤 형태로
+닫혀야 `ADC-0019` §Decision 조건 5·`ADC-0021` §8 Gate (A)를 여는가?**
+
+세 계약 표면으로 나뉘고, 여섯 하위 facet으로 세분된다(후속 ADC가 각각
+판정하며, **이 RFC는 어떤 facet에 대해서도 해결책을 선결정하지 않는다**).
+
+#### 표면 1 — Port 존재
+
+- **F-9a — seam의 §14 지위**: §16.6 Reversibility가 이미 요구하는 "구현체
+  교체 시 Kernel·HQ 무수정" seam은 (a) §14 Kernel Public Contract의
+  Extension Point(X-*)로 승격되어야 하는가, (b) §16.6 부속 명세의 비-§14
+  개념 수준 지위(`ADC-0020` §Q-C, `ADR-0009` §Decision 4)로 영구 존속하는가,
+  (c) §7 도메인 내용으로서 HQ별 관례에 위임되는가? v1 결정 9의 "Port가
+  존재해야 한다"는 계약은 이 셋 중 무엇으로 v2에서 성립하는가?
+- **F-9b — "Engine" seam의 정체**: v1 `IWorkflowEngine`이 하나로 묶었던
+  "workflow 그래프 실행 호출"과, v2 §14.1 #3 "Engine 호출 책임" · §11
+  "Engine Gateway" · §16.2 "Engine Adapter"(Model/LLM Provider 호출)는
+  **같은 seam인가 다른 seam인가?** §16.6 명칭 문단이 "별개 책임"이라
+  했다면, 결정 9는 실제로 **두 개의 분리된 질문**(Workflow Adapter 호출
+  seam / §16.2 Engine Adapter seam)으로 나뉘는가, 아니면 하나의 seam
+  질문인가?
+
+#### 표면 2 — 입력 시그니처
+
+- **F-9c — 입력의 소유**: 실행 메커니즘 호출의 입력은 Kernel이 규정하는
+  **표준 형태**를 갖는가(v1 `TaskDispatch`의 v2 대응물이 필요한가), 아니면
+  실측(`run_mvp_0001(code)`, `team.run(company_label, path, dir)`)대로
+  **영구히 HQ별**인가? 후자라면 §14.1 #1 "Task 전달 책임"은 "Kernel 책임
+  아님"으로 명시적으로 닫히는가, 미결로 남되 결정 9와 분리되는가?
+  (`team`(실행 단위) 절반은 `ADC-0022`로 Resolved됐으므로 재론 대상 아님 —
+  이 facet은 `dispatch` 절반만 다룬다.)
+
+#### 표면 3 — 결과 반환 타입
+
+- **F-9d — 반환 타입의 소재**: 실행 결과가 호출자에게 돌아가는 타입은
+  (i) Kernel-typed envelope(v1 `WorkflowResult`의 Kernel 수준 대응),
+  (ii) caller-owned Checkpoint 값(§16.6 Adapter Contract (a))에 흡수되어
+  별도 반환 타입이 없음, (iii) HQ 정의 타입(`hqs/development/stages/contracts.py`
+  `VerificationResult`가 보인 HQ Public Contract 선례) 중 무엇인가?
+  `ADC-0022` §D-11이 "State가 담는 정보"를 서술로 닫은 것과 이 반환 타입
+  질문은 어떻게 분리되는가?
+
+#### 표면 전반 — 정합성과 gate
+
+- **F-9e — §7 ↔ §14.1 층위**: §7이 "Engine 호출의 표준 인터페이스 제공
+  (Port/Adapter)"을 Jarvis OS 책임으로 이미 명시하는데 §14.1이 "Engine
+  호출 책임 = 미결, 계약 범위 밖"인 것을 어떻게 정합적으로 읽는가? §7은
+  "책임 소재"만, §14.1은 "계약 표면"만 말하는 다른 층위인가, 아니면 §7의
+  서술이 §14.1보다 앞서간 것으로 조정이 필요한가? `ADC-0010`(Engine
+  Caller 위치·책임 6개 후보 Not Accepted)은 이 관계에 어떤 제약을 주는가?
+- **F-9f — "해소"의 최소 조건**: §16.6 · `ADC-0019` 조건 5 · `ADC-0021`
+  §8이 "결정 9 해소 이후에만 §14 승격·Production 구현 착수 가능"이라
+  한다. 결정 9의 "해소"란 (a) §14 확장(Task 전달/Engine 호출 책임을
+  계약에 편입), (b) "이 책임들은 Kernel 계약이 아니다"라는 명시적 부정
+  결론, (c) Workflow Adapter에 한정한 좁은 비-§14 seam 계약만 — 중
+  무엇으로도 성립하는가? gate를 여는 최소 조건은 무엇인가?
+
+#### 이 Boundary Question이 명시적으로 제외하는 것
+
+- **v1 결정 2·5·11** — `ADC-0022` → `ADR-0011`(BASELINE v1.15)로 Resolved.
+  이 RFC는 전제로만 사용하고 재론하지 않는다.
+- **§14 Public Responsibilities/Guarantees/Extension Points의 실제
+  신설·문안** — 이 RFC는 질문만 연다. 신설은 후속 ADC → ADR의 몫이며,
+  §14.7 변경 규칙(RFC → ADC → ADR → Baseline)을 그대로 따른다.
+- **Scheduler / Engine Gateway Component 설계** — §10 Out of Scope 유지.
+  §11 표의 "구현 후보"는 예시이며 채택 여부는 이 RFC가 정하지 않는다.
+- **Gate (B)**(`ADC-0019` 재검토 조건 (c) — 다른 계보 또는 v2 프로덕션
+  관찰), **Gate (C)**(Reversibility 필수 불변조건의 v2 완전 검증),
+  **LangGraph 채택 여부·구현 전략·Checkpointer 백엔드** — 별개 hard
+  gate이며 이 트랙의 입력이 아니다.
+- **Production 구현 착수** · **`IMPLEMENTATION_RULES.md` line
+  9/13/14/15/16/19의 전면·Scoped 해제** — 결정 9 해소가 gate의 일부일
+  뿐, 이 RFC가 해제를 제안하지 않는다.
+- **§16.6 A-IN/A-OUT 범위 변경, Adapter Contract (a)(b)(c)(d) 재정의** —
+  이 RFC는 §16.6 문언을 수정 대상으로 삼지 않는다.
+
+## 4. Evidence & Validation
+
+### 2. Evidence Summary — 이미 기록된 것만 인용
+
+#### 2.1 Governance 문서가 결정 9에 대해 확정해 둔 것
 
 | 위치 | 문언(요지) |
 |---|---|
@@ -163,7 +361,7 @@ Out of Scope(Component Design)를 우회하게 된다. 이 RFC는 그 사이에�
 | `ADC-0021` §8 | 진입 순서: (A) 결정 2/5/9/11 해소 → (B) 재검토 조건 (c) → (C) Reversibility v2 재현 → Implementation Strategy 세부 ADC → Scoped 해제 ADR → 구현. "현재 2·3·4·5 중 충족된 것은 없다" |
 | `ADC-0010` | "Engine Caller의 위치와 책임" — `call_engine()`을 호출하고 결과를 주입하는 caller의 위치·책임 6개 후보 전수 검토 → **Not Accepted**(현재 Evidence로 Accept 가능한 것 없음) |
 
-### 2.2 현재 `main`(`3e36e63`) 코드가 보이는 것 — 관찰만
+#### 2.2 현재 `main`(`3e36e63`) 코드가 보이는 것 — 관찰만
 
 **"Engine 호출"은 Port/Adapter가 아니다**:
 - `hqs/development/mvp/engine.py`: 단일 함수 `call_engine(prompt: str) -> str`,
@@ -187,7 +385,7 @@ Out of Scope(Component Design)를 우회하게 된다. 이 RFC는 그 사이에�
 이 관찰은 이 RFC가 판정 재료로 인용할 뿐, 코드를 변경 대상으로 삼지
 않는다(§7).
 
-### 2.3 용어 위험 — v1 "Engine" ≠ v2 "Engine"
+#### 2.3 용어 위험 — v1 "Engine" ≠ v2 "Engine"
 
 v1 결정 9의 `IWorkflowEngine`에서 "Engine"은 **workflow 실행 엔진**(그래프
 진행·병렬 조립)을 뜻했다. v2에서 "Engine 호출 책임"(§14.1 #3) · "Engine
@@ -199,182 +397,9 @@ Gateway"(§11) · §16.2 "Engine Adapter"는 모두 **Model/LLM Provider
 결정 9가 실제로 **하나의 seam 질문인지, 두 개(Workflow Adapter seam /
 §16.2 Engine Adapter seam)로 쪼개지는지**가 정리되지 않았다.
 
-## 3. v1 개념과 v2의 불일치 정리
+## 5. Consequences & Risks
 
-| v1 개념 | v1에서의 지위 | v2에서의 상태 | 이 RFC와의 관계 |
-|---|---|---|---|
-| **`IWorkflowEngine`** | Core 소속 Domain Interface, direct construction | §16.6 Reversibility seam은 존재하나 "부속 명세 / 개념 수준", **비-§14**. Public Port 정의 = "이 Accept 밖" | seam을 §14 항목으로 승격할지 / 비-§14로 존속시킬지 / HQ별 관례로 둘지(F-9a) |
-| **`IWorkflowEngine`의 "Engine"** | workflow 실행 엔진 | v2 "Engine 호출 책임"·"Engine Adapter"(§16.2)는 Model/LLM 호출을 지칭 — 다른 seam | 결정 9가 하나의 질문인지 두 개로 쪼개지는지(F-9b) |
-| **입력 `team`** | Core Domain Model | `ADC-0022` §D-2·§D-5 → 불투명 HQ 입력으로 **Resolved** | 재론 안 함(§7) |
-| **입력 `dispatch: TaskDispatch`** | Kernel의 Task 전달 산물 | §14.1 #1 "Task 전달 책임" = 미결. 실측 HQ별 시그니처 | Kernel 표준 입력 형태가 있는가 / 영구 HQ별인가(F-9c) |
-| **반환 `WorkflowResult`** | `WorkflowStatus` 포함 Domain Model, 예외 없음 | 값-표현·예외 비전파 = §14.3 G-6 + Adapter Contract (b)로 흡수. **반환 타입 자체**는 §14.1 트랙 | 반환 타입이 Kernel envelope / caller-owned Checkpoint 값 / HQ 타입 중 무엇인가(F-9d) |
-| **§7 "Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"** | — (v2 문서) | §14.1은 "Engine 호출 책임 = 미결, 계약 범위 밖". `ADC-0010`은 Engine Caller 위치를 Not Accepted | "책임 소재"(§7)와 "계약 표면"(§14.1)의 층위 관계(F-9e) |
-| **Gate (A)의 결정 9 절반** | — | `ADC-0021` §8 · `ADC-0019` 조건 5가 "결정 9 해소 이후에만 §14 승격·구현" | "해소"의 최소 조건이 무엇인가(F-9f) |
-
-## 4. 계약 표면별 v2 공백 분석
-
-### 4.1 Port 존재 — seam의 지위와 정체
-
-**v1이 확정한 것**: Core 소속 `ABC`, direct construction, Core는 구현체를
-모름.
-
-**v2 상태 — seam은 있으나 지위가 비-§14**: §16.6 Reversibility 필수
-불변조건이 "어떤 구현체를 제거하고 다른 구현체(최소한 순차 함수 호출)로
-교체해도 Kernel·HQ 코드 한 줄도 수정되지 않아야 한다"를 요구하므로, 교체
-가능한 seam은 **개념적으로 이미 존재**한다. 그러나 §16.6 Adapter Contract는
-그 seam을 "§16.6 A-IN 부속 명세이며 그 위의 새 계층이 아니다", "Public
-Surface가 아니고", "'Port'/'Public'/'Guarantee'/'Interface' 어휘를 쓰지
-않으며, §14에는 어떤 항목도 추가되지 않는다"로 못박았다(`ADC-0020` §Q-C,
-`ADR-0009` §Decision 4).
-
-**잔여 공백**: v1 결정 9의 "Port가 존재해야 한다"는 계약이 v2에서 (a) §14
-Extension Point(X-*)로 **승격**되는지, (b) §16.6 비-§14 개념 수준 부속
-명세로 **영구 존속**하는지, (c) HQ별 관례(§7 도메인 내용)로 **위임**되는지가
-미결이다. §16.6·`ADC-0019` 조건 5·`ADC-0021` §8이 "§14 승격은 결정 9 해소
-이후"라고 전제하므로, 이 세 갈래 중 어느 것이 "해소"에 해당하는지도 함께
-미결이다.
-
-### 4.2 입력 시그니처
-
-**v1이 확정한 것**: `run(team, dispatch: TaskDispatch)`.
-
-**v2 상태**: `team`(실행 단위) 절반은 `ADC-0022`로 Resolved — 어댑터는
-불투명한 HQ 입력을 받고 Kernel은 그 형태를 타입하지 않는다. `dispatch`
-절반은 v1에서 "Kernel의 Task 전달 책임 산물"이었고, §14.1 #1이 "Task 전달
-책임"을 계약 범위 밖으로 둔다. 실측은 HQ마다 다르다(`run_mvp_0001(code)`,
-`team.run(company_label, path, dir)`).
-
-**잔여 공백**: 실행 메커니즘 호출의 입력이 (i) Kernel이 규정하는 표준
-형태를 갖는지, (ii) 실측대로 **영구히 HQ별**인지가 미결이다. (ii)가
-결론이라면 "§14.1 #1 'Task 전달 책임'은 Kernel 책임이 아니다"라는 **명시적
-부정**으로 §14.1 표의 해당 행이 닫히는지, 아니면 미결로 남되 결정 9와는
-분리되는지도 함께 판단 대상이다.
-
-### 4.3 결과 반환 타입
-
-**v1이 확정한 것**: `-> WorkflowResult`(≥ `status`/`error`, 예외 없음).
-
-**v2 상태 — 형식은 흡수, 타입은 공백**: 실행 결과를 "예외가 아닌 값으로"
-표현하는 **형식 제약**은 §14.3 G-6 + §16.6 Adapter Contract (b)가 담는다.
-그 값의 **내용·어휘**는 `ADC-0022` §D-11이 "HQ 도메인 책임, Kernel이
-규정하지 않음"으로 종결했다. 그러나 "실행 결과를 호출자에게 **어떤 타입의
-무엇으로 돌려주는가**"는 §16.6이 명시적으로 "§14.1 트랙에 남는다"로
-이연했다.
-
-**잔여 공백**: 반환 타입이 (i) Kernel-typed envelope(v1 `WorkflowResult`의
-Kernel 수준 대응), (ii) caller-owned Checkpoint 값(Adapter Contract (a))에
-흡수되어 별도 반환 타입이 없음, (iii) HQ 정의 타입(`VerificationResult`
-선례처럼 HQ Public Contract) 중 무엇인지가 미결이다.
-
-### 4.4 세 조각에 공통으로 걸린 정합성·gate 문제
-
-- **§7 ↔ §14.1**: §7이 "Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"을
-  Jarvis OS 책임으로 이미 등재하는데 §14.1은 "미결, 계약 범위 밖"이다.
-  §7의 서술이 §14.1보다 앞서가 있는 것인지, 아니면 §7은 "책임 소재",
-  §14.1은 "계약 표면"이라는 서로 다른 층위인지, `ADC-0010`(Engine Caller
-  위치 Not Accepted)이 이 관계에 어떤 제약을 주는지가 미결이다.
-- **gate 개방 조건**: §16.6·`ADC-0019` 조건 5·`ADC-0021` §8이 "결정 9
-  해소 이후에만 §14 승격·Production 구현 착수 가능"이라 한다. 결정 9의
-  "해소"가 §14 확장 / 명시적 부정 결론 / Workflow Adapter에 한정한 좁은
-  비-§14 seam 계약 중 무엇으로도 성립하는지 — 즉 gate를 여는 **최소
-  조건**이 무엇인지가 미결이다.
-
-## 5. §16.6·§14가 이미 부분적으로 메운 것 — 이 RFC가 새로 만들지 않는 것
-
-| 계약 표면 | §16.6/§14가 이미 담은 것 | 이 RFC가 여는 것 |
-|---|---|---|
-| Port 존재 | Reversibility 필수 불변조건 + Adapter Contract (비-§14, 개념 수준) | 그 seam의 §14 승격 / 비-§14 존속 / HQ 위임 중 무엇인지 |
-| 입력 시그니처 | `team` 절반 = 불투명 HQ 입력(`ADC-0022` §D-2·§D-5) | `dispatch` 절반 = Kernel 표준 형태인지 영구 HQ별인지, §14.1 #1의 처리 |
-| 결과 반환 타입 | 값-표현·예외 비전파 = §14.3 G-6 + Adapter Contract (b); 내용·어휘 = HQ 도메인(`ADC-0022` §D-11) | 호출자가 결과를 돌려받는 **타입**(Kernel envelope / Checkpoint 값 / HQ 타입) |
-
-이 표는 이 RFC의 범위를 **좁힌다**: 세 조각 모두 "완전 공백"이 아니라
-"부분 흡수 + 명시되지 않은 잔여"이며, 이 RFC는 그 잔여만 Boundary
-Question으로 올린다. 어떤 조각에 대해서도 해소 형태를 **선택하지 않는다**.
-
-## 6. Boundary Question
-
-**v1 `ADR-0007` 결정 9(`IWorkflowEngine` Port / 입력 시그니처 /
-`WorkflowResult` 반환 타입)의 v2 잔여 계약 표면 — 결정 2·5·11이 실행 단위
-입력·Lifecycle·State를 Resolved한 뒤 남은 것 — 은, §14.1이 "계약 범위
-밖"으로 둔 "Task 전달 책임"·"Engine 호출 책임" 및 §7이 "Jarvis OS
-책임"으로 등재한 "Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"와
-어떤 관계이며, Port 존재·입력 시그니처·결과 반환 타입 각각이 어떤 형태로
-닫혀야 `ADC-0019` §Decision 조건 5·`ADC-0021` §8 Gate (A)를 여는가?**
-
-세 계약 표면으로 나뉘고, 여섯 하위 facet으로 세분된다(후속 ADC가 각각
-판정하며, **이 RFC는 어떤 facet에 대해서도 해결책을 선결정하지 않는다**).
-
-### 표면 1 — Port 존재
-
-- **F-9a — seam의 §14 지위**: §16.6 Reversibility가 이미 요구하는 "구현체
-  교체 시 Kernel·HQ 무수정" seam은 (a) §14 Kernel Public Contract의
-  Extension Point(X-*)로 승격되어야 하는가, (b) §16.6 부속 명세의 비-§14
-  개념 수준 지위(`ADC-0020` §Q-C, `ADR-0009` §Decision 4)로 영구 존속하는가,
-  (c) §7 도메인 내용으로서 HQ별 관례에 위임되는가? v1 결정 9의 "Port가
-  존재해야 한다"는 계약은 이 셋 중 무엇으로 v2에서 성립하는가?
-- **F-9b — "Engine" seam의 정체**: v1 `IWorkflowEngine`이 하나로 묶었던
-  "workflow 그래프 실행 호출"과, v2 §14.1 #3 "Engine 호출 책임" · §11
-  "Engine Gateway" · §16.2 "Engine Adapter"(Model/LLM Provider 호출)는
-  **같은 seam인가 다른 seam인가?** §16.6 명칭 문단이 "별개 책임"이라
-  했다면, 결정 9는 실제로 **두 개의 분리된 질문**(Workflow Adapter 호출
-  seam / §16.2 Engine Adapter seam)으로 나뉘는가, 아니면 하나의 seam
-  질문인가?
-
-### 표면 2 — 입력 시그니처
-
-- **F-9c — 입력의 소유**: 실행 메커니즘 호출의 입력은 Kernel이 규정하는
-  **표준 형태**를 갖는가(v1 `TaskDispatch`의 v2 대응물이 필요한가), 아니면
-  실측(`run_mvp_0001(code)`, `team.run(company_label, path, dir)`)대로
-  **영구히 HQ별**인가? 후자라면 §14.1 #1 "Task 전달 책임"은 "Kernel 책임
-  아님"으로 명시적으로 닫히는가, 미결로 남되 결정 9와 분리되는가?
-  (`team`(실행 단위) 절반은 `ADC-0022`로 Resolved됐으므로 재론 대상 아님 —
-  이 facet은 `dispatch` 절반만 다룬다.)
-
-### 표면 3 — 결과 반환 타입
-
-- **F-9d — 반환 타입의 소재**: 실행 결과가 호출자에게 돌아가는 타입은
-  (i) Kernel-typed envelope(v1 `WorkflowResult`의 Kernel 수준 대응),
-  (ii) caller-owned Checkpoint 값(§16.6 Adapter Contract (a))에 흡수되어
-  별도 반환 타입이 없음, (iii) HQ 정의 타입(`hqs/development/stages/contracts.py`
-  `VerificationResult`가 보인 HQ Public Contract 선례) 중 무엇인가?
-  `ADC-0022` §D-11이 "State가 담는 정보"를 서술로 닫은 것과 이 반환 타입
-  질문은 어떻게 분리되는가?
-
-### 표면 전반 — 정합성과 gate
-
-- **F-9e — §7 ↔ §14.1 층위**: §7이 "Engine 호출의 표준 인터페이스 제공
-  (Port/Adapter)"을 Jarvis OS 책임으로 이미 명시하는데 §14.1이 "Engine
-  호출 책임 = 미결, 계약 범위 밖"인 것을 어떻게 정합적으로 읽는가? §7은
-  "책임 소재"만, §14.1은 "계약 표면"만 말하는 다른 층위인가, 아니면 §7의
-  서술이 §14.1보다 앞서간 것으로 조정이 필요한가? `ADC-0010`(Engine
-  Caller 위치·책임 6개 후보 Not Accepted)은 이 관계에 어떤 제약을 주는가?
-- **F-9f — "해소"의 최소 조건**: §16.6 · `ADC-0019` 조건 5 · `ADC-0021`
-  §8이 "결정 9 해소 이후에만 §14 승격·Production 구현 착수 가능"이라
-  한다. 결정 9의 "해소"란 (a) §14 확장(Task 전달/Engine 호출 책임을
-  계약에 편입), (b) "이 책임들은 Kernel 계약이 아니다"라는 명시적 부정
-  결론, (c) Workflow Adapter에 한정한 좁은 비-§14 seam 계약만 — 중
-  무엇으로도 성립하는가? gate를 여는 최소 조건은 무엇인가?
-
-### 이 Boundary Question이 명시적으로 제외하는 것
-
-- **v1 결정 2·5·11** — `ADC-0022` → `ADR-0011`(BASELINE v1.15)로 Resolved.
-  이 RFC는 전제로만 사용하고 재론하지 않는다.
-- **§14 Public Responsibilities/Guarantees/Extension Points의 실제
-  신설·문안** — 이 RFC는 질문만 연다. 신설은 후속 ADC → ADR의 몫이며,
-  §14.7 변경 규칙(RFC → ADC → ADR → Baseline)을 그대로 따른다.
-- **Scheduler / Engine Gateway Component 설계** — §10 Out of Scope 유지.
-  §11 표의 "구현 후보"는 예시이며 채택 여부는 이 RFC가 정하지 않는다.
-- **Gate (B)**(`ADC-0019` 재검토 조건 (c) — 다른 계보 또는 v2 프로덕션
-  관찰), **Gate (C)**(Reversibility 필수 불변조건의 v2 완전 검증),
-  **LangGraph 채택 여부·구현 전략·Checkpointer 백엔드** — 별개 hard
-  gate이며 이 트랙의 입력이 아니다.
-- **Production 구현 착수** · **`IMPLEMENTATION_RULES.md` line
-  9/13/14/15/16/19의 전면·Scoped 해제** — 결정 9 해소가 gate의 일부일
-  뿐, 이 RFC가 해제를 제안하지 않는다.
-- **§16.6 A-IN/A-OUT 범위 변경, Adapter Contract (a)(b)(c)(d) 재정의** —
-  이 RFC는 §16.6 문언을 수정 대상으로 삼지 않는다.
-
-## 7. Out of Scope
+### 7. Out of Scope
 
 - v1 결정 9의 v2 대안 **설계**(구체 Port·Interface·Type·필드·시그니처·
   다이어그램). 이 RFC는 Boundary Question만 연다.
@@ -397,7 +422,7 @@ Question으로 올린다. 어떤 조각에 대해서도 해소 형태를 **선�
   파일.
 - Multi-HQ, 자연어 요청 분해(`ADC-0018`, Defer) 범위로의 확장.
 
-## 8. Non-goals
+### 8. Non-goals
 
 - 이 RFC는 Port 존재·입력 시그니처·결과 반환 타입 중 어느 것도 "v2에서
   필요/불필요"라고 **미리 결론짓지 않는다** — F-9a·F-9c·F-9d가 "§14
@@ -417,7 +442,9 @@ Question으로 올린다. 어떤 조각에 대해서도 해소 형태를 **선�
   나머지 절반이라는 사실만 기록하며, (B)·(C)와의 착수 순서는 `ADC-0021`
   §8이 "이 ADC가 정하지 않는다"고 한 그대로 열려 있다.
 
-## 9. Governance Chain / 번호 관계
+## 6. Open Questions & Change History
+
+### 9. Governance Chain / 번호 관계
 
 - **선행**: `RFC-0019`→`ADC-0019`→`ADR-0008`(§16.6 존재 Accept, 조건 5로
   결정 2/5/9/11 이월) · `RFC-0020`→`ADC-0020`→`ADR-0009`(명칭 + Adapter
@@ -440,7 +467,7 @@ Question으로 올린다. 어떤 조각에 대해서도 해소 형태를 **선�
   §14/§14.1(및 필요 시 §7·§11·§16.2·§16.6) Update. 이 RFC 자체는 그
   판단을 내리지 않는다.
 
-## 10. Next Step
+### 10. Next Step
 
 후속 ADC(신설 예정, **`ADC-0023`**)에서 다음을 판단하도록 제안한다.
 
@@ -467,7 +494,42 @@ Question으로 올린다. 어떤 조각에 대해서도 해소 형태를 **선�
 이 RFC 자체는 위 판단을 내리지 않는다. Architecture Governance
 절차(RFC → ADC → ADR → Baseline Update)를 통해 별도로 진행한다.
 
-## 11. Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md` | 직접 계기(G3·§Decision 조건 5·§Next Step 5) |
+| ADC | `docs/architecture/core/ADC-0022-workflow-adapter-execution-unit-lifecycle-state-model-resolution.md` | 직접 계기(§D-9, 결정 9 분리) |
+| ADC | `docs/architecture/core/ADC-0021-workflow-adapter-implementation-strategy.md` | Gate (A) 명명 근거(§8) |
+| RFC | `docs/architecture/core/RFC-0019-langgraph-scoped-workflow-adapter-runtime-existence-boundary.md` | §2.1 Evidence(v1 12개 결정 v2 재해석) |
+| RFC | `docs/architecture/core/RFC-0021-workflow-adapter-execution-unit-lifecycle-state-model-boundary.md` | 결정 2·5·11 분리 선례(§5·§7) |
+| ADC | `docs/architecture/core/ADC-0020-workflow-adapter-naming-and-contract-boundary.md` | §2.1 Evidence(§Q-B·§Q-C) |
+| ADR | `docs/architecture/core/ADR-0009-workflow-adapter-naming-and-contract-baseline.md` | §2.1 Evidence(§3·§Decision 4) |
+| ADR | `docs/architecture/core/ADR-0011-gate-a-decisions-2-5-11-resolution-baseline.md` | 결정 2·5·11 Resolved 근거 |
+| ADC | `docs/architecture/core/ADC-0010-engine-caller-location-boundary.md` | §2.1 Evidence(Engine Caller 위치 Not Accepted) |
+| RFC | `docs/architecture/core/RFC-0002-kernel-definition.md`(§15) | §2.1 Evidence(Kernel 책임 후보 1·3) |
+| Reference | `archive/v1/docs/adr/0007-workflow-execution-model.md` | §1.1 Evidence(v1 결정 9·11·12 원문) |
+| Reference | `archive/v1/packages/core/src/jarvis_core/ports/i_workflow_engine.py` | §1.1 Evidence(v1 Port 코드) |
+| Reference | `hqs/development/mvp/engine.py` | §2.2 Evidence(관찰) |
+| Reference | `hqs/development/mvp/workflow.py` | §2.2 Evidence(관찰) |
+| Reference | `hqs/development/stages/contracts.py` | §2.2 Evidence(관찰) |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | §2.2 Evidence(line 15·16) |
+| Reference | `hqs/investment/engine_client.py` | §2.2 Evidence(관찰) |
+| Reference | `hqs/investment/teams/stock_team.py` | §2.2 Evidence(관찰) |
+| Reference | `hqs/investment/run.py` | §2.2 Evidence(관찰) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADC-0019 G3 / ADC-0022 D-9 후속 — v1 결정 9 잔여 계약 표면 Boundary Question 개설 |
+
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. v1 `ADR-0007`(Accepted 그대로 인용) ·
   `i_workflow_engine.py`(v1 코드) · `RFC-0019` §5 · `ADC-0019`/`ADC-0020`/
