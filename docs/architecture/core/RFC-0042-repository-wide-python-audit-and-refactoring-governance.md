@@ -384,8 +384,13 @@ Wave 착수 시점의 개발자/Claude Code 판단에 맡긴다). 이 스크립�
   (Ponytail 원 정의, Open 상태 — 재론하지 않음)
 - `hqs/development/IMPLEMENTATION_RULES.md`(Comment/Docstring 정책 원 출처)
 - `docs/research/STAGE-TO-TEAM-MIGRATION-ARCHIVE-CLEANUP-INVESTIGATION-0001.md`,
-  `docs/research/ARCHIVE-CLEANUP-REVALIDATION-0001.md`(파일 보존 판단 선례)
-- `docs/architecture/core/ADR-0006-structure-v1-migration.md`(archive/ 제외 근거)
+  `docs/research/ARCHIVE-CLEANUP-REVALIDATION-0001.md`(파일 보존 판단 선례 —
+  후속 검증 결과 이 파일은 `origin/claude/jarvis-archive-cleanup-snro5w`
+  브랜치에는 실존하나 main/이 브랜치에는 병합되지 않음, 병합 여부는 이
+  RFC의 판단 대상 밖. 근거: `docs/research/OPEN-ISSUES-PR214-VERIFICATION-0001.md`)
+- `docs/decisions/adr/ADR-0006-structure-v1-migration.md`(원문은
+  `docs/architecture/core/ADR-0006-structure-v1-migration.md`로 인용 —
+  후속 검증으로 실제 경로 확인, archive/ 제외 근거)
 - `docs/governance/README.md`(Governance 단계 정의, 이 RFC가 새 단계를 추가하지 않았음을 대조하는 근거)
 - `docs/architecture/core/ADC-0045-repository-wide-python-audit-and-refactoring-decision.md`(이 RFC 판단을 등록할 후속 ADC, §10/§11 인용)
 - `docs/architecture/core/ADR-0028-repository-wide-python-audit-and-refactoring-governance-adoption.md`(후속 Baseline, §10/§11 인용)
