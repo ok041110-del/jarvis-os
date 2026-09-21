@@ -7,7 +7,26 @@
 §3(Stage 01 항)의 결론, `docs/governance/adc/ADC-0003.md` 계열 Stage 01
 Capability 근거(ADC-0005).
 
-## 0. 이 RFC가 열린 이유
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0033 |
+| Title | Stage 01 Multi-Agent Reasoning Adoption |
+| Type | RFC |
+| Target Domain | Development HQ — Stage 01(Context Analysis) Responsibility 재정의 + Agent 4개 신규 도입 |
+| Status | Proposed → 이 세션에서 ADC-0036/ADR-0021로 이어 확정 대상 |
+| Decision Group | Stage 01 Multi-Agent 구현 착수 전 Governance(RFC-0033 → ADC-0036 → ADR-0021) |
+| Parent Documents | docs/architecture/core/RFC-0030-dev-hq-stage-agent-team-boundary-analysis.md(§3 Stage 01 항, Superseded 대상) |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | hqs/development/stages/01_context_analysis/RESPONSIBILITY.md, CONTEXT.md |
+| Source Path | docs/architecture/core/RFC-0033-stage01-multi-agent-reasoning-adoption.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 사용자가 "(구)Stage 01 Context Analysis를 Multi-Agent 기반으로 실제
 구현"을 지시했다. 구현 착수 전 기존 문서를 검토한 결과 두 가지 기존
@@ -34,7 +53,7 @@ LLM 실행은 기존 Engine/Engine Adapter 경계(`mvp/omniroute_engine.py`)를
 변경(ParallelRunner, GitHub Adapter, Code Analysis Executor 등)은 별도
 Governance Gateway로 확대하지 않는다.
 
-## 1. 판단 범위 (Scoped)
+### 1. 판단 범위 (Scoped)
 
 이 RFC가 다루는 것은 정확히 다음 두 가지뿐이다.
 
@@ -55,7 +74,9 @@ Adapter/Code Analysis Executor 등 Stage 01 **내부** 실행 구조 선택.
 한(§4에서 확인) 내부 구현 자유 재량이다(HANDOVER.md "What Claude Code
 Can Do").
 
-## 2. Q1 — 새 Agent 4개 도입이 RFC→ADC→ADR을 요구하는가
+## 3. Analysis & Decision
+
+### 2. Q1 — 새 Agent 4개 도입이 RFC→ADC→ADR을 요구하는가
 
 **그렇다.** 근거:
 
@@ -80,7 +101,7 @@ Decision Candidate가 아니라 그 방향을 Stage 01에 적용하는 **후속
 확정**으로 처리한다 — HANDOVER.md ADC 채택 기준 (1) "지금 결정하지 않으면
 상위 작업(Stage 01 Multi-Agent 구현)을 진행할 수 없다"를 충족).
 
-## 3. Q2 — Kernel Public Contract / Development HQ Baseline이 변경되는가
+### 3. Q2 — Kernel Public Contract / Development HQ Baseline이 변경되는가
 
 **변경되지 않는다(Scoped).** 근거:
 
@@ -112,7 +133,7 @@ Contract 포함)·Engine Adapter Contract 어느 것도 변경되지 않는다. 
 결정은 Development HQ **내부** 범위(Stage 01의 Responsibility 재정의 +
 Agent 4개 추가)로 Scoped Accept한다.
 
-## 4. Stage 01 신규 Responsibility 경계 (재정의안)
+### 4. Stage 01 신규 Responsibility 경계 (재정의안)
 
 기존(삭제 대상 서술): "Engine 호출 — 5개 Capability 전부 순수 정적
 분석/파일 탐색이며 Engine을 호출하지 않는다(결정적 Input→Output의
@@ -129,7 +150,13 @@ Capability는 계속 Engine을 호출하지 않는 결정적 분석으로 유지
 바뀌는 것은 Reasoning 단계 하나가 추가된 것이지, 기존 결정적
 Capability의 성격이 아니다."
 
-## 5. Non-goals
+## 4. Evidence & Validation
+
+위 §3의 「2. Q1」·「3. Q2」에 근거가 이미 포함되어 있어 별도 Evidence Summary 절로 분리하지 않는다.
+
+## 5. Consequences & Risks
+
+### 5. Non-goals
 
 - Agent Domain/Lifecycle/State/Message/Event Contract(Phase A/B,
   ADC-0032/0033 Defer/Open)를 재정의하지 않는다 — 이 RFC의 4개 Agent는
@@ -141,7 +168,9 @@ Capability의 성격이 아니다."
   RFC/ADC/ADR 없이 진행한다.
 - ADC-02/09/10 등 Kernel 수준 Open Decision을 재론하지 않는다.
 
-## 6. Governance Chain / Next Step
+## 6. Open Questions & Change History
+
+### 6. Governance Chain / Next Step
 
 | 단계 | 내용 |
 |---|---|
@@ -150,7 +179,25 @@ Capability의 성격이 아니다."
 | ADR-0021 | Baseline 문서(Stage 01 RESPONSIBILITY.md/CONTEXT.md) 반영 확정 선언 |
 | 이후 | Stage 01 Multi-Agent 실제 구현(ParallelRunner/Agent/Aggregator/GitHub Adapter/Code Analysis Executor) — 이 RFC의 Governance 판단과 별개로 자유 구현 |
 
-## 7. Self Review
+### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0036-stage01-multi-agent-reasoning-resolution.md` | 이 RFC 판단을 등록할 후속 ADC |
+| ADR | `docs/architecture/core/ADR-0021-stage01-multi-agent-reasoning-adoption-baseline.md` | Baseline 반영 확정 선언 |
+| RFC | `docs/architecture/core/RFC-0030-dev-hq-stage-agent-team-boundary-analysis.md` | §3 Stage 01 항, Superseded 대상 |
+| Reference | `hqs/development/stages/01_context_analysis/RESPONSIBILITY.md` | 재정의 대상 Responsibility |
+| Reference | `hqs/development/stages/01_context_analysis/CONTEXT.md` | 대상 문서 |
+| Reference | `hqs/development/mvp/omniroute_engine.py` | Engine Adapter 경계 Evidence(`call_engine_via_omniroute`) |
+| Reference | `docs/research/DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` | Agent 도입 선례(RFC-0008 → ADC-0006) |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Stage 01 Multi-Agent Reasoning(Intent/Goal/Requirement/Ambiguity Agent) 도입에 대한 구현 착수 전 Governance 판단 |
+
+## 부록: Self Review
 
 - Kernel Public Contract를 변경했는가 — **아니오**(§3).
 - Development HQ Baseline v1.0(Stage Data Contract)을 변경했는가 —

@@ -24,13 +24,32 @@ Agent 활성화 등)은 "이미 되어 있다"고 서술하지 않고, 정의만
 
 ---
 
-## 0. 사전 확인 — "(구)Stage 05 QA"의 실제 위치와 경계(main 기준 재확인)
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0038 |
+| Title | Stage 05 QA Multi-Agent/Parallel 경계 확인 (구현 아님) |
+| Type | RFC |
+| Target Domain | Development HQ — Stage 05(Validation) QA Agent 활성화/병렬화 경계 조사 |
+| Status | Proposed (검토 대상, 결정 아님 — §8이 이 RFC의 핵심 결론이다) |
+| Decision Group | Stage 05 QA Multi-Agent 조사(RFC-0038 → ADC-0041, NOT DETERMINED이므로 ADR 미작성) |
+| Parent Documents | docs/architecture/core/RFC-0030-dev-hq-stage-agent-team-boundary-analysis.md(§3 Stage 05 원 분석, 이 RFC §2.2가 일부 정정) |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | hqs/development/stages/05_validation/stage_05.py, hqs/development/mvp/agents/qa.py |
+| Source Path | docs/architecture/core/RFC-0038-stage05-qa-multi-agent-boundary.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
+
+### 0. 사전 확인 — "(구)Stage 05 QA"의 실제 위치와 경계(main 기준 재확인)
 
 사용자 요청이 전제한 "Stage 05 QA"라는 이름 자체가 현재 main에 **정확히
 일치하는 대상이 없다** — 실제로는 서로 다른 두 세대의 구조가 공존한다.
 아래는 실제 코드를 직접 확인한 결과다(추측 아님).
 
-### 0.1 두 세대 구조
+#### 0.1 두 세대 구조
 
 | 세대 | 이름 | 실제 파일 | 구성 |
 |---|---|---|---|
@@ -44,7 +63,7 @@ main의 **"Stage 05: Validation"과 다른 대상**이다. 이 RFC는 사용자
 검증 대상으로 확정하고, QA Agent(`qa_agent_test_execution`)는 그
 Stage 05에 대한 **미활성 Agent 후보**로 다룬다(§1).
 
-### 0.2 QA Agent 실제 호출 여부(직접 확인, `grep` 재현 가능)
+#### 0.2 QA Agent 실제 호출 여부(직접 확인, `grep` 재현 가능)
 
 ```
 $ grep -rn "qa_agent_test_execution" hqs/development --include="*.py"
@@ -65,7 +84,9 @@ mvp/workflow_hello_sdlc.py:16 (MVP-0001 세대, 실제 호출)
 
 ---
 
-## 1. 현재 Stage 05 구조 조사(main 기준, 실제 파일 재확인)
+## 3. Analysis & Decision
+
+### 1. 현재 Stage 05 구조 조사(main 기준, 실제 파일 재확인)
 
 `README.md`/`RESPONSIBILITY.md`/`CAPABILITIES.md`/`VALIDATION.md`와
 `stage_05.py` 실제 코드를 대조했다 — **불일치 없음**(RFC-0037 §1.1과
@@ -95,9 +116,9 @@ Stage 04 Output(target, implementation, expose_target)
 
 ---
 
-## 2. Multi-Agent 독립성 — 실제 확인(사용자 지시 12개 기준에 답함)
+### 2. Multi-Agent 독립성 — 실제 확인(사용자 지시 12개 기준에 답함)
 
-### 2.1 입력/출력 Contract
+#### 2.1 입력/출력 Contract
 
 - **Code Review**(`backend_agent_code_review`): 입력 `implementation`
   (`str`), 출력 `str`(prose). 이미 `VerificationResult.code_review`
@@ -109,7 +130,7 @@ Stage 04 Output(target, implementation, expose_target)
   QA Agent가 **Code Review의 출력에 의존한다**(§2.2에서 이 사실이
   독립성 판단에 미치는 영향을 다룬다).
 
-### 2.2 Agent 간 의존성 / 데이터 공유 여부 / 실행 순서 의존성
+#### 2.2 Agent 간 의존성 / 데이터 공유 여부 / 실행 순서 의존성
 
 **RFC-0030 §3(Stage 05 ③)의 "둘 다 `implementation`만 입력으로 받고
 서로 독립"이라는 서술은, 현재 `qa_agent_test_execution`의 실제
@@ -137,7 +158,7 @@ Stage 04 Output(target, implementation, expose_target)
   "서로의 출력을 전혀 참조하지 않는다"는 의미로는 현재 함수 시그니처
   기준으로 부정확하다. 이 RFC는 이 차이를 명확히 구분해 기록한다.
 
-### 2.3 결과 merge 가능성 / deterministic aggregation 가능성 / LLM synthesis 필요 여부
+#### 2.3 결과 merge 가능성 / deterministic aggregation 가능성 / LLM synthesis 필요 여부
 
 - 두 Agent(Code Review, Test Proposal)의 출력을 **하나의 LLM 판단으로
   종합할 필요는 없다** — 각각 독립된 문자열 Evidence로 별도 필드에
@@ -150,7 +171,7 @@ Stage 04 Output(target, implementation, expose_target)
   제외했다. 이 RFC는 그 결론을 그대로 재확인한다 — **deterministic
   aggregation은 가능하고 필요하며, LLM synthesis는 필요하지 않다.**
 
-### 2.4 failure isolation
+#### 2.4 failure isolation
 
 - 현재 Code Review 실패는 이미 격리되어 있다 — Engine 실패 시
   `_engine_failure_message()` 형식의 문자열을 그대로 반환하고, 이
@@ -164,7 +185,7 @@ Stage 04 Output(target, implementation, expose_target)
   선례가 존재한다(`mvp/parallel_runner.py`, ADR-0021 Production
   Adopted) — 새로 설계할 필요 없이 재사용 후보다.
 
-### 2.5 결과 재현성
+#### 2.5 결과 재현성
 
 - 4개 결정적 검사 + Verdict는 이미 완전히 재현 가능함이 테스트로
   고정돼 있다(`test_stage_05.py`).
@@ -173,7 +194,7 @@ Stage 04 Output(target, implementation, expose_target)
   취급, Verdict 미반영"으로 설계에 반영한 전제다(§1). QA Agent를
   추가해도 이 전제가 깨지지 않는다.
 
-### 2.6 병렬화 시 latency/cost trade-off
+#### 2.6 병렬화 시 latency/cost trade-off
 
 - **구조적 가능성**: Code Review는 ChatGPT Engine(`call_engine_via_chatgpt`),
   QA Agent는 Claude Code Engine(`from ..engine import call_engine`,
@@ -194,7 +215,7 @@ Stage 04 Output(target, implementation, expose_target)
 
 ---
 
-## 3. Case A/B/C 비교 (Stage 04 RFC-0037 §3과 동일 형식)
+### 3. Case A/B/C 비교 (Stage 04 RFC-0037 §3과 동일 형식)
 
 | 기준 | Case A(현재) | Case B(Code Review + QA Agent, 순차 + Deterministic Gate) | Case C(B + 병렬 실행 + Deterministic Aggregation) |
 |---|---|---|---|
@@ -218,7 +239,7 @@ Proposal)을 각각 1번씩 수행하는" 구조다 — 후자는 비용이 후�
 
 ---
 
-## 4. 병렬화 후보와 불필요한 병렬화 구분(사용자 지시, Stage 04와 동일 원칙)
+### 4. 병렬화 후보와 불필요한 병렬화 구분(사용자 지시, Stage 04와 동일 원칙)
 
 - **병렬화 후보로 판단**: Code Review(LLM 판단, 기존 활성)와 Test
   Proposal(LLM 판단, QA Agent) — 둘 다 "결함/개선점을 발견"하거나
@@ -237,7 +258,9 @@ Proposal)을 각각 1번씩 수행하는" 구조다 — 후자는 비용이 후�
 
 ---
 
-## 5. Cost 관점 분석
+## 4. Evidence & Validation
+
+### 5. Cost 관점 분석
 
 | Case | LLM 호출 수 | 근거 |
 |---|---|---|
@@ -259,7 +282,7 @@ Proposal)을 각각 1번씩 수행하는" 구조다 — 후자는 비용이 후�
 
 ---
 
-## 6. Multi-Engine(ADR-0024, main 병합 완료)과의 결합 확인
+### 6. Multi-Engine(ADR-0024, main 병합 완료)과의 결합 확인
 
 - Code Review는 이미 ChatGPT Engine(`call_engine_via_chatgpt`)을
   쓴다(ADR-0024 Stage Mapping, main 반영 완료).
@@ -275,7 +298,15 @@ Proposal)을 각각 1번씩 수행하는" 구조다 — 후자는 비용이 후�
 
 ---
 
-## 7. Governance/Architecture 영향(사용자 지시 12번째 기준)
+### Validation — 기존 Architecture/Governance와의 충돌 여부 확인
+
+- `git status --porcelain` — 이 RFC 파일 1건만 신규 추가 예정.
+  `hqs/development/`·`core/`·`dashboard/` Production Code 무변경
+  (읽기만 수행, 실제 diff는 커밋 단계에서 재확인).
+
+## 5. Consequences & Risks
+
+### 7. Governance/Architecture 영향(사용자 지시 12번째 기준)
 
 QA Agent를 실제로 Stage 05에 연결하려면 다음이 필요하다 — **이 RFC는
 아래를 실행하지 않는다, 필요 여부만 확인한다**:
@@ -302,7 +333,9 @@ QA Agent를 실제로 Stage 05에 연결하려면 다음이 필요하다 — **�
 
 ---
 
-## 8. 이 RFC의 결론(요약)
+## 6. Open Questions & Change History
+
+### 8. 이 RFC의 결론(요약)
 
 - **조사 완료**: 현재 Stage 05 구조, "(구)Stage 05 QA"라는 이름이
   가리키는 실제 대상의 세대 차이(§0), QA Agent 실제 호출 여부(§0.2,
@@ -320,7 +353,7 @@ QA Agent를 실제로 Stage 05에 연결하려면 다음이 필요하다 — **�
   QA Agent 시그니처 재설계 — 둘 다 별도 절차 필요).
 - **Architecture 변경**: 없음(제안만, Case A 유지 권고).
 
-## 9. 후속 절차 제안(실행하지 않음, 제안만)
+### 9. 후속 절차 제안(실행하지 않음, 제안만)
 
 1. **ADC**: 이 RFC의 결론(NOT DETERMINED)을 공식 Decision으로
    등록 — `ADC-0041`.
@@ -329,7 +362,7 @@ QA Agent를 실제로 Stage 05에 연결하려면 다음이 필요하다 — **�
    식별한 Contract 재설계를 먼저 별도로 다뤄야 한다 — 이 RFC는 그
    설계에 착수하지 않는다.
 
-## Related
+### Related Documents
 
 - `docs/architecture/core/RFC-0030-dev-hq-stage-agent-team-boundary-analysis.md`(§3
   Stage 05 원 분석, 이 RFC §2.2가 일부 정정)
@@ -346,8 +379,16 @@ QA Agent를 실제로 Stage 05에 연결하려면 다음이 필요하다 — **�
 - `hqs/development/stages/05_validation/README.md`/`RESPONSIBILITY.md`/`CAPABILITIES.md`/`VALIDATION.md`
 - `hqs/development/mvp/agents/qa.py`, `hqs/development/mvp/parallel_runner.py`
 - `hqs/development/teams/README.md`, `hqs/development/teams/validation/team.py`
+- `docs/architecture/core/ADC-0041-stage05-qa-multi-agent-decision.md`(이 RFC의
+  NOT DETERMINED 결론을 등록할 후속 ADC, §8/§9 인용)
 
-## Self Review
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Stage 05 QA Agent Multi-Agent/병렬화 가능성을 사용자 지시 12개 기준으로 조사(NOT DETERMINED, ADC-0041로 결론 공식화 예정) |
+
+## 부록: Self Review
 
 - Real Engine Evidence 없이 Production Architecture를 승인했는가 —
   **아니오**(§8, NOT DETERMINED로 명시, §9에서 ADC로만 공식화 예정).
@@ -363,9 +404,3 @@ QA Agent를 실제로 Stage 05에 연결하려면 다음이 필요하다 — **�
   **아니오**(신규 문서만 추가, §Validation에서 재확인).
 - commit/push를 수행했는가 — 이 파일 작성 이후 `ADC-0041`과 함께
   별도로 수행한다.
-
-## Validation — 기존 Architecture/Governance와의 충돌 여부 확인
-
-- `git status --porcelain` — 이 RFC 파일 1건만 신규 추가 예정.
-  `hqs/development/`·`core/`·`dashboard/` Production Code 무변경
-  (읽기만 수행, 실제 diff는 커밋 단계에서 재확인).

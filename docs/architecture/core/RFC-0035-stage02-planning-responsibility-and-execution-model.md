@@ -21,7 +21,26 @@ Acceptance Criteria가 이미 Stage 01 PRD Synthesis에서 처리되고 있다�
 발견, Task&Dependency 통합 Agent 권고). 이 RFC는 그 결과를 다시
 도출하지 않고 인용·확정한다.
 
-## 0. 이 RFC가 여는 것
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0035 |
+| Title | Stage 02 Planning Responsibility & Execution Model |
+| Type | RFC |
+| Target Domain | Development HQ — Stage 02 Task & Dependency Agent 도입, SpecificationResult Contract 확장 |
+| Status | Proposed → 이 세션에서 ADC-0038/ADR-0023으로 이어 확정 대상 |
+| Decision Group | Stage 02 Planning Responsibility 확정(RFC-0035 → ADC-0038 → ADR-0023), RFC-0033/RFC-0034와 동일 성격 |
+| Parent Documents | 이 세션 문서 조사 2건(Stage 02 Planning & Specification 문서 설계 확정, Stage 02 LLM 호출 필요성 및 영향력 조사) |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | hqs/development/stages/01_context_analysis/prd_synthesis.py |
+| Source Path | docs/architecture/core/RFC-0035-stage02-planning-responsibility-and-execution-model.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
+
+### 0. 이 RFC가 여는 것
 
 두 조사의 핵심 결론은 다음과 같이 수렴했다.
 
@@ -42,7 +61,9 @@ Acceptance Criteria가 이미 Stage 01 PRD Synthesis에서 처리되고 있다�
 
 이 RFC는 이 5가지를 Architecture/Contract Decision으로 공식화한다.
 
-## 1. Decision — Task & Dependency Agent 도입
+## 3. Analysis & Decision
+
+### 1. Decision — Task & Dependency Agent 도입
 
 **Accept.** Stage 02에 정확히 1개의 신규 Agent(가칭 "Task & Dependency
 Agent")를 도입한다.
@@ -70,7 +91,7 @@ Stage 01의 기존 패턴(1회 호출·다중 구조화 필드)과의 일관성,
 호출 회피(`RESPONSIBILITY.md` 반복 원칙), 재추론 회피를 근거로 이미
 기각했다. 이 RFC는 그 판단을 뒤집지 않는다.
 
-## 2. Decision — Deterministic Layer
+### 2. Decision — Deterministic Layer
 
 **Accept.** Task & Dependency Agent 호출 **이후**는 전부 코드 기반
 결정적 처리로 한다. 새 판단을 추가하지 않는다.
@@ -90,7 +111,7 @@ Agent가 "의미적으로 틀린" 의존관계를 판단했더라도(예: 실제
 잡아내지 못한다. 이는 §6(향후 재평가 조건)에서 명시적으로 기록한다 —
 지금 추가 LLM 검증 단계를 두지 않는다(불필요한 Agent 확장 금지).
 
-## 3. Decision — Acceptance Criteria는 그대로 둔다
+### 3. Decision — Acceptance Criteria는 그대로 둔다
 
 **Accept.** Stage 01 PRD Synthesis(`prd_synthesis.py`)가 이미 생성한
 Acceptance Criteria(현재 `specification` prose 내부)를 그대로 유지한다.
@@ -102,7 +123,7 @@ Stage 02는 이를 재추론하지 않고, 별도 Agent도 도입하지 않는�
 없다. 향후 Stage 03/05가 AC를 구조적으로 소비할 필요가 실제로
 관찰되면, 그때 별도 RFC로 재론한다(지금 선제적으로 만들지 않는다).
 
-## 4. Decision — Output Contract 확장
+### 4. Decision — Output Contract 확장
 
 **Accept — Public Contract 변경.** `stages/contracts.py::
 SpecificationResult`를 다음 3개 키로 확장한다(기존 `skeleton`/
@@ -152,7 +173,13 @@ class SpecificationResult(TypedDict):
 **`ContextAnalysisResult`/`DesignResult`/`ImplementationResult`/
 `VerificationResult`는 무변경.**
 
-## 5. 유지되는 경계 (사용자 지시 "반드시 유지" 그대로 확인)
+## 4. Evidence & Validation
+
+위 §3의 각 Decision 절(1~4)에 근거·Evidence가 이미 포함되어 있어 별도 Evidence Summary 절로 분리하지 않는다.
+
+## 5. Consequences & Risks
+
+### 5. 유지되는 경계 (사용자 지시 "반드시 유지" 그대로 확인)
 
 - Stage 01 PRD Synthesis의 책임(Structured Understanding + Repository
   Context 종합 → PRD)은 이 RFC로 변경되지 않는다.
@@ -172,7 +199,7 @@ class SpecificationResult(TypedDict):
   없음). Stage 01의 `ParallelRunner`를 그대로 재사용할 필요조차
   없다(단일 Task 실행이므로).
 
-## 6. 향후 재평가 조건
+### 6. 향후 재평가 조건
 
 다음이 실제로 관찰되면 이 Decision을 재검토한다(RT 성격 기록, 새 RFC
 개설 조건).
@@ -186,20 +213,20 @@ class SpecificationResult(TypedDict):
    한계에 반복적으로 부딪히는 경우 — 분할 호출 전략을 재론(지금은
    가정하지 않는다).
 
-## 7. Architecture Impact
+### 7. Architecture Impact
 
 **없음.** Kernel Public Contract(Jarvis OS Architecture Baseline §14),
 Jarvis OS Architecture Baseline 자체는 무변경. Development HQ 내부
 Scoped 결정이다(RFC-0033/RFC-0034와 동일 성격).
 
-## 8. Contract Impact
+### 8. Contract Impact
 
 **있음, Scoped.** `SpecificationResult`(Stage 02 Output, `ADR-0009`
 Public Scope)에 3개 키 추가(§4). 나머지 4개 Stage Contract는 무변경.
 Engine Adapter Contract(`ADC-0031`)도 무변경 — 여전히 단일
 `call_engine_via_omniroute` 경로만 재사용.
 
-## 9. Non-goals
+### 9. Non-goals
 
 - Task & Dependency Agent, Deterministic Layer의 실제 코드 구현 —
   이 RFC/ADC/ADR은 Decision만 기록한다.
@@ -210,7 +237,9 @@ Engine Adapter Contract(`ADC-0031`)도 무변경 — 여전히 단일
 - Agent Domain/Lifecycle/State/Message/Event Contract 재정의.
 - ADC-02/09/10 등 Kernel 수준 Open Decision.
 
-## 10. Governance Chain / Next Step
+## 6. Open Questions & Change History
+
+### 10. Governance Chain / Next Step
 
 | 단계 | 내용 |
 |---|---|
@@ -219,7 +248,25 @@ Engine Adapter Contract(`ADC-0031`)도 무변경 — 여전히 단일
 | ADR-0023 | Baseline 문서 반영 대상 확정(`BASELINE.md` Stage Data Contract 절), 대안/Trade-off/재평가 조건 최종 기록 |
 | 이후(별도 작업) | 실제 코드 구현, Stage 02 문서(`RESPONSIBILITY.md` 등) 갱신 — 이 RFC/ADC/ADR과 무관하게 자유 재량 |
 
-## 11. Self Review
+### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0038-stage02-planning-responsibility-and-execution-model-resolution.md` | 이 RFC 판단을 등록할 후속 ADC |
+| ADR | `docs/architecture/core/ADR-0023-stage02-planning-responsibility-and-execution-model-baseline.md` | Baseline 반영 확정 선언 |
+| RFC | `docs/architecture/core/RFC-0034-stage01-prd-specification-synthesis.md` | `prd` 키 추가 선례(동일 절차 대상, §4) |
+| RFC | `docs/architecture/core/RFC-0033-stage01-multi-agent-reasoning-adoption.md` | 동일 성격의 선행 Scoped 결정(§7) |
+| Reference | `hqs/development/stages/contracts.py` | `SpecificationResult` 확장 대상 |
+| Reference | `hqs/development/BASELINE.md` | "Stage Data Contract(ADR-0009)" 절 |
+| Reference | `hqs/development/stages/01_context_analysis/prd_synthesis.py` | 재추론 금지 경계 확인 대상(§0, 수정 대상 아님) |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Stage 02 Task & Dependency Agent 도입, Deterministic Layer 범위, SpecificationResult Contract 확장을 Decision으로 확정 |
+
+## 부록: Self Review
 
 - 새로운 실험/측정을 수행했는가 — **아니오** — 기존 두 조사 결과만
   인용·확정.

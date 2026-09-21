@@ -31,12 +31,31 @@ RFC만 제출한다.
 
 ---
 
-## 1. 현재 구조 조사 (실제 코드 근거)
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0036 |
+| Title | ChatGPT Engine / Claude Code Engine 분리 — Freeze 경계 확인 (구현 아님) |
+| Type | RFC |
+| Target Domain | Kernel Architecture — Engine Contract / IMPLEMENTATION_RULES.md Frozen Architecture 경계 |
+| Status | ~~Proposed~~ → Resolved — ADC-0039-multi-engine-re-evaluation.md(Amendment, TRANSITION)와 ADR-0024-multi-engine-architecture-adoption.md가 Multi-Engine Architecture(ChatGPT/Claude Code 2-Engine) 채택 확정. 이 RFC 본문(조사·Evidence·§4~§6 결론)은 원본 그대로 보존 |
+| Decision Group | Multi-Engine Architecture 재평가(RFC-0036 → ADC-0039 → ADR-0024) |
+| Parent Documents | docs/architecture/core/ADC-0031, docs/architecture/core/ADR-0015, docs/architecture/core/ADR-0017 |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | hqs/development/mvp/engine.py, hqs/development/mvp/omniroute_engine.py, docs/governance/rt/RT-0001.md Candidate 2 |
+| Source Path | docs/architecture/core/RFC-0036-chatgpt-claude-code-dual-engine-boundary.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
+
+### 1. 현재 구조 조사 (실제 코드 근거)
 
 main(`50db4c6`) 기준 `hqs/development/mvp/`, `hqs/development/stages/`
 전수 조사.
 
-### 1.1 Engine Contract
+#### 1.1 Engine Contract
 
 ```python
 def call_engine(prompt: str) -> str: ...
@@ -60,14 +79,14 @@ def call_engine(prompt: str) -> str: ...
 함수로 감싼 Engine"** 이다 — 이번 요청의 "Claude Code Engine" 후보와
 개념적으로 동일한 것이 이미 코드에 있다(§4).
 
-### 1.2 `call_engine()`의 책임
+#### 1.2 `call_engine()`의 책임
 
 프롬프트 1개를 완성된 텍스트 응답 1개로 바꾸는 것 하나뿐이다.
 Retry/Fallback/재시도 정책/Provider 선택/Model 선택 로직이 전혀 없다
 — 이는 우연이 아니라 `IMPLEMENTATION_RULES.md` 15·16·17·21행이
 명시적으로 금지한 항목이다(§1.4).
 
-### 1.3 OmniRoute Thin Caller는 Contract에 포함되는가, Adapter인가
+#### 1.3 OmniRoute Thin Caller는 Contract에 포함되는가, Adapter인가
 
 Adapter다. Contract(`str -> str`, 단일 예외)는 두 구현체 이전부터
 암묵적으로 존재했고, `omniroute_engine.py`는 그 Contract를 만족하는
@@ -75,7 +94,7 @@ Adapter다. Contract(`str -> str`, 단일 예외)는 두 구현체 이전부터
 변경하지 않았다(`ADR-0017` §2.1: "새 Architecture Decision이 아니라
 `ADC-0031`이 이미 확정한 Case A 정의의 논리적 필연").
 
-### 1.4 Stage/Agent가 Engine 구현을 얼마나 아는가
+#### 1.4 Stage/Agent가 Engine 구현을 얼마나 아는가
 
 Stage 코드(`stage_01.py`~`stage_05.py`)는 Engine을 전혀 모른다 —
 Agent 함수만 호출한다. Engine을 아는 것은 Agent 모듈 7곳뿐이고, 각
@@ -106,7 +125,7 @@ from ..omniroute_engine import call_engine_via_omniroute as call_engine
 `call_engine_generation`)으로 쪼개야 한다 — "Agent-level routing"이
 매끄럽지 않은 유일한 지점이다.
 
-### 1.5 ChatGPT/Claude Code 추가 시 Contract 변경 필요 여부
+#### 1.5 ChatGPT/Claude Code 추가 시 Contract 변경 필요 여부
 
 **불필요.** 기존 두 모듈과 동일한 모양(`str -> str`, 단일
 `RuntimeError`)의 새 모듈을 추가하고, Agent 파일의 import 한 줄만
@@ -114,7 +133,7 @@ from ..omniroute_engine import call_engine_via_omniroute as call_engine
 패턴 그대로다. `EngineRequest`/`EngineResult` 같은 새 객체, `engine=`
 매개변수, Router 클래스는 전부 불필요(YAGNI) — 만들 이유가 없다.
 
-### 1.6 기존 테스트의 mocking boundary
+#### 1.6 기존 테스트의 mocking boundary
 
 Agent 모듈 로컬 이름을 patch한다(`monkeypatch.setattr(backend,
 "call_engine", fake)`, `monkeypatch.setattr(reasoning, "call_engine",
@@ -125,7 +144,9 @@ mocking boundary는 깨지지 않는다.
 
 ---
 
-## 2. 핵심 발견 — 이 요청은 "구현"이 아니라 "Freeze 재검토" 대상이다
+## 3. Analysis & Decision
+
+### 2. 핵심 발견 — 이 요청은 "구현"이 아니라 "Freeze 재검토" 대상이다
 
 `hqs/development/IMPLEMENTATION_RULES.md` 금지 표:
 
@@ -182,7 +203,7 @@ Governance 검토 없이 이번 세션에서 진행하지 않는다.
 
 ---
 
-## 3. ChatGPT Engine / Claude Code Engine 역할 후보 (참고용 분석, 미확정)
+### 3. ChatGPT Engine / Claude Code Engine 역할 후보 (참고용 분석, 미확정)
 
 Freeze 재검토가 이뤄질 경우를 대비해 실제 Agent 책임 기준으로만
 분석한다(추측 금지 원칙에 따라, "ChatGPT가 더 낫다"는 가정 없이).
@@ -206,7 +227,7 @@ Claude=Implementation")은 대체로 코드 근거와 맞지만, **Agent 파일
 `backend.py`를 함수 단위로 쪼개는 추가 변경이 필요하다(Contract는
 안 바뀌지만 파일 내부 구조는 바뀐다).
 
-### 3.1 Provider vs Execution Mode
+#### 3.1 Provider vs Execution Mode
 
 현재 코드에 "Repository Execution Engine"(LLM이 파일을 직접 읽고
 쓰는 모드)은 **존재하지 않는다**. `engine.py`는 `claude` CLI를
@@ -223,7 +244,7 @@ Repository Execution Engine"이라는 §6(사용자 원 요청) 구도는 현재
 코드에 대응물이 없는, 훨씬 더 큰 별도의 Architecture 결정(LLM에게
 도구 접근권을 주는 것)이라서 이 RFC 범위 밖으로 명시적으로 뺀다.
 
-### 3.2 Engine Contract 후보
+#### 3.2 Engine Contract 후보
 
 `EngineRequest`/`EngineResult` 같은 객체는 만들 필요가 없다(§1.5).
 Freeze가 재검토되어 실제로 채택된다면, 기존과 동일한 `str -> str`
@@ -231,7 +252,7 @@ Freeze가 재검토되어 실제로 채택된다면, 기존과 동일한 `str ->
 
 ---
 
-## 4. Architecture Decision
+### 4. Architecture Decision
 
 **Decision: 이 시점에는 ADOPT/CONDITIONAL/REJECT 중 어느 것도 아니다
 — `INVESTIGATE`(추가 Governance 필요, 실제 코드/Contract 변경
@@ -252,7 +273,13 @@ Freeze가 재검토되어 실제로 채택된다면, 기존과 동일한 `str ->
 
 ---
 
-## 5. 향후 절차 제안 (실행하지 않음, 제안만)
+## 4. Evidence & Validation
+
+위 §2의 「1. 현재 구조 조사」 및 §3의 각 절에 코드 근거 기반 Evidence가 이미 포함되어 있어 별도 Evidence Summary 절로 분리하지 않는다.
+
+## 5. Consequences & Risks
+
+### 5. 향후 절차 제안 (실행하지 않음, 제안만)
 
 1. **ADC**: `IMPLEMENTATION_RULES.md` 16·21행에 "목적별 정적
    Multi-Engine 선택(런타임 Provider 재선택/Fallback 없음, Agent
@@ -268,7 +295,9 @@ Freeze가 재검토되어 실제로 채택된다면, 기존과 동일한 `str ->
 
 ---
 
-## 6. 이 RFC의 결론 (요약)
+## 6. Open Questions & Change History
+
+### 6. 이 RFC의 결론 (요약)
 
 - **조사 완료**: 현재 Engine Contract, 책임 경계, mocking boundary,
   Contract 변경 필요 여부(불필요) — 전부 실제 코드 근거로 확인했다.
@@ -278,3 +307,23 @@ Freeze가 재검토되어 실제로 채택된다면, 기존과 동일한 `str ->
   (이 문서)에서 멈추고 ADC/ADR 없이 코드를 바꾸지 않았다.
 - **Contract 변경**: 없음(필요하다면 없어도 된다는 것까지만 확정).
 - **Architecture 변경**: 없음(제안만, Freeze 그대로 유지).
+
+### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0039-multi-engine-re-evaluation.md` | 이 RFC의 조사를 근거로 Multi-Engine Architecture 채택을 확정한 Amendment(TRANSITION) |
+| ADR | `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md` | 후속 Baseline 반영 |
+| ADC | `docs/architecture/core/ADC-0031-omniroute-thin-engine-caller-boundary.md`(원문은 `ADC-0031`로 인용) | Engine Adapter Contract(Case A 정의) — 이 RFC의 §1.3/§4가 재검토 대상으로 지목 |
+| ADR | `docs/architecture/core/ADR-0015-omniroute-thin-engine-caller-adoption-policy.md`(원문은 `ADR-0015`로 인용) | 대상 문서(§0 인용) |
+| ADR | `docs/architecture/core/ADR-0017-omniroute-production-adoption-final-review.md`(원문은 `ADR-0017`로 인용) | §1.3/§2 인용(omniroute_engine.py 도입 근거, §2.4 전환 조건) |
+| Reference | `docs/governance/rt/RT-0001.md` | Candidate 2(Engine Gateway Re-evaluation Trigger, §2 인용) |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | 금지 표 15·16·21행(§2 인용) |
+| Reference | `hqs/development/mvp/engine.py` | §1.1 Evidence |
+| Reference | `hqs/development/mvp/omniroute_engine.py` | §1.1 Evidence |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ChatGPT Engine/Claude Code Engine 분리 요청에 대해 Freeze 경계 충돌 여부를 조사(구현 아님, INVESTIGATE 판정) |

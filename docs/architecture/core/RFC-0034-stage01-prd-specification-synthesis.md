@@ -6,7 +6,26 @@
 `hqs/development/BASELINE.md`("Stage Data Contract"), `stages/01_context_analysis/
 stage_01_multi_agent.py`, `stages/02_planning_specification/stage_02.py`.
 
-## 0. 이 RFC가 열린 이유
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0034 |
+| Title | Stage 01 PRD/Specification Synthesis — Stage 01/02 Responsibility Rebalancing |
+| Type | RFC |
+| Target Domain | Development HQ — Stage 01/02 책임 재조정, Stage Data Contract 확장 |
+| Status | Proposed → 이 세션에서 ADC-0037/ADR-0022로 이어 확정 대상 |
+| Decision Group | Stage 01 PRD Synthesis 구현 착수 전 Governance(RFC-0034 → ADC-0037 → ADR-0022) |
+| Parent Documents | hqs/development/BASELINE.md("Stage Data Contract"), hqs/development/stages/contracts.py |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | stages/01_context_analysis/stage_01_multi_agent.py, stages/02_planning_specification/stage_02.py |
+| Source Path | docs/architecture/core/RFC-0034-stage01-prd-specification-synthesis.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 사용자가 Stage 01/02의 책임 경계를 다음과 같이 재정의하도록 요청했다.
 
@@ -24,7 +43,7 @@ Specification 생성", `stage_02.py::run_stage_02()`가
 호출)가 그것이다. 이 Capability를 옮기는 것이지, 새로 만드는 것이
 아니다.
 
-## 1. 현재 구조 조사 결과
+### 1. 현재 구조 조사 결과
 
 - **Stage 01 → Stage 02 Handoff Contract**(`stages/contracts.py::
   ContextAnalysisResult`)는 5개 키(`directory_structure`/`context_bundle`/
@@ -48,7 +67,9 @@ Specification 생성", `stage_02.py::run_stage_02()`가
   **더 풍부한** Context(Structured Understanding + Repository Snapshot
   기반 Discovery)를 이미 갖고 있다.
 
-## 2. 결론 — 무엇을 옮기고 무엇을 그대로 두는가
+## 3. Analysis & Decision
+
+### 2. 결론 — 무엇을 옮기고 무엇을 그대로 두는가
 
 **옮긴다**: Capability 2(Requirement & Specification 생성, Engine 1회
 호출)를 Stage 01로 이동한다. 새 Agent를 만들지 않고 기존
@@ -75,7 +96,7 @@ Task Decomposition/Dependency/Acceptance/Implementation Planning(Stage
 **Dependency Analysis는 손대지 않는다** — 사용자 지시 §중요, 기존
 Known Limitation(PR #176) 그대로 유지.
 
-## 3. Public Contract 변경 여부 (사용자 지시 #11/#12)
+### 3. Public Contract 변경 여부 (사용자 지시 #11/#12)
 
 **변경된다 — 정확히 한 곳, Scoped.**
 
@@ -95,7 +116,7 @@ Known Limitation(PR #176) 그대로 유지.
   `requirements_agent_requirement_analysis()` 1개 함수, 1개 Engine
   Adapter(`call_engine_via_omniroute`)만 사용한다.
 
-## 4. Legacy 결정적 `stage_01.py`와의 관계
+### 4. Legacy 결정적 `stage_01.py`와의 관계
 
 기존 결정적 `stage_01.py`(ADR-0021로 이미 "Multi-Agent 도입 전 형태로
 보존, `mvp/tests/test_stage_01.py`가 직접 검증"으로 명시)는 **이 RFC로
@@ -107,7 +128,13 @@ Known Limitation(PR #176) 그대로 유지.
 경유만 Production 경로) 실제 파이프라인에 영향이 없다 — ADR-0021이 이미
 legacy 경로를 "역사적 보존, Production 비경로"로 규정한 것과 일관된다.
 
-## 5. Non-goals
+## 4. Evidence & Validation
+
+위 §3의 「2. 결론」·「3. Public Contract 변경 여부」에 근거가 이미 포함되어 있어 별도 Evidence Summary 절로 분리하지 않는다.
+
+## 5. Consequences & Risks
+
+### 5. Non-goals
 
 - Stage 02의 Task Decomposition/Dependency/Acceptance/Implementation
   Planning 책임을 실제로 구현하지 않는다.
@@ -118,7 +145,9 @@ legacy 경로를 "역사적 보존, Production 비경로"로 규정한 것과 �
 - Agent Domain/Lifecycle/State/Message/Event Contract를 재정의하지
   않는다.
 
-## 6. Governance Chain / Next Step
+## 6. Open Questions & Change History
+
+### 6. Governance Chain / Next Step
 
 | 단계 | 내용 |
 |---|---|
@@ -127,7 +156,25 @@ legacy 경로를 "역사적 보존, Production 비경로"로 규정한 것과 �
 | ADR-0022 | Baseline 문서(`hqs/development/BASELINE.md`, Stage 01/02 RESPONSIBILITY/CONTEXT/SPECIFICATION.md) 반영 확정 |
 | 이후 | 실제 구현 — Governance 판단과 별개로 자유 재량 |
 
-## 7. Self Review
+### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0037-stage01-prd-specification-synthesis-resolution.md` | 이 RFC 판단을 등록할 후속 ADC |
+| ADR | `docs/architecture/core/ADR-0022-stage01-prd-specification-synthesis-baseline.md` | Baseline 반영 확정 선언 |
+| ADR | `docs/architecture/core/ADR-0021-stage01-multi-agent-reasoning-adoption-baseline.md` | Legacy `stage_01.py` 보존 근거(§4) |
+| Reference | `hqs/development/stages/contracts.py` | `ContextAnalysisResult`/`SpecificationResult` 정의 |
+| Reference | `hqs/development/BASELINE.md` | "Stage Data Contract(ADR-0009)" 절 |
+| Reference | `hqs/development/mvp/agents/requirements.py` | `requirements_agent_requirement_analysis()` 재사용 대상 |
+| Reference | `hqs/development/mvp/tests/test_stage_01.py` | Legacy `stage_01.py` 직접 검증(§4) |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Stage 01 PRD/Specification Synthesis 도입에 따른 Stage 01/02 책임 재조정 및 Stage Data Contract(`prd` 키 추가) Governance 판단 |
+
+## 부록: Self Review
 
 - Kernel Public Contract를 변경했는가 — **아니오**(§3).
 - `SpecificationResult`(Stage 02 Output)를 변경했는가 — **아니오**(§2, §3).
