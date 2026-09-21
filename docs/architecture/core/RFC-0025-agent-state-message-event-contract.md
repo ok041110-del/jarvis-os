@@ -1,5 +1,22 @@
 # RFC-0025: Agent State / Message / Event Contract — 최소 범위 Boundary Question (Multi-Agent 운영 대비 Phase B)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0025 |
+| Title | Agent State / Message / Event Contract — 최소 범위 Boundary Question (Multi-Agent 운영 대비 Phase B) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Agent State/Message/Event Contract, Multi-Agent Phase B) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md`, `docs/architecture/core/ADC-0032-agent-domain-and-lifecycle-contract-resolution.md`(Not Accept, Defer) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0025-agent-state-message-event-contract.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/architecture/baseline/BASELINE.md` §6(Concept Model: State/Event/Interface),
@@ -33,7 +50,9 @@ Kernel Context Model(Context Identifier/Context Source 개념 — 이 RFC가
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `ADC-0032`는 Agent Domain·Lifecycle을 Defer하면서 재검토 Trigger 4건을
 남겼다(§Conditions 1~4). 그중 어느 것도 지금 충족되지 않았다 — 이 RFC는
@@ -47,7 +66,7 @@ Kernel Context Model(Context Identifier/Context Source 개념 — 이 RFC가
 이미 Event Bus·Runtime 구현을 금지하고 있으므로 여기서도 **구현이 아닌
 경계 서술**만 다룬다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 `BASELINE.md` §6 Concept Model은 이미 세 조각의 어휘를 갖고 있다.
 
@@ -70,33 +89,9 @@ Agent B에게 전달"하려는 순간 이 공백과 충돌한다. 이 RFC는 그
 충돌을 예방하기 위해 지금 무엇을 정할 수 있고 무엇을 정할 수 없는지를
 가른다.
 
-## 2. Evidence Summary — 이미 기록된 것만 인용
+## 3. Analysis & Decision
 
-### 2.1 이미 확정된 것 (Concept 존재, 세부는 미정)
-
-| 근거 | 내용 |
-|---|---|
-| §6 Concept Model | State 분류에 "Context, Lifecycle State"만 등재. Event(Entity), Message(Interface) 별도 존재. |
-| §6 관계 서술 | "Event는 HQ 경계를 가로질러(Event Flow) 전파된다." "Task는 HQ 계층을 따라(Task Flow) 수직으로 흐른다." |
-| `GLOSSARY.md` | Message = "Task/Event가 공유하는 전달 형식." Event/Fault 행 존재, Envelope/Correlation/Identity/Payload/Time 행은 **없음**. |
-| §11 | "Kernel은 Event Bus가 아니다." |
-| `IMPLEMENTATION_RULES.md` | "Event Bus 구현 금지 — MVP는 단일 선형 Task Flow만 다루며 Event Flow를 쓰지 않는다." 무변경. |
-| `ADC.md` ADC-05(Open, 우선순위 NEXT) | "Fault가 Task Flow 수준(at-least-once)으로 배달되는지, Event Flow 수준(best-effort)으로 배달되는지 미정." |
-| `ADC.md` ADC-08(Open, 우선순위 NEXT) | "Task Flow(순서·무유실)와 Event Flow(도달 범위)가 실제로 다른 배달 보장 수준으로 구현되는지 미정." |
-| `RFC-0024`/`ADC-0032` | Agent Domain Model·Agent Lifecycle State(REGISTERED→…) **Not Accept, Defer**. Agent Manager의 현재 허용 책임 범위 = **없음**. |
-
-### 2.2 §14 Kernel Public Contract와의 관계 — 결정적 공백
-
-`BASELINE.md` §14.1의 8개 Kernel 책임 후보 표(§14.1 계약의 범위)에는
-"Task 전달 책임"·"Capability 탐색 책임"·"Engine 호출 책임"·"Context 전달
-책임"·"Stable Prefix 책임"·"Context Boundary 책임"·"Context Assembly
-책임"·"Context Ordering 책임" **8개만** 있다. **"Event 전달 책임"·"Message
-전달 책임"은 이 표에 후보로조차 올라 있지 않다.** §6이 Event/Message를
-Concept으로 이미 선언했음에도, §14 Public Contract 트랙에는 진입한 적이
-없다는 뜻이다 — 즉 Event/Message는 §6에서는 "이미 있는 어휘"처럼
-보이지만 §14 관점에서는 **완전한 백지 상태**다.
-
-## 3. Gap Analysis
+### 3. Gap Analysis
 
 | 항목 | 현재 상태 | Gap |
 |---|---|---|
@@ -108,7 +103,7 @@ Concept으로 이미 선언했음에도, §14 Public Contract 트랙에는 진�
 | 배달 보장 수준 | ADC-05·ADC-08 **수 년째 Open** | 이 RFC로도 해소되지 않음(§7) |
 | §14 Public Contract 편입 여부 | 후보로도 없음(§2.2) | Context처럼 결정된 적이 없는 완전 백지 |
 
-## 4. Candidate — Agent State (최소 의미적 값, Lifecycle State와 구분)
+### 4. Candidate — Agent State (최소 의미적 값, Lifecycle State와 구분)
 
 > **Lifecycle State(`RFC-0024` §5)와의 구분**: Lifecycle State는 "Agent
 > 인스턴스의 생애 단계"(REGISTERED→ASSIGNED→…)이며 **여전히 Defer
@@ -128,7 +123,7 @@ Concept으로 이미 선언했음에도, §14 Public Contract 트랙에는 진�
 API를 정의하지 않는다. State가 실제로 존재해야 한다고 주장하지 않는다
 — "존재한다면 이런 성질을 가져야 한다"는 조건부 서술이다.
 
-## 5. Candidate — State 소유권과 변경 책임
+### 5. Candidate — State 소유권과 변경 책임
 
 > 사용자 지시대로, **현재 Governance에서 허용되지 않는 책임은 추가하지
 > 않는다.** 아래 표는 새 권한을 부여하는 것이 아니라, 이미 확정/금지된
@@ -146,9 +141,9 @@ API를 정의하지 않는다. State가 실제로 존재해야 한다고 주장�
 수 없다.** 이는 새 권한 창설이 아니라, Phase A의 "전이 규칙 재구현
 금지" 원칙을 State 개념에도 일관 적용한 것이다.
 
-## 6. Candidate — Agent↔Agent Message와 Event를 구분해야 하는가
+### 6. Candidate — Agent↔Agent Message와 Event를 구분해야 하는가
 
-### Boundary Question
+#### Boundary Question
 
 §6 원문은 Event를 "**HQ** 경계를 가로질러 전파"되는 것으로만 서술한다
 — **Agent 경계**를 가로지르는 통신(Agent A → Agent B, 같은 HQ 내부일
@@ -165,7 +160,7 @@ API를 정의하지 않는다. State가 실제로 존재해야 한다고 주장�
 문언을 다른 방식으로 확장해야 하며, 그 확장이 필요할 만큼의 실제
 Agent 간 통신 사례가 아직 관찰되지 않았다(§7).
 
-### Message vs Event 자체의 구분(선택과 무관하게 성립하는 관찰)
+#### Message vs Event 자체의 구분(선택과 무관하게 성립하는 관찰)
 
 GLOSSARY 정의(Message = Task/Event가 공유하는 **전달 형식**)를 따르면
 Message는 **봉투(Envelope)**, Event(또는 Task)는 **내용물의 한
@@ -175,7 +170,7 @@ Message는 **봉투(Envelope)**, Event(또는 Task)는 **내용물의 한
 같은 층위의 개념이 아니며 서로 대체하지 않는다** — 이는 이 RFC가 새로
 만드는 구분이 아니라 기존 GLOSSARY 문언을 정확히 읽은 결과다.
 
-## 7. Candidate — 최소 Envelope 개념(형식만, 스키마 아님)
+### 7. Candidate — 최소 Envelope 개념(형식만, 스키마 아님)
 
 > §13.1 Kernel Context Model(Context Identifier/Context Source/Content/
 > Context Metadata/Order Key)의 절제된 서술 방식을 참고하되, Context와
@@ -197,7 +192,7 @@ Message는 **봉투(Envelope)**, Event(또는 Task)는 **내용물의 한
 전부 미정이며 이 RFC 다음 단계(후속 ADC, 그 이후로도 Hidden 유지될
 가능성 큼)의 판단 대상이다.
 
-## 8. Event Bus와의 경계 — 구현하지 않는다
+### 8. Event Bus와의 경계 — 구현하지 않는다
 
 이 RFC의 §4~§7 어디에도 다음이 없다: Event를 발행·구독하는 코드, 메시지
 큐, Pub/Sub 패턴, 비동기 전달 보장 구현. §11("Kernel은 Event Bus가
@@ -207,7 +202,7 @@ Message는 **봉투(Envelope)**, Event(또는 Task)는 **내용물의 한
 Event Bus의 존재 자체를 요구하지 않는다 — ADC-05·ADC-08이 여전히
 Open인 이유(배달 보장 수준조차 미정)가 이를 뒷받침한다.
 
-## 9. Phase A(`ADC-0032`)와의 관계 — 우회 금지 확인
+### 9. Phase A(`ADC-0032`)와의 관계 — 우회 금지 확인
 
 - 이 RFC는 Agent Lifecycle State(`RFC-0024` §5)를 Accept된 것처럼
   전제하지 않는다 — §4가 "Agent State"를 Lifecycle과 명시적으로
@@ -220,7 +215,7 @@ Open인 이유(배달 보장 수준조차 미정)가 이를 뒷받침한다.
 - 이 RFC는 Agent Manager의 허용 책임 범위를 넓히지 않는다(§5 — `ADC-0032`
   §Q4의 "전무" 판정을 그대로 계승).
 
-## 10. 이 Contract가 어디에 귀속되어야 하는가 (Open Question, 이 RFC가 결정하지 않음)
+### 10. 이 Contract가 어디에 귀속되어야 하는가 (Open Question, 이 RFC가 결정하지 않음)
 
 `RFC-0024` §8은 Agent Domain의 귀속처(Kernel vs HQ)를 Open으로 남겼고
 `ADC-0032` Q5도 확정하지 않았다. Message/Event Contract는 **다른
@@ -235,44 +230,35 @@ Open인 이유(배달 보장 수준조차 미정)가 이를 뒷받침한다.
 `ARCHITECTURE_GOVERNANCE.md`의 ADC 채택 기준(①·②) 충족 여부는 후속
 ADC가 별도로 판단해야 한다.
 
-## 11. Out of Scope
+## 4. Evidence & Validation
 
-- Agent State/Message/Event의 **구현**(자료구조, 저장소, 전송 코드,
-  직렬화 형식).
-- Event Bus, Pub/Sub, 비동기 전달 메커니즘의 설계·구현.
-- Runtime의 세부 구조(ADC-02, Open), Scheduler, Registry.
-- LangGraph, Workflow Engine과의 연동.
-- ADC-05(Fault 배달 보장 수준)·ADC-08(Task/Event Flow 배달 보장 차등화)의
-  **해소** — 이 RFC는 그 미결 상태를 인용할 뿐 판정하지 않는다.
-- §6 Boundary Question(§6 표 (a)/(b)/(c)) 중 하나를 선택하는 것.
-- Agent Domain Model·Agent Lifecycle State의 재정의(Phase A 소관,
-  `ADC-0032` Not Accept 상태 유지).
-- `BASELINE.md`·`GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`docs/decisions/adc/ADC.md`
-  문언 수정. Production Code 변경.
+### 2. Evidence Summary — 이미 기록된 것만 인용
 
-## 12. Non-goals
+#### 2.1 이미 확정된 것 (Concept 존재, 세부는 미정)
 
-- 이 RFC는 Agent State/Message/Event Contract가 **필요하다**고
-  주장하지 않는다 — Multi-Agent Runtime 자체가 아직 존재하지 않으므로
-  (ADC-02 Open), 이 Contract의 실제 소비자가 없다. 미래 대비로 경계만
-  미리 서술할 뿐이다.
-- 이 RFC는 §10의 "Kernel-level 정련일 가능성이 더 높다"는 관찰을
-  Accept 근거로 주장하지 않는다 — 관찰과 결정은 다르다.
-- 이 RFC는 ADC-05·ADC-08의 오랜 Open 상태를 이 김에 해소하려 하지
-  않는다 — 별개 절차다.
-
-## 13. Governance Chain / Next Step
-
-| 단계 | 다루는 것 |
+| 근거 | 내용 |
 |---|---|
-| **이 RFC(Phase B)** | Agent State 존재 여부·소유권 경계(§4~§5), Message/Event 구분과 Envelope 개념(§6~§7)을 Candidate로 제안 + Event Bus 경계 재확인(§8) + Phase A 우회 여부 명시적 확인(§9) + 귀속처 Open Question(§10). **결정하지 않는다.** |
-| **후속 ADC(신설 예정, 필요 시)** | §4~§7 각 Candidate의 Accept/Reject/조건부 Accept, §6 (a)/(b)/(c) 중 선택 여부, §10 귀속처 결정, ADC 채택 기준 충족 여부 판단. |
-| **후속 ADR** | ADC 판단을 Baseline에 반영(Accept된 부분에 한해). |
-| **후속 별도 절차** | ADC-05·ADC-08 배달 보장 수준 해소, Event Bus 구현, Runtime 존폐(ADC-02). |
+| §6 Concept Model | State 분류에 "Context, Lifecycle State"만 등재. Event(Entity), Message(Interface) 별도 존재. |
+| §6 관계 서술 | "Event는 HQ 경계를 가로질러(Event Flow) 전파된다." "Task는 HQ 계층을 따라(Task Flow) 수직으로 흐른다." |
+| `GLOSSARY.md` | Message = "Task/Event가 공유하는 전달 형식." Event/Fault 행 존재, Envelope/Correlation/Identity/Payload/Time 행은 **없음**. |
+| §11 | "Kernel은 Event Bus가 아니다." |
+| `IMPLEMENTATION_RULES.md` | "Event Bus 구현 금지 — MVP는 단일 선형 Task Flow만 다루며 Event Flow를 쓰지 않는다." 무변경. |
+| `ADC.md` ADC-05(Open, 우선순위 NEXT) | "Fault가 Task Flow 수준(at-least-once)으로 배달되는지, Event Flow 수준(best-effort)으로 배달되는지 미정." |
+| `ADC.md` ADC-08(Open, 우선순위 NEXT) | "Task Flow(순서·무유실)와 Event Flow(도달 범위)가 실제로 다른 배달 보장 수준으로 구현되는지 미정." |
+| `RFC-0024`/`ADC-0032` | Agent Domain Model·Agent Lifecycle State(REGISTERED→…) **Not Accept, Defer**. Agent Manager의 현재 허용 책임 범위 = **없음**. |
 
-이 RFC 자체는 위 판단을 내리지 않는다.
+#### 2.2 §14 Kernel Public Contract와의 관계 — 결정적 공백
 
-## 14. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
+`BASELINE.md` §14.1의 8개 Kernel 책임 후보 표(§14.1 계약의 범위)에는
+"Task 전달 책임"·"Capability 탐색 책임"·"Engine 호출 책임"·"Context 전달
+책임"·"Stable Prefix 책임"·"Context Boundary 책임"·"Context Assembly
+책임"·"Context Ordering 책임" **8개만** 있다. **"Event 전달 책임"·"Message
+전달 책임"은 이 표에 후보로조차 올라 있지 않다.** §6이 Event/Message를
+Concept으로 이미 선언했음에도, §14 Public Contract 트랙에는 진입한 적이
+없다는 뜻이다 — 즉 Event/Message는 §6에서는 "이미 있는 어휘"처럼
+보이지만 §14 관점에서는 **완전한 백지 상태**다.
+
+### 14. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
 
 - `git status --porcelain` — 이 RFC 파일 1건 추가만 존재. `BASELINE.md`·
   `GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`docs/decisions/adc/ADC.md`·
@@ -293,7 +279,69 @@ ADC가 별도로 판단해야 한다.
   동일 판단 — `pytest` 모듈은 이번 세션 환경에 없으며, 코드 diff 0줄이므로
   재실행 결과가 달라질 여지가 없다).
 
-## 15. Self Review
+## 5. Consequences & Risks
+
+### 11. Out of Scope
+
+- Agent State/Message/Event의 **구현**(자료구조, 저장소, 전송 코드,
+  직렬화 형식).
+- Event Bus, Pub/Sub, 비동기 전달 메커니즘의 설계·구현.
+- Runtime의 세부 구조(ADC-02, Open), Scheduler, Registry.
+- LangGraph, Workflow Engine과의 연동.
+- ADC-05(Fault 배달 보장 수준)·ADC-08(Task/Event Flow 배달 보장 차등화)의
+  **해소** — 이 RFC는 그 미결 상태를 인용할 뿐 판정하지 않는다.
+- §6 Boundary Question(§6 표 (a)/(b)/(c)) 중 하나를 선택하는 것.
+- Agent Domain Model·Agent Lifecycle State의 재정의(Phase A 소관,
+  `ADC-0032` Not Accept 상태 유지).
+- `BASELINE.md`·`GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`docs/decisions/adc/ADC.md`
+  문언 수정. Production Code 변경.
+
+### 12. Non-goals
+
+- 이 RFC는 Agent State/Message/Event Contract가 **필요하다**고
+  주장하지 않는다 — Multi-Agent Runtime 자체가 아직 존재하지 않으므로
+  (ADC-02 Open), 이 Contract의 실제 소비자가 없다. 미래 대비로 경계만
+  미리 서술할 뿐이다.
+- 이 RFC는 §10의 "Kernel-level 정련일 가능성이 더 높다"는 관찰을
+  Accept 근거로 주장하지 않는다 — 관찰과 결정은 다르다.
+- 이 RFC는 ADC-05·ADC-08의 오랜 Open 상태를 이 김에 해소하려 하지
+  않는다 — 별개 절차다.
+
+## 6. Open Questions & Change History
+
+### 13. Governance Chain / Next Step
+
+| 단계 | 다루는 것 |
+|---|---|
+| **이 RFC(Phase B)** | Agent State 존재 여부·소유권 경계(§4~§5), Message/Event 구분과 Envelope 개념(§6~§7)을 Candidate로 제안 + Event Bus 경계 재확인(§8) + Phase A 우회 여부 명시적 확인(§9) + 귀속처 Open Question(§10). **결정하지 않는다.** |
+| **후속 ADC(신설 예정, 필요 시)** | §4~§7 각 Candidate의 Accept/Reject/조건부 Accept, §6 (a)/(b)/(c) 중 선택 여부, §10 귀속처 결정, ADC 채택 기준 충족 여부 판단. |
+| **후속 ADR** | ADC 판단을 Baseline에 반영(Accept된 부분에 한해). |
+| **후속 별도 절차** | ADC-05·ADC-08 배달 보장 수준 해소, Event Bus 구현, Runtime 존폐(ADC-02). |
+
+이 RFC 자체는 위 판단을 내리지 않는다.
+
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md` | Phase A 전제(Not Accept, Defer) |
+| ADC | `docs/architecture/core/ADC-0032-agent-domain-and-lifecycle-contract-resolution.md` | Phase A 판정 근거(§Q4, §Conditions 1~4) |
+| Reference | `docs/00_governance/GLOSSARY.md` | §2.1 Evidence(Message/Event/Fault 정의) |
+| RFC | `docs/architecture/core/RFC-0018-natural-language-request-multi-hq-task-decomposition.md` | 절차 관행 선례(이름 미전제 질문 개설 방식) |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | §2.1 Evidence(Event Bus 구현 금지) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Multi-Agent 운영 대비 Phase B — Agent State/Message/Event Contract Boundary Question 개설 |
+
+---
+
+## 부록: Self Review
 
 - Baseline/Contract를 변경했는가 — **아니오**(§14).
 - Agent State를 Lifecycle State와 혼동해 사실상 Phase A를

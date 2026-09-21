@@ -1,5 +1,22 @@
 # RFC-0029: Dev HQ Stage → Agent Boundary Analysis (Phase F-1)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0029 |
+| Title | Dev HQ Stage → Agent Boundary Analysis (Phase F-1) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Dev HQ Stage → Agent Boundary Analysis, Phase F-1) |
+| Status | Proposed(분석 결과 기록, Baseline 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md`~`RFC-0028-minimal-runtime-mvp-necessity-verification.md`(Phase A~E) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0029-dev-hq-stage-agent-boundary-analysis.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (분석 결과 기록, Baseline 결정 아님)
 **Author**: Claude Code
 **대상**: `hqs/development/CONSTITUTION.md`·`BASELINE.md`·`IMPLEMENTATION_RULES.md`,
@@ -22,7 +39,9 @@
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 Phase A(`RFC-0024`)는 Agent Domain을 문서·Governance 수준에서
 다뤘지만, "Dev HQ의 실제 코드가 Agent 경계에 얼마나 가까운가"는 검증한
@@ -30,7 +49,7 @@ Phase A(`RFC-0024`)는 Agent Domain을 문서·Governance 수준에서
 존재한다는 사실만으로 Agent 적합성을 인정하지 않고, 각 Stage의 실제
 책임·입출력·실행 독립성을 코드 기준으로 추출한다.
 
-## 1. Stage별 책임/입출력/도구/상태/검증 — 코드 기준 추출
+### 1. Stage별 책임/입출력/도구/상태/검증 — 코드 기준 추출
 
 | Stage | 책임 | 입력 | 출력 | 도구(Engine 호출 여부) | 상태 | 검증 |
 |---|---|---|---|---|---|---|
@@ -45,7 +64,7 @@ Phase A(`RFC-0024`)는 Agent Domain을 문서·Governance 수준에서
 이를 호출하지 않는다(grep 확인). **코드로 존재하지 않는 Stage**이므로
 이 분석 대상에서 제외한다.
 
-### 1.1 Workflow 자체의 실행 형태 — 단일 선형, 동적 협업 아님
+#### 1.1 Workflow 자체의 실행 형태 — 단일 선형, 동적 협업 아님
 
 `hqs/development/workflow.py`의 `run_workflow()`는 Stage 01→05를
 `try/except`로 **직접 순차 호출**하며, 중간 Stage 예외 시 `failed_at`/
@@ -57,13 +76,15 @@ Workflow 어디에도 없다** — Stage 순서는 소스 코드에 고정되어
 서로를 모르며 직접 통신하지 않는다. 이는 `RFC-0026` §3.1이 이미 확인한
 것과 동일한 구조다.
 
-## 2. Agent 적합성 판단 — 기준별 평가
+## 3. Analysis & Decision
+
+### 2. Agent 적합성 판단 — 기준별 평가
 
 > 기준: 책임 독립성, 입력/출력 경계, 실행 독립성, 다른 Stage와의
 > 의존성, 재실행 가능성, 조건부 분기 가능성. "Stage가 존재한다"는
 > 사실 자체는 근거로 쓰지 않는다.
 
-### 2.1 핵심 관찰 — Agent 경계는 이미 Stage 경계와 다른 곳에 있다
+#### 2.1 핵심 관찰 — Agent 경계는 이미 Stage 경계와 다른 곳에 있다
 
 `mvp/agents/*.py`(Requirements/Design/Backend/QA)는 **이미 Stage와
 분리된 독립 모듈**로 존재한다 — 각 함수는 하나의 좁은 Capability(예:
@@ -84,7 +105,7 @@ Stage 05의 실제 `test_execution` 검사(`_run_pytest_with_applied_implementat
 이미 지적한 "Runtime 없는 명명 규칙 수준"이 코드 레벨에서도 그대로
 확인된 것이다 — Capability Map의 이름과 실제 실행 경로가 어긋나 있다.
 
-### 2.2 Stage별 평가표
+#### 2.2 Stage별 평가표
 
 | Stage | 책임 독립성 | I/O 경계 | 실행 독립성 | 다른 Stage 의존성 | 재실행 가능성 | 조건부 분기 가능성 | 종합 |
 |---|---|---|---|---|---|---|---|
@@ -94,9 +115,9 @@ Stage 05의 실제 `test_execution` 검사(`_run_pytest_with_applied_implementat
 | **04** | 중간(Target 식별 + Build Input 조립 + Agent 호출) | 명확 | 낮음(Stage 01/03 없이 실행 불가) | Stage 01·03에 의존 | 높음(파일을 읽기만 함, 쓰지 않음) | 낮음~중간(Exposure Policy 충돌 시 결정적 신호 반환 — 이미 값 기반 분기) | **조건부 후보** — Target 식별 로직(결정적)과 Agent 호출(Backend)이 분리 가능해 보이나, `identify_target`이 Stage 01 산출물에 강하게 결합 |
 | **05** | **낮음** — 4개 결정적 검사 + Agent 호출(code_review) + Verdict 결정(Policy에 가까운 결정 로직)이 한 함수에 응집 | 넓음(Stage 02·04 Output 모두 필요) | **매우 낮음** — Stage 02·04 없이 무의미, 게다가 **부작용 있음**(대상 파일 임시 덮어쓰기) | Stage 02·04 모두에 강하게 의존 | **낮음** — 파일 쓰기/복원이 동시 실행과 충돌 위험(§3.4) | 있음(required_checks에 따라 실행 집합이 달라짐 — 그러나 이는 Policy가 아닌 고정 규칙) | **Agent화 근거 가장 부족** — 책임이 응집돼 있고, Verdict 결정 로직을 Agent로 옮기면 `IMPLEMENTATION_RULES.md` "Policy 구현 금지"를 사실상 우회할 위험(§3.2) |
 
-## 3. Agent 경계에서 발생할 핵심 문제
+### 3. Agent 경계에서 발생할 핵심 문제
 
-### 3.1 Stage의 이중 책임 — "골격 조립"과 "Agent 호출"이 분리되지 않음
+#### 3.1 Stage의 이중 책임 — "골격 조립"과 "Agent 호출"이 분리되지 않음
 
 Stage 02~04는 전부 "이전 Stage Output에서 결정적으로 골격을 조립하는
 로직"과 "그 골격을 Agent에게 넘겨 호출하는 로직"을 한 함수에서
@@ -107,7 +128,7 @@ A `RFC-0024` §4, Defer)에 "골격 조립"이라는 **Kernel/HQ 결정적 로�
 것("무엇을 실행할지는 HQ가 채운다")과 같은 종류의 혼동을 Agent
 경계에서도 반복할 위험이다.
 
-### 3.2 Stage 05 Verdict 로직과 Policy 구현 금지의 경계
+#### 3.2 Stage 05 Verdict 로직과 Policy 구현 금지의 경계
 
 Stage 05의 `_determine_verdict`/`_CHECK_EVALUATORS`는 `required_checks`에
 따라 실행 집합과 판정을 결정하는 **규칙 기반 로직**이며, 코드 주석이
@@ -118,7 +139,7 @@ Policy 구현 금지를 문언은 지키면서 실질은 우회하는 경로가 
 있다. 이 RFC는 이 위험을 **경고로만 기록**하며, Stage 05를 Agent화
 후보에서 배제하는 판단(§4)의 핵심 근거로 삼는다.
 
-### 3.3 Capability Map과 실제 실행 경로의 불일치(QA Agent)
+#### 3.3 Capability Map과 실제 실행 경로의 불일치(QA Agent)
 
 §2.1이 발견한 `AGENT_CAPABILITY_MAP["test_execution"] = "QA Agent"` vs
 실제 미호출은, Agent Domain(Phase A, Defer)이 아직 확정되지 않은
@@ -127,7 +148,7 @@ Domain이 실제로 Accept되는 시점에는 이런 불일치를 검출할 Cont
 근거(예: Capability 선언과 실제 호출의 일치 검증)가 필요할 수 있으나,
 이 RFC는 그 Contract를 새로 만들지 않는다 — 관찰만 기록한다.
 
-### 3.4 Stage 05의 파일 쓰기 부작용과 동시 실행
+#### 3.4 Stage 05의 파일 쓰기 부작용과 동시 실행
 
 Stage 05의 `test_execution` 검사는 대상 모듈 파일을 **임시로
 덮어쓰고 원복**한다(`_run_pytest_with_applied_implementation`). 이
@@ -138,7 +159,7 @@ Conditional **on Data/Artifact Isolation**) 범위에서 동시 실행하면,
 실행" 시 Process 격리 필요)이 이미 예견한 것과 같은 종류의 위험이며,
 이 RFC는 그 기존 경계를 재확인할 뿐 새 Contract를 만들지 않는다.
 
-### 3.5 §14.1 "Task 전달 책임"·Phase B 접점 재확인(우회 아님)
+#### 3.5 §14.1 "Task 전달 책임"·Phase B 접점 재확인(우회 아님)
 
 Stage 간 데이터는 `contracts.py`의 HQ-level Public Contract(`ADR-0009`)로
 이미 형식화되어 있다 — Kernel Public Contract(§14)가 아니다
@@ -148,7 +169,7 @@ Message/Event(Phase B)로 재해석하고 싶은 유혹이 있을 수 있으나,
 RFC는 그렇게 하지 않는다 — `RFC-0025` §5의 접점 관찰과 동일하게,
 "접점이 있다"는 사실만 기록하고 관계를 결정하지 않는다.
 
-## 4. 분류 — Agent로 분리할 가치가 높은 Stage / 조건부 후보 / 근거 부족
+### 4. 분류 — Agent로 분리할 가치가 높은 Stage / 조건부 후보 / 근거 부족
 
 | 분류 | Stage | 근거 |
 |---|---|---|
@@ -156,7 +177,7 @@ RFC는 그렇게 하지 않는다 — `RFC-0025` §5의 접점 관찰과 동일�
 | **조건부 후보**(Agent 부분과 골격 조립 부분을 먼저 분리해야 판단 가능) | 02, 03, 04 | 이미 분리된 Agent 함수(Requirements/Design/Backend)가 각각 Capability 경계를 갖고 있으나, Stage 자체의 골격 조립 로직(§3.1)을 분리하지 않고는 Stage 전체를 Agent 경계와 동일시할 수 없다 |
 | **Agent화할 근거가 부족함(Workflow Step/Function으로 유지가 더 적절)** | **01, 05** | 01은 Engine 호출이 아예 없어 이 저장소의 기존 Agent 관행(Capability=Engine 수행)과 불일치. 05는 책임이 응집돼 있고 부작용(파일 쓰기)과 Policy 인접 로직(Verdict) 때문에 Agent화가 오히려 위험(§3.2, §3.4) |
 
-## 5. Experimental PoC 제안 — 구현하지 않음, 설계만
+### 5. Experimental PoC 제안 — 구현하지 않음, 설계만
 
 Agentized Dev Workflow를 실제로 검증하려면, Phase E(`RFC-0028`)와
 동일한 격리 원칙(`projects/`, `hqs/development/` 무단 연결 금지,
@@ -186,36 +207,12 @@ Manager/Runtime Contract를 새로 확정하는 것을 전제하지 않는다 �
 관찰 목적이며, 필요하다고 판단되면 별도 세션에서 Phase E와 동일한
 Experimental Implementation 규칙 아래 구현될 수 있다.
 
-## 6. Out of Scope
+## 4. Evidence & Validation
 
-- `mvp/agents/*.py`·`stages/*.py`·`workflow.py`·`contracts.py`의
-  **재정의·재구현** — 이 RFC는 코드를 한 줄도 바꾸지 않았다.
-- Agent Domain/Lifecycle(Phase A)·Agent State/Message/Event(Phase B)·
-  Multi-Agent Workflow(Phase C)·Runtime Contract(Phase D)·Minimal
-  Runtime MVP(Phase E)의 재정의.
-- §5가 제안한 3개 시나리오의 실제 구현.
-- `hqs/development/BASELINE.md`·`CONSTITUTION.md`·`IMPLEMENTATION_RULES.md`·
-  `docs/architecture/baseline/BASELINE.md`의 문언 수정.
-- QA Agent 미사용 불일치(§3.3)의 **수정** — 이 RFC는 관찰만 기록한다.
+위 §2·§3의 각 표·문단에 코드 근거(함수 시그니처·grep 결과)가 이미 포함되어 있어 별도 Evidence Summary 절로 분리하지 않는다.
 
-## 7. Non-goals
 
-- 이 RFC는 "Dev HQ Stage를 Agent로 전환해야 한다"고 주장하지 않는다 —
-  §4가 확인했듯 압도적으로 적합한 Stage가 없다.
-- 이 RFC는 QA Agent 불일치(§3.3)를 즉시 고쳐야 할 결함으로 판정하지
-  않는다 — Agent Domain이 아직 Defer 상태이므로 "선언과 실행의 일치"를
-  요구할 Contract 근거 자체가 없다.
-- 이 RFC는 §5의 Experimental PoC가 반드시 필요하다고 주장하지 않는다 —
-  후속 세션에서 실제 필요가 관찰되면 그때 판단한다.
-
-## 8. Governance Chain / Next Step
-
-| 단계 | 다루는 것 |
-|---|---|
-| **이 RFC(Phase F-1)** | Dev HQ Stage 01~05의 실제 책임·입출력을 코드로 추출하고, Agent 적합성을 기준별로 평가해 분류(§4) + 핵심 문제 기록(§3) + 미구현 PoC 제안(§5). |
-| **후속(필요 시)** | §5 시나리오 중 하나를 격리된 Experimental Implementation으로 실행하거나(Phase E와 동일 규칙), Phase A(Agent Domain)의 재검토 Trigger가 충족되면 이 RFC를 참고 자료로 재상정. |
-
-## 9. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
+### 9. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
 
 - `git status --porcelain` — 이 RFC 파일 1건만 추가. `hqs/development/`·
   `core/`·`dashboard/` Production Code **무변경**.
@@ -235,7 +232,65 @@ Experimental Implementation 규칙 아래 구현될 수 있다.
   그 이후 어떤 코드도 바꾸지 않았으므로 재실행 결과가 달라질 여지가
   없다.
 
-## 10. Self Review
+## 5. Consequences & Risks
+
+### 6. Out of Scope
+
+- `mvp/agents/*.py`·`stages/*.py`·`workflow.py`·`contracts.py`의
+  **재정의·재구현** — 이 RFC는 코드를 한 줄도 바꾸지 않았다.
+- Agent Domain/Lifecycle(Phase A)·Agent State/Message/Event(Phase B)·
+  Multi-Agent Workflow(Phase C)·Runtime Contract(Phase D)·Minimal
+  Runtime MVP(Phase E)의 재정의.
+- §5가 제안한 3개 시나리오의 실제 구현.
+- `hqs/development/BASELINE.md`·`CONSTITUTION.md`·`IMPLEMENTATION_RULES.md`·
+  `docs/architecture/baseline/BASELINE.md`의 문언 수정.
+- QA Agent 미사용 불일치(§3.3)의 **수정** — 이 RFC는 관찰만 기록한다.
+
+### 7. Non-goals
+
+- 이 RFC는 "Dev HQ Stage를 Agent로 전환해야 한다"고 주장하지 않는다 —
+  §4가 확인했듯 압도적으로 적합한 Stage가 없다.
+- 이 RFC는 QA Agent 불일치(§3.3)를 즉시 고쳐야 할 결함으로 판정하지
+  않는다 — Agent Domain이 아직 Defer 상태이므로 "선언과 실행의 일치"를
+  요구할 Contract 근거 자체가 없다.
+- 이 RFC는 §5의 Experimental PoC가 반드시 필요하다고 주장하지 않는다 —
+  후속 세션에서 실제 필요가 관찰되면 그때 판단한다.
+
+## 6. Open Questions & Change History
+
+### 8. Governance Chain / Next Step
+
+| 단계 | 다루는 것 |
+|---|---|
+| **이 RFC(Phase F-1)** | Dev HQ Stage 01~05의 실제 책임·입출력을 코드로 추출하고, Agent 적합성을 기준별로 평가해 분류(§4) + 핵심 문제 기록(§3) + 미구현 PoC 제안(§5). |
+| **후속(필요 시)** | §5 시나리오 중 하나를 격리된 Experimental Implementation으로 실행하거나(Phase E와 동일 규칙), Phase A(Agent Domain)의 재검토 Trigger가 충족되면 이 RFC를 참고 자료로 재상정. |
+
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md` | Phase A 전제 |
+| RFC | `docs/architecture/core/RFC-0026-multi-agent-workflow-contract-candidate-boundary.md` | §1.1 근거(동일 관찰 재확인) |
+| RFC | `docs/architecture/core/RFC-0028-minimal-runtime-mvp-necessity-verification.md` | Phase E 전제(§5 격리 원칙) |
+| Reference | `hqs/development/CONSTITUTION.md` | 대상 문서 |
+| Reference | `hqs/development/workflow.py` | §1.1 Evidence |
+| Reference | `hqs/development/stages/contracts.py` | §1/§3.5 Evidence |
+| Reference | `hqs/development/mvp/agents/`(원문은 `agents/*.py`로 인용) | §2.1 Evidence |
+| Reference | `docs/research/DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` | 대상 문서 |
+| Reference | `docs/research/DEV-HQ-V2.0-AGENT-LAYER-REFACTORING-AUDIT-0001.md` | §2.1 Evidence(Runtime 없는 명명 규칙 수준 진단) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Multi-Agent 운영 대비 Phase F-1 — Dev HQ Stage → Agent Boundary 코드 분석 |
+
+---
+
+## 부록: Self Review
 
 - Production Code(`hqs/development/`)를 변경했는가 — **아니오**(§9).
 - Agent Domain/Lifecycle/State/Message/Event/Agent Manager/Runtime
