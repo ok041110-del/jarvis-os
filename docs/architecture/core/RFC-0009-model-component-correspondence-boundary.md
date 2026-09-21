@@ -1,5 +1,22 @@
 # RFC-0009: Model 축과 Component 축의 대응 관계 — Boundary (ADC-01 후속)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0009 |
+| Title | Model 축과 Component 축의 대응 관계 — Boundary (ADC-01 후속) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Concept Model — Model 축/Component 축 대응 관계) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `ADC-01`(원문 인용 — `docs/03_adc/ADC.md` 내 항목, 정확한 개별 문서 경로 미확인) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 Related Documents/본문 §2 Evidence Summary 참고 |
+| Source Path | `docs/architecture/core/RFC-0009-model-component-correspondence-boundary.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (ADC-01 Governance 우선순위 재평가 후속)
 **대상**: `docs/03_adc/ADC.md` ADC-01("Model 축과 Component 축의 대응
@@ -19,7 +36,9 @@
 > 하지 않는다 — `RFC-0008`·`ADC-0008`의 결론(Not Accepted)을 기존
 > 결정으로만 인용한다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 ADC-01(Model 축과 Component 축의 대응 관계)은 `docs/03_adc/ADC.md`에
 Open·우선순위 NEXT로 등재되어 있으나, 전용 RFC가 한 번도 작성된
@@ -40,7 +59,7 @@ ADC-02가 `RFC-0008` → `ADC-0008`로 이미 조사를 마쳤고(Not Accepted,
 아직 한 번도 다뤄지지 않은 나머지 하나가 ADC-01이다. 이 RFC는 그
 다음 절차로서, 같은 종류의 Boundary Question을 연다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 Kernel Boundary 설계는 "책임을 Model로 분류하는 축"과 "그 책임을
 구현하는 Component로 분류하는 축" 두 가지 서로 다른 분류 체계를
@@ -49,16 +68,9 @@ Kernel Boundary 설계는 "책임을 Model로 분류하는 축"과 "그 책임�
 "Scheduler/Engine Gateway/Registry/Communication/Memory/Policy 6개
 Component 축"으로 표현한다.
 
-## 2. Evidence Summary
+## 3. Analysis & Decision
 
-| 축 | 근거 | 원문 실재 여부 |
-|---|---|---|
-| **Component 축 6개**(Scheduler/Engine Gateway/Registry/Communication/Memory/Policy) | `BASELINE.md` §10 Out of Scope: *"Component Design (Scheduler, Engine Gateway, Registry, Communication, Memory, Policy 등)"* — Frozen Baseline 원문에 정확히 이 6개 이름이 그대로 존재하며, `ADC-0002-kernel-definition.md`·`RFC-0005-kernel-logical-reference-architecture.md`·`ADC-0005-kernel-logical-reference-architecture.md`·`ADR-0002-core-to-kernel-terminology-unification.md` 등 최소 5개 문서가 동일한 목록을 반복 인용한다 | **실재** — Frozen Baseline 원문, 반복 인용됨 |
-| **Model 축 3개**(Execution/Communication/Memory) | `docs/03_adc/ADC.md` ADC-01 한 줄 진술: *"Execution/Communication/Memory 3개 Model 축 제안"*이 유일한 출처다. 전수 검색(`docs/`, `development-hq/`, `archive/`, git 이력 포함) 결과 이 3개를 "Model 축"으로 명명하거나 정의·근거를 부연한 문서는 이 한 줄 외에 **없다**. `docs/02_rfc/RFC-0001-kernel-boundary.md`와 `docs/governance/adc/ADC-0001.md`도 ADC-01을 이름으로만 인용할 뿐, "Model 축"의 정의를 부연하지 않는다 | **원문 부재** — 결론 문구 하나만 존재 |
-| ADC-01의 Blocking 사실 | `ADC-0004-execution-result-consumer.md` Q3: *"Execution Layer 자신의 내부 처리... Kernel Module 4는... 내부 구조... ADC-01·ADC-02가 여전히 Open"* — Execution Result Consumer 판단이 실제로 막힌 최초 관찰 사례(ADC-02와 공동 원인) | 관찰 1건(반복 아님) |
-| ADC-02와의 선례 | `RFC-0008-runtime-existence-boundary.md`·`ADC-0008-runtime-existence-boundary.md`: Runtime 존폐(ADC-02)는 "유지" 근거(원문 실재, 그러나 스스로 유보 명시)와 "대체" 근거("Core Component 검토", 결론만 남고 원문 부재)의 비대칭 때문에 **Not Accepted**로 종결됐다 — 새 Evidence·반복 관찰 없이는 재판단하지 않는다(기존 결정으로만 인용, 이 RFC는 재조사하지 않는다) | 기존 결정 인용만 |
-
-## 3. Pattern
+### 3. Pattern
 
 인용된 문서에서 반복된 사실만 정리한다. 새 사실을 추가하지 않는다.
 
@@ -81,7 +93,7 @@ Component 축"으로 표현한다.
   쓴 "부족한 Evidence" 기준(`ADC-0008` §부족한 Evidence)과 같은 수준의
   공백이 ADC-01에도 존재한다.
 
-## 4. Boundary Question
+### 4. Boundary Question
 
 이 RFC는 답을 제시하지 않는다. 다음 질문만 제기한다.
 
@@ -103,7 +115,20 @@ Memory/Policy)는 어떻게 대응하는가?
 근거를 "현상 유지 기술"과 "확정 근거"로 구분했던 것과 같은 종류의
 경계).
 
-## Out of Scope
+## 4. Evidence & Validation
+
+### 2. Evidence Summary
+
+| 축 | 근거 | 원문 실재 여부 |
+|---|---|---|
+| **Component 축 6개**(Scheduler/Engine Gateway/Registry/Communication/Memory/Policy) | `BASELINE.md` §10 Out of Scope: *"Component Design (Scheduler, Engine Gateway, Registry, Communication, Memory, Policy 등)"* — Frozen Baseline 원문에 정확히 이 6개 이름이 그대로 존재하며, `ADC-0002-kernel-definition.md`·`RFC-0005-kernel-logical-reference-architecture.md`·`ADC-0005-kernel-logical-reference-architecture.md`·`ADR-0002-core-to-kernel-terminology-unification.md` 등 최소 5개 문서가 동일한 목록을 반복 인용한다 | **실재** — Frozen Baseline 원문, 반복 인용됨 |
+| **Model 축 3개**(Execution/Communication/Memory) | `docs/03_adc/ADC.md` ADC-01 한 줄 진술: *"Execution/Communication/Memory 3개 Model 축 제안"*이 유일한 출처다. 전수 검색(`docs/`, `development-hq/`, `archive/`, git 이력 포함) 결과 이 3개를 "Model 축"으로 명명하거나 정의·근거를 부연한 문서는 이 한 줄 외에 **없다**. `docs/02_rfc/RFC-0001-kernel-boundary.md`와 `docs/governance/adc/ADC-0001.md`도 ADC-01을 이름으로만 인용할 뿐, "Model 축"의 정의를 부연하지 않는다 | **원문 부재** — 결론 문구 하나만 존재 |
+| ADC-01의 Blocking 사실 | `ADC-0004-execution-result-consumer.md` Q3: *"Execution Layer 자신의 내부 처리... Kernel Module 4는... 내부 구조... ADC-01·ADC-02가 여전히 Open"* — Execution Result Consumer 판단이 실제로 막힌 최초 관찰 사례(ADC-02와 공동 원인) | 관찰 1건(반복 아님) |
+| ADC-02와의 선례 | `RFC-0008-runtime-existence-boundary.md`·`ADC-0008-runtime-existence-boundary.md`: Runtime 존폐(ADC-02)는 "유지" 근거(원문 실재, 그러나 스스로 유보 명시)와 "대체" 근거("Core Component 검토", 결론만 남고 원문 부재)의 비대칭 때문에 **Not Accepted**로 종결됐다 — 새 Evidence·반복 관찰 없이는 재판단하지 않는다(기존 결정으로만 인용, 이 RFC는 재조사하지 않는다) | 기존 결정 인용만 |
+
+## 5. Consequences & Risks
+
+### Out of Scope
 
 이번 RFC에서는 다루지 않는다.
 
@@ -122,7 +147,7 @@ Memory/Policy)는 어떻게 대응하는가?
   이 RFC는 이름이 같다는 관찰만 기록하고 동일성을 판단하지 않는다.
 - 새로운 실험.
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 ADC-01을 해결하지 않는다.
 - 이 RFC는 새 실험을 수행하지 않는다 — `ADC.md`, `BASELINE.md` §10,
@@ -134,7 +159,9 @@ Memory/Policy)는 어떻게 대응하는가?
 - 이 RFC는 위 Boundary Question에 답하지 않는다.
 - 이 RFC는 ADC-02를 재조사하지 않는다.
 
-## Next Step
+## 6. Open Questions & Change History
+
+### Next Step
 
 후속 ADC(신설 예정, 이 RFC의 후속)에서 다음을 판단하도록 제안한다.
 
@@ -151,7 +178,28 @@ Memory/Policy)는 어떻게 대응하는가?
 이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance
 절차를 통해 별도로 판단한다.
 
-## Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| Reference | `ADC-01`(원문 인용, 정확한 경로 미확인 — `docs/03_adc/ADC.md` 항목) | 이 RFC가 재검토하는 대상 |
+| Reference | `docs/decisions/rfc/RFC-0001-kernel-boundary.md`(원문은 `docs/02_rfc/` 구 경로로 인용) | §0 근거(ADC-01 선행 필요성 언급) |
+| Reference | `docs/core/execution-layer/ADC-0004-execution-result-consumer.md` | §0/§2/Out of Scope 근거(Q3 Blocking 관찰) |
+| Reference | `docs/architecture/core/RFC-0008-runtime-existence-boundary.md` | §0/§3 근거(ADC-02 선례) |
+| Reference | `docs/architecture/core/ADC-0008-runtime-existence-boundary.md` | §0/§3 근거(ADC-02 Not Accepted 결정) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADC-01 Governance 우선순위 재평가 후속 |
+
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. `ADC.md`, `BASELINE.md` §10,
   `RFC-0001-kernel-boundary.md`, `ADC-0004`(execution-layer),

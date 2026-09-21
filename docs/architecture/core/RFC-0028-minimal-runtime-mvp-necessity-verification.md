@@ -1,5 +1,22 @@
 # RFC-0028: Minimal Runtime MVP 필요성 검증 (Phase E)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0028 |
+| Title | Minimal Runtime MVP 필요성 검증 (Phase E) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Minimal Runtime MVP 필요성 검증, Phase E) |
+| Status | Proposed(조사·실험 결과 기록, Baseline 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md`~`RFC-0027-multi-agent-runtime-contract-candidate-boundary.md`(Phase A~D) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0028-minimal-runtime-mvp-necessity-verification.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (조사·실험 결과 기록, Baseline 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/decisions/adc/ADC.md` ADC-02(Runtime 개념의 존폐, Open,
@@ -20,7 +37,9 @@ Implementation" 절, "ADC 채택 기준").
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 Phase A~D는 전부 문서 조사만으로 "실제 소비자가 없다"는 결론에
 도달했다. Phase E는 그 결론을 **실행 Evidence**로 한 번 더 검증하라는
@@ -29,7 +48,7 @@ Phase A~D는 전부 문서 조사만으로 "실제 소비자가 없다"는 결�
 이 RFC는 격리된 Experimental Implementation을 실행해 그 차이를
 메운다.
 
-## 1. ADC-02 판단에 필요한 기존 조건 (조사 결과)
+### 1. ADC-02 판단에 필요한 기존 조건 (조사 결과)
 
 | 조건 | 근거 | 확인 |
 |---|---|---|
@@ -40,7 +59,9 @@ Phase A~D는 전부 문서 조사만으로 "실제 소비자가 없다"는 결�
 | Experimental Implementation 허용 범위 | 同 문서 | `projects/` 격리, HQ production path 무단 연결 금지, Contract 보호, 성공/실패/폐기 기준 기록 |
 | 기존 실행 단위 제공 현황 | `RFC-0027` §2·§3 | Execution Host(단일 unit dispatch)·Multi-Task(독립 동시 실행)·Workflow Adapter(고정 그래프 진행)·Engine Adapter(LLM 호출) — 4갈래 모두 Accept(Scoped), "Agent 동적 배분"만 미제공 |
 
-## 2. 실험 전 판단 — 기존 Contract만으로 실험이 가능한가
+## 3. Analysis & Decision
+
+### 2. 실험 전 판단 — 기존 Contract만으로 실험이 가능한가
 
 `RFC-0027`의 결론(§2.1 이 RFC의 §1 재인용)에 따라, Execution Host나
 Workflow Adapter를 "Multi-Agent Runtime"으로 간주하지 않았다. 대신
@@ -52,7 +73,7 @@ Contract(직접 함수 호출 + 표준 라이브러리)만으로 최소 시나�
 수 있는지가 이 실험의 첫 질문**이었다 — 새 Runtime 개념이 필요하다고
 가정하지 않고 시작했다.
 
-## 3. 실험 시나리오
+### 3. 실험 시나리오
 
 `projects/multi-agent-handoff-mvp-v1/`(Experimental Implementation,
 `EVIDENCE.md` 전문 참조):
@@ -70,7 +91,29 @@ Contract(직접 함수 호출 + 표준 라이브러리)만으로 최소 시나�
   Lifecycle/State/Message/Event Production Contract, Agent Manager,
   Event Bus, Scheduler, Registry.
 
-## 4. 실제 Multi-Agent 소비 증거
+### 5. 현재 Architecture의 충분/부족 여부 — 판단
+
+**충분하다.** 사용자가 요구한 최소 조건(독립 Agent 2개, Task 전달,
+결과 반환, 실패/종료, 병렬)이 기존 Contract(직접 함수 호출 + 표준
+라이브러리, §16.4 Multi-Task와 동형)만으로 마찰 없이 재현됐다. 이는
+`hqs/development/workflow.py`·`stock_team.py`가 이미 Production에서
+증명한 패턴과 정확히 같은 형태다 — 이 실험은 **새로운 사실을
+발견했다기보다, Phase A~D가 문서로 확인한 "실제 소비자 부재"를 실행
+수준에서 재확인**했다.
+
+### 6. Runtime Candidate 발생 여부
+
+**발생하지 않았다.** §5의 판단에 따라, ADC 채택 기준(①·②) 어느
+것도 충족하지 않는다 — 오히려 이 실험이 "새 Runtime 없이도 충분하다"는
+**반대 방향** Evidence를 추가했다. 사용자 지시("충분한 실제 소비
+사례가 확보되지 않는다면 Runtime Adoption이나 Contract 확정을 하지
+말고 ADC-02 Open 상태를 유지하라")에 따라, 이 RFC는 Minimal Runtime
+책임 후보를 **정리하지 않는다** — 정리할 근거(부족함의 증거)가 반대로
+나왔기 때문이다.
+
+## 4. Evidence & Validation
+
+### 4. 실제 Multi-Agent 소비 증거
 
 `/root/.local/bin/pytest projects/multi-agent-handoff-mvp-v1/tests/ -v`
 → **IN-1~IN-7 전부 PASS**(§EVIDENCE.md "실행 결과" 표). 핵심 관찰:
@@ -92,62 +135,7 @@ Contract(직접 함수 호출 + 표준 라이브러리)만으로 최소 시나�
 **이 실험 동안 "Scheduler/Registry/Runtime/Agent Manager가 있어야
 가능하다"는 마찰은 한 번도 관찰되지 않았다.**
 
-## 5. 현재 Architecture의 충분/부족 여부 — 판단
-
-**충분하다.** 사용자가 요구한 최소 조건(독립 Agent 2개, Task 전달,
-결과 반환, 실패/종료, 병렬)이 기존 Contract(직접 함수 호출 + 표준
-라이브러리, §16.4 Multi-Task와 동형)만으로 마찰 없이 재현됐다. 이는
-`hqs/development/workflow.py`·`stock_team.py`가 이미 Production에서
-증명한 패턴과 정확히 같은 형태다 — 이 실험은 **새로운 사실을
-발견했다기보다, Phase A~D가 문서로 확인한 "실제 소비자 부재"를 실행
-수준에서 재확인**했다.
-
-## 6. Runtime Candidate 발생 여부
-
-**발생하지 않았다.** §5의 판단에 따라, ADC 채택 기준(①·②) 어느
-것도 충족하지 않는다 — 오히려 이 실험이 "새 Runtime 없이도 충분하다"는
-**반대 방향** Evidence를 추가했다. 사용자 지시("충분한 실제 소비
-사례가 확보되지 않는다면 Runtime Adoption이나 Contract 확정을 하지
-말고 ADC-02 Open 상태를 유지하라")에 따라, 이 RFC는 Minimal Runtime
-책임 후보를 **정리하지 않는다** — 정리할 근거(부족함의 증거)가 반대로
-나왔기 때문이다.
-
-## 7. Out of Scope
-
-- ADC-02 자체의 판정 — 이 RFC는 Open 상태를 유지할 뿐 대신 답하지
-  않는다.
-- Runtime/Scheduler/Registry/Event Bus/Agent Manager의 Production
-  설계·구현.
-- LangGraph 평가·채택·구현 — 이 실험은 의도적으로 사용하지 않았다.
-- Agent Domain/Lifecycle(Phase A)·Agent State/Message/Event(Phase B)·
-  Multi-Agent Workflow(Phase C)·Runtime Contract(Phase D)의 재정의.
-- `projects/multi-agent-handoff-mvp-v1/`의 Production 경로 편입 — 이
-  실험은 격리된 채로 남는다.
-- `BASELINE.md`·`GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`ADC.md` 문언
-  수정. Production Code 변경.
-
-## 8. Non-goals
-
-- 이 RFC는 "Multi-Agent Runtime이 필요 없다"고 **영구적으로**
-  주장하지 않는다 — 지금 시점 Evidence로 필요성이 관찰되지 않았을
-  뿐이며, 실제 Architecture Need가 나중에 관찰되면 재검토는 언제든
-  가능하다(`ARCHITECTURE_GOVERNANCE.md` "Architecture Need" 원칙).
-- 이 RFC는 `hqs/development/workflow.py`·`stock_team.py`의 기존 패턴을
-  Kernel Contract로 승격하자고 주장하지 않는다.
-- 이 RFC는 이 실험(`multi-agent-handoff-mvp-v1`)이 반복적 가치를 가진
-  Component라고 주장하지 않는다 — Experimental Implementation 규칙대로
-  필요 없어지면 RFC 없이 즉시 제거 가능한 상태로 남긴다.
-
-## 9. Governance Chain / Next Step
-
-| 단계 | 다루는 것 |
-|---|---|
-| **이 RFC(Phase E)** | ADC-02 판단에 필요한 실행 Evidence를 Experimental Implementation으로 확보. **Runtime Candidate를 열지 않는다** — Evidence가 충분성 방향으로 나왔다. |
-| **ADC-02 자체 트랙** | 이 RFC와 무관하게 Open, NOW 우선순위 그대로 — `docs/decisions/adc/ADC.md`가 계속 소유. |
-| **`projects/multi-agent-handoff-mvp-v1/`** | 폐기 대상(Experimental) — 반복적 가치가 추가로 관찰되지 않는 한 향후 세션에서 RFC 없이 제거 가능. |
-| **후속 Governance Review** | 이 RFC가 Accept 대상으로 제안한 것이 없으므로 별도 ADC 필수는 아니다(Phase C/D와 동일 구조). |
-
-## 10. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
+### 10. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
 
 - `git status --porcelain` — 이 RFC 파일 1건, `projects/multi-agent-handoff-mvp-v1/`
   신규 디렉터리(EVIDENCE.md·caller.py·domain/·tests/) 외 무변경.
@@ -168,7 +156,68 @@ Contract(직접 함수 호출 + 표준 라이브러리)만으로 최소 시나�
   Domain/Lifecycle/State/Message/Event/Runtime을 Accept로 전환하지
   않았다.
 
-## 11. Self Review
+## 5. Consequences & Risks
+
+### 7. Out of Scope
+
+- ADC-02 자체의 판정 — 이 RFC는 Open 상태를 유지할 뿐 대신 답하지
+  않는다.
+- Runtime/Scheduler/Registry/Event Bus/Agent Manager의 Production
+  설계·구현.
+- LangGraph 평가·채택·구현 — 이 실험은 의도적으로 사용하지 않았다.
+- Agent Domain/Lifecycle(Phase A)·Agent State/Message/Event(Phase B)·
+  Multi-Agent Workflow(Phase C)·Runtime Contract(Phase D)의 재정의.
+- `projects/multi-agent-handoff-mvp-v1/`의 Production 경로 편입 — 이
+  실험은 격리된 채로 남는다.
+- `BASELINE.md`·`GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`ADC.md` 문언
+  수정. Production Code 변경.
+
+### 8. Non-goals
+
+- 이 RFC는 "Multi-Agent Runtime이 필요 없다"고 **영구적으로**
+  주장하지 않는다 — 지금 시점 Evidence로 필요성이 관찰되지 않았을
+  뿐이며, 실제 Architecture Need가 나중에 관찰되면 재검토는 언제든
+  가능하다(`ARCHITECTURE_GOVERNANCE.md` "Architecture Need" 원칙).
+- 이 RFC는 `hqs/development/workflow.py`·`stock_team.py`의 기존 패턴을
+  Kernel Contract로 승격하자고 주장하지 않는다.
+- 이 RFC는 이 실험(`multi-agent-handoff-mvp-v1`)이 반복적 가치를 가진
+  Component라고 주장하지 않는다 — Experimental Implementation 규칙대로
+  필요 없어지면 RFC 없이 즉시 제거 가능한 상태로 남긴다.
+
+## 6. Open Questions & Change History
+
+### 9. Governance Chain / Next Step
+
+| 단계 | 다루는 것 |
+|---|---|
+| **이 RFC(Phase E)** | ADC-02 판단에 필요한 실행 Evidence를 Experimental Implementation으로 확보. **Runtime Candidate를 열지 않는다** — Evidence가 충분성 방향으로 나왔다. |
+| **ADC-02 자체 트랙** | 이 RFC와 무관하게 Open, NOW 우선순위 그대로 — `docs/decisions/adc/ADC.md`가 계속 소유. |
+| **`projects/multi-agent-handoff-mvp-v1/`** | 폐기 대상(Experimental) — 반복적 가치가 추가로 관찰되지 않는 한 향후 세션에서 RFC 없이 제거 가능. |
+| **후속 Governance Review** | 이 RFC가 Accept 대상으로 제안한 것이 없으므로 별도 ADC 필수는 아니다(Phase C/D와 동일 구조). |
+
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| Reference | `docs/decisions/adc/ADC.md`(ADC-02) | 직접 계기(Runtime 존폐 Open, NOW) |
+| RFC | `docs/architecture/core/RFC-0027-multi-agent-runtime-contract-candidate-boundary.md` | Phase D 전제(§2·§3 재인용) |
+| Reference | `docs/00_governance/ARCHITECTURE_GOVERNANCE.md` | ADC 채택 기준·Experimental Implementation 규칙 근거 |
+| Reference | `projects/multi-agent-handoff-mvp-v1/` | Evidence(이 RFC의 Experimental Implementation) |
+| Reference | `hqs/development/workflow.py` | §2 Evidence(기존 패턴) |
+| Reference | `hqs/investment/teams/stock_team.py` | §2 Evidence(기존 패턴) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Multi-Agent 운영 대비 Phase E — Minimal Runtime MVP 필요성 실행 검증 |
+
+---
+
+## 부록: Self Review
 
 - Runtime을 채택·구현했는가 — **아니오**(§6, §7) — Candidate조차 열지
   않았다.

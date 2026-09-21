@@ -1,5 +1,22 @@
 # RFC-0027: Multi-Agent Runtime — Contract Candidate 조사 및 Boundary (Phase D)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0027 |
+| Title | Multi-Agent Runtime — Contract Candidate 조사 및 Boundary (Phase D) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Multi-Agent Runtime Contract Candidate, Phase D) |
+| Status | Proposed(조사·판단 결과 기록, Baseline 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md`(Phase A), `docs/architecture/core/RFC-0025-agent-state-message-event-contract.md`(Phase B), `docs/architecture/core/RFC-0026-multi-agent-workflow-contract-candidate-boundary.md`(Phase C) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0027-multi-agent-runtime-contract-candidate-boundary.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (조사·판단 결과 기록, Baseline 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/architecture/baseline/BASELINE.md` §6(Concept Model:
@@ -29,7 +46,9 @@ Decided, 재정의 불필요").
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 사용자가 지정한 Phase D는 "Runtime Contract"를 후보로 정의하라는
 것이다. 조사 결과, 이 질문은 이 저장소에서 **이미 살아 있는 최우선
@@ -42,7 +61,7 @@ ADC-02 "Runtime 개념의 존폐"는 **상태 Open, 우선순위 NOW**로 지금
 있으므로, 이미 Accept(Scoped)된 조각과 여전히 ADC-02 하나로 수렴하는
 미결 조각을 정확히 가르는 것이다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 `BASELINE.md` §6은 Runtime을 "Workflow를 참조하여 Task를 Agent에게
 배분하는 서비스(세부 구조는 ADC-02, Open)"로 정의한다. 그러나 실제로는
@@ -65,43 +84,9 @@ Governance 상태를 갖고 있다.
 명시적으로 제외한 영역이며, 그것이 바로 ADC-02가 미결로 남겨 둔
 정확한 나머지다. 이 RFC는 이 사실을 근거를 대며 확인한다.
 
-## 2. Evidence Summary — 이미 결정된 네 조각
+## 3. Analysis & Decision
 
-| 조각 | Governance 근거 | 상태 | Runtime 전체와의 관계 |
-|---|---|---|---|
-| Execution Host(§16.3) | `RFC-0013`/`ADC-0013`/`ADC-0014`/`ADC-0015` | Accept(Scoped) — Production 구현 존재(`execution_host.py`) | §6 "Runtime" 항목의 **재명명 아님**(`ADC-0014` §Q2) — 별개의 더 좁은 Concept |
-| Multi-Task(§16.4) | `RFC-0016`/`ADC-0016` | Accept(Scoped, Conditional) | "Agent 동적 선택은 포함하지 않는다"(§16.4 원문) — Runtime의 "배분" 동사 제외 |
-| Workflow Adapter(§16.6) | `RFC-0019`~`0021`/`ADC-0019`~`0026`/`ADR-0008` 등 | Accept(Scoped, Conditional), Production 차단(Gate B/C 미충족) | A-OUT이 "HQ Routing/Registry" 명시 제외 — Node의 Agent 배정은 HQ가 실행 단위 구성 시점에 이미 고정(불투명 입력) |
-| Engine Adapter/OmniRoute(§16.2 내부 갈래) | `ADC-0027`~`0031`/`ADR-0015`~`0017` | Production Adopted(Scoped, Thin Engine Caller Case A) — Production 구현 존재(`omniroute_engine.py`) | Model/LLM **호출**(§14.1 #3 "Engine 호출 책임")이며 Agent **실행 배분**과는 별개 seam(`ADC-0023` §D-9b가 명시적으로 구분) |
-
-### 2.1 ADC-02와 그 대조 판정들 — 전부 미해소, 이 RFC가 재조사하지 않음
-
-| 판정 | 결론 | 재확인 |
-|---|---|---|
-| `ADC-0008`(RFC-0008 후속) | "유지" 후보 — 근거 부족, "대체"(Scheduler+Engine Gateway) 후보도 근거 부족 → **양쪽 다 Accept 불가**, ADC-02 Open 유지 | 원문 재조회로 확인 |
-| `ADC-0011`(Standalone Execution Location Boundary) | **Not Accepted (based on current evidence)** | 원문 재조회 — "Not Accepted는 그런 위치가 영원히 있을 수 없다는 뜻이 아니다"라는 단서까지 확인 |
-| `ADC-0012`(Dispatch Component Boundary) | **Defer** — 선행 조건(Kernel Module 3건 Defer, ADC-01·02 Open, Engine 수 ≥2 미충족) 다수 미충족 | 원문 재조회 |
-
-**세 판정 모두 ADC-02를 Open 상태로 그대로 남겨 두었다.** 이 RFC는 이
-판정들을 다시 조사하지 않고 그 결론만 인용한다(사용자 지시 "직접
-재검증하여... 우회하지 않는지 확인" — 재검증은 "결론을 다시 읽고
-원문과 대조"하는 것이지 "새로 판단"하는 것이 아니다).
-
-## 3. Evidence Summary — 실제 Production Runtime 소비자 존재 여부
-
-| 대상 | 확인 결과 |
-|---|---|
-| `hqs/development/mvp/execution_host.py` | Execution Host(§16.3, Accept Scoped)의 Production 구현. `run_isolated` — 단일 실행 단위 dispatch·격리만. Agent 동적 배분 없음. |
-| `hqs/development/mvp/omniroute_engine.py` | Engine Adapter/OmniRoute(Production Adopted, Scoped)의 Production 구현. 단일 endpoint 호출만(`ADC-0031` "Thin Engine Caller 범위"). |
-| `Runtime`/`Scheduler`/`AgentManager`/`Registry` 클래스 | grep 결과 Production 경로(`core/`, `hqs/`, `dashboard/`) **0건**(`hqs/investment/checkpoint.py`는 §16.5 저장 전 검증 게이트이며 이름만 유사, 무관). |
-| Multi-HQ/여러 Agent 간 동적 실행 배분 경로 | 코드 전수 조사 결과 **없음** — Development HQ는 4개 고정 Agent를 `workflow.py`가 순서대로 직접 호출, Investment HQ는 `stock_team.py` 내부 병렬 함수 호출뿐. |
-
-**결론**: "Runtime"이라는 이름의 통합 Component는 물론, §6 원문이
-정의하는 "Task를 Agent에게 배분"하는 실제 동작을 수행하는 코드가
-Production 어디에도 없다. 이미 Accept된 네 조각(§2)만 각자의 좁은
-경계 안에서 개별적으로 구현되어 있을 뿐이다.
-
-## 4. Runtime Contract Candidate별 판단
+### 4. Runtime Contract Candidate별 판단
 
 > 사용자가 지정한 6개 후보 각각을 "지금 확정해야 하는가"로 판단한다.
 > ADC 채택 기준(①지금 결정하지 않으면 상위 Architecture 진행 불가,
@@ -123,7 +108,7 @@ Production 어디에도 없다. 이미 Accept된 네 조각(§2)만 각자의 �
 절반**)는 전부 **ADC-02 Open 하나로 수렴**한다 — 별도 이름의 새
 Candidate를 만들 실익이 없다. 소비자도 없다(§3).
 
-## 5. Engine Adapter와 Runtime의 계층 구분 — 혼동 방지 확인
+### 5. Engine Adapter와 Runtime의 계층 구분 — 혼동 방지 확인
 
 사용자가 명시적으로 요구한 구분이다. `ADC-0023` §D-9b가 이미 다음을
 확정했다: v1 `IWorkflowEngine`의 "Engine"(Workflow 그래프 실행)과
@@ -144,7 +129,7 @@ Engine Adapter/OmniRoute는 §14.1 #3 "Engine 호출 책임" 트랙, Runtime의
 `ADC-0023`의 기존 구분을 흐리게 되므로, 이 RFC는 §4의 어떤 행에서도
 Engine Adapter의 확장으로 Runtime을 정의하지 않았다.
 
-## 6. LangGraph의 취급 — Runtime의 전제나 설계 기준이 아님
+### 6. LangGraph의 취급 — Runtime의 전제나 설계 기준이 아님
 
 `ADC-0021`~`ADC-0026`의 축적 판단(§16.6 트랙, Phase C `RFC-0026` §6이
 이미 재확인)을 그대로 따른다 — LangGraph는 §16.6 A-IN(Task 그래프
@@ -153,42 +138,45 @@ Engine Adapter의 확장으로 Runtime을 정의하지 않았다.
 Candidate가 실제로 Accept되는 시점이 오더라도, 그 검증에 LangGraph를
 쓸지는 §16.6과 별개로 그때 판단할 문제이며 지금 전제하지 않는다.
 
-## 7. Out of Scope
+## 4. Evidence & Validation
 
-- ADC-02(Runtime 개념의 존폐) **자체의 판정** — 이 RFC는 그 질문을
-  대신 답하지 않는다. Open 상태를 재확인만 한다.
-- Execution Host(§16.3)·Multi-Task(§16.4)·Workflow Adapter(§16.6)·
-  Engine Adapter(§16.2 내부 갈래)의 **재정의·재판정** — 각자의
-  Governance Chain 소관.
-- Scheduler, Agent Manager, Registry, Event Bus, Workflow Engine의
-  설계·구현.
-- LangGraph 평가·채택·구현.
-- Agent Domain/Lifecycle(Phase A)·Agent State/Message/Event(Phase B)의
-  재정의.
-- `BASELINE.md`·`GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`ADC.md` 문언
-  수정. Production Code 변경.
+### 2. Evidence Summary — 이미 결정된 네 조각
 
-## 8. Non-goals
+| 조각 | Governance 근거 | 상태 | Runtime 전체와의 관계 |
+|---|---|---|---|
+| Execution Host(§16.3) | `RFC-0013`/`ADC-0013`/`ADC-0014`/`ADC-0015` | Accept(Scoped) — Production 구현 존재(`execution_host.py`) | §6 "Runtime" 항목의 **재명명 아님**(`ADC-0014` §Q2) — 별개의 더 좁은 Concept |
+| Multi-Task(§16.4) | `RFC-0016`/`ADC-0016` | Accept(Scoped, Conditional) | "Agent 동적 선택은 포함하지 않는다"(§16.4 원문) — Runtime의 "배분" 동사 제외 |
+| Workflow Adapter(§16.6) | `RFC-0019`~`0021`/`ADC-0019`~`0026`/`ADR-0008` 등 | Accept(Scoped, Conditional), Production 차단(Gate B/C 미충족) | A-OUT이 "HQ Routing/Registry" 명시 제외 — Node의 Agent 배정은 HQ가 실행 단위 구성 시점에 이미 고정(불투명 입력) |
+| Engine Adapter/OmniRoute(§16.2 내부 갈래) | `ADC-0027`~`0031`/`ADR-0015`~`0017` | Production Adopted(Scoped, Thin Engine Caller Case A) — Production 구현 존재(`omniroute_engine.py`) | Model/LLM **호출**(§14.1 #3 "Engine 호출 책임")이며 Agent **실행 배분**과는 별개 seam(`ADC-0023` §D-9b가 명시적으로 구분) |
 
-- 이 RFC는 "Multi-Agent Runtime Contract가 필요하다"고 주장하지
-  않는다 — 조사 결과 그 이름이 가리키는 대부분이 이미 네 조각으로
-  나뉘어 Accept(Scoped)되어 있거나, 나머지가 ADC-02 하나로 수렴하며
-  실제 소비자가 없다.
-- 이 RFC는 ADC-02·ADC-0008·ADC-0011·ADC-0012의 기존 판정을 강화·
-  약화하지 않는다.
-- 이 RFC는 Engine Adapter를 Runtime의 대체물이나 선행물로 주장하지
-  않는다(§5).
+#### 2.1 ADC-02와 그 대조 판정들 — 전부 미해소, 이 RFC가 재조사하지 않음
 
-## 9. Governance Chain / Next Step
+| 판정 | 결론 | 재확인 |
+|---|---|---|
+| `ADC-0008`(RFC-0008 후속) | "유지" 후보 — 근거 부족, "대체"(Scheduler+Engine Gateway) 후보도 근거 부족 → **양쪽 다 Accept 불가**, ADC-02 Open 유지 | 원문 재조회로 확인 |
+| `ADC-0011`(Standalone Execution Location Boundary) | **Not Accepted (based on current evidence)** | 원문 재조회 — "Not Accepted는 그런 위치가 영원히 있을 수 없다는 뜻이 아니다"라는 단서까지 확인 |
+| `ADC-0012`(Dispatch Component Boundary) | **Defer** — 선행 조건(Kernel Module 3건 Defer, ADC-01·02 Open, Engine 수 ≥2 미충족) 다수 미충족 | 원문 재조회 |
 
-| 단계 | 다루는 것 |
+**세 판정 모두 ADC-02를 Open 상태로 그대로 남겨 두었다.** 이 RFC는 이
+판정들을 다시 조사하지 않고 그 결론만 인용한다(사용자 지시 "직접
+재검증하여... 우회하지 않는지 확인" — 재검증은 "결론을 다시 읽고
+원문과 대조"하는 것이지 "새로 판단"하는 것이 아니다).
+
+### 3. Evidence Summary — 실제 Production Runtime 소비자 존재 여부
+
+| 대상 | 확인 결과 |
 |---|---|
-| **이 RFC(Phase D)** | Runtime이라는 이름 아래 이미 Accept된 네 조각(Execution Host/Multi-Task/Workflow Adapter/Engine Adapter)과, 여전히 ADC-02 하나로 수렴하는 미결 나머지를 구분해 확인. **새 Candidate를 Accept 대상으로 제안하지 않는다.** |
-| **ADC-02 자체 트랙** | Runtime 존폐 여부는 이 RFC와 무관하게 그 트랙(`docs/decisions/adc/ADC.md`)에서 계속 Open — NOW 우선순위 그대로. |
-| **§16.3/16.4/16.6/16.2 각 트랙** | 각자의 Production 개시 조건(예: §16.6 Gate B/C)은 이 RFC와 무관하게 진행. |
-| **후속 Governance Review(신설 예정, 필요 시)** | 사용자가 별도로 요청하는 경우, 이 RFC가 새로 Accept 대상으로 제안한 것이 없으므로 판정할 새 사안이 없다 — Phase C와 동일 구조. |
+| `hqs/development/mvp/execution_host.py` | Execution Host(§16.3, Accept Scoped)의 Production 구현. `run_isolated` — 단일 실행 단위 dispatch·격리만. Agent 동적 배분 없음. |
+| `hqs/development/mvp/omniroute_engine.py` | Engine Adapter/OmniRoute(Production Adopted, Scoped)의 Production 구현. 단일 endpoint 호출만(`ADC-0031` "Thin Engine Caller 범위"). |
+| `Runtime`/`Scheduler`/`AgentManager`/`Registry` 클래스 | grep 결과 Production 경로(`core/`, `hqs/`, `dashboard/`) **0건**(`hqs/investment/checkpoint.py`는 §16.5 저장 전 검증 게이트이며 이름만 유사, 무관). |
+| Multi-HQ/여러 Agent 간 동적 실행 배분 경로 | 코드 전수 조사 결과 **없음** — Development HQ는 4개 고정 Agent를 `workflow.py`가 순서대로 직접 호출, Investment HQ는 `stock_team.py` 내부 병렬 함수 호출뿐. |
 
-## 10. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
+**결론**: "Runtime"이라는 이름의 통합 Component는 물론, §6 원문이
+정의하는 "Task를 Agent에게 배분"하는 실제 동작을 수행하는 코드가
+Production 어디에도 없다. 이미 Accept된 네 조각(§2)만 각자의 좁은
+경계 안에서 개별적으로 구현되어 있을 뿐이다.
+
+### 10. Validation — 기존 Architecture/Governance와의 충돌 여부 확인
 
 - `git status --porcelain` — 이 RFC 파일 1건 추가만 존재. `BASELINE.md`·
   `GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`docs/decisions/adc/ADC.md`·
@@ -210,7 +198,73 @@ Candidate가 실제로 Accept되는 시점이 오더라도, 그 검증에 LangGr
   모듈은 이번 세션 환경에 없으며(Phase A~C에서 이미 확인), 코드 diff
   0줄이므로 재실행 결과가 달라질 여지가 없다.
 
-## 11. Self Review
+## 5. Consequences & Risks
+
+### 7. Out of Scope
+
+- ADC-02(Runtime 개념의 존폐) **자체의 판정** — 이 RFC는 그 질문을
+  대신 답하지 않는다. Open 상태를 재확인만 한다.
+- Execution Host(§16.3)·Multi-Task(§16.4)·Workflow Adapter(§16.6)·
+  Engine Adapter(§16.2 내부 갈래)의 **재정의·재판정** — 각자의
+  Governance Chain 소관.
+- Scheduler, Agent Manager, Registry, Event Bus, Workflow Engine의
+  설계·구현.
+- LangGraph 평가·채택·구현.
+- Agent Domain/Lifecycle(Phase A)·Agent State/Message/Event(Phase B)의
+  재정의.
+- `BASELINE.md`·`GLOSSARY.md`·`IMPLEMENTATION_RULES.md`·`ADC.md` 문언
+  수정. Production Code 변경.
+
+### 8. Non-goals
+
+- 이 RFC는 "Multi-Agent Runtime Contract가 필요하다"고 주장하지
+  않는다 — 조사 결과 그 이름이 가리키는 대부분이 이미 네 조각으로
+  나뉘어 Accept(Scoped)되어 있거나, 나머지가 ADC-02 하나로 수렴하며
+  실제 소비자가 없다.
+- 이 RFC는 ADC-02·ADC-0008·ADC-0011·ADC-0012의 기존 판정을 강화·
+  약화하지 않는다.
+- 이 RFC는 Engine Adapter를 Runtime의 대체물이나 선행물로 주장하지
+  않는다(§5).
+
+## 6. Open Questions & Change History
+
+### 9. Governance Chain / Next Step
+
+| 단계 | 다루는 것 |
+|---|---|
+| **이 RFC(Phase D)** | Runtime이라는 이름 아래 이미 Accept된 네 조각(Execution Host/Multi-Task/Workflow Adapter/Engine Adapter)과, 여전히 ADC-02 하나로 수렴하는 미결 나머지를 구분해 확인. **새 Candidate를 Accept 대상으로 제안하지 않는다.** |
+| **ADC-02 자체 트랙** | Runtime 존폐 여부는 이 RFC와 무관하게 그 트랙(`docs/decisions/adc/ADC.md`)에서 계속 Open — NOW 우선순위 그대로. |
+| **§16.3/16.4/16.6/16.2 각 트랙** | 각자의 Production 개시 조건(예: §16.6 Gate B/C)은 이 RFC와 무관하게 진행. |
+| **후속 Governance Review(신설 예정, 필요 시)** | 사용자가 별도로 요청하는 경우, 이 RFC가 새로 Accept 대상으로 제안한 것이 없으므로 판정할 새 사안이 없다 — Phase C와 동일 구조. |
+
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md` | Phase A 전제 |
+| RFC | `docs/architecture/core/RFC-0025-agent-state-message-event-contract.md` | Phase B 전제 |
+| RFC | `docs/architecture/core/RFC-0026-multi-agent-workflow-contract-candidate-boundary.md` | Phase C 전제 |
+| Reference | `docs/decisions/adc/ADC.md`(ADC-02) | 직접 계기(Runtime 존폐 Open, NOW) |
+| ADC | `docs/architecture/core/ADC-0008-runtime-existence-boundary.md` | §2.1 Evidence |
+| ADC | `docs/architecture/core/ADC-0011-standalone-execution-location-boundary.md` | §2.1 Evidence |
+| ADC | `docs/architecture/core/ADC-0012-dispatch-component-boundary.md` | §2.1 Evidence |
+| ADC | `docs/architecture/core/ADC-0023-workflow-engine-port-contract-surface-and-engine-seam-resolution.md` | §5 근거(§D-9b seam 구분) |
+| Reference | `hqs/development/mvp/execution_host.py` | §3 Evidence |
+| Reference | `hqs/development/mvp/omniroute_engine.py` | §3 Evidence |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | §0 근거(Scheduler/Registry/Event Bus 금지) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Multi-Agent 운영 대비 Phase D — Multi-Agent Runtime Contract Candidate 조사 |
+
+---
+
+## 부록: Self Review
 
 - ADC-02를 이 RFC가 대신 판정했는가 — **아니오**(§2.1, §7, §9) — Open
   상태를 재확인만 했다.

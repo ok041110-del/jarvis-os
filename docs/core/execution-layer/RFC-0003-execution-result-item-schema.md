@@ -1,4 +1,12 @@
-# RFC-0003: Execution Result Item Schema — 목록 항목의 형태
+# RFC-0003 — Execution Result Item Schema: 목록 항목의 형태
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0003 |
+| Status | Resolved — `ADC-0003-execution-result-item-schema.md` → `ADR-0002-execution-result-item-schema.md`로 종결됨. 이 라벨은 절차 진행 상태만 반영한다 |
+| Owner / Scope | Execution Result 목록의 각 항목이 어떤 타입인지(2개 후보 중 선택은 하지 않음) |
 
 **Status**: Resolved — `ADC-0003-execution-result-item-schema.md` → `ADR-0002-execution-result-item-schema.md`로 종결됨. RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
 **Author**: Claude Code (Execution Result Builder 구현 시도 후속)
@@ -14,7 +22,9 @@
 > 만들지 않는다. Architecture를 변경하지 않는다. Execution Layer를
 > 구현하지 않는다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Problem & Context
+
+### 0. 이 RFC가 열린 이유
 
 `docs/core/execution-layer/IMPL-STOP-0002-execution-result-builder.md`
 는 Execution Result Builder(`core/execution_layer/mvp_0006`, 미생성)
@@ -29,7 +39,7 @@ Stop Trigger 2를 재발동시키며 중단됐음을 기록했다.
 (`IMPL-STOP-0002` §2 E-1·E-2). 이 RFC는 그 다음 절차로서, 같은
 Evidence를 근거로 정식 Architecture 논의를 연다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 `ADC-0002`·`ADR-0001`이 결정한 것은 Execution Result가 "목록"이라는
 **컨테이너 형태**뿐이다. Builder를 실제로 구현하려면 그 목록의
@@ -37,7 +47,9 @@ Evidence를 근거로 정식 Architecture 논의를 연다.
 없이는 `build_execution_result()`의 `results` 매개변수 타입을 쓸 수
 없다(`IMPL-STOP-0002` §1).
 
-## 2. Evidence Summary
+## 3. Questions & Alternatives
+
+### 2. Evidence Summary
 
 | 문서 | 관찰된 사실 |
 |---|---|
@@ -47,7 +59,7 @@ Evidence를 근거로 정식 Architecture 논의를 연다.
 | `IMPL-STOP-0002` §2 E-3 | `results` 타입 후보를 전수 검토했다 — 두 후보(`list[str]`, `list[dict]`) 모두 새 Contract 결정이 필요함을 확인했고, 별도로 "빈 목록 허용 여부/최소·최대 개수"라는 세 번째 종류의(항목 타입과는 다른) 검증 규칙 질문도 식별했다. |
 | `core/execution_layer/mvp_0001~0005/*.py`(전수 확인) | 5개 Builder의 함수 시그니처를 전수 확인한 결과, 입력·출력·모든 keyword 메타데이터 인자가 예외 없이 `str`이다 — `build_execution_request(implementation_specification: str) -> str`, `build_prompt_specification(execution_request: str) -> str`, `build_model_request(prompt_specification: str, *, request_id: str, created_at: str) -> str`, `build_execution_handle(model_request: str, *, handle_id: str, submitted_at: str) -> str`, `build_execution_state(execution_handle: str, *, handle_id: str, state: str, changed_at: str) -> str`. 구조화(dict/list/객체) 타입의 필드는 5개 Builder 전체에서 한 건도 없다. |
 
-## 3. Pattern
+### 3. Pattern
 
 인용된 문서에서 반복된 사실만 정리한다. 새 사실을 추가하지 않는다.
 
@@ -67,7 +79,7 @@ Evidence를 근거로 정식 Architecture 논의를 연다.
   질문으로 `IMPL-STOP-0002`가 별도로 식별했다 — 이 RFC는 이를
   같은 질문으로 섞지 않는다.
 
-## 4. Boundary Question
+### 4. Boundary Question
 
 이 RFC는 답을 제시하지 않는다. 다음 질문만 제기한다.
 
@@ -84,7 +96,21 @@ Execution Result 목록의 각 항목은 어떤 타입인가?
 이 RFC는 이 중 어느 것이 맞는지 판단하지 않는다. 이 질문에 대한
 판단은 ADC로 위임한다.
 
-## Out of Scope
+## 4. Proposed Direction
+
+### Next Step
+
+후속 ADC(신설 예정, 이 RFC의 후속)에서 다음 하나만 판단하도록 제안한다.
+
+1. §4의 2개 후보(`list[str]` / `list[dict]`) 중 Execution Result
+   목록 항목의 타입으로 채택할 것.
+
+이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance 절차를
+통해 별도로 판단한다.
+
+## 5. Requested Review
+
+### Out of Scope
 
 이번 RFC에서는 다루지 않는다.
 
@@ -101,7 +127,7 @@ Execution Result 목록의 각 항목은 어떤 타입인가?
   규칙(별도 사안).
 - 새로운 실험(Engine 산출물의 실제 타입을 직접 재관찰하는 것 포함).
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 Execution Result Item Schema를 해결하지 않는다.
 - 이 RFC는 새 실험을 수행하지 않는다 — `IMPL-STOP-0002`,
@@ -115,17 +141,23 @@ Execution Result 목록의 각 항목은 어떤 타입인가?
 - 이 RFC는 ADC, ADR 문서를 작성하지 않는다.
 - 이 RFC는 위 Boundary Question에 답하지 않는다.
 
-## Next Step
+## Related Documents
 
-후속 ADC(신설 예정, 이 RFC의 후속)에서 다음 하나만 판단하도록 제안한다.
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/core/execution-layer/RFC-0002-execution-result-contract.md` | 선행 RFC — Contract 형태(list) 결정을 전제로 시작 |
+| ADC | `docs/core/execution-layer/ADC-0003-execution-result-item-schema.md` | 이 RFC의 §2를 직접 인용해 판단(3곳, 재확인 완료) |
+| ADR | `docs/core/execution-layer/ADR-0002-execution-result-item-schema.md` | 항목 타입(str)을 Baseline 반영 |
 
-1. §4의 2개 후보(`list[str]` / `list[dict]`) 중 Execution Result
-   목록 항목의 타입으로 채택할 것.
+## Change History
 
-이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance 절차를
-통해 별도로 판단한다.
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Execution Layer Governance Priority Review 후속 |
 
-## Self Review
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. `IMPL-STOP-0002`, `ADC-0002`,
   `ADR-0001`, `ARTIFACT-STANDARD-v1.md`, 5개 Builder 소스에 실제로

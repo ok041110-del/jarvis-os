@@ -1,4 +1,6 @@
-# ADR-0010: Outcome-Oriented Governance Model — Baseline 반영 결정
+# ADR-0010 — Outcome-Oriented Governance Model: Baseline 반영 결정
+
+## 1. Identity & Status
 
 | 필드 | 내용 |
 |---|---|
@@ -17,7 +19,9 @@
 CLAUDE.md Frozen Architecture 규칙("Architecture/Baseline은 직접
 수정하지 않는다")을 그대로 따랐고, 승인 이후 §4의 반영을 완료했다.
 
-## Out of Scope (이 ADR이 다루지 않는 것)
+## 2. Context & Decision Drivers
+
+### Out of Scope (이 ADR이 다루지 않는 것)
 
 | 항목 | 근거 |
 |---|---|
@@ -30,7 +34,7 @@ CLAUDE.md Frozen Architecture 규칙("Architecture/Baseline은 직접
 
 ---
 
-## Decision
+## 3. Decision
 
 ### 1. 공식 명칭 확정 (ADC-0008 Q-1 Final Judgment 반영)
 
@@ -121,14 +125,27 @@ Governance Model"**을 공식 명칭으로 한다. "Governance v2"라는 명칭�
 v2 흐름" 절 다음에 그대로 등재되었다. 등재된 문구는 위 초안과 문구
 단위로 동일하다.
 
-## 6. Architecture/Contract 불변 확인
+## 4. Rationale & Alternatives
+
+### Rationale
+
+위 §1 Identity & Status 문단(ADC-0008 Q-1/Q-2/Q-3 Final Judgment의 반영 범위) 참고.
+
+### Rejected Alternatives
+
+해당 없음 — 이 ADR은 이미 확정된 ADC-0008 Final Judgment의 반영
+방식만 다루며, 새로운 대안을 검토하지 않는다.
+
+## 5. Consequences & Impact
+
+### 6. Architecture/Contract 불변 확인
 
 - Development HQ/Kernel Architecture 구조를 변경하지 않는다.
 - 어떤 Public Contract도 변경하지 않는다(Kernel Public Contract §14,
   Stage Data Contract §ADR-0009 전부 무변경).
 - 코드 파일은 이 ADR로 일절 수정하지 않는다.
 
-## 7. 기존 RFC/ADC/ADR/Freeze와의 충돌 확인
+### 7. 기존 RFC/ADC/ADR/Freeze와의 충돌 확인
 
 - **`docs/governance/README.md`(Governance v2, Observation 계층)**:
   충돌 없음 — 새 절을 추가할 뿐 기존 절을 재정의하지 않는다(§4).
@@ -146,7 +163,7 @@ v2 흐름" 절 다음에 그대로 등재되었다. 등재된 문구는 위 초�
 
 ---
 
-## Consequences
+### Consequences
 
 - `docs/governance/README.md`에 "Outcome-Oriented Governance Model"
   절이 신설되어, "RFC가 언제 필수인가", "Freeze를 언제 쓰는가",
@@ -163,3 +180,27 @@ v2 흐름" 절 다음에 그대로 등재되었다. 등재된 문구는 위 초�
 - 절차 부채 해소됨: §5 초안 텍스트를 `docs/governance/README.md`에
   등재하는 반영과 Registry(§4) 갱신을 이 ADR의 Accepted 전환과 같은
   작업 단위로 완료했다.
+
+## 6. Architecture Baseline & Implementation
+
+| Item | Description |
+|---|---|
+| Architecture Baseline Impact | 없음 — Development HQ/Kernel Architecture 구조를 변경하지 않는다(위 §5 참조) |
+| Public Contract Impact | 없음 — Kernel Public Contract §14, Stage Data Contract(ADR-0009) 전부 무변경 |
+| Implementation Scope | §3 Decision §4(실제 반영 범위) — `docs/governance/README.md`, `docs/decisions/rfc/README.md`, `docs/decisions/adr/README.md` |
+| Follow-up Work | 없음 — 반영 완료(§3 Decision §4) |
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/decisions/rfc/RFC-0010-outcome-oriented-governance-model.md` | Q-1/Q-2/Q-3 Boundary Question의 출처 |
+| ADC | `docs/governance/adc/ADC-0008.md` | Q-1 Accept, Q-2/Q-3 Scoped Accept·소급 미적용 판단 |
+| ADR | `docs/decisions/adr/ADR-0009-stage-data-contract-baseline.md` | Scoped Accept를 Baseline 반영 결정으로 옮기는 형식 선례 |
+| ADR | `docs/architecture/core/ADR-0018-langgraph-adoption-final-review.md` | Deferred/Not Adopted 종결 시 선행 Decision을 재논의하지 않는 형식 선례 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0010 → ADC-0008 Q-1/Q-2/Q-3 Final Judgment의 Baseline 반영 |

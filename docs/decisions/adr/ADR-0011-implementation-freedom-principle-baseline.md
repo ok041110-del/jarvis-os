@@ -1,4 +1,6 @@
-# ADR-0011: "Implementation Freedom" 원칙 — Baseline 반영 결정
+# ADR-0011 — "Implementation Freedom" 원칙: Baseline 반영 결정
+
+## 1. Identity & Status
 
 | 필드 | 내용 |
 |---|---|
@@ -14,7 +16,9 @@
 않는다. 이 ADR이 하는 일은 그 판단을 실제 문서에 무엇을, 어디에, 어떤
 문구로 반영할 것인지로 구체화하는 것뿐이다.
 
-## Out of Scope (이 ADR이 다루지 않는 것)
+## 2. Context & Decision Drivers
+
+### Out of Scope (이 ADR이 다루지 않는 것)
 
 | 항목 | 근거 |
 |---|---|
@@ -26,7 +30,7 @@
 
 ---
 
-## Decision
+## 3. Decision
 
 ### 1. 추가할 원칙 (ADC-0009 Q-1 Final Judgment 반영)
 
@@ -81,7 +85,20 @@ Evidence 기반 조건부 해제가 가능함이 실증됨)는 **Architecture �
 | `hqs/development/CONSTITUTION.md` | 없음 | 이 ADR의 범위 밖 — §2의 보고용 후보만 기록 |
 | 그 외 | 없음 — 코드·Architecture·Contract 문서는 대상이 아니다 | — |
 
-## 4. Architecture/Contract 불변 확인
+## 4. Rationale & Alternatives
+
+### Rationale
+
+위 §1 Identity & Status 문단(ADC-0009 Q-1/Q-2 Final Judgment의 반영 범위) 참고.
+
+### Rejected Alternatives
+
+해당 없음 — 이 ADR은 이미 확정된 ADC-0009 Final Judgment의 반영
+방식만 다루며, 새로운 대안을 검토하지 않는다.
+
+## 5. Consequences & Impact
+
+### 4. Architecture/Contract 불변 확인
 
 - Development HQ/Kernel Architecture 구조를 변경하지 않는다.
 - `hqs/development/CONSTITUTION.md`의 Architecture Freeze 목록,
@@ -89,7 +106,7 @@ Evidence 기반 조건부 해제가 가능함이 실증됨)는 **Architecture �
 - 어떤 Public Contract도 변경하지 않는다.
 - 코드 파일은 이 ADR로 일절 수정하지 않는다.
 
-## 5. 기존 RFC/ADC/ADR/Freeze와의 충돌 확인
+### 5. 기존 RFC/ADC/ADR/Freeze와의 충돌 확인
 
 - **`docs/governance/README.md`("Governance v2"·"Outcome-Oriented
   Governance Model" 절)**: 충돌 없음 — 새 항목을 추가할 뿐 기존
@@ -106,7 +123,7 @@ Evidence 기반 조건부 해제가 가능함이 실증됨)는 **Architecture �
 
 ---
 
-## Consequences
+### Consequences
 
 - `docs/governance/README.md`에 "Implementation Freedom"과
   "Freeze/Governance는 선호가 아니라 Invariant를 통제한다"는 두
@@ -126,3 +143,26 @@ Evidence 기반 조건부 해제가 가능함이 실증됨)는 **Architecture �
 - 남는 절차 부채: `CONSTITUTION.md` 문면 정정 후보(§2)는 별도
   Development HQ 수준 RFC가 열릴 때만 다뤄진다 — 이 ADR이 그 절차를
   대신하지 않는다.
+
+## 6. Architecture Baseline & Implementation
+
+| Item | Description |
+|---|---|
+| Architecture Baseline Impact | 없음 — Development HQ/Kernel Architecture 구조를 변경하지 않는다(위 §5 참조) |
+| Public Contract Impact | 없음 |
+| Implementation Scope | §3 Decision §3(실제 반영 범위) — `docs/governance/README.md`, `docs/decisions/rfc/README.md`, `docs/decisions/adr/README.md` |
+| Follow-up Work | `hqs/development/CONSTITUTION.md` 문면 정정 후보(§3 Decision §2) — 별도 Development HQ 수준 RFC가 열릴 때만 다뤄진다 |
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/decisions/rfc/RFC-0011-implementation-freedom-principle.md` | Q-1/Q-2 Boundary Question의 출처 |
+| ADC | `docs/governance/adc/ADC-0009.md` | Q-1 Scoped Accept, Q-2 Scoped Accept·개정 없음 판단 |
+| ADR | `docs/decisions/adr/ADR-0010-outcome-oriented-governance-model-baseline.md` | Outcome-Oriented Governance Model 최초 반영 결정과 동일한 승인 대기 → 승인 후 반영 형식 선례 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0011 → ADC-0009 Q-1/Q-2 Final Judgment의 Baseline 반영 |

@@ -1,4 +1,12 @@
-# RFC-0010: Outcome-Oriented Governance Model 도입 여부
+# RFC-0010 — Outcome-Oriented Governance Model 도입 여부
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0010 |
+| Status | Resolved — `docs/governance/adc/ADC-0008.md`로 종결됨(Scoped Accept). 후속 `docs/decisions/adr/ADR-0010-outcome-oriented-governance-model-baseline.md`는 Accepted — `docs/governance/README.md`에 반영 완료 |
+| Owner / Scope | Jarvis OS Governance 자체(문서 원문 표현으로는 P17, Governance Self-Review) |
 
 **Status**: Resolved — `docs/governance/adc/ADC-0008.md`로 종결됨(Scoped
 Accept). 후속 `docs/decisions/adr/ADR-0010-outcome-oriented-governance-model-baseline.md`는
@@ -19,7 +27,9 @@ Principle 포함), `docs/governance/README.md`, `docs/decisions/rfc/README.md`.
 > 이 RFC는 어떤 항목도 채택/기각을 판단하지 않는다 — 판단은 후속 ADC의
 > 몫이다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Problem & Context
+
+### 0. 이 RFC가 열린 이유
 
 사용자가 "Jarvis OS Governance v2"라는 제목으로, Goal-over-Process·
 Invariants-over-Rules·Tier 기반 강도 조절·Freeze는 실제 Invariant에만
@@ -35,7 +45,7 @@ Governance 설계 철학 문서를 제공했다. 이 문서는 저장소에 직�
    그대로 반영하면 두 개의 서로 다른 "Governance v2"가 저장소에 공존하게
    된다.
 
-## 1. Observation — 두 "Governance v2" 명칭 충돌
+### 1. Observation — 두 "Governance v2" 명칭 충돌
 
 | 항목 | 기존 문서 (`docs/governance/README.md`) | 사용자 제공 문서 |
 |---|---|---|
@@ -51,12 +61,14 @@ v2")으로 부르고 있다**는 점뿐이며, 그 결과 향후 "Governance v2"
 RFC가 제기하는 문제다. 두 문서가 실제로 상충하는지, 어느 쪽 표현을
 유지할지는 아래 §2의 질문들로 넘긴다.
 
-## 2. Boundary Questions
+## 3. Questions & Alternatives
+
+### 2. Boundary Questions
 
 이 절의 각 항목은 결론이 아니라 후속 ADC가 판정해야 할 질문이다. 이
 RFC는 Question/Evidence/Options만 제시한다.
 
-### Q-1. 같은 이름("Governance v2")을 그대로 재사용할 것인가
+#### Q-1. 같은 이름("Governance v2")을 그대로 재사용할 것인가
 
 - **Question**: 사용자 제공 문서를 저장소에 반영할 때, 기존
   Observation 계층과 같은 이름("Governance v2")을 유지할 것인가, 별도
@@ -77,7 +89,7 @@ RFC는 Question/Evidence/Options만 제시한다.
 - **ADC에서 결정할 사항**: 위 옵션 중 채택안, 그리고 채택 시 실제
   명칭.
 
-### Q-2. RFC/ADC/ADR의 "역할" 재정의(P7~P9)를 채택할 것인가
+#### Q-2. RFC/ADC/ADR의 "역할" 재정의(P7~P9)를 채택할 것인가
 
 - **Question**: 사용자 문서 P7~P9(RFC/ADC/ADR의 목적을 "미래를
   통제하는 것이 아니라 현재 시점의 Decision과 근거를 기록하는 것"으로
@@ -93,7 +105,7 @@ RFC는 Question/Evidence/Options만 제시한다.
   선택, 채택 시 반영 위치(`docs/governance/README.md` 등)와 방식(참조
   추가 대 본문 교체).
 
-### Q-3. Freeze/Deferred/Tier 정책(P10, P15, P16)을 채택할 것인가, 채택 시 기존 문서에 소급 적용할 것인가
+#### Q-3. Freeze/Deferred/Tier 정책(P10, P15, P16)을 채택할 것인가, 채택 시 기존 문서에 소급 적용할 것인가
 
 - **Question**: 사용자 문서의 Tier 0~4 강도 모델과 "Freeze는 실제
   Invariant에만", "Deferred/Rejected ≠ 영구 금지" 원칙을 저장소
@@ -111,17 +123,7 @@ RFC는 Question/Evidence/Options만 제시한다.
 - **ADC에서 결정할 사항**: 위 옵션 중 채택안. (b)를 선택할 경우 재평가
   대상 문서 목록과 우선순위는 이 RFC가 아니라 후속 절차에서 정한다.
 
-## 3. Architecture Impact
-
-- **없음(NONE)** — 이 RFC는 Development HQ/Kernel Architecture 어느
-  쪽의 구조도 변경하지 않는다. Governance 절차와 명칭에 대한 질문
-  제기로 한정한다.
-
-## 4. Contract Impact
-
-- 없음 — 이 RFC는 코드/Public Contract를 변경하지 않는다.
-
-## 5. 이 RFC가 정의하지 않는 것 (경계)
+### 5. 이 RFC가 정의하지 않는 것 (경계)
 
 - Q-1/Q-2/Q-3 중 어느 옵션을 채택할지는 이 RFC가 결정하지 않는다 —
   후속 ADC의 판단 대상이다.
@@ -130,15 +132,9 @@ RFC는 Question/Evidence/Options만 제시한다.
 - 사용자 제공 문서의 전체 원문을 그대로 채택할지, 부분 채택할지도 이
   RFC의 범위 밖이다.
 
-## 6. Governance 변경 범위 (승인 시)
+## 4. Proposed Direction
 
-| 대상 | 변경 내용 |
-|---|---|
-| 신규 ADC 1건 | Q-1(명칭)/Q-2(RFC·ADC·ADR 역할 서술 반영 여부)/Q-3(Freeze·Deferred·Tier 도입 및 소급 적용 여부) 판정 |
-| 신규 ADR (조건부) | ADC가 Q-2 또는 Q-3의 반영을 Accept할 경우, 해당 반영을 `docs/governance/README.md` 등 Baseline 변경으로 기록 |
-| `docs/governance/README.md` | ADR 확정 이후에만 수정 — 이 RFC 자체는 수정하지 않는다 |
-
-## Decision
+### Decision
 
 **Scoped Accept — `docs/governance/adc/ADC-0008.md` 판정을 그대로
 따른다.** Q-1은 별도 명칭("Outcome-Oriented Governance Model") 채택으로
@@ -153,3 +149,37 @@ RFC·ADC 어느 것도 수행하지 않으며 후속 ADR 대상으로 남긴다.
 후속 ADR은 `docs/decisions/adr/ADR-0010-outcome-oriented-governance-model-baseline.md`로
 작성되었다 — **Status: Accepted**. 사용자 승인 후 `docs/governance/
 README.md`에 ADR-0010 §5 신설 절을 등재했다.
+
+## 5. Requested Review
+
+### 3. Architecture Impact
+
+- **없음(NONE)** — 이 RFC는 Development HQ/Kernel Architecture 어느
+  쪽의 구조도 변경하지 않는다. Governance 절차와 명칭에 대한 질문
+  제기로 한정한다.
+
+### 4. Contract Impact
+
+- 없음 — 이 RFC는 코드/Public Contract를 변경하지 않는다.
+
+### 6. Governance 변경 범위 (승인 시)
+
+| 대상 | 변경 내용 |
+|---|---|
+| 신규 ADC 1건 | Q-1(명칭)/Q-2(RFC·ADC·ADR 역할 서술 반영 여부)/Q-3(Freeze·Deferred·Tier 도입 및 소급 적용 여부) 판정 |
+| 신규 ADR (조건부) | ADC가 Q-2 또는 Q-3의 반영을 Accept할 경우, 해당 반영을 `docs/governance/README.md` 등 Baseline 변경으로 기록 |
+| `docs/governance/README.md` | ADR 확정 이후에만 수정 — 이 RFC 자체는 수정하지 않는다 |
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/governance/adc/ADC-0008.md` | 이 RFC의 Q-1/Q-2/Q-3을 직접 인용해 판단(10곳, 재확인 완료) |
+| ADR | `docs/decisions/adr/ADR-0010-outcome-oriented-governance-model-baseline.md` | Q-1/Q-2/Q-3 Final Judgment를 Baseline 반영 |
+| Open Decision | — | 없음(Q-1/Q-2/Q-3 모두 ADC-0008에서 판정 완료) |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | 사용자 제공 Governance v2 Design Principles에 대한 절차 적용 |

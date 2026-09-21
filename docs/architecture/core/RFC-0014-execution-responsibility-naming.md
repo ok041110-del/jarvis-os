@@ -1,5 +1,22 @@
 # RFC-0014: 단일 실행 단위 dispatch·격리 책임의 명칭 (ADR-0003 후속)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0014 |
+| Title | 단일 실행 단위 dispatch·격리 책임의 명칭 (ADR-0003 후속) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Concept Model 명칭) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md`(§16.3) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 Related Documents 참고 |
+| Source Path | `docs/architecture/core/RFC-0014-execution-responsibility-naming.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/architecture/baseline/BASELINE.md` §16.3("단일 실행
@@ -22,7 +39,9 @@
 > RFC가 여는 것은 명칭 하나뿐이다: **§16.3이 이미 존재를 Accept한
 > 책임을 어떤 Architecture 명칭으로 부를 것인가?**
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `ADR-0003`은 `BASELINE.md` §16.3에 "단일 실행 단위 dispatch·격리"
 책임을 등재하면서, 그 명칭을 §6 Concept Model의 "Runtime" 항목과
@@ -38,7 +57,7 @@ Concept Model의 'Runtime' 항목과의 관계 포함)"이라는 조건부 표�
 상태"(`ADR-0003` §5)로 남는다. 명칭을 정하는 것은 구현 착수와
 무관하게, 문서 자체의 정합성을 위해 필요하다.
 
-## 1. Boundary Question
+### 1. Boundary Question
 
 **§16.3이 이미 존재를 Accept한 "단일 실행 단위 dispatch·격리"
 책임을 어떤 Architecture 명칭으로 정의할 것인가?**
@@ -54,7 +73,9 @@ Concept Model의 'Runtime' 항목과의 관계 포함)"이라는 조건부 표�
   비교, Multi-Task/Workflow 확장은 이 RFC의 범위 밖이다(§Out of
   Scope).
 
-## 2. 명칭 후보
+## 3. Analysis & Decision
+
+### 2. 명칭 후보
 
 ### 후보 A. Runtime (유지)
 
@@ -128,7 +149,7 @@ Component(RFC-0012)·Scheduler/Engine Gateway(ADC-02 대체 후보) 중
 **구현 적합성**: 이름 자체는 구현 전략에 중립적이다("Host"가
 Process인지 Thread인지 규정하지 않는다).
 
-## 3. 비교표
+### 3. 비교표
 
 | 기준 | A. Runtime (유지) | B. Execution Dispatcher | C. Execution Host |
 |---|---|---|---|
@@ -138,7 +159,7 @@ Process인지 Thread인지 규정하지 않는다).
 | 구현 전략에 대한 중립성 | 중립 | 중립 | 중립 |
 | Baseline/GLOSSARY 갱신 범위 | 없음(이름 유지) — 그러나 §6 각주의 "세부 구조는 Open" 표현을 §16.3의 Scoped Accept와 어떻게 정합시킬지는 여전히 남는 문제 | §16.3 본문·GLOSSARY 신규 항목 추가 필요 | §16.3 본문·GLOSSARY 신규 항목 추가 필요 |
 
-## 4. Decision Candidate (권고, 확정 아님)
+### 4. Decision Candidate (권고, 확정 아님)
 
 **권고: 후보 C. Execution Host**
 
@@ -155,7 +176,13 @@ Process인지 Thread인지 규정하지 않는다).
 이 권고는 **Decision이 아니다.** 최종 채택 여부, 그리고 GLOSSARY·
 §16.3 본문에 실제로 반영할지는 후속 ADC로 위임한다(§Next Step).
 
-## Out of Scope
+## 4. Evidence & Validation
+
+위 §3의 명칭 후보 절과 비교표에 근거(기존 문서 충돌 검색 결과 등)가 이미 포함되어 있어 별도 절로 분리하지 않는다.
+
+## 5. Consequences & Risks
+
+### Out of Scope
 
 - Process/Thread/Subprocess 구현 전략 결정.
 - Scheduler/Engine Gateway 등 대체 구조 설계.
@@ -170,7 +197,7 @@ Process인지 Thread인지 규정하지 않는다).
 - Production Code(`core/`, `hqs/`, `dashboard/`) 수정.
 - 새로운 실험.
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 명칭을 확정하지 않는다 — 권고만 한다.
 - 이 RFC는 구현 전략을 결정하지 않는다.
@@ -179,7 +206,9 @@ Process인지 Thread인지 규정하지 않는다).
 - 이 RFC는 Architecture Baseline을 직접 변경하지 않는다.
 - 이 RFC는 ADC, ADR 문서를 작성하지 않는다.
 
-## Next Step
+## 6. Open Questions & Change History
+
+### Next Step
 
 후속 ADC(신설 예정, 이 RFC의 후속)에서 다음을 판단하도록 제안한다.
 
@@ -200,7 +229,30 @@ Process인지 Thread인지 규정하지 않는다).
 이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance
 절차(RFC → ADC → ADR → Baseline Update)를 통해 별도로 판단한다.
 
-## Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADR | `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` | 이 RFC가 위임받은 명칭 결정 출처(§16.3) |
+| ADC | `docs/architecture/core/ADC-0013-runtime-existence-scoped-reconsideration.md` | 책임 존재·범위 Accept 근거 |
+| RFC | `docs/architecture/core/RFC-0013-runtime-existence-scoped-reconsideration.md` | Evidence 목록 |
+| RFC | `docs/decisions/rfc/RFC-0004-task-dispatcher-runtime-boundary.md`(§4) | 후보 A 충돌 근거 |
+| RFC | `docs/architecture/core/RFC-0012-dispatch-component-boundary.md` | 후보 B 충돌 근거(DEFER 상태) |
+| ADC | `docs/architecture/core/ADC-0012-dispatch-component-boundary.md` | 후보 B 충돌 근거(DEFER 상태) |
+| Reference | `docs/00_governance/GLOSSARY.md` | 후보 C 전수 검색 근거 |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADR-0003 §16.3 명칭 위임 후속 |
+
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. `ADR-0003`, `ADC-0013`,
   `RFC-0013`, `RFC-0004`, `RFC-0012`/`ADC-0012`, `BASELINE.md`,

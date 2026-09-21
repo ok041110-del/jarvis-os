@@ -1,5 +1,22 @@
 # RFC-0024: Agent Domain & Lifecycle Contract — 최소 범위 Boundary Question (Multi-Agent 운영 대비 Phase A)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0024 |
+| Title | Agent Domain & Lifecycle Contract — 최소 범위 Boundary Question (Multi-Agent 운영 대비 Phase A) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Agent Domain/Lifecycle Contract, Multi-Agent Phase A) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `archive/v1/docs/adr/0007-workflow-execution-model.md`(결정 3), `docs/architecture/core/ADR-0011-gate-a-decisions-2-5-11-resolution-baseline.md` |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0024-agent-domain-and-lifecycle-contract.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/architecture/baseline/BASELINE.md` §6(Concept Model: Agent)·
@@ -32,7 +49,9 @@ Model 판정 선례 — Execution Unit)의 절차·표현 관행. **새로운
 
 ---
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 v1 `archive/v1/docs/adr/0007-workflow-execution-model.md` 결정 3은 Agent
 Lifecycle State Machine을 명시적으로 범위 밖에 두면서, 그 재검토 시점을
@@ -53,7 +72,7 @@ Contract화되지 않은 것 — Agent가 무엇을 갖고, 무엇으로 상태�
 Agent Manager와 어떻게 나뉘는지 — 를 **최소 범위로 여는 Boundary
 Question + Candidate 제안**으로 다룬다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 `BASELINE.md` §7은 Agent의 책임을 두 문장으로만 정의한다 — "배분된 Task의
 실제 수행", "Task 실행 중 Context 생성". 이 정의는 Agent가 **무엇으로
@@ -79,39 +98,9 @@ Entity로 이미 등재했고(HQ 내부 구조인 Division/Team과 달리), §3�
 구현이나 "Agent Manager"라고 자칭할 위험을 만든다(`ARCHITECTURE_GOVERNANCE.md`의
 "빈 상자" 위험과 동일 패턴, `ADC-0019` §Risks 인용).
 
-## 2. Evidence Summary — 이미 기록된 것만 인용
+## 3. Analysis & Decision
 
-### 2.1 Kernel/Baseline이 이미 확정한 것
-
-| 근거 | 내용 |
-|---|---|
-| §6 Concept Model | `Agent`는 Entity(HQ, Agent, Principal과 나란히), Jarvis OS 전체 어휘. `Capability`는 Metadata 분류. "Agent는 HQ에 소속되며 Capability를 가진다." |
-| §7 Agent 책임 | "배분된 Task의 실제 수행", "Task 실행 중 Context 생성" — 이 둘뿐. |
-| §7 HQ 책임 | "Agent 구성 및 역할 결정" — Agent를 만들고 구성하는 것은 HQ 책임으로 이미 확정. |
-| §14.6 N-3 | Kernel Non-Goal: "Agent 관리 — Agent의 생성·구성·실행"을 제공하지 않는다. "닫지 않는 질문: 없음 — §7이 이미 HQ 책임으로 확정." |
-| §11 Kernel이 아닌 것 | "Kernel은 Event Bus가 아니다." |
-| `IMPLEMENTATION_RULES.md` | Registry 구현 금지, Registry 일반화 금지, Scheduler 구현 금지, Event Bus 구현 금지, 넓은 Runtime(Workflow 참조, Agent 동적 배분) 구현 금지 — 전부 현재도 유효. |
-| `ADR-0011` §2.2 | "Kernel이 아는 생명주기는 여전히 HQ Lifecycle뿐이다(§6). '실행 단위'는 §16.6 본문 설명 용어이며 §6 Concept Model에 등재되지 않는다." — 가장 최근(v1.15) Kernel의 공식 입장. |
-
-### 2.2 명명만 되고 정의되지 않은 것
-
-| 근거 | 내용 |
-|---|---|
-| `ADC-0006` §판단 대상에서 제외 | "Agent class, Agent Runtime, Agent Registry, Agent Manager" — 이 4개를 **판단하지 않는다**고 명시했을 뿐, 이들이 언제·어떻게 정의될지는 말하지 않는다. |
-| `RFC-0018` §Out of Scope | "Agent Manager 변경", "새로운 Agent"를 후속 절차가 다룰 항목으로 나열만 한다 — Agent Manager의 책임을 한 문장도 정의하지 않는다. |
-| v1 `ADR-0007` 결정 3 | "Agent에게 독자적인 Lifecycle이 필요해지는 것은 여러 Agent가 장시간·비동기로 협업하는 Multi-Agent 운영 단계이며, 그 시점에 별도 ADR로 다룬다." v2로 이식되지 않았고(`RFC-0019` §5 표에 언급 없음), 재개설된 적도 없다. |
-
-### 2.3 HQ 수준에서 실제로 관찰된 것 (Instance Evidence)
-
-`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md`가 확정한 Development HQ의 4개
-Agent(Requirements/Design/Backend/QA) 각각은 이미 **비공식적으로**
-Responsibility(Role에 해당) · Capability(1개 이상) · Input · Output ·
-"담당하지 않는 영역"(Role 경계)을 표 형태로 갖고 있다. 이는 이 RFC가
-제안할 Domain Model의 필드들이 **완전히 새로운 것이 아니라, 이미
-개별 HQ 문서에 흩어져 있던 것을 일반화하는 것**임을 보여준다 — Agent에
-State·Lifecycle·Result 개념은 어디에도 없다는 점이 유일한 진짜 공백이다.
-
-## 3. Gap Analysis
+### 3. Gap Analysis
 
 | 항목 | 현재 상태 | Gap |
 |---|---|---|
@@ -125,7 +114,7 @@ State·Lifecycle·Result 개념은 어디에도 없다는 점이 유일한 진�
 | Agent ↔ Agent Manager 경계 | Agent Manager라는 **이름만** 존재(§2.2) | 책임 분담 미정 — 잘못 구현되면 중복·역전 위험 |
 | Event Bus 경계 | "Kernel은 Event Bus가 아니다"(§11), 구현 금지(`IMPLEMENTATION_RULES.md`) | Agent State 변화가 Event로 나가는지 여부조차 미정 — 이 RFC가 열지 않음(§7) |
 
-## 4. Candidate — Agent Domain Model (최소 범위)
+### 4. Candidate — Agent Domain Model (최소 범위)
 
 > 이 절은 **제안(Candidate)**이다. `BASELINE.md`를 수정하지 않으며, 필드
 > 이름·타입을 확정하지 않는다 — "이런 책임 범주가 필요하다"는 최소
@@ -148,7 +137,7 @@ State·Lifecycle·Result 개념은 어디에도 없다는 점이 유일한 진�
 Registry 금지·`ADC-0006` 제외 목록과 동일하게, 이 RFC는 Runtime 구현이
 아니다).
 
-## 5. Candidate — Agent Lifecycle State Model (최소 범위, Runtime 미구현)
+### 5. Candidate — Agent Lifecycle State Model (최소 범위, Runtime 미구현)
 
 > v1 `TeamState`(FORMING→ACTIVE→COMPLETING→TERMINATED)를 참고 선례로
 > 삼되, v2 §5가 Team을 배제한 것과 동일하게 이 State Model도 Team 개념에
@@ -182,7 +171,7 @@ RFC가 결정하지 않는다 — HQ 도메인 판단 후보(§7)이자, 결정�
   `COMPLETED`/`FAILED` 전이의 근거 값과 동일한 것인지의 확정 — 후속 ADC
   대상으로 남긴다.
 
-## 6. Candidate — Agent ↔ Agent Manager 책임 경계
+### 6. Candidate — Agent ↔ Agent Manager 책임 경계
 
 이 RFC가 여는 것은 "Agent Manager를 설계하는 것"이 아니라 — 그것은
 Registry/Scheduler 금지(`IMPLEMENTATION_RULES.md`)에 걸리므로 명시적으로
@@ -207,7 +196,7 @@ Candidate로 긋는 것이다.
 자동으로 확정되지는 않는다 — Scheduler/Registry 금지가 유지되는 한 그
 영역은 여전히 구현될 수 없다.
 
-## 7. Boundary — Event Bus / Multi-Agent Workflow / Runtime / LangGraph
+### 7. Boundary — Event Bus / Multi-Agent Workflow / Runtime / LangGraph
 
 이 네 가지는 이 RFC가 **다루지 않으며**, 기존 결정을 그대로 인용해 경계를
 재확인하는 것에 그친다.
@@ -235,7 +224,7 @@ Candidate로 긋는 것이다.
   §16.6 Adapter의 입력 계약 자체를 수정하지 않는다 — Adapter는 여전히
   Agent 내부를 들여다보지 않는다(A-IN "불투명한 입력" 원칙 유지).
 
-## 8. 이 Contract가 어디에 귀속되어야 하는가 (Open Question, 이 RFC가 결정하지 않음)
+### 8. 이 Contract가 어디에 귀속되어야 하는가 (Open Question, 이 RFC가 결정하지 않음)
 
 §4·§5·§6의 Candidate는 §7(System Boundary)·N-3(Kernel Non-Goal)에 따라
 **Agent 관리(생성·구성·실행)는 HQ 책임**이라는 이미 확정된 원칙과
@@ -261,50 +250,41 @@ Candidate로 긋는 것이다.
 어휘를 쓰는 것(§1)이 그 조건을 충족하는 Architecture Need인지가 그
 판단의 핵심이다.
 
-## 9. Out of Scope
+## 4. Evidence & Validation
 
-- Agent Class/Runtime/Registry/Manager의 **구현**(`ADC-0006` 제외 목록과
-  동일 범위 유지).
-- Agent Manager의 **설계**(Scheduler/Registry가 여전히 금지 상태이므로
-  이 RFC보다 앞서 그 금지의 재검토가 필요, §6 표).
-- Event Bus 도입 여부·형태.
-- Multi-Agent Workflow(Agent 간 협업 순서) 조정 책임의 소재 — Runtime
-  존폐(ADC-02, Open)에 종속된 상위 질문.
-- LangGraph를 이용한 Multi-Agent 구현.
-- `BASELINE.md`·`hqs/development/BASELINE.md`·`GLOSSARY.md`·§14 문언
-  수정. `docs/decisions/adc/ADC.md`·`IMPLEMENTATION_RULES.md` 수정.
-- Production Code(`core/`, `hqs/`, `dashboard/`) 변경.
-- §4/§5/§6 Candidate 필드의 구체 자료구조·직렬화 형식·타입 확정.
-- Development HQ의 기존 4개 Agent(`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md`)
-  재정의 — 이 RFC는 그 문서의 결론을 인용할 뿐 바꾸지 않는다.
+### 2. Evidence Summary — 이미 기록된 것만 인용
 
-## 10. Non-goals
+#### 2.1 Kernel/Baseline이 이미 확정한 것
 
-- 이 RFC는 §8의 두 후보 중 어느 쪽이 옳은지 미리 결론짓지 않는다.
-- 이 RFC는 v1 결정 3("Multi-Agent 운영 단계")이 v2에서 이미 도래했다고
-  선언하지 않는다 — §0이 그 시점 도래 여부 자체를 후속 ADC의 판단
-  대상으로 남긴다.
-- 이 RFC는 Agent Manager가 **필요하다**고 주장하지 않는다 — §6은 이름만
-  존재하는 개념의 경계를 예방적으로 그을 뿐, 그 존재 자체의 필요성을
-  논증하지 않는다.
-- 이 RFC는 "Multi-Agent First Architecture"라는 이름의 문서·절이
-  존재한다고 전제하지 않는다 — §2가 확인했듯 그런 이름의 공식 문서는
-  없으며, 이 RFC는 §3 Core Principle·§5 Meta Architecture를 그 근거로
-  대체 인용한다.
-
-## 11. Governance Chain / Next Step
-
-| 단계 | 다루는 것 |
+| 근거 | 내용 |
 |---|---|
-| **이 RFC(Phase A)** | Gap 분석(§1~§3) + Agent Domain Model·Lifecycle State·Agent/Agent Manager 경계의 **Candidate 제안**(§4~§6) + Event Bus/Multi-Agent Workflow/Runtime/LangGraph와의 경계 재확인(§7) + 귀속처 Open Question 개설(§8). **결정하지 않는다.** |
-| **후속 ADC(신설 예정)** | §4·§5·§6 Candidate 각각의 Accept/Reject/조건부 Accept, §8의 귀속처(HQ-level vs Kernel-level) 결정, ADC 채택 기준 충족 여부 판단. |
-| **후속 ADR** | ADC 판단을 `BASELINE.md`(§8이 Kernel-level을 선택한 경우) 또는 `hqs/development/BASELINE.md`(HQ-level을 선택한 경우)에 반영. |
-| **후속 별도 절차** | Agent Manager 설계(Scheduler/Registry 금지 재검토 선행 필요), Event Bus, Multi-Agent Workflow, Runtime 존폐(ADC-02). |
+| §6 Concept Model | `Agent`는 Entity(HQ, Agent, Principal과 나란히), Jarvis OS 전체 어휘. `Capability`는 Metadata 분류. "Agent는 HQ에 소속되며 Capability를 가진다." |
+| §7 Agent 책임 | "배분된 Task의 실제 수행", "Task 실행 중 Context 생성" — 이 둘뿐. |
+| §7 HQ 책임 | "Agent 구성 및 역할 결정" — Agent를 만들고 구성하는 것은 HQ 책임으로 이미 확정. |
+| §14.6 N-3 | Kernel Non-Goal: "Agent 관리 — Agent의 생성·구성·실행"을 제공하지 않는다. "닫지 않는 질문: 없음 — §7이 이미 HQ 책임으로 확정." |
+| §11 Kernel이 아닌 것 | "Kernel은 Event Bus가 아니다." |
+| `IMPLEMENTATION_RULES.md` | Registry 구현 금지, Registry 일반화 금지, Scheduler 구현 금지, Event Bus 구현 금지, 넓은 Runtime(Workflow 참조, Agent 동적 배분) 구현 금지 — 전부 현재도 유효. |
+| `ADR-0011` §2.2 | "Kernel이 아는 생명주기는 여전히 HQ Lifecycle뿐이다(§6). '실행 단위'는 §16.6 본문 설명 용어이며 §6 Concept Model에 등재되지 않는다." — 가장 최근(v1.15) Kernel의 공식 입장. |
 
-이 RFC 자체는 위 판단을 내리지 않는다. Architecture Governance
-절차(RFC → ADC → ADR → Baseline Update)를 통해 별도로 진행한다.
+#### 2.2 명명만 되고 정의되지 않은 것
 
-## 12. Validation — 기존 Architecture와의 충돌 여부 확인
+| 근거 | 내용 |
+|---|---|
+| `ADC-0006` §판단 대상에서 제외 | "Agent class, Agent Runtime, Agent Registry, Agent Manager" — 이 4개를 **판단하지 않는다**고 명시했을 뿐, 이들이 언제·어떻게 정의될지는 말하지 않는다. |
+| `RFC-0018` §Out of Scope | "Agent Manager 변경", "새로운 Agent"를 후속 절차가 다룰 항목으로 나열만 한다 — Agent Manager의 책임을 한 문장도 정의하지 않는다. |
+| v1 `ADR-0007` 결정 3 | "Agent에게 독자적인 Lifecycle이 필요해지는 것은 여러 Agent가 장시간·비동기로 협업하는 Multi-Agent 운영 단계이며, 그 시점에 별도 ADR로 다룬다." v2로 이식되지 않았고(`RFC-0019` §5 표에 언급 없음), 재개설된 적도 없다. |
+
+#### 2.3 HQ 수준에서 실제로 관찰된 것 (Instance Evidence)
+
+`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md`가 확정한 Development HQ의 4개
+Agent(Requirements/Design/Backend/QA) 각각은 이미 **비공식적으로**
+Responsibility(Role에 해당) · Capability(1개 이상) · Input · Output ·
+"담당하지 않는 영역"(Role 경계)을 표 형태로 갖고 있다. 이는 이 RFC가
+제안할 Domain Model의 필드들이 **완전히 새로운 것이 아니라, 이미
+개별 HQ 문서에 흩어져 있던 것을 일반화하는 것**임을 보여준다 — Agent에
+State·Lifecycle·Result 개념은 어디에도 없다는 점이 유일한 진짜 공백이다.
+
+### 12. Validation — 기존 Architecture와의 충돌 여부 확인
 
 이 RFC는 문서 1건만 신규 작성했다. 충돌 여부를 다음 항목으로 확인했다.
 
@@ -328,7 +308,80 @@ Candidate로 긋는 것이다.
   모듈이 설치되어 있지 않아 직접 재실행은 하지 않았다 — 코드 diff가
   0줄이므로 실행 결과가 달라질 여지가 없다).
 
-## 13. Self Review
+## 5. Consequences & Risks
+
+### 9. Out of Scope
+
+- Agent Class/Runtime/Registry/Manager의 **구현**(`ADC-0006` 제외 목록과
+  동일 범위 유지).
+- Agent Manager의 **설계**(Scheduler/Registry가 여전히 금지 상태이므로
+  이 RFC보다 앞서 그 금지의 재검토가 필요, §6 표).
+- Event Bus 도입 여부·형태.
+- Multi-Agent Workflow(Agent 간 협업 순서) 조정 책임의 소재 — Runtime
+  존폐(ADC-02, Open)에 종속된 상위 질문.
+- LangGraph를 이용한 Multi-Agent 구현.
+- `BASELINE.md`·`hqs/development/BASELINE.md`·`GLOSSARY.md`·§14 문언
+  수정. `docs/decisions/adc/ADC.md`·`IMPLEMENTATION_RULES.md` 수정.
+- Production Code(`core/`, `hqs/`, `dashboard/`) 변경.
+- §4/§5/§6 Candidate 필드의 구체 자료구조·직렬화 형식·타입 확정.
+- Development HQ의 기존 4개 Agent(`DEV-HQ-V2.0-AGENT-DEFINITION-0001.md`)
+  재정의 — 이 RFC는 그 문서의 결론을 인용할 뿐 바꾸지 않는다.
+
+### 10. Non-goals
+
+- 이 RFC는 §8의 두 후보 중 어느 쪽이 옳은지 미리 결론짓지 않는다.
+- 이 RFC는 v1 결정 3("Multi-Agent 운영 단계")이 v2에서 이미 도래했다고
+  선언하지 않는다 — §0이 그 시점 도래 여부 자체를 후속 ADC의 판단
+  대상으로 남긴다.
+- 이 RFC는 Agent Manager가 **필요하다**고 주장하지 않는다 — §6은 이름만
+  존재하는 개념의 경계를 예방적으로 그을 뿐, 그 존재 자체의 필요성을
+  논증하지 않는다.
+- 이 RFC는 "Multi-Agent First Architecture"라는 이름의 문서·절이
+  존재한다고 전제하지 않는다 — §2가 확인했듯 그런 이름의 공식 문서는
+  없으며, 이 RFC는 §3 Core Principle·§5 Meta Architecture를 그 근거로
+  대체 인용한다.
+
+## 6. Open Questions & Change History
+
+### 11. Governance Chain / Next Step
+
+| 단계 | 다루는 것 |
+|---|---|
+| **이 RFC(Phase A)** | Gap 분석(§1~§3) + Agent Domain Model·Lifecycle State·Agent/Agent Manager 경계의 **Candidate 제안**(§4~§6) + Event Bus/Multi-Agent Workflow/Runtime/LangGraph와의 경계 재확인(§7) + 귀속처 Open Question 개설(§8). **결정하지 않는다.** |
+| **후속 ADC(신설 예정)** | §4·§5·§6 Candidate 각각의 Accept/Reject/조건부 Accept, §8의 귀속처(HQ-level vs Kernel-level) 결정, ADC 채택 기준 충족 여부 판단. |
+| **후속 ADR** | ADC 판단을 `BASELINE.md`(§8이 Kernel-level을 선택한 경우) 또는 `hqs/development/BASELINE.md`(HQ-level을 선택한 경우)에 반영. |
+| **후속 별도 절차** | Agent Manager 설계(Scheduler/Registry 금지 재검토 선행 필요), Event Bus, Multi-Agent Workflow, Runtime 존폐(ADC-02). |
+
+이 RFC 자체는 위 판단을 내리지 않는다. Architecture Governance
+절차(RFC → ADC → ADR → Baseline Update)를 통해 별도로 진행한다.
+
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| Reference | `archive/v1/docs/adr/0007-workflow-execution-model.md`(결정 3) | Agent Lifecycle 재검토 시점 이연 근거 |
+| ADR | `docs/architecture/core/ADR-0011-gate-a-decisions-2-5-11-resolution-baseline.md` | §2.1 Evidence(Kernel Lifecycle 확인) |
+| ADC | `docs/governance/adc/ADC-0006.md` | §2.2 Evidence(Agent 관련 제외 목록) |
+| RFC | `docs/architecture/core/RFC-0018-natural-language-request-multi-hq-task-decomposition.md` | §2.2 Evidence(Agent Manager 명명) |
+| RFC | `docs/architecture/core/RFC-0021-workflow-adapter-execution-unit-lifecycle-state-model-boundary.md` | 절차·표현 관행 선례 |
+| ADC | `docs/architecture/core/ADC-0022-workflow-adapter-execution-unit-lifecycle-state-model-resolution.md` | 절차·표현 관행 선례(§D-0) |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | §2.1 Evidence(Registry/Scheduler/Event Bus 금지) |
+| Reference | `docs/research/DEV-HQ-V2.0-AGENT-DEFINITION-0001.md` | §2.3 Evidence(Dev HQ 4개 Agent 확정 목록) |
+| Reference | `docs/research/DEV-HQ-V2.0-AGENT-LAYER-REFACTORING-AUDIT-0001.md` | §1 Evidence(Agent Layer 진단) |
+| Reference | `hqs/development/mvp/agents/`(원문 작성 시점 `agents.py` 단일 파일 인용 — 현재는 `agents/` 패키지로 이동, ADC-0006 후속) | §0/§1 Evidence(관찰) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Multi-Agent 운영 대비 Phase A — Agent Domain & Lifecycle Contract Boundary Question 개설 |
+
+---
+
+## 부록: Self Review
 
 - Baseline/Contract를 변경했는가 — **아니오**. `BASELINE.md`·`GLOSSARY.md`·
   `hqs/development/BASELINE.md`·§14 어느 것도 수정하지 않았다(§12).

@@ -1,5 +1,22 @@
 # RFC-0011: Kernel/HQ에 속하지 않는 별도 실행 위치 — Architecture Concept으로서의 Boundary (ADC-0010 C6 후속)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0011 |
+| Title | Kernel/HQ에 속하지 않는 별도 실행 위치 — Architecture Concept으로서의 Boundary (ADC-0010 C6 후속) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Concept Model — 실행 위치 경계) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/ADC-0010-engine-caller-location-boundary.md`(C6) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 Related Documents/본문 §2 참고 |
+| Source Path | `docs/architecture/core/RFC-0011-standalone-execution-location-boundary.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (ADC-0010 C6 조사 후속)
 **대상**: `ADC-0010-engine-caller-location-boundary.md`가 Not Accepted로
@@ -25,7 +42,9 @@ Jarvis OS Architecture의 공식 Concept으로 인정할 수 있는지가 결정
 > Result Consumer·C1~C5는 재조사하지 않는다 — 기존 결정으로만
 > 인용한다. 새로운 실험을 하지 않는다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `ADC-0010`은 caller 후보 6개(C1~C6)를 전수 판단했고 전부 Not
 Accepted로 남겼다. `ENGINE-CONNECT-0004`(C6 단독 재조사)는 C6가
@@ -38,7 +57,7 @@ Accepted로 남겼다. `ENGINE-CONNECT-0004`(C6 단독 재조사)는 C6가
 `ADC-0010` §부족한 Evidence 6번("C6 자체를 구체화하는 새 RFC가
 필요하다")이 이미 요구한 절차다.
 
-## 1. 왜 기존 Kernel/HQ 경계만으로 Production Engine caller 위치를 표현할 수 없는가
+### 1. 왜 기존 Kernel/HQ 경계만으로 Production Engine caller 위치를 표현할 수 없는가
 
 `BASELINE.md` §7 System Boundary는 책임을 **Jarvis OS(Kernel)**와
 **HQ** 둘로만 나눈다. `ADC-0010`이 판단한 6개 후보를 이 두 범주에
@@ -69,7 +88,105 @@ Kernel Component Architecture 설계, HQ Freeze 재론이므로 이 RFC의
 권한 밖), **애초에 이 두 범주만으로 Production Engine caller 위치를
 표현할 수 있는가**를 묻는 것이다. 이 RFC는 그 질문을 연다.
 
-## 2. 기존 Evidence에서 확인된 C6의 근거와 한계
+## 3. Analysis & Decision
+
+### 3. "별도 실행 위치" Concept을 도입할 경우 필요한 최소 범위
+
+이 RFC는 이 Concept을 도입하지 않는다. 다만 도입**한다면** 최소
+무엇이 결정되어야 하는지를 Evidence 기반으로 나열한다(선택이 아니라
+목록화).
+
+- `BASELINE.md` §6 Concept Model의 10개 분류(Entity/Definition/
+  Process/Event/Service/Interface/Metadata/Policy/State/Resource)
+  중 어디에 속하는 Concept인지, 아니면 11번째 분류가 필요한지.
+- `BASELINE.md` §7 System Boundary의 "Jarvis OS의 책임" / "HQ의
+  책임" 목록 중 어느 항목도 이 위치로 이관되지 않는다는 것을 —
+  즉 이 Concept이 기존 두 범주의 책임을 침범하지 않는다는 것을
+  — 어떻게 보장할지.
+- `BASELINE.md` §10 Out of Scope("Component Design", "Implementation")
+  가 이 새 Concept의 설계에도 적용되는지, 아니면 이 Concept은
+  "설계"가 아니라 다른 성격(예: 배치 위치 지정)이라 Out of Scope
+  밖인지.
+
+이 세 항목 중 하나라도 답하려는 시도는 이미 새 Architecture 설계다
+— 이 RFC는 그 답을 시도하지 않는다.
+
+### 4. 소속 Namespace를 결정해야 하는 문제
+
+`projects/development-hq-devkit`가 유일하게 확인된 "Kernel/HQ 밖"
+실제 경로 선례다. 그러나 이 선례를 C6에 그대로 적용할 수 있는지는
+열려 있다.
+
+- 이 선례는 "Development HQ Platform을 사용해 만든 결과물"이라는
+  성격(README: *"Development HQ는 Platform이고, 이 프로젝트는 그
+  Platform을 사용해 만든 첫 번째 결과물이다"*)이지, "Execution
+  Layer와 Development HQ를 모두 참조하는 독립 연결부"라는 성격이
+  아니다 — 같은 최상위 디렉터리(`projects/`)를 재사용하는 것이
+  타당한지, 아니면 이름·성격이 다른 새 디렉터리가 필요한지는
+  Evidence로 결정되지 않는다.
+- Namespace 결정은 "이 위치가 Kernel의 일부인가, HQ의 일부인가,
+  둘 다 아닌가"라는 §1의 질문과 직결된다 — Namespace를 먼저
+  정하면 그 범주 판단을 사실상 선결하게 된다. 이 RFC는 그 순서를
+  뒤집지 않는다: Concept 존재 여부(§1의 Boundary Question)가
+  Namespace보다 먼저 판단되어야 한다.
+
+### 5. Engine Adapter 책임과의 관계
+
+`BASELINE.md` §7은 "Engine 호출의 표준 인터페이스 제공
+(Port/Adapter)"을 Jarvis OS(Kernel)의 책임으로 이미 Frozen해 뒀다.
+`development-hq/CONSTITUTION.md` Architecture Freeze는 "Engine
+Adapter"를 HQ 범위에서 명시적으로 금지한다. 이 두 결정은 이미
+확정되어 있고, 이 RFC는 재론하지 않는다.
+
+"별도 실행 위치" Concept이 도입된다면, 그 위치가 수행하는 일(외부
+caller가 `call_engine()`을 호출하고 `results`를 채우는 것,
+`ADC-0005` Q0가 이미 Accept한 것)이 **Engine Adapter와 같은 것인지
+다른 것인지**가 반드시 구분되어야 한다 — 같은 것이라면 Kernel의
+Frozen 책임(§7)과 충돌하거나 그 책임을 대신 수행하는 것이 되고,
+다른 것이라면 무엇이 다른지(예: "표준 인터페이스 제공"이 아니라
+"기존 공개 함수를 caller로서 순서대로 호출하는 것"이라는 차이)가
+Evidence로 뒷받침되어야 한다. `projects/development-hq-devkit`가
+스스로 "Engine Adapter는 범위 밖"이라고 선을 그은 것은, 이 구분이
+실제로 필요하다는 것을 보여주는 선례이지, 구분의 답은 아니다. 이
+RFC는 이 구분을 시도하지 않는다 — Boundary Question으로만 남긴다.
+
+### 6. Production caller를 실제로 배치할 수 있는 후보 경계
+
+이 RFC는 후보를 선택하지 않는다. 다만 §1~§5에서 열거한 질문들이
+후속 ADC가 판단해야 할 "경계"를 구성한다는 것만 명시한다:
+
+```
+Concept 존재 여부(§1, §3)
+        ↓
+Namespace(§4) — Concept 존재가 Accept된 뒤에만 판단 가능
+        ↓
+Engine Adapter와의 관계(§5) — Concept 존재와 독립적으로도 먼저 판단 가능
+        ↓
+C6(또는 새 후보)를 실제 caller로 Accept할지(ADC-0010 재개 시)
+```
+
+이 순서 자체도 결정이 아니라 관찰이다 — Namespace가 Concept 존재
+여부에 의존한다는 것(§4)과, Engine Adapter 구분(§5)이 Concept
+존재 여부와 별개로 먼저 판단될 수 있다는 것은 §1~§5의 논리적
+귀결일 뿐, 이 RFC가 새로 설계한 절차가 아니다.
+
+### Boundary Question
+
+이 RFC는 답을 제시하지 않는다. 다음 질문만 연다.
+
+**Kernel/HQ에 속하지 않는 별도 실행 위치를 Jarvis OS Architecture의
+공식 Concept으로 둘 수 있는가?**
+
+이 질문이 Yes로 판단되어야만 C6(또는 그와 유사한 후보)가 다시
+검토 대상이 될 수 있다. No로 판단되면, Production Engine caller
+위치는 §1이 확인한 대로 Kernel 범주(C1, 설계 선행 필요) 또는 HQ
+범주(C4, 이미 배제) 안에서만 찾아야 한다는 뜻이 되며, 그 경우
+caller 위치 문제는 이 RFC가 만든 것이 아니라 기존 두 범주 안의
+미해결 상태(C1의 실체 부재, ADC-02의 Open 상태)로 되돌아간다.
+
+## 4. Evidence & Validation
+
+### 2. 기존 Evidence에서 확인된 C6의 근거와 한계
 
 `ENGINE-CONNECT-0004`가 이미 정리한 내용을 그대로 인용한다(재조사
 아님, 인용).
@@ -102,101 +219,9 @@ Kernel Component Architecture 설계, HQ Freeze 재론이므로 이 RFC의
 C6를 Accept할 수 없다는 `ENGINE-CONNECT-0004`의 결론을 이 RFC는
 그대로 인용한다.
 
-## 3. "별도 실행 위치" Concept을 도입할 경우 필요한 최소 범위
+## 5. Consequences & Risks
 
-이 RFC는 이 Concept을 도입하지 않는다. 다만 도입**한다면** 최소
-무엇이 결정되어야 하는지를 Evidence 기반으로 나열한다(선택이 아니라
-목록화).
-
-- `BASELINE.md` §6 Concept Model의 10개 분류(Entity/Definition/
-  Process/Event/Service/Interface/Metadata/Policy/State/Resource)
-  중 어디에 속하는 Concept인지, 아니면 11번째 분류가 필요한지.
-- `BASELINE.md` §7 System Boundary의 "Jarvis OS의 책임" / "HQ의
-  책임" 목록 중 어느 항목도 이 위치로 이관되지 않는다는 것을 —
-  즉 이 Concept이 기존 두 범주의 책임을 침범하지 않는다는 것을
-  — 어떻게 보장할지.
-- `BASELINE.md` §10 Out of Scope("Component Design", "Implementation")
-  가 이 새 Concept의 설계에도 적용되는지, 아니면 이 Concept은
-  "설계"가 아니라 다른 성격(예: 배치 위치 지정)이라 Out of Scope
-  밖인지.
-
-이 세 항목 중 하나라도 답하려는 시도는 이미 새 Architecture 설계다
-— 이 RFC는 그 답을 시도하지 않는다.
-
-## 4. 소속 Namespace를 결정해야 하는 문제
-
-`projects/development-hq-devkit`가 유일하게 확인된 "Kernel/HQ 밖"
-실제 경로 선례다. 그러나 이 선례를 C6에 그대로 적용할 수 있는지는
-열려 있다.
-
-- 이 선례는 "Development HQ Platform을 사용해 만든 결과물"이라는
-  성격(README: *"Development HQ는 Platform이고, 이 프로젝트는 그
-  Platform을 사용해 만든 첫 번째 결과물이다"*)이지, "Execution
-  Layer와 Development HQ를 모두 참조하는 독립 연결부"라는 성격이
-  아니다 — 같은 최상위 디렉터리(`projects/`)를 재사용하는 것이
-  타당한지, 아니면 이름·성격이 다른 새 디렉터리가 필요한지는
-  Evidence로 결정되지 않는다.
-- Namespace 결정은 "이 위치가 Kernel의 일부인가, HQ의 일부인가,
-  둘 다 아닌가"라는 §1의 질문과 직결된다 — Namespace를 먼저
-  정하면 그 범주 판단을 사실상 선결하게 된다. 이 RFC는 그 순서를
-  뒤집지 않는다: Concept 존재 여부(§1의 Boundary Question)가
-  Namespace보다 먼저 판단되어야 한다.
-
-## 5. Engine Adapter 책임과의 관계
-
-`BASELINE.md` §7은 "Engine 호출의 표준 인터페이스 제공
-(Port/Adapter)"을 Jarvis OS(Kernel)의 책임으로 이미 Frozen해 뒀다.
-`development-hq/CONSTITUTION.md` Architecture Freeze는 "Engine
-Adapter"를 HQ 범위에서 명시적으로 금지한다. 이 두 결정은 이미
-확정되어 있고, 이 RFC는 재론하지 않는다.
-
-"별도 실행 위치" Concept이 도입된다면, 그 위치가 수행하는 일(외부
-caller가 `call_engine()`을 호출하고 `results`를 채우는 것,
-`ADC-0005` Q0가 이미 Accept한 것)이 **Engine Adapter와 같은 것인지
-다른 것인지**가 반드시 구분되어야 한다 — 같은 것이라면 Kernel의
-Frozen 책임(§7)과 충돌하거나 그 책임을 대신 수행하는 것이 되고,
-다른 것이라면 무엇이 다른지(예: "표준 인터페이스 제공"이 아니라
-"기존 공개 함수를 caller로서 순서대로 호출하는 것"이라는 차이)가
-Evidence로 뒷받침되어야 한다. `projects/development-hq-devkit`가
-스스로 "Engine Adapter는 범위 밖"이라고 선을 그은 것은, 이 구분이
-실제로 필요하다는 것을 보여주는 선례이지, 구분의 답은 아니다. 이
-RFC는 이 구분을 시도하지 않는다 — Boundary Question으로만 남긴다.
-
-## 6. Production caller를 실제로 배치할 수 있는 후보 경계
-
-이 RFC는 후보를 선택하지 않는다. 다만 §1~§5에서 열거한 질문들이
-후속 ADC가 판단해야 할 "경계"를 구성한다는 것만 명시한다:
-
-```
-Concept 존재 여부(§1, §3)
-        ↓
-Namespace(§4) — Concept 존재가 Accept된 뒤에만 판단 가능
-        ↓
-Engine Adapter와의 관계(§5) — Concept 존재와 독립적으로도 먼저 판단 가능
-        ↓
-C6(또는 새 후보)를 실제 caller로 Accept할지(ADC-0010 재개 시)
-```
-
-이 순서 자체도 결정이 아니라 관찰이다 — Namespace가 Concept 존재
-여부에 의존한다는 것(§4)과, Engine Adapter 구분(§5)이 Concept
-존재 여부와 별개로 먼저 판단될 수 있다는 것은 §1~§5의 논리적
-귀결일 뿐, 이 RFC가 새로 설계한 절차가 아니다.
-
-## Boundary Question
-
-이 RFC는 답을 제시하지 않는다. 다음 질문만 연다.
-
-**Kernel/HQ에 속하지 않는 별도 실행 위치를 Jarvis OS Architecture의
-공식 Concept으로 둘 수 있는가?**
-
-이 질문이 Yes로 판단되어야만 C6(또는 그와 유사한 후보)가 다시
-검토 대상이 될 수 있다. No로 판단되면, Production Engine caller
-위치는 §1이 확인한 대로 Kernel 범주(C1, 설계 선행 필요) 또는 HQ
-범주(C4, 이미 배제) 안에서만 찾아야 한다는 뜻이 되며, 그 경우
-caller 위치 문제는 이 RFC가 만든 것이 아니라 기존 두 범주 안의
-미해결 상태(C1의 실체 부재, ADC-02의 Open 상태)로 되돌아간다.
-
-## Out of Scope
+### Out of Scope
 
 - Boundary Question에 대한 답(Yes/No 판단).
 - "별도 실행 위치" Concept의 실제 설계(이름, 필드, 책임 목록).
@@ -213,7 +238,7 @@ caller 위치 문제는 이 RFC가 만든 것이 아니라 기존 두 범주 안
   않는다.
 - 새로운 실험.
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 caller 위치를 결정하지 않는다.
 - 이 RFC는 새 Component/Engine Adapter를 설계하지 않는다.
@@ -227,7 +252,9 @@ caller 위치 문제는 이 RFC가 만든 것이 아니라 기존 두 범주 안
 - 이 RFC는 ADC-01·ADC-02·Execution Result Consumer·C1~C5를 재조사하지
   않는다.
 
-## Next Step
+## 6. Open Questions & Change History
+
+### Next Step
 
 후속 ADC(신설 예정, 이 RFC의 후속)에서 다음을 판단하도록 제안한다.
 
@@ -246,7 +273,33 @@ caller 위치 문제는 이 RFC가 만든 것이 아니라 기존 두 범주 안
 절차(`docs/00_governance/ARCHITECTURE_GOVERNANCE.md`: RFC → ADC →
 ADR → Baseline Update)를 통해 별도로 판단한다.
 
-## Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0010-engine-caller-location-boundary.md` | 이 RFC가 재검토하는 대상(C6 Not Accepted) |
+| RFC | `docs/architecture/core/RFC-0010-engine-caller-location-boundary.md` | §0/§2 근거(caller 후보 6개 전수 조사) |
+| Reference | `docs/core/execution-layer/ADC-0005-engine-connection-boundary.md` | §2/§5 근거(Q0 Accept, Next Step 예시 문구) |
+| Reference | `docs/research/ENGINE-CONNECT-0002-execution-layer-results-wiring.md` | Evidence(§Non-goals 인용 목록) |
+| Reference | `docs/research/ENGINE-CONNECT-0003-production-promotion-blocked.md` | Evidence(§Non-goals 인용 목록) |
+| Reference | `docs/research/ENGINE-CONNECT-0004-adc-0010-c6-investigation.md` | §0/§2 근거(C6 단독 재조사 결론) |
+| Reference | `hqs/development/CONSTITUTION.md`(원문은 `development-hq/` 구 경로로 인용) | §5 근거(Architecture Freeze, Engine Adapter 금지) |
+| Reference | `hqs/development/BOUNDARY.md`(원문은 `development-hq/` 구 경로로 인용) | §5 근거(Engine Adapter 책임 귀속) |
+| Reference | `projects/development-hq-devkit/runner.py` | §2/§4 근거(Kernel/HQ 밖 실제 경로 선례) |
+| Reference | `projects/development-hq-devkit/README.md` | §4 근거(Platform 성격 서술) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADC-0010 C6 조사 후속 — 별도 실행 위치 Concept 존재 여부 질문 |
+
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. `ADC-0010`, `RFC-0010`,
   `ADC-0005`, `ENGINE-CONNECT-0002~0004`, `BASELINE.md`,

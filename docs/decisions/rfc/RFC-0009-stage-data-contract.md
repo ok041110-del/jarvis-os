@@ -1,4 +1,12 @@
-# RFC-0009: Development HQ Stage Data Contract 공식화
+# RFC-0009 — Development HQ Stage Data Contract 공식화
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0009 |
+| Status | Resolved(Decision: 후보 C, Scoped Accept — 후속 `docs/governance/adc/ADC-0007.md` 참고) |
+| Owner / Scope | `hqs/development/stages/contracts.py` 및 `required_checks`/`SKIPPED`/`ContractViolation`을 Development HQ 수준 Data Contract로 공식화할지 여부와, 공식화한다면 그 Public/Hidden 경계와 Governance 소유 구조 |
 
 **Status**: Resolved (Decision: 후보 C, Scoped Accept — 후속 `docs/governance/adc/ADC-0007.md` 참고)
 **Author**: Claude Code (dc879e5 — Stage 01~05 Data Contract 정리 사후
@@ -22,7 +30,9 @@ Development HQ v2.0 위에서 Development HQ 수준 Data Contract로
 > 코드/Baseline을 변경하지 않는다 — 결정이 필요하면 별도 ADC → ADR
 > 단계로 넘긴다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Problem & Context
+
+### 0. 이 RFC가 열린 이유
 
 dc879e5는 Stage 05 `required_checks`의 causal-wiring 결함을 해소하는
 과정에서 `contracts.py`(TypedDict 기반 Stage I/O 명세 +
@@ -33,7 +43,7 @@ Architecture/Contract/Engine Prompt/Runtime Logic")와 §7("Freeze
 이후 Architecture/Contract 변경은 RFC→ADC→ADR로만")이 지정하는 "Contract
 변경"에 해당할 가능성이 확인되어, 사후 절차로 이 RFC를 연다.
 
-## 1. Evidence 요약 (인용만, 새 조사 없음)
+### 1. Evidence 요약 (인용만, 새 조사 없음)
 
 | 항목 | 확인 내용 | 근거 |
 |---|---|---|
@@ -46,9 +56,11 @@ Architecture/Contract/Engine Prompt/Runtime Logic")와 §7("Freeze
 | `ADR-0004`가 Public/Hidden/Extension Point/Non-Goal 5분류와 "Public 변경은 RFC→ADC→ADR, Hidden 변경은 절차 없음" 규칙을 확립 | §3, Consequences | `ADR-0004-kernel-public-contract-baseline.md` |
 | `RFC-0007` §3이 "Design 출력을 구조화할지 여부는 이 RFC 밖의 판단"이라며 Stage 출력 구조화를 미해결로 명시적으로 이월 | "Contract Impact" | `RFC-0007-ast-context-build-integration.md` §3, Contract Impact |
 
-## 2. Decision Boundary와 Decision
+## 3. Questions & Alternatives
 
-### B-1. "Contract 없음" 선언의 정확한 범위는 무엇인가
+### 2. Decision Boundary와 Decision
+
+#### B-1. "Contract 없음" 선언의 정확한 범위는 무엇인가
 
 **논의**: 원본 Stage 01~05 문서 5건은 반환 dict의 키·타입·생성
 Capability를 이미 표로 상세히 서술하고 있었다. 따라서 "새 Contract를
@@ -64,7 +76,7 @@ Capability를 이미 표로 상세히 서술하고 있었다. 따라서 "새 Con
 > 종료시키는 변경이며, 따라서 `FREEZE-0001` §4/§7이 규정하는
 > "Contract 변경"에 해당한다 — RFC→ADC→ADR 절차 대상이다.
 
-### B-2. 이 Contract 개념의 Governance 소유 위치는 어디인가
+#### B-2. 이 Contract 개념의 Governance 소유 위치는 어디인가
 
 **논의**: 현재 Governance상 유일한 공식 Contract는 Kernel Public
 Contract(Jarvis OS Architecture Baseline §14, ADR-0004)이며, 그
@@ -94,7 +106,7 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
 > 문서에 등재되지만, 그 **개정 권한**은 여전히 상위 Governance에
 > 있다.
 
-### B-3. required_checks/SKIPPED와 "결정적 Verdict" 원칙의 관계
+#### B-3. required_checks/SKIPPED와 "결정적 Verdict" 원칙의 관계
 
 **논의**: `FREEZE-0001` §3은 "Validation Result(Stage 05 `verdict`)는
 결정적 규칙으로 산출되며, Workflow/CLI 어느 층에서도 재해석되지
@@ -114,7 +126,7 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
 > 없이 임의 호출자가 검사 집합을 바꿀 수 있는 상태로 남겨두는 것은
 > 이 Decision의 범위 밖이다.
 
-## 3. Public/Hidden 경계 (ADR-0004 형식 재사용)
+### 3. Public/Hidden 경계 (ADR-0004 형식 재사용)
 
 | 구분 | 대상 | 근거 |
 |---|---|---|
@@ -132,7 +144,7 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
 > — 단, 그 변경이 Public 스키마의 관찰 가능한 출력(반환되는
 > `status`/`blocking` 값)을 바꾸지 않는 한에서다.
 
-### 3.1 `KNOWN_CHECK_NAMES` 확장의 명시적 취급
+#### 3.1 `KNOWN_CHECK_NAMES` 확장의 명시적 취급
 
 > 향후 새로운 검사 종류(예: Security/Data-API Capability)를
 > `KNOWN_CHECK_NAMES`에 추가하는 것은 **Public Contract 변경**이며,
@@ -141,7 +153,7 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
 > 적용한다(`FREEZE-0001`의 "Security/Data-API Capability는 이번 PR
 > 범위 밖"이라는 기존 제약과도 일치).
 
-### 3.2 기존 검사 내부 구현 변경의 명시적 취급
+#### 3.2 기존 검사 내부 구현 변경의 명시적 취급
 
 > 기존 4개 검사(`structural`/`specification_scope`/`design_scope`/
 > `test_execution`) 각각의 내부 판정 로직을 개선·수정하는 것은
@@ -152,7 +164,7 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
 > 바꾸는 경우)는 Public 스키마의 실질적 변경으로 취급하고 §3의 변경
 > 규칙을 따른다.
 
-## 4. Contract가 정의하지 않는 것 (경계)
+### 4. Contract가 정의하지 않는 것 (경계)
 
 이 Contract는 Stage 간 **"무엇을 주고받는가"만** 정의한다. 다음은
 이 Contract의 범위 밖이며, 이 RFC가 규정하지 않는다:
@@ -174,38 +186,7 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
 > Workflow RFC가 이 주장을 실제로 검증해야 성립하며, 이 RFC가
 > 미리 보증하지 않는다.
 
-## 5. Architecture Impact
-
-- **없음(NONE)** — Runtime/Scheduler/Engine Gateway/Registry/Event
-  Bus 등 Frozen 금지 목록에 해당하는 어떤 개념도 요구하지 않는다.
-  Stage 01~05의 개수·순서·Capability·Agent는 변경하지 않는다.
-- Development HQ Stage Data Contract라는 **새로운 HQ-level Governance
-  범주**가 생긴다는 것 자체가 이 RFC의 유일한 Architecture급 결정이며,
-  그 소유 구조는 B-2가 규정한다.
-
-## 6. Contract Impact
-
-- **함수 시그니처 변경 없음** — dc879e5가 이미 변경한 시그니처
-  (`run_stage_04(stage_01_context, stage_03_output, ...)`,
-  `run_stage_05(stage_02_output, stage_04_output, required_checks=None)`)
-  는 이 RFC가 사후 승인 대상으로 삼는 기정 사실이며, 이 RFC 자체가
-  추가로 시그니처를 바꾸지 않는다.
-- **명시적 Public Contract 신설** — §3의 표가 이번 RFC의 실질적
-  산출물이다. 신설 전에는 "새 Contract 없음"이 원칙이었고, 신설
-  후에는 §3 Public 표가 유일하고 명시적인 계약이 된다.
-
-## 7. Governance 변경 범위 (승인 시)
-
-| 대상 | 변경 내용 |
-|---|---|
-| 신규 ADC 1건 | 이 RFC의 B-1/B-2/B-3 Decision과 §3 Public/Hidden 경계를 Accept/Not Accepted로 판정 |
-| 신규 ADR 1건(ADR-0004 축소 재사용 형식) | §3 Public 표(KNOWN_CHECK_NAMES, 5개 TypedDict 필수 키, required_checks/check_results 스키마, blocking 분류)만 계약으로 문서화. §3의 Hidden 목록과 변경 규칙(§3, §3.1, §3.2)을 그대로 포함 |
-| Baseline 신설 절 | B-2에 따라 `hqs/development/BASELINE.md`에 "Stage Data Contract" 절 신설(Development HQ가 소유하는 것은 Contract의 **내용**, 그 **개정 절차**는 상위 Governance가 관리한다는 점을 명시) — 이는 Kernel Public Contract(§14)를 재론하거나 수정하지 않는다 |
-| Stage `*.md` 5건 | (문서 정정, 코드 아님) "새 Contract를 만들지 않는다" 문구를 §3의 Public/Hidden 구분을 반영해 갱신 |
-| candidate_index 관련 문서/코드 | **변경 없음** — `FREEZE-0001` §5 사전 승인 범위, 이 RFC 밖 |
-| Dynamic Workflow/Scheduler/Parser/Agent Routing | **이 RFC에서 설계·채택하지 않음** — §4에서 정의한 "Stage 간 데이터 교환만 규정" 경계만 기록하고, 실제 채택은 별도 RFC 대상으로 남긴다 |
-
-## 8. 기존 RFC/ADC/ADR와의 충돌 검토
+### 8. 기존 RFC/ADC/ADR와의 충돌 검토
 
 - **충돌 없음** — RFC-0007/ADC-0005/ADR-0008 중 어느 것도 Stage 05의
   검사 부분집합 실행이나 형식적 Contract 계층을 이미 규정하거나
@@ -217,7 +198,7 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
   처리함), ADR-0001~0003의 Baseline 절 번호 삽입 정책(이번 Baseline
   신설 절에도 동일 적용).
 
-## 9. Open Issues (이 RFC가 닫지 않는 질문)
+### 9. Open Issues (이 RFC가 닫지 않는 질문)
 
 - Hidden으로 분류된 개별 검사 로직이 "판정 기준 자체"를 바꾸는
   경우와 "구현 방식만" 바꾸는 경우의 세부 경계는 후속 ADR 본문에서
@@ -227,10 +208,60 @@ Development HQ가 스스로 Architecture Decision을 소유하지 않는다고
 - Stage Data Contract의 Baseline 신설 절 정확한 절 번호·배치는 ADR
   단계에서 `hqs/development/BASELINE.md` 현재본을 기준으로 확정한다.
 
-## Decision
+## 4. Proposed Direction
+
+### Decision
 
 **후보 C — 분리 승격(Public만 ADR 대상, Hidden은 절차 없이 자유
 변경)을 채택한다.** B-1/B-2/B-3 Decision과 §3의 Public/Hidden 경계를
 후속 ADC의 판정 대상으로 제출한다 — 결과는
 `docs/governance/adc/ADC-0007.md`(Scoped Accept), 후속 반영은
 `docs/decisions/adr/ADR-0009-stage-data-contract-baseline.md`.
+
+## 5. Requested Review
+
+### 5. Architecture Impact
+
+- **없음(NONE)** — Runtime/Scheduler/Engine Gateway/Registry/Event
+  Bus 등 Frozen 금지 목록에 해당하는 어떤 개념도 요구하지 않는다.
+  Stage 01~05의 개수·순서·Capability·Agent는 변경하지 않는다.
+- Development HQ Stage Data Contract라는 **새로운 HQ-level Governance
+  범주**가 생긴다는 것 자체가 이 RFC의 유일한 Architecture급 결정이며,
+  그 소유 구조는 B-2가 규정한다.
+
+### 6. Contract Impact
+
+- **함수 시그니처 변경 없음** — dc879e5가 이미 변경한 시그니처
+  (`run_stage_04(stage_01_context, stage_03_output, ...)`,
+  `run_stage_05(stage_02_output, stage_04_output, required_checks=None)`)
+  는 이 RFC가 사후 승인 대상으로 삼는 기정 사실이며, 이 RFC 자체가
+  추가로 시그니처를 바꾸지 않는다.
+- **명시적 Public Contract 신설** — §3의 표가 이번 RFC의 실질적
+  산출물이다. 신설 전에는 "새 Contract 없음"이 원칙이었고, 신설
+  후에는 §3 Public 표가 유일하고 명시적인 계약이 된다.
+
+### 7. Governance 변경 범위 (승인 시)
+
+| 대상 | 변경 내용 |
+|---|---|
+| 신규 ADC 1건 | 이 RFC의 B-1/B-2/B-3 Decision과 §3 Public/Hidden 경계를 Accept/Not Accepted로 판정 |
+| 신규 ADR 1건(ADR-0004 축소 재사용 형식) | §3 Public 표(KNOWN_CHECK_NAMES, 5개 TypedDict 필수 키, required_checks/check_results 스키마, blocking 분류)만 계약으로 문서화. §3의 Hidden 목록과 변경 규칙(§3, §3.1, §3.2)을 그대로 포함 |
+| Baseline 신설 절 | B-2에 따라 `hqs/development/BASELINE.md`에 "Stage Data Contract" 절 신설(Development HQ가 소유하는 것은 Contract의 **내용**, 그 **개정 절차**는 상위 Governance가 관리한다는 점을 명시) — 이는 Kernel Public Contract(§14)를 재론하거나 수정하지 않는다 |
+| Stage `*.md` 5건 | (문서 정정, 코드 아님) "새 Contract를 만들지 않는다" 문구를 §3의 Public/Hidden 구분을 반영해 갱신 |
+| candidate_index 관련 문서/코드 | **변경 없음** — `FREEZE-0001` §5 사전 승인 범위, 이 RFC 밖 |
+| Dynamic Workflow/Scheduler/Parser/Agent Routing | **이 RFC에서 설계·채택하지 않음** — §4에서 정의한 "Stage 간 데이터 교환만 규정" 경계만 기록하고, 실제 채택은 별도 RFC 대상으로 남긴다 |
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/decisions/rfc/RFC-0007-ast-context-build-integration.md` | §3 Contract Impact 서술 형식·이월 원칙 재사용 |
+| ADC | `docs/governance/adc/ADC-0007.md` | 이 RFC의 B-1/B-2/B-3 Decision을 직접 인용해 판단(11곳, 재확인 완료) |
+| ADR | `docs/decisions/adr/ADR-0009-stage-data-contract-baseline.md` | Public 표(§3)를 Baseline 반영 |
+| ADR | `ADR-0004-kernel-public-contract-baseline.md`(원문 인용, 정확한 경로 미확인 — §Evidence 범위·§3 원문 그대로) | Public/Hidden 5분류·변경 규칙 형식의 출처 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | dc879e5 Stage 05 Contract 변경에 대한 사후 Governance 조사 |

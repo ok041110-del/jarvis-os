@@ -1,5 +1,22 @@
 # RFC-0010: Engine Caller의 위치와 책임 — Boundary (ADC-0005 Q0 후속)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0010 |
+| Title | Engine Caller의 위치와 책임 — Boundary (ADC-0005 Q0 후속) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Execution Layer ↔ Engine 호출 경계) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/core/execution-layer/ADC-0005-engine-connection-boundary.md`(Q0) |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 Related Documents/본문 §2 Evidence Summary 참고 |
+| Source Path | `docs/architecture/core/RFC-0010-engine-caller-location-boundary.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (Engine 연결 Boundary 조사 후속)
 **대상**: `docs/core/execution-layer/ADC-0005-engine-connection-boundary.md`
@@ -22,7 +39,9 @@ caller-supplied `results`로 주입하는 것" — 그 **caller가 물리적으�
 > 후속 ADC로 넘긴다. ADC-01·ADC-02·Execution Result Consumer는
 > 재조사하지 않는다 — 기존 결정으로만 인용한다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `ADC-0005-engine-connection-boundary.md` Q0는 "caller가 Execution
 Layer 밖에서 `call_engine()`을 호출하고 그 결과를 caller-supplied
@@ -32,7 +51,7 @@ Layer 밖에서 `call_engine()`을 호출하고 그 결과를 caller-supplied
 구현 문제가 된다... 이 ADC는 그 선택을 하지 않는다 — 다음 절차가
 판단할 사항이다."* 이 RFC는 그 다음 절차다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 Execution Layer의 Builder/Pipeline은 `results: list[str]`을
 caller-supplied로만 받는다(이미 결정된 Contract). 그 값을 실제로
@@ -40,18 +59,9 @@ caller-supplied로만 받는다(이미 결정된 Contract). 그 값을 실제로
 Development HQ인지, (설계되지 않은) Kernel Engine Gateway인지,
 아직 이름 없는 별도 위치인지가 결정된 바 없다.
 
-## 2. Evidence Summary — 이미 존재하는 caller 후보 전수 확인
+## 3. Analysis & Decision
 
-| 후보 | 근거(원문 인용) | 상태 |
-|---|---|---|
-| **Kernel Engine Port/Adapter** | `BASELINE.md` §7: *"Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"*(Jarvis OS 책임, v1.0부터 Frozen). `development-hq/BOUNDARY.md`: *"Engine 호출 \| Kernel Engine Port/Adapter의 책임"*. `BASELINE.md` §11 표: *"Engine 호출 책임 \| Engine Gateway"*(구현 후보, 채택 여부 미정) | **책임은 Frozen, 설계·구현은 §10 Out of Scope**(`BASELINE.md` §10: *"Component Design (Scheduler, Engine Gateway, Registry, Communication, Memory, Policy 등)"*) — 실체가 존재하지 않는다 |
-| **Runtime** | `BASELINE.md` §6: *"Runtime은 Workflow를 참조하여 Task를 Agent에게 배분한다."* 같은 절: *"그 세부 구조는 Open Decision이다 (ADC-02)."* | **ADC-02 Open — 재조사하지 않고 상태만 인용.** caller로 명명된 적 없다 |
-| **Session** | `ARTIFACT-STANDARD-v1.md`: *"Session/Runtime의 책임 영역을 Execution Layer Builder가 침범하지 않기 위함이다"* | `BASELINE.md` §6 Concept Model 10개 분류(Entity/Definition/Process/Event/Service/Interface/Metadata/Policy/State/Resource) 어디에도 없음 — **정의된 개념이 아니라 제외 라벨로만 사용됨** |
-| **Development HQ** | `RFC-0005-development-hq-execution-boundary.md` §Out of Scope: *"Runtime, Multi-Agent, Model Routing, Engine Adapter 구현... 을 다루지 않는다."* §4: *"Development HQ Constitution v1.0의 Architecture Freeze 목록에 Engine Adapter, Model Routing이 이미 포함되어 있다."* | **명시적으로 배제됨** — Dev HQ 자신의 `call_engine()`은 Dev HQ 내부 목적(code_review 등)에 한정된다 |
-| **Dogfooding 스크립트**(6개) | `core/execution_layer/mvp_0001~0006/dogfooding/run_dogfooding.py` 각 docstring: *"이 스크립트가 호출자로서 값을 주입한다"* | **검증 전용으로만 명시됨** — 어떤 문서도 이를 production caller로 지정한 적 없다 |
-| **별도 스크립트/함수**(Dev HQ↔Execution Layer를 잇는) | `ADC-0005-engine-connection-boundary.md` Next Step의 예시 문구뿐 | **결정된 바 없음 — 이 ADC 자신이 "선택하지 않는다"고 명시** |
-
-## 3. Pattern
+### 3. Pattern
 
 인용된 문서에서 반복된 사실만 정리한다. 새 사실을 추가하지 않는다.
 
@@ -73,7 +83,7 @@ Development HQ인지, (설계되지 않은) Kernel Engine Gateway인지,
   않았다는 사실은, 이 질문이 그 ADC의 판단 범위 밖에 있었다는
   것을 스스로 인정한 것이다.
 
-## 4. Boundary Question
+### 4. Boundary Question
 
 이 RFC는 답을 제시하지 않는다. 다음 질문만 제기한다.
 
@@ -92,7 +102,22 @@ Development HQ인지, (설계되지 않은) Kernel Engine Gateway인지,
 이 RFC는 위 후보 중 어느 것이 맞는지 판단하지 않는다. 이 질문에
 대한 판단은 ADC로 위임한다.
 
-## Out of Scope
+## 4. Evidence & Validation
+
+### 2. Evidence Summary — 이미 존재하는 caller 후보 전수 확인
+
+| 후보 | 근거(원문 인용) | 상태 |
+|---|---|---|
+| **Kernel Engine Port/Adapter** | `BASELINE.md` §7: *"Engine 호출의 표준 인터페이스 제공 (Port/Adapter)"*(Jarvis OS 책임, v1.0부터 Frozen). `development-hq/BOUNDARY.md`: *"Engine 호출 \| Kernel Engine Port/Adapter의 책임"*. `BASELINE.md` §11 표: *"Engine 호출 책임 \| Engine Gateway"*(구현 후보, 채택 여부 미정) | **책임은 Frozen, 설계·구현은 §10 Out of Scope**(`BASELINE.md` §10: *"Component Design (Scheduler, Engine Gateway, Registry, Communication, Memory, Policy 등)"*) — 실체가 존재하지 않는다 |
+| **Runtime** | `BASELINE.md` §6: *"Runtime은 Workflow를 참조하여 Task를 Agent에게 배분한다."* 같은 절: *"그 세부 구조는 Open Decision이다 (ADC-02)."* | **ADC-02 Open — 재조사하지 않고 상태만 인용.** caller로 명명된 적 없다 |
+| **Session** | `ARTIFACT-STANDARD-v1.md`: *"Session/Runtime의 책임 영역을 Execution Layer Builder가 침범하지 않기 위함이다"* | `BASELINE.md` §6 Concept Model 10개 분류(Entity/Definition/Process/Event/Service/Interface/Metadata/Policy/State/Resource) 어디에도 없음 — **정의된 개념이 아니라 제외 라벨로만 사용됨** |
+| **Development HQ** | `RFC-0005-development-hq-execution-boundary.md` §Out of Scope: *"Runtime, Multi-Agent, Model Routing, Engine Adapter 구현... 을 다루지 않는다."* §4: *"Development HQ Constitution v1.0의 Architecture Freeze 목록에 Engine Adapter, Model Routing이 이미 포함되어 있다."* | **명시적으로 배제됨** — Dev HQ 자신의 `call_engine()`은 Dev HQ 내부 목적(code_review 등)에 한정된다 |
+| **Dogfooding 스크립트**(6개) | `core/execution_layer/mvp_0001~0006/dogfooding/run_dogfooding.py` 각 docstring: *"이 스크립트가 호출자로서 값을 주입한다"* | **검증 전용으로만 명시됨** — 어떤 문서도 이를 production caller로 지정한 적 없다 |
+| **별도 스크립트/함수**(Dev HQ↔Execution Layer를 잇는) | `ADC-0005-engine-connection-boundary.md` Next Step의 예시 문구뿐 | **결정된 바 없음 — 이 ADC 자신이 "선택하지 않는다"고 명시** |
+
+## 5. Consequences & Risks
+
+### Out of Scope
 
 이번 RFC에서는 다루지 않는다.
 
@@ -112,7 +137,7 @@ Development HQ인지, (설계되지 않은) Kernel Engine Gateway인지,
   않는다.
 - 새로운 실험.
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 caller의 위치를 결정하지 않는다.
 - 이 RFC는 새 실험을 수행하지 않는다 — `ADC-0005-engine-connection-boundary.md`,
@@ -128,7 +153,9 @@ Development HQ인지, (설계되지 않은) Kernel Engine Gateway인지,
 - 이 RFC는 ADC-01·ADC-02·Execution Result Consumer를 재조사하지
   않는다.
 
-## Next Step
+## 6. Open Questions & Change History
+
+### Next Step
 
 후속 ADC(신설 예정, 이 RFC의 후속)에서 다음을 판단하도록 제안한다.
 
@@ -142,7 +169,29 @@ Development HQ인지, (설계되지 않은) Kernel Engine Gateway인지,
 이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance
 절차를 통해 별도로 판단한다.
 
-## Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| Reference | `docs/core/execution-layer/ADC-0005-engine-connection-boundary.md` | 이 RFC가 재검토하는 대상(Q0 Accept, caller 미결정) |
+| Reference | `development-hq/BOUNDARY.md` | §2 Evidence(Engine 호출 = Kernel Engine Port/Adapter 책임) |
+| Reference | `docs/decisions/rfc/RFC-0005-development-hq-execution-boundary.md`(원문은 `docs/02_rfc/` 구 경로로 인용) | §2 Evidence(Dev HQ 배제 근거) |
+| Reference | `docs/architecture/core/ADC-0001-core-baseline.md` | §Non-goals 근거 |
+| Reference | `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` | §Non-goals 근거 |
+| Reference | `docs/core/execution-layer/ARTIFACT-STANDARD-v1.md` | §2 Evidence(Session 미정의 근거) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADC-0005 Q0 후속 Engine Caller 위치 조사 |
+
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. `ADC-0005-engine-connection-boundary.md`,
   `BASELINE.md`, `development-hq/BOUNDARY.md`,

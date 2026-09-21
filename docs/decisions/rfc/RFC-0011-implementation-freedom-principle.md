@@ -1,4 +1,12 @@
-# RFC-0011: "Implementation Freedom" 원칙 도입 여부
+# RFC-0011 — "Implementation Freedom" 원칙 도입 여부
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0011 |
+| Status | Resolved — `docs/governance/adc/ADC-0009.md`로 종결됨(Scoped Accept). 후속 `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md`는 Accepted — `docs/governance/README.md`에 반영 완료 |
+| Owner / Scope | Outcome-Oriented Governance Model(`docs/governance/README.md`, RFC-0010 → ADC-0008 → ADR-0010 경로로 이미 채택됨)의 확장 여부 |
 
 **Status**: Resolved — `docs/governance/adc/ADC-0009.md`로 종결됨(Scoped
 Accept). 후속 `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md`는
@@ -22,7 +30,9 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 > 추가가 필요한지를 묻는 Boundary Question이다. 판단은 후속 ADC로
 > 넘긴다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Problem & Context
+
+### 0. 이 RFC가 열린 이유
 
 사용자가 다음 원칙("Implementation Freedom")을 Governance V2에
 공식화할 것을 요청했다.
@@ -47,7 +57,7 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 그 문서에 이미 포함되어 있는지부터 대조한다(중복 문구 방지, 사용자
 지시 4번).
 
-## 1. Observation — 기존 문서와의 문구 대조
+### 1. Observation — 기존 문서와의 문구 대조
 
 | 명제 | 기존 `docs/governance/README.md`("Outcome-Oriented Governance Model" 절)의 대응 문구 | 포함 여부 |
 |---|---|---|
@@ -57,9 +67,11 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 | 4. Deferred/Not Accepted ≠ Forbidden | "Deferred/Not Accepted는 영구 금지와 다르다 — 새 Evidence가 있으면 재평가될 수 있으나..." | **이미 포함** (문구 단위로 사실상 동일) |
 | 5. Governance는 구현 선호가 아니라 실제 Invariant/Contract/Boundary/위험을 통제 | "Freeze는 실제 불변(Invariant: Security/Data Integrity/Contract 호환성/되돌릴 수 없는 파괴적 동작/Compliance)에만 사용한다" | **부분 포함** — Freeze라는 한 가지 절차에만 적용된 진술이며, Governance 전체(RFC 개설, ADC 판단, Freeze 등 모든 절차)에 대한 일반 원칙으로 일반화되어 있지 않다 |
 
-## 2. Boundary Questions
+## 3. Questions & Alternatives
 
-### Q-1. 명제 1·2·3, 그리고 명제 5의 일반화가 최소 추가로 필요한가
+### 2. Boundary Questions
+
+#### Q-1. 명제 1·2·3, 그리고 명제 5의 일반화가 최소 추가로 필요한가
 
 - **Question**: 위 대조표에서 "미포함"·"부분 포함"으로 확인된 부분을
   `docs/governance/README.md`에 추가할 것인가, 추가한다면 최소
@@ -75,7 +87,7 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 - **ADC에서 결정할 사항**: 위 옵션 중 채택안과, (b)를 선택할 경우
   정확한 추가 문구.
 
-### Q-2. `hqs/development/CONSTITUTION.md`의 "Architecture Freeze" 목록이 이 원칙과 긴장 관계에 있는가
+#### Q-2. `hqs/development/CONSTITUTION.md`의 "Architecture Freeze" 목록이 이 원칙과 긴장 관계에 있는가
 
 - **Question**: `CONSTITUTION.md`("Architecture Freeze" 절)는 Runtime/
   Pipeline Generalization/Task Dispatcher Generalization/Stage
@@ -115,18 +127,7 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 - **ADC에서 결정할 사항**: 위 옵션 중 채택안. 이 RFC는 어느 경우에도
   `CONSTITUTION.md` 본문을 수정하지 않는다(사용자 지시 6·9번).
 
-## 3. Architecture Impact
-
-- **없음(NONE)** — 이 RFC는 Development HQ/Kernel Architecture 구조를
-  변경하지 않는다. `CONSTITUTION.md`의 Architecture Freeze 목록,
-  LangGraph/Graphify의 Deferred/Not Adopted 상태는 이 RFC로 변경되지
-  않는다(사용자 지시 9번).
-
-## 4. Contract Impact
-
-- 없음 — 이 RFC는 코드/Public Contract를 변경하지 않는다.
-
-## 5. 이 RFC가 정의하지 않는 것 (경계)
+### 5. 이 RFC가 정의하지 않는 것 (경계)
 
 - Q-1/Q-2 중 어느 옵션을 채택할지는 후속 ADC의 판단 대상이다.
 - `CONSTITUTION.md`의 Architecture Freeze 목록을 실제로 개정할지는
@@ -136,7 +137,9 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 - LangGraph, Graphify를 포함한 어떤 구체적 기술의 채택 여부도 이 RFC의
   범위 밖이다.
 
-## Decision
+## 4. Proposed Direction
+
+### Decision
 
 **Scoped Accept — `docs/governance/adc/ADC-0009.md` 판정을 그대로
 따른다.** Q-1은 명제 1·2·3 압축 + 명제 5의 Governance 전반 일반화를
@@ -149,3 +152,31 @@ IMPLEMENTATION_RULES.md`, `docs/architecture/core/ADR-0016-omniroute-thin-caller
 후속 ADR은 `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md`로
 작성되었다 — **Status: Accepted**. 사용자 승인 후 `docs/governance/
 README.md`에 ADR-0011 §1의 두 원칙을 등재했다.
+
+## 5. Requested Review
+
+### 3. Architecture Impact
+
+- **없음(NONE)** — 이 RFC는 Development HQ/Kernel Architecture 구조를
+  변경하지 않는다. `CONSTITUTION.md`의 Architecture Freeze 목록,
+  LangGraph/Graphify의 Deferred/Not Adopted 상태는 이 RFC로 변경되지
+  않는다(사용자 지시 9번).
+
+### 4. Contract Impact
+
+- 없음 — 이 RFC는 코드/Public Contract를 변경하지 않는다.
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/decisions/rfc/RFC-0010-outcome-oriented-governance-model.md` | Outcome-Oriented Governance Model 채택 경로의 선행 RFC |
+| ADR | `docs/decisions/adr/ADR-0010-outcome-oriented-governance-model-baseline.md` | 확장 대상 Baseline |
+| ADC | `docs/governance/adc/ADC-0009.md` | 이 RFC의 Q-1/Q-2를 직접 인용해 판단(8곳, 재확인 완료) |
+| ADR | `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md` | Q-1/Q-2 Final Judgment를 Baseline 반영 |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | 사용자 제공 "Implementation Freedom" 원칙에 대한 절차 적용 |

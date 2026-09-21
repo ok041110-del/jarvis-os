@@ -1,4 +1,12 @@
-# RFC-0005: Engine 연결 Boundary — Execution Result에 실제 산출물을 연결하는 경계
+# RFC-0005 — Engine 연결 Boundary: Execution Result에 실제 산출물을 연결하는 경계
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0005 |
+| Status | Proposed(검토 대상, 결정 아님) |
+| Owner / Scope | Execution Layer의 `results`를 실제 Engine 산출물과 연결하는 경계 — 해결책 선택은 하지 않음 |
 
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code (E2E Architecture 조사 후속)
@@ -21,7 +29,9 @@
 > 후속 ADC로 넘긴다. ADC-01·ADC-02·Execution Result Consumer는
 > 재조사하지 않는다 — 기존 결정(Not Accepted)만 인용한다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Problem & Context
+
+### 0. 이 RFC가 열린 이유
 
 Execution Layer 6개 Builder + Pipeline은 완성되어 테스트됐다
 (`core/execution_layer/mvp_0001~0006`, `pipeline.py`, 55 tests). 그러나
@@ -45,7 +55,7 @@ Execution Layer의 Artifact Chain 어디에도 그 함수를 호출하는 지점
 E2E 흐름이 실제로 끊기는 첫 지점이다. 이 RFC는 그 다음 절차로서,
 같은 Evidence를 근거로 정식 Architecture 논의를 연다.
 
-## 1. Problem Statement
+### 1. Problem Statement
 
 Execution Result의 `results` 항목이 실제 Engine 산출물을 담으려면,
 Execution Layer의 어느 지점에서(Model Request 생성 시? Execution
@@ -53,7 +63,9 @@ Handle 생성 시? 별도 단계?) `call_engine()`을 호출할지, 그 호출
 결과를 어떻게 `results: list[str]`로 변환할지가 결정되어야 한다.
 이 결정은 지금까지 어떤 RFC/ADC/ADR에서도 다뤄진 적이 없다.
 
-## 2. Evidence Summary
+## 3. Questions & Alternatives
+
+### 2. Evidence Summary
 
 | 문서/소스 | 관찰된 사실 |
 |---|---|
@@ -66,7 +78,7 @@ Handle 생성 시? 별도 단계?) `call_engine()`을 호출할지, 그 호출
 | `docs/architecture/core/ADR-0002-execution-layer-module-baseline.md` | Kernel 수준에서 Execution Layer Module이 Accept됐고 그 책임에 "Model/Engine 선택·호출까지의 경계"가 포함된다고 명시했으나, 같은 문서가 스스로 한정한다: *"내부 구조(Prompt 구성, Model 선택, 재시도 정책, Multi-Model Routing)는... ADC-01·ADC-02가 여전히 Open으로 남긴 영역이다."* |
 | `docs/02_rfc/RFC-0005-development-hq-execution-boundary.md` §2 | Execution Layer의 책임에 "그 실행을 담당할 Model/Agent를... 선택·호출하는 것까지 포함한다"고 이미 확인했으나, **어떻게**(Prompt 구성, 호출 시점, 결과 파싱)는 그 RFC의 범위 밖으로 명시했다. |
 
-## 3. Pattern
+### 3. Pattern
 
 인용된 문서에서 반복된 사실만 정리한다. 새 사실을 추가하지 않는다.
 
@@ -85,7 +97,7 @@ Handle 생성 시? 별도 단계?) `call_engine()`을 호출할지, 그 호출
   그 값을 **어디서 가져오는가**는 그 결정 범위 밖에 있었다
   (`IMPL-STOP-0002` §2 E-4).
 
-## 4. Boundary Question
+### 4. Boundary Question
 
 이 RFC는 답을 제시하지 않는다. 다음 질문만 제기한다.
 
@@ -100,7 +112,27 @@ Execution Layer의 `results`(Execution Result 목록 항목)를 실제 Engine
 | Execution Layer의 어느 Builder(또는 그 사이의 어느 지점)가 `call_engine()`을 호출하는가 | 현재 6개 Builder 중 어느 것도 호출하지 않는다(§2) — 새 지점이 필요한지, 기존 Builder를 수정하는지는 결정된 바 없다 |
 | `call_engine()`의 반환값(`str`, 자유 서술형 산문 — `ENGINE-CONNECT-0001`의 실제 관찰)을 `results: list[str]`로 어떻게 변환하는가 | `ENGINE-CONNECT-0001`은 Development HQ 맥락에서 반환값이 "자유 서술형 산문 + 코드 블록"이라고 관찰했으나, 이를 Execution Layer의 opaque 문자열 목록으로 변환하는 규칙은 어디에도 없다 |
 
-## Out of Scope
+## 4. Proposed Direction
+
+### Next Step
+
+후속 ADC(신설 예정, 이 RFC의 후속)에서 다음을 판단하도록 제안한다.
+
+1. §4의 두 하위 질문(호출 지점, 변환 규칙) 중 현재 Evidence로 결정
+   가능한 것이 있는지 — 없다면 억지로 결정하지 않고 Not Accepted와
+   부족한 Evidence만 기록한다(`ADC-0008`·`ADC-0009`의 선례와 동일한
+   방식).
+2. 결정 가능한 범위가 있다면, "AI 호출 없음" 불변식(§2)을 어떻게
+   개정할지 — 이 불변식 자체를 깨는 것은 Execution Layer 5년(6개
+   MVP) 전체의 반복 검증된 패턴을 바꾸는 것이므로, 그 개정이
+   정당화되는지도 함께 판단 대상이다.
+
+이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance
+절차를 통해 별도로 판단한다.
+
+## 5. Requested Review
+
+### Out of Scope
 
 이번 RFC에서는 다루지 않는다.
 
@@ -124,7 +156,7 @@ Execution Layer의 `results`(Execution Result 목록 항목)를 실제 Engine
   않는다.
 - 새로운 실험.
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 Engine 연결 방식을 결정하지 않는다.
 - 이 RFC는 새 실험을 수행하지 않는다 — `ARTIFACT-STANDARD-v1.md`,
@@ -140,23 +172,23 @@ Execution Layer의 `results`(Execution Result 목록 항목)를 실제 Engine
 - 이 RFC는 ADC-01·ADC-02·Execution Result Consumer를 재조사하지
   않는다.
 
-## Next Step
+## Related Documents
 
-후속 ADC(신설 예정, 이 RFC의 후속)에서 다음을 판단하도록 제안한다.
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/core/execution-layer/RFC-0002~RFC-0004 전체` | Execution Result Contract/Item Schema/Consumer 결정을 전제로 시작 |
+| ADC | `docs/core/execution-layer/ADC-0005-engine-connection-boundary.md` | 이 RFC의 §4를 직접 인용해 판단(4곳, 재확인 완료) |
+| Open Decision | `—` | §4 두 하위 질문(호출 지점, 변환 규칙) 모두 후속 ADC로 위임, 미결 |
 
-1. §4의 두 하위 질문(호출 지점, 변환 규칙) 중 현재 Evidence로 결정
-   가능한 것이 있는지 — 없다면 억지로 결정하지 않고 Not Accepted와
-   부족한 Evidence만 기록한다(`ADC-0008`·`ADC-0009`의 선례와 동일한
-   방식).
-2. 결정 가능한 범위가 있다면, "AI 호출 없음" 불변식(§2)을 어떻게
-   개정할지 — 이 불변식 자체를 깨는 것은 Execution Layer 5년(6개
-   MVP) 전체의 반복 검증된 패턴을 바꾸는 것이므로, 그 개정이
-   정당화되는지도 함께 판단 대상이다.
+## Change History
 
-이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance
-절차를 통해 별도로 판단한다.
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Execution Layer Governance Priority Review 후속 |
 
-## Self Review
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. `ARTIFACT-STANDARD-v1.md`, 6개
   Builder + Pipeline 소스, `IMPL-STOP-0002`, `engine.py`,

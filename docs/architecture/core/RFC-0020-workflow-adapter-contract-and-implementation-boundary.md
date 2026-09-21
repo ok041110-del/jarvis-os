@@ -1,4 +1,12 @@
-# RFC-0020: Workflow Adapter Contract와 구현체 경계 (§16.6 Scoped Workflow Graph Execution 후속)
+# RFC-0020 — Workflow Adapter Contract와 구현체 경계 (§16.6 Scoped Workflow Graph Execution 후속)
+
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| ID | RFC-0020 |
+| Status | Proposed (검토 대상, 결정 아님) |
+| Owner / Scope | `docs/architecture/baseline/BASELINE.md` §16.6(Scoped Workflow Graph Execution, Accept·Scoped·Conditional)이 "이 Accept가 결정하지 않는 것"으로 남긴 항목 중 이 책임의 명칭과 구현체 경계(Adapter Contract) |
 
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code
@@ -8,7 +16,7 @@
 
 > 본 RFC는 §16.6 책임의 명칭을 확정하지 않는다. Adapter Contract 절을 확정하지 않는다. LangGraph 채택을 승인하지 않는다. Checkpoint 입도를 확정하지 않는다. §14 Kernel Public Contract를 확장하지 않으며 — 이 RFC가 말하는 **"Workflow Adapter Contract"는 §14 Kernel Public Contract가 아니고**, Public Port·Public Surface·Public Guarantee·Public Interface를 신설하지 않는다(§5 도입부·§7). `IMPLEMENTATION_RULES.md` 금지 조항을 해제하지 않는다. 코드·Baseline·RFC-0019·ADC-0019·ADR-0008·IMPLEMENTATION_RULES·CLAUDE.md를 수정하지 않는다. 이 RFC가 여는 것은 **"§16.6이 등재한 이름 없는 책임에 이름을 부여하고, 그 책임의 구현체가 지켜야 할 경계(계약)를 E1/E2/E3 근거로 후보 형태로 정식화할 수 있는가"**라는 좁은 질문 하나다.
 
----
+## 2. Problem & Context
 
 ### 0. 이 RFC가 열린 이유
 
@@ -51,6 +59,8 @@
 
 ---
 
+## 3. Questions & Alternatives
+
 ### 3. Evidence — E1/E2/E3가 증명하는 것과 증명하지 못하는 것
 
 | | 증명하는 것 | 증명하지 **못하는** 것 |
@@ -88,6 +98,32 @@
 
 ---
 
+### 8. Open Questions
+
+#### 8.1 ADC-0020에서 반드시 결정해야 할 항목
+
+| # | 항목 | 왜 여기서 결정해야 하나 |
+|---|---|---|
+| **Q-A** | **후속 ADC의 형태 (먼저 판정)** — Execution Host 3단계(존재→명명→구현 전략) 중 "명명"에 대응하는가, 아니면 명명 + Adapter Contract 후보 절을 묶은 형태인가? `ADC-0014`(명명 단독) → `ADC-0015`(전략) 분리 선례로부터의 이탈을 허용하는가? | 이 답이 ADC-0020의 나머지 범위를 정한다. 번들링을 불허하면 계약 절은 별도 단계로 분리 |
+| **Q-B** | **명칭** — "Workflow Adapter"로 확정/기각. 확정 시 §16.6 Baseline 제목 "Scoped Workflow Graph Execution"과의 매핑 명시(`ADR-0004`가 "Execution Host" ↔ §16.3을 명시한 선례), `GLOSSARY.md` 등재 형태, §16.2 Engine Adapter·v1 `IWorkflowEngine`과의 구분 | 이 RFC의 핵심 질문. 미결 시 하위 문서가 계속 절 제목으로 지칭 |
+| **Q-C** | **Adapter Contract의 층위** — 후보 절 (a)~(d)는 §16.6 A-IN의 부속 규약인가, 별도 계층(`ADR-0009` Stage Data Contract처럼 Public/Hidden 구분을 갖는)인가? §14 Kernel Public Contract와 표기상 어떻게 구분하고, "Public 아님"을 어디에 명문화하는가? | (a)~(d)가 Baseline 구속 규칙인지 비공식 지침인지를 가름 |
+| **Q-D** | **후보 절 (a)~(d) 채택 집합** — 각각 채택 / 수정 / 기각 + 확정 문언. 특히 (c)가 HQ State 설계에 구속력을 갖는지(§13.3류 구조 불변식 여부), 그리고 (d)를 §16.6 Reversibility 불변조건의 재기술 절로 둘지 아니면 별도 계약 절로 둘지 | 계약 정식화의 실체 |
+| **Q-E** | **Checkpoint 입도** — C1(phase-boundary caller-owned) / C2(LangGraph-native + shim) / C3(순차 전용 값 반환) 중 택일. C1 채택 시 "phase 경계"를 누가 선언하나 — HQ의 Workflow 정의인가, Adapter Contract인가? | A-IN(e)의 해석을 확정 |
+| **Q-F** | **Rule B 하에서 진행 가부** — E3는 세 번째 관찰이나 동일 LangGraph 계보다. 계약 정식화는 계보와 무관하므로 지금 진행 가능한가, 아니면 `ADC-0019` 재검토 조건 (c)를 먼저 요구하는가? `ADC-0019` §Q2 형식으로 명시 판정 | Conditional Accept의 성립 근거. `ADC-0019` §Q2가 이 대상에 이미 한 판정을 재확인/갱신 |
+
+#### 8.2 Implementation Strategy ADC(ADC-0020 이후)로 이연
+
+| # | 항목 | 이연 근거 |
+|---|---|---|
+| **Q-G** | **(b) 강제·검증 방법** — exception→state를 못박을 경우 catch-and-encode 강제를 무엇으로 검증하나(정적 분석 / 어댑터 계약 테스트) | 구현 관심사. 계약 절 채택 여부(Q-D)가 먼저 |
+| **Q-H** | **Reference Implementation의 실체** — Sequential을 저장소 내 실제 코드로 두는가, 계약 문서상 기준선으로만 두는가? `ADC-0019` §Q6 v2 통합 테스트 요구와 결합 | `IMPLEMENTATION_RULES.md` 조건 5 게이트. 구현 전략 단계의 문제 |
+| **Q-I** | **다른 계보 관찰의 적극적 확보** — 직접 구현한 최소 그래프 실행기 등으로 `ADC-0019` 재검토 조건 (c)를 채울지 | Rule B 트랙. 명명/계약 진행 자체를 막지 않음(진행 가부만 Q-F에서 판정) |
+| **Q-J** | **mid-node resume / C2 재검토 경로** — mid-node resume이 실제로 필요해지는 관찰이 나오면 C2를 어떤 절차로 다시 여나 | 이 RFC 범위 밖(§7). 관찰 트리거 시 별도 |
+
+---
+
+## 4. Proposed Direction
+
 ### 5. Proposal (권고안 — 결정 아님)
 
 **이 절의 지위 (반드시 먼저 읽을 것)**
@@ -113,6 +149,8 @@
 
 ---
 
+## 5. Requested Review
+
 ### 6. Consequences
 
 - **후속 ADC가 Accept할 경우**: §16.6 책임에 "Workflow Adapter" 명칭이 부여되고(별도 ADR → `BASELINE.md`, Execution Host §16.3 명칭이 `ADR-0004`로 반영된 것과 동일 절차, `GLOSSARY.md` 절 추가 포함 가능). Adapter Contract 후보 절 (a)~(d)가 계약으로 확정되면 후속 구현 전략 ADC가 구현체를 평가하는 기준이 된다. **여전히** §14 Public Contract 승격 아님, `IMPLEMENTATION_RULES.md` 해제 아님, Production 구현 착수 아님.
@@ -136,30 +174,6 @@
 | ADC-02(Runtime 존폐, Open·NOW) 재판단 / `ADC-0008`(Not Accepted) 전복 | `ADC-0019` §Q8 — §6 넓은 정의는 다루지 않는다 |
 | §16.3~16.5 (Execution Host / Multi-Task / Result Store 게이트) 범위·명칭·구현 전략 | `ADC-0019` §Q5 — 무변경 |
 | `hqs/investment/checkpoint.py` (§16.5 저장 전 검증 게이트) | `ADC-0019` §Q5 — 값 기반 Checkpoint/Resume과 계층이 다름, 대체 제안 없음 |
-
----
-
-### 8. Open Questions
-
-#### 8.1 ADC-0020에서 반드시 결정해야 할 항목
-
-| # | 항목 | 왜 여기서 결정해야 하나 |
-|---|---|---|
-| **Q-A** | **후속 ADC의 형태 (먼저 판정)** — Execution Host 3단계(존재→명명→구현 전략) 중 "명명"에 대응하는가, 아니면 명명 + Adapter Contract 후보 절을 묶은 형태인가? `ADC-0014`(명명 단독) → `ADC-0015`(전략) 분리 선례로부터의 이탈을 허용하는가? | 이 답이 ADC-0020의 나머지 범위를 정한다. 번들링을 불허하면 계약 절은 별도 단계로 분리 |
-| **Q-B** | **명칭** — "Workflow Adapter"로 확정/기각. 확정 시 §16.6 Baseline 제목 "Scoped Workflow Graph Execution"과의 매핑 명시(`ADR-0004`가 "Execution Host" ↔ §16.3을 명시한 선례), `GLOSSARY.md` 등재 형태, §16.2 Engine Adapter·v1 `IWorkflowEngine`과의 구분 | 이 RFC의 핵심 질문. 미결 시 하위 문서가 계속 절 제목으로 지칭 |
-| **Q-C** | **Adapter Contract의 층위** — 후보 절 (a)~(d)는 §16.6 A-IN의 부속 규약인가, 별도 계층(`ADR-0009` Stage Data Contract처럼 Public/Hidden 구분을 갖는)인가? §14 Kernel Public Contract와 표기상 어떻게 구분하고, "Public 아님"을 어디에 명문화하는가? | (a)~(d)가 Baseline 구속 규칙인지 비공식 지침인지를 가름 |
-| **Q-D** | **후보 절 (a)~(d) 채택 집합** — 각각 채택 / 수정 / 기각 + 확정 문언. 특히 (c)가 HQ State 설계에 구속력을 갖는지(§13.3류 구조 불변식 여부), 그리고 (d)를 §16.6 Reversibility 불변조건의 재기술 절로 둘지 아니면 별도 계약 절로 둘지 | 계약 정식화의 실체 |
-| **Q-E** | **Checkpoint 입도** — C1(phase-boundary caller-owned) / C2(LangGraph-native + shim) / C3(순차 전용 값 반환) 중 택일. C1 채택 시 "phase 경계"를 누가 선언하나 — HQ의 Workflow 정의인가, Adapter Contract인가? | A-IN(e)의 해석을 확정 |
-| **Q-F** | **Rule B 하에서 진행 가부** — E3는 세 번째 관찰이나 동일 LangGraph 계보다. 계약 정식화는 계보와 무관하므로 지금 진행 가능한가, 아니면 `ADC-0019` 재검토 조건 (c)를 먼저 요구하는가? `ADC-0019` §Q2 형식으로 명시 판정 | Conditional Accept의 성립 근거. `ADC-0019` §Q2가 이 대상에 이미 한 판정을 재확인/갱신 |
-
-#### 8.2 Implementation Strategy ADC(ADC-0020 이후)로 이연
-
-| # | 항목 | 이연 근거 |
-|---|---|---|
-| **Q-G** | **(b) 강제·검증 방법** — exception→state를 못박을 경우 catch-and-encode 강제를 무엇으로 검증하나(정적 분석 / 어댑터 계약 테스트) | 구현 관심사. 계약 절 채택 여부(Q-D)가 먼저 |
-| **Q-H** | **Reference Implementation의 실체** — Sequential을 저장소 내 실제 코드로 두는가, 계약 문서상 기준선으로만 두는가? `ADC-0019` §Q6 v2 통합 테스트 요구와 결합 | `IMPLEMENTATION_RULES.md` 조건 5 게이트. 구현 전략 단계의 문제 |
-| **Q-I** | **다른 계보 관찰의 적극적 확보** — 직접 구현한 최소 그래프 실행기 등으로 `ADC-0019` 재검토 조건 (c)를 채울지 | Rule B 트랙. 명명/계약 진행 자체를 막지 않음(진행 가부만 Q-F에서 판정) |
-| **Q-J** | **mid-node resume / C2 재검토 경로** — mid-node resume이 실제로 필요해지는 관찰이 나오면 C2를 어떤 절차로 다시 여나 | 이 RFC 범위 밖(§7). 관찰 트리거 시 별도 |
 
 ---
 
@@ -191,6 +205,28 @@
 | `IMPLEMENTATION_RULES.md` line 9/13/14/19 | RFC-0020으로 해제되지 않음 | 무변경 |
 
 ---
+
+## Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0019-langgraph-scoped-workflow-adapter-runtime-existence-boundary.md` | 선행 RFC — §16.6 존재를 열었다 |
+| ADC | `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md` | §16.6 존재를 Accept, 이 RFC가 여는 "명명" 단계의 전제(§Q8·§Decision 조건 6) |
+| ADR | `docs/architecture/core/ADR-0008-scoped-workflow-graph-execution-baseline.md` | §16.6 존재를 Baseline에 등재 |
+| Open Decision | — | 없음(§8 Open Questions Q-A~Q-J로 후속 ADC-0020에 위임) |
+
+## Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | §16.6 후속 "명명" 단계 개설 |
+
+---
+
+## 부록: Self Review
+
+> ADC-TEMPLATE.md 계열 6-섹션 구조에 대응 섹션이 없어 원문 번호를
+> 유지한 채 부록으로 보존한다.
 
 ### 10. Self Review
 

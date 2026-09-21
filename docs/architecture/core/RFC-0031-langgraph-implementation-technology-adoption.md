@@ -33,7 +33,24 @@ Prototype)만 근거로 삼는다. 기존 Evidence를 재조사하지 않는다.
 > 절차로 승인된다면, 그때 LangGraph가 승인된(비강제) 구현 후보
 > 목록에 포함되는가"만 다룬다.
 
-## 0. 이 RFC가 열린 이유
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0031 |
+| Title | Workflow Adapter(§16.6) 구현 전략 — LangGraph를 승인된 비강제 Implementation Technology로 확정할 것인가 |
+| Type | RFC |
+| Target Domain | Kernel Architecture — Workflow Adapter(§16.6) Implementation Strategy |
+| Status | Resolved — ADC-0034-langgraph-implementation-technology-adoption.md로 종결(Accept, Conditional·Non-Mandatory). 후속 ADR-0019-langgraph-implementation-technology-adoption-baseline.md 참고 |
+| Decision Group | Workflow Adapter 존재(ADC-0019) → 명칭(ADC-0020) → 구현 전략(이 RFC) 3단계 중 세 번째 |
+| Parent Documents | ADR-0018-langgraph-adoption-final-review.md |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | projects/langgraph-conditional-routing-poc-v1/EVIDENCE.md(PR #173) |
+| Source Path | docs/architecture/core/RFC-0031-langgraph-implementation-technology-adoption.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
 
 `ADR-0018`은 2026-09-02 이전 Evidence(v1 archive, E2/E3 toy·Domain
 PoC, Phase A~F Multi-Agent Handoff/Failure Isolation)를 종합해
@@ -57,7 +74,9 @@ LangGraph를 승인된(비강제) Implementation Technology 후보로
 전략(ADC-0015)이 서로 다른 절차이듯, Workflow Adapter의 존재
 (`ADC-0019`)·명칭(`ADC-0020`)·구현 전략(이 RFC)도 분리된 질문이다.
 
-## 1. Observation — 새로 추가된 Evidence
+## 3. Analysis & Decision
+
+### 1. Observation — 새로 추가된 Evidence
 
 `projects/langgraph-conditional-routing-poc-v1/`(PR #173)은 `ADR-0018`
 이후 처음으로 **실제 프로덕션 Capability**(`backend_agent_code_review`/
@@ -82,9 +101,9 @@ Engine 호출**(Claude CLI, 4회) 위에서 LangGraph를 실행했다. 결과:
 위에서 기술적으로 문제없이 동작하고, 기존 방식과 결과가 어긋나지
 않는다"는 **기술적 적합성(compatibility)**을 실측했다.
 
-## 2. Boundary Question
+### 2. Boundary Question
 
-### Q-1. LangGraph를 승인된 비강제 Implementation Technology로 확정할 것인가
+#### Q-1. LangGraph를 승인된 비강제 Implementation Technology로 확정할 것인가
 
 - **Question**: Workflow Adapter의 Production 구현이 (별도 절차로)
   승인되는 시점이 왔을 때, LangGraph가 그 구현 후보 목록에 **이미
@@ -112,7 +131,22 @@ Engine 호출**(Claude CLI, 4회) 위에서 LangGraph를 실행했다. 결과:
 - **ADC에서 결정할 사항**: (a)와 (b) 중 채택안, (a) 채택 시 "비강제"
   범위(단순 사례는 기존 방식 계속 허용)와 소급 미적용 여부.
 
-## 3. Architecture Impact
+### Decision
+
+**Accept (Conditional·Non-Mandatory)** — `docs/architecture/core/
+ADC-0034-langgraph-implementation-technology-adoption.md` 판정을
+그대로 따른다. LangGraph는 Workflow Adapter(§16.6) Production
+구현이 별도 절차로 승인되는 시점의 구현 전략 후보로 확정되며, 사용은
+강제되지 않는다(단순 사례는 기존 방식 유지 가능). Production 구현
+착수 자체는 이 Decision으로 승인되지 않는다.
+
+## 4. Evidence & Validation
+
+위 §3의 「1. Observation」 및 「2. Boundary Question」 Evidence 항목에 근거가 이미 포함되어 있어 별도 Evidence Summary 절로 분리하지 않는다.
+
+## 5. Consequences & Risks
+
+### 3. Architecture Impact
 
 - **없음(NONE의 범위 한정)** — 이 RFC는 §16.6이 이미 Accept한
   Workflow Adapter 책임의 존재·경계·A-IN/A-OUT을 재정의하지 않는다.
@@ -122,11 +156,13 @@ Engine 호출**(Claude CLI, 4회) 위에서 LangGraph를 실행했다. 결과:
   Workflow Parser/Scheduler/Dynamic Routing/Event Bus 구현 금지
   조항은 이 RFC로 해제되지 않는다.
 
-## 4. Contract Impact
+### 4. Contract Impact
 
 - 없음 — Public Contract를 변경하지 않는다.
 
-## 5. 이 RFC가 정의하지 않는 것 (경계)
+## 6. Open Questions & Change History
+
+### 5. 이 RFC가 정의하지 않는 것 (경계)
 
 - Workflow Adapter Production 구현의 실제 착수 여부·시점 — 별도
   Scoped 해제 ADR 대상(§16.6이 이미 명시).
@@ -134,11 +170,18 @@ Engine 호출**(Claude CLI, 4회) 위에서 LangGraph를 실행했다. 결과:
   실제로 배선하는 것 — 이 RFC는 승인 목록 등재 여부만 다룬다.
 - ADC-02(Runtime 존폐)·ADC-09(Workflow 그래프 의미 경계)의 재개설.
 
-## Decision
+### Related Documents
 
-**Accept (Conditional·Non-Mandatory)** — `docs/architecture/core/
-ADC-0034-langgraph-implementation-technology-adoption.md` 판정을
-그대로 따른다. LangGraph는 Workflow Adapter(§16.6) Production
-구현이 별도 절차로 승인되는 시점의 구현 전략 후보로 확정되며, 사용은
-강제되지 않는다(단순 사례는 기존 방식 유지 가능). Production 구현
-착수 자체는 이 Decision으로 승인되지 않는다.
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0034-langgraph-implementation-technology-adoption.md` | 이 RFC를 종결한 ADC |
+| ADR | `docs/architecture/core/ADR-0019-langgraph-implementation-technology-adoption-baseline.md` | 후속 Baseline |
+| ADR | `docs/architecture/core/ADR-0018-langgraph-adoption-final-review.md` | 기존 최종 판정(Evidence 계보 출발점) |
+| ADR | `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md`(원문은 `ADR-0011`로 인용 — Kernel 트리 `docs/architecture/core/ADR-0011`과 ID 충돌, 내용상 Dev HQ 트리 문서로 확인) | Constraint 근거 |
+| Reference | `projects/langgraph-conditional-routing-poc-v1/EVIDENCE.md` | §3 Observation Evidence(PR #173) |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADR-0018 재검토 조건과 별개로, LangGraph를 승인된 비강제 Implementation Technology 후보로 확정할지 판단 |

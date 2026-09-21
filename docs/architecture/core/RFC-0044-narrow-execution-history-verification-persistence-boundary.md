@@ -19,11 +19,30 @@ Persistence Boundary** 하나만 Architecture 수준에서 정의한다.
 
 ---
 
-## 1. Status
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0044 |
+| Title | Narrow Execution History & Verification Persistence Boundary |
+| Type | RFC |
+| Target Domain | Kernel Architecture / Development HQ — Execution/Stage/Verification 결과 사후 조회를 위한 최소 Persistence Boundary(Option B Decision Candidate) |
+| Status | Proposed (검토 대상, 결정 아님) |
+| Decision Group | RFC-0043 Option B Decision Candidate 후속 — 아직 ADC 미개설(§1) |
+| Parent Documents | docs/architecture/core/RFC-0043-execution-history-evidence-persistence-architecture.md |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | docs/architecture/baseline/BASELINE.md §16, docs/decisions/adc/ADC.md ADC-02 |
+| Source Path | docs/architecture/core/RFC-0044-narrow-execution-history-verification-persistence-boundary.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
+
+### 1. Status
 
 Proposed. 후속 ADC가 아직 열리지 않았다.
 
-## 2. Context — RFC-0043 재확인
+### 2. Context — RFC-0043 재확인
 
 RFC-0043은 다음을 실측·분석으로 확정했고, 이 RFC는 그 결론을 전제로 시작한다
 (재론하지 않음):
@@ -52,7 +71,7 @@ RFC-0043은 다음을 실측·분석으로 확정했고, 이 RFC는 그 결론�
 본 RFC는 이 Decision Candidate를 이어받아, **Option B의 좁은 부분집합**만을
 단독 Boundary Question으로 좁혀 다룬다.
 
-### 2.1 재확인한 현재 문서 상태(작업 착수 전 재조사)
+#### 2.1 재확인한 현재 문서 상태(작업 착수 전 재조사)
 
 이 RFC 작성 직전 다음을 다시 읽고 RFC-0043 이후 변경이 없음을 확인했다:
 
@@ -68,7 +87,7 @@ RFC-0043은 다음을 실측·분석으로 확정했고, 이 RFC는 그 결론�
 
 RFC-0043 이후 이 저장소의 관련 Architecture 상태에 실질적 변화는 없다.
 
-## 3. Problem (A)
+### 3. Problem (A)
 
 - `run_workflow()`의 결과는 **stdout/in-memory 수준**에서 끝난다 — 호출이
   끝나면 그 실행이 존재했다는 사실 자체가 사라진다.
@@ -84,7 +103,7 @@ RFC-0043 이후 이 저장소의 관련 Architecture 상태에 실질적 변화�
   (`hqs/development/BASELINE.md` "Stage Data Contract"), 그 값을 실행이 끝난
   뒤 다시 볼 방법이 전혀 없다.
 
-## 4. Scope (B)
+### 4. Scope (B)
 
 이 RFC가 **저장 대상으로 검토**하는 기록은 다음 6종으로 한정한다. 더 넓히지
 않는다.
@@ -110,7 +129,9 @@ RFC-0043 이후 이 저장소의 관련 Architecture 상태에 실질적 변화�
    (`verdict`와는 별도 축 — 실행 자체가 끝까지 갔는지 vs. 그 결과가
    PASS/FAIL인지를 혼동하지 않는다).
 
-## 5. Explicit Non-Goals (C)
+## 3. Analysis & Decision
+
+### 5. Explicit Non-Goals (C)
 
 다음은 이번 RFC 범위에서 **명시적으로 제외**한다. Scope(§4)에 포함되지
 않으며, 후속 RFC라도 이 RFC의 결론을 근거로 자동 확장되지 않는다.
@@ -133,7 +154,7 @@ RFC-0043 이후 이 저장소의 관련 Architecture 상태에 실질적 변화�
   기록이 생기는 구조를 전제로 하므로, "실행 중" 상태 조회는 이 RFC의
   Scope 밖이다)
 
-### Live Execution State Boundary
+#### Live Execution State Boundary
 
 - 본 RFC의 Persistence 대상은 실행 종료 후 사후 조회 가능한 기록이다.
 - 현재 Development HQ Workflow는 동기 실행이며 실행 중 외부 State 조회
@@ -149,9 +170,9 @@ RFC-0043 이후 이 저장소의 관련 Architecture 상태에 실질적 변화�
 - RFC-0044의 Persistence Decision을 Live Execution Architecture의 근거로
   자동 확장하지 않는다.
 
-## 6. Ownership Boundary (D)
+### 6. Ownership Boundary (D)
 
-### 6.1 Development HQ Workflow가 생산하는 결과
+#### 6.1 Development HQ Workflow가 생산하는 결과
 
 `run_workflow()`는 Stage 01→05를 호출하며 각 Stage가 리턴하는 dict를
 그대로 합성해 최종 dict 하나를 리턴한다. 이 값들의 **형태**(Public Contract)는
@@ -160,7 +181,7 @@ RFC-0043 이후 이 저장소의 관련 Architecture 상태에 실질적 변화�
 이지 "그것이 어디에 남는가"(Persistence)가 아니다 — 이 둘은 서로 다른
 질문이다.
 
-### 6.2 Persistence를 누가 소유할 수 있는가
+#### 6.2 Persistence를 누가 소유할 수 있는가
 
 세 후보를 검토한다:
 
@@ -184,7 +205,7 @@ persistence를 소유하는가"라는 질문에 답을 갖고 있지 않다. 이
 것 자체가 **새로운 Boundary Question**이며, 그것이 이 RFC가 후속 ADC로
 넘기려는 것이다(§10).
 
-### 6.3 Workflow Adapter의 caller-owned 원칙과의 정합성
+#### 6.3 Workflow Adapter의 caller-owned 원칙과의 정합성
 
 §16.6 Workflow Adapter Contract (a)는 "어댑터는 진행 상태 값을 생산만 하며
 영속화·복원을 소유하지 않는다"고 명시한다. 이 원칙은 **이 RFC의 Scope(§4)와
@@ -198,7 +219,7 @@ persistence를 소유하는가"라는 질문에 답을 갖고 있지 않다. 이
   구체적으로 누구인지(HQ? Command Center? 제3의 계층?)를 확정하지 않더라도,
   "Kernel이 대신 저장해 주지 않는다"는 전제 자체는 §16.6과 이미 정합적이다.
 
-### 6.4 Command Center가 persistence owner가 되면 안 되는지
+#### 6.4 Command Center가 persistence owner가 되면 안 되는지
 
 RFC-0043 §20(Command Center Boundary)이 이미 정리한 원칙을 그대로 계승한다:
 Command Center가 소유해도 되는 것은 **조회(Read)**뿐이며, 상태의 **Source of
@@ -209,7 +230,7 @@ Command Center 자신이 **판정**한다는 뜻이 되므로, 현재 원칙과 
 생산자(Writer)가 되어서는 안 된다** — 이는 이 RFC가 Option 비교(§7)에서
 지키는 고정 제약이다.
 
-### 6.5 Kernel에 Evidence Concept을 신설할 필요성
+#### 6.5 Kernel에 Evidence Concept을 신설할 필요성
 
 RFC-0043 §4.3이 이미 확인했듯, "Evidence"는 `BASELINE.md` 어디에도 Kernel
 Concept으로 정의된 적이 없다. 이 RFC는 그 신설이 **필요한가**를 열린 질문으로
@@ -220,11 +241,11 @@ Contract의 저장 형태 문제로 좁게 다루는 쪽**이 기존 저장소�
 Accept 경향)와 더 일치할 가능성을 시사한다 — 그러나 이 판단도 후속 ADC의
 몫이다.
 
-## 7. Persistence Model (E) — Architecture Option 비교
+### 7. Persistence Model (E) — Architecture Option 비교
 
 파일 기반 persistence를 구현안으로 확정하지 않는다. 4개 Option을 비교한다.
 
-### Option A — No Persistence(현행 유지)
+#### Option A — No Persistence(현행 유지)
 
 `run_workflow()`를 그대로 둔다. Execution/Stage/Verification 기록을 저장하지
 않는다.
@@ -236,7 +257,7 @@ Accept 경향)와 더 일치할 가능성을 시사한다 — 그러나 이 판�
   이력"은 소급 생성 불가(그 시점부터 새로 쌓인다).
 - **ADC-02 의존**: 없음.
 
-### Option B — Narrow File-based Execution Records
+#### Option B — Narrow File-based Execution Records
 
 `run_workflow()` 실행을 감싸는 최소 wrapper(새 Server API 아님 — 기존
 `export_real_snapshot.py` 패턴처럼 **호출자 쪽 스크립트/CLI 확장**)가 §4
@@ -258,7 +279,7 @@ Scope의 6개 기록을 실행 종료 시점에 파일로 남긴다. 저장 위�
 - **ADC-02 의존**: 없음 — Runtime 존폐와 무관하게, "실행이 끝난 뒤 결과를
   파일로 남긴다"는 이 Option은 Runtime 개념을 전제하지 않는다.
 
-### Option C — Dedicated Persistence Service/Store
+#### Option C — Dedicated Persistence Service/Store
 
 Execution Record를 전담하는 별도 서비스/저장소(DB, 전용 API 등)를 신설한다.
 
@@ -275,7 +296,7 @@ Execution Record를 전담하는 별도 서비스/저장소(DB, 전용 API 등)�
   해석될 여지가 있어, ADC-02가 Open인 채로 이 Option을 채택하면 사실상
   ADC-02의 한쪽(Runtime 유지) 방향으로 선판단하는 효과를 낼 위험이 있다.
 
-### Option D — Runtime/Scheduler 중심 Persistence
+#### Option D — Runtime/Scheduler 중심 Persistence
 
 Runtime 또는 Scheduler가 실행을 직접 관리하면서 그 부산물로 persistence를
 갖는다(RFC-0043 Option C와 동일 계열).
@@ -288,7 +309,7 @@ Runtime 또는 Scheduler가 실행을 직접 관리하면서 그 부산물로 pe
 - **Future migration impact**: 해당 없음(착수 자체가 이 RFC 범위 밖).
 - **ADC-02 의존**: 직접적·선행적.
 
-### Option Comparison
+#### Option Comparison
 
 | 기준 | A (No Persistence) | B (Narrow File-based) | C (Dedicated Store) | D (Runtime/Scheduler) |
 |---|---|---|---|---|
@@ -299,7 +320,35 @@ Runtime 또는 Scheduler가 실행을 직접 관리하면서 그 부산물로 pe
 | ADC-02 의존 | 없음 | 없음 | 간접적 | 직접적·선행적 |
 | 즉시 착수 가능 여부(별도 예외 승인 후) | 예(이미 현재 상태) | 예외 승인 후 가능 | 아니오 | 아니오 |
 
-## 8. Data Integrity (F)
+### 12. Recommendation / Decision Candidate
+
+이 RFC는 최종 결정을 내리지 않는다. 다만 위 분석에서 다음이 비교적 명확하게
+드러난다:
+
+- **Option D(Runtime/Scheduler 중심)는 ADC-02 해소 없이 열 수 없다** — RFC-0043의
+  동일 결론을 재확인한다.
+- **Option C(전담 서비스)는 이 RFC 하나로 열기에는 Governance 비용이 너무
+  크다** — 신규 Kernel Component 후보에 준하는 검토가 필요하다.
+- **Option A(No Persistence)는 언제든 선택 가능한 기본값**이다 — 아무 것도
+  하지 않아도 되는 선택지로 항상 남아 있다.
+- **Option B(Narrow File-based)가 이 RFC가 열려는 Boundary Question의
+  실질적 후보**로 보인다 — 기존 `export_real_snapshot.py` 패턴을 재사용할
+  수 있고, ADC-02와 독립적이며(§9), §16.6 caller-owned 원칙과 정합적이다
+  (§6.3). 단, **caller가 구체적으로 누구인지(§6.2가 답하지 못한 질문)와
+  "영속 저장소 금지" 조항의 예외 범위**는 후속 ADC가 결정해야 한다.
+
+**Decision Candidate(확정 아님)**: 후속 ADC를 연다면, 그 ADC는 다음 하나의
+질문만 Boundary Question으로 열어야 한다 — **"Option B(Scope §4의 6개
+기록을 파일로 남기는 것)를 `hqs/development/HANDOVER.md`의 영속 저장소
+금지 조항의 Scoped 예외로 Accept할 것인가, 그리고 그 caller는 누구인가."**
+Live Progress/Cancel/Retry/Resume(Option C/D 영역)은 그 ADC에도 포함하지
+않고 명시적으로 제외해야 한다.
+
+---
+
+## 4. Evidence & Validation
+
+### 8. Data Integrity (F)
 
 다음 원칙을 이 RFC가 검토하되, 확정된 구현 규칙으로 제시하지 않는다 — 후속
 ADC/ADR이 실제 규칙으로 못박아야 한다.
@@ -328,7 +377,7 @@ ADC/ADR이 실제 규칙으로 못박아야 한다.
   남긴다(§10 Open Questions). 예: Stage 03에서 실행이 중단됐을 때 Stage
   01/02 기록만 저장할지, 전체를 버릴지는 이 RFC가 결정하지 않는다.
 
-## 9. ADC-02 관계 (G)
+### 9. ADC-02 관계 (G)
 
 ADC-02(Runtime 개념의 존폐)는 이 RFC가 변경하거나 재개하지 않는다. 다음
 세 질문을 분석한다:
@@ -352,13 +401,15 @@ ADC-02(Runtime 개념의 존폐)는 이 RFC가 변경하거나 재개하지 않�
 설계상 독립적으로 보인다. 그러나 이는 이 RFC의 분석이지, ADC-02를 해소하는
 근거로 사용될 수 없다 — ADC-02는 계속 Open·NOW로 남는다.
 
-## 10. Governance (H)
+## 5. Consequences & Risks
+
+### 10. Governance (H)
 
 이 RFC가 새로운 Architecture Boundary(영속 저장소 금지 조항의 Scoped 예외)를
 제안하는 만큼, 최종 결론은 **RFC → ADC → ADR** 절차를 그대로 따라야 한다.
 이 RFC 자체는 그 절차의 첫 단계(RFC)이며, 어떤 결정도 확정하지 않는다.
 
-## 11. Architecture Constraints (재확인 — 변경 없음)
+### 11. Architecture Constraints (재확인 — 변경 없음)
 
 - `hqs/development/IMPLEMENTATION_RULES.md`의 금지 조항 — 이 RFC의 어떤
   Option도 이를 직접 해제하지 않는다. Option B조차 **예외 승인**을
@@ -377,33 +428,7 @@ ADC-02(Runtime 개념의 존폐)는 이 RFC가 변경하거나 재개하지 않�
 - §16.6 Workflow Adapter Contract (a) caller-owned 원칙 — §6.3에서 확인한 대로
   이 RFC의 방향과 정합적이며, 이 RFC가 그 원칙을 뒤집지 않는다.
 
-## 12. Recommendation / Decision Candidate
-
-이 RFC는 최종 결정을 내리지 않는다. 다만 위 분석에서 다음이 비교적 명확하게
-드러난다:
-
-- **Option D(Runtime/Scheduler 중심)는 ADC-02 해소 없이 열 수 없다** — RFC-0043의
-  동일 결론을 재확인한다.
-- **Option C(전담 서비스)는 이 RFC 하나로 열기에는 Governance 비용이 너무
-  크다** — 신규 Kernel Component 후보에 준하는 검토가 필요하다.
-- **Option A(No Persistence)는 언제든 선택 가능한 기본값**이다 — 아무 것도
-  하지 않아도 되는 선택지로 항상 남아 있다.
-- **Option B(Narrow File-based)가 이 RFC가 열려는 Boundary Question의
-  실질적 후보**로 보인다 — 기존 `export_real_snapshot.py` 패턴을 재사용할
-  수 있고, ADC-02와 독립적이며(§9), §16.6 caller-owned 원칙과 정합적이다
-  (§6.3). 단, **caller가 구체적으로 누구인지(§6.2가 답하지 못한 질문)와
-  "영속 저장소 금지" 조항의 예외 범위**는 후속 ADC가 결정해야 한다.
-
-**Decision Candidate(확정 아님)**: 후속 ADC를 연다면, 그 ADC는 다음 하나의
-질문만 Boundary Question으로 열어야 한다 — **"Option B(Scope §4의 6개
-기록을 파일로 남기는 것)를 `hqs/development/HANDOVER.md`의 영속 저장소
-금지 조항의 Scoped 예외로 Accept할 것인가, 그리고 그 caller는 누구인가."**
-Live Progress/Cancel/Retry/Resume(Option C/D 영역)은 그 ADC에도 포함하지
-않고 명시적으로 제외해야 한다.
-
----
-
-## 13. Risks
+### 13. Risks
 
 - Option B를 좁게 연다고 선언해도, "History가 있으니 다음은 Live Progress도
   필요하다"는 Scope Creep 압력이 생길 위험 — RFC-0043 §23이 이미 지적한
@@ -421,7 +446,9 @@ Live Progress/Cancel/Retry/Resume(Option C/D 영역)은 그 ADC에도 포함하�
   Center든)이 암묵적으로 owner가 되어 §6.4(Command Center는 Writer가 될 수
   없음) 원칙이 사후적으로 침해될 위험.
 
-## 14. Open Questions
+## 6. Open Questions & Change History
+
+### 14. Open Questions
 
 1. `hqs/development/HANDOVER.md`의 "영속 저장소 금지" 조항에 대한 Scoped
    예외를 Option B 범위(§4)로 한정해 승인할 수 있는가?
@@ -435,7 +462,7 @@ Live Progress/Cancel/Retry/Resume(Option C/D 영역)은 그 ADC에도 포함하�
 5. Evidence artifact reference(§4 항목 6)가 가리키는 파일의 보존 기간·접근
    범위는 누가 정하는가?
 
-## 15. Required ADC / ADR Follow-up
+### 15. Required ADC / ADR Follow-up
 
 - 이 RFC가 후속 ADC로 승격된다면, 그 ADC는 §12의 Decision Candidate 문구
   그대로 **단일 Boundary Question**만 열어야 한다(§16.3~§16.6이 각각 그렇게
@@ -458,3 +485,29 @@ RFC: `RFC-0044`(본 문서, Proposed)
 ADC: 없음 (열리지 않음 — 후속 ADC는 이 RFC가 결정하지 않는다)
 ADR: 없음
 PR: 없음
+
+### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| RFC | `docs/architecture/core/RFC-0043-execution-history-evidence-persistence-architecture.md` | 이 RFC가 이어받는 Decision Candidate(§2) |
+| ADR | `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` | Out of Scope 명시 형식 선례(§15) |
+| ADC | `docs/architecture/core/ADC-0017-multi-task-result-store-integrity-boundary.md` | Narrow Accept 선례(§6.2), Out of Scope 형식 선례(§15) |
+| ADC | `docs/architecture/core/ADC-0019-scoped-workflow-graph-execution-boundary.md` | Workflow Adapter caller-owned 원칙 선례(§0 대상, §15) |
+| ADC | `docs/architecture/core/ADC-0021-workflow-adapter-implementation-strategy.md` | Gate B/C 선행조건 인용(§2) |
+| ADC | `docs/architecture/core/ADC-0022-workflow-adapter-execution-unit-lifecycle-state-model-resolution.md` | Workflow Adapter 관련 문서 재확인 대상(§2.1) |
+| ADC | `docs/architecture/core/ADC-0023-workflow-engine-port-contract-surface-and-engine-seam-resolution.md` | Workflow Adapter 관련 문서 재확인 대상(§2.1) |
+| ADC | `docs/architecture/core/ADC-0002-kernel-definition.md`(원문은 `ADC-02`로 인용 — Kernel 트리, Runtime 개념의 존폐) | ADC-02(Open·NOW) 재확인 대상(§2, §9, §11) |
+| ADC | `docs/core/execution-layer/ADC-0002-execution-result-contract.md`(원문은 `ADC-0002` Execution Result Contract로 인용 — Execution Layer 트리, ID 충돌 주의) | 무관 트랙 재확인(§2.1) |
+| Reference | `docs/decisions/adc/ADC.md` | ADC-01~12 전체 Open 상태 재확인 대상(§2.1, §11) |
+| Reference | `docs/architecture/baseline/BASELINE.md` | §16 Kernel Modules 재확인 대상 |
+| Reference | `hqs/development/BASELINE.md` | Stage Data Contract, "Not Included" Runtime 재확인 대상 |
+| Reference | `hqs/development/HANDOVER.md` | "영속 저장소... 추가 금지" 조항(§7 Option B 예외 대상, §11) |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | 금지 표 재확인 대상 |
+| Reference | `projects/dashboard-shell-mvp/devhq-command-center/data/real/export_real_snapshot.py`(원문은 `export_real_snapshot.py`로 인용) | Option B 재사용 대상 패턴(§7) |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0043 Option B(Narrow File-based Execution Records)를 좁은 Boundary Question으로 좁혀 Decision Candidate 제시(확정 아님) |

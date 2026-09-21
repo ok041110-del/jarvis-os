@@ -15,7 +15,26 @@
 
 ---
 
-## 0. 기존 Governance 조사 결과(사용자 지시 — 먼저 조사)
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0042 |
+| Title | Repository-wide Python Audit & Refactoring — Governance Boundary (구현 아님) |
+| Type | RFC |
+| Target Domain | Repository 전체 — Python Audit/Refactoring Governance Lifecycle 신설(구현 아님) |
+| Status | Proposed (검토 대상, 결정 아님 — 확정은 ADC-0045/ADR-0028가 담당) |
+| Decision Group | Repository-wide Python Audit Governance(RFC-0042 → ADC-0045 → ADR-0028) |
+| Parent Documents | docs/architecture/core/RFC-0037-stage04-multi-agent-ponytail-boundary.md, docs/architecture/core/ADC-0040-stage04-multi-agent-ponytail-decision.md(Ponytail 원 정의, 재론 아님) |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | hqs/development/IMPLEMENTATION_RULES.md, docs/research/STAGE-TO-TEAM-MIGRATION-ARCHIVE-CLEANUP-INVESTIGATION-0001.md |
+| Source Path | docs/architecture/core/RFC-0042-repository-wide-python-audit-and-refactoring-governance.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
+
+### 0. 기존 Governance 조사 결과(사용자 지시 — 먼저 조사)
 
 - 현재 Kernel/Architecture 연구 트랙은 `docs/architecture/core/`에
   `RFC-0001~0041` → `ADC-0001~0044`(단, `docs/governance/adc/`의
@@ -60,7 +79,7 @@
   결과 별도의 새 정적분석 도구는 저장소에 없다 — 이 RFC는 새
   Validator 신설을 최소화하고 기존 체계를 우선 재사용한다(§6).
 
-## 1. 목적과 비목표
+### 1. 목적과 비목표
 
 **목적**: Repository 전체 `*.py`를 대상으로, Ponytail 원칙
 (YAGNI/stdlib 우선/최소 복잡성/명시성) + Senior Developer 수준의
@@ -77,7 +96,7 @@
 - `ADC-0040`(Stage 04 Multi-Agent) 등 이미 Open된 별도 Governance
   판단을 대신하거나 재론하지 않는다.
 
-## 2. Audit 범위
+### 2. Audit 범위
 
 - **포함**: `hqs/`, `mvp/`(hqs 하위 포함), `tests/`, `projects/`
   하위 모든 `*.py`, 그리고 위 네 경로 밖에 존재하는 기타 `*.py`
@@ -100,7 +119,9 @@
   않는다 — Historical Evidence 파일에 대한 어떤 수정도 최소
   `GOVERNANCE REQUIRED`로 분류한다(§7).
 
-## 3. Lifecycle — Audit과 Refactoring 분리
+## 3. Analysis & Decision
+
+### 3. Lifecycle — Audit과 Refactoring 분리
 
 ```
 Inventory
@@ -118,33 +139,33 @@ Validation
 Evidence
 ```
 
-### 3.1 Inventory
+#### 3.1 Inventory
 
 대상 범위(§2) 전체 `*.py` 파일 목록을 기계적으로 수집한다(파일
 경로, LOC, 마지막 커밋, 소속 프로젝트/HQ). 판단을 포함하지 않는다 —
 `docs/governance/observations/README.md`의 "OBS는 사실만 기록한다"
 원칙과 동일한 성격의 단계다.
 
-### 3.2 Deterministic Audit
+#### 3.2 Deterministic Audit
 
 Import graph, syntax/AST 파싱, 순환 참조, 미사용 import, 함수/파일
 길이, 중복 코드 패턴 등 **도구로 기계적으로 확인 가능한 사실**만
 수집한다. 품질 판단(Simplicity/Readability)을 포함하지 않는다.
 
-### 3.3 Semantic/Ponytail Review
+#### 3.3 Semantic/Ponytail Review
 
 Deterministic Audit 결과 위에서, RFC 본문 §A~E(사용자 지시 원문,
 아래 §4에 재정리)의 기준으로 **의미 판단**을 수행한다 — 여기서만
 "이 코드가 의도를 잘 드러내는가"를 사람 또는 Ponytail 역할이
 판정한다.
 
-### 3.4 Candidate Classification
+#### 3.4 Candidate Classification
 
 §7의 분류표(KEEP/COMMENT·DOCSTRING CLEANUP/SIMPLIFY/REFACTOR/
 POSSIBLE BUG/ARCHITECTURE·CONTRACT RISK/GOVERNANCE REQUIRED)로
 각 파일·각 발견 사항을 분류한다.
 
-### 3.5 Refactoring Wave
+#### 3.5 Refactoring Wave
 
 Candidate Classification에서 `SIMPLIFY`/`REFACTOR`/`COMMENT·
 DOCSTRING CLEANUP`로 분류되고 §3 Ponytail 권한 범위 안에 있는
@@ -152,14 +173,14 @@ DOCSTRING CLEANUP`로 분류되고 §3 Ponytail 권한 범위 안에 있는
 `ARCHITECTURE·CONTRACT RISK`/`GOVERNANCE REQUIRED`는 이 단계에서
 수정하지 않는다(§5 Ponytail 권한 경계 밖).
 
-### 3.6 Validation
+#### 3.6 Validation
 
 §9가 정의하는 검증(syntax/compile, 회귀 테스트, import 무결성,
 Public Contract 회귀, AST-level sanity, dependency 무결성, scope
 compliance, comment/docstring policy, readability review)을
 Wave 단위로 수행한다.
 
-### 3.7 Evidence
+#### 3.7 Evidence
 
 각 Wave 완료 시 `docs/research/`에 Evidence 문서를 남긴다(기존
 저장소 관례 — `EVIDENCE-*`/`*-REVALIDATION-*`/`*-REVIEW-*` 명명
@@ -172,7 +193,7 @@ Architecture/Contract 판단이 필요해지면 즉시 이 Lifecycle을
 멈추고 별도 RFC를 연다(§5 GOVERNANCE REQUIRED 분류가 이 이탈구를
 공식화한다).
 
-## 4. 핵심 목표(사용자 지시 원문 재정리 — 이 RFC가 새로 만들지 않음)
+### 4. 핵심 목표(사용자 지시 원문 재정리 — 이 RFC가 새로 만들지 않음)
 
 Audit/Refactoring이 따라야 할 기준은 사용자 지시 A~E를 그대로
 채택한다(요약, 원문은 이 RFC의 근거 요청 문서 자체):
@@ -196,7 +217,7 @@ Audit/Refactoring이 따라야 할 기준은 사용자 지시 A~E를 그대로
   예외 표시로 허용한다, comment cleanup을 이유로 코드 로직을
   바꾸지 않는다.
 
-## 5. Ponytail 권한 경계
+### 5. Ponytail 권한 경계
 
 `ADC-0040`의 `ponytail_policy.py` guardrail과 동일한 원칙을
 Repository-wide Audit 맥락으로 재사용한다.
@@ -227,7 +248,7 @@ Governance 필요 쪽**으로 분류한다(§7의 `GOVERNANCE REQUIRED`).
 Ponytail은 스스로 이 경계를 넓히지 못한다 — 경계 자체를 바꾸려면
 이 RFC를 개정하는 새 RFC가 필요하다.
 
-## 6. Candidate Classification 분류 체계
+### 6. Candidate Classification 분류 체계
 
 기존 Governance 체계(KEEP/DEFER 등, `STAGE-TO-TEAM-MIGRATION-
 ARCHIVE-CLEANUP-INVESTIGATION-0001.md`가 쓴 A~E 분류)와 이름이
@@ -246,7 +267,9 @@ ARCHIVE-CLEANUP-INVESTIGATION-0001.md`가 쓴 A~E 분류)와 이름이
 | `ARCHITECTURE/CONTRACT RISK` | 수정하면 Public Contract/Architecture Boundary에 영향 가능 | Ponytail 권한 밖 — 자동으로 `GOVERNANCE REQUIRED`로 승격 |
 | `GOVERNANCE REQUIRED` | §5 "별도 Governance 필요" 목록에 해당하거나 판단 불명확 | Ponytail이 수정하지 않는다 — 신규 RFC 개설 여부를 별도로 판단 |
 
-## 7. 대규모 변경 안전성 — Wave 정책
+## 4. Evidence & Validation
+
+### 7. 대규모 변경 안전성 — Wave 정책
 
 Repository 전체를 한 번에 수정하지 않는다. 각 Wave는 다음을
 반드시 포함한다:
@@ -278,7 +301,7 @@ Evidence(`docs/research/`에 Wave별 기록)
 선언하고, 그 선언을 벗어나면 그 Wave를 종료하고 새 Wave로
 분리한다(Wave 범위 확대 자체를 금지하는 절차적 장치).
 
-## 8. Validation 정책
+### 8. Validation 정책
 
 기존 체계를 우선 재사용한다(사용자 지시 §5). 새 Validator는
 정말 필요한 경우에만 제안하며, 이 RFC는 다음 항목 전부를 **기존
@@ -306,7 +329,9 @@ Wave 착수 시점의 개발자/Claude Code 판단에 맡긴다). 이 스크립�
 자체가 새 Architecture Component는 아니다(Kernel/Stage/Team 구조에
 편입되지 않는 순수 Tooling).
 
-## 9. 현재 Architecture 보호(사용자 지시 §8)
+## 5. Consequences & Risks
+
+### 9. 현재 Architecture 보호(사용자 지시 §8)
 
 이 Governance의 핵심은 "Architecture를 다시 설계하는 것"이 아니라
 "현재 Architecture 안에서 Python 구현을 더 단순하고 명확하며
@@ -326,7 +351,9 @@ Wave 착수 시점의 개발자/Claude Code 판단에 맡긴다). 이 스크립�
   실제 Refactoring Wave 착수는 이 문서들이 Accepted된 이후 **별도
   세션/별도 사용자 승인**을 거쳐 시작한다.
 
-## 10. 이 RFC의 결론(요약)
+## 6. Open Questions & Change History
+
+### 10. 이 RFC의 결론(요약)
 
 - Repository-wide Python Audit & Refactoring을 위한 Lifecycle(§3),
   권한 경계(§5), 분류 체계(§6), Wave 정책(§7), Validation 정책(§8)을
@@ -339,7 +366,7 @@ Wave 착수 시점의 개발자/Claude Code 판단에 맡긴다). 이 스크립�
   등록하고, `ADR-0028`이 Accepted된 Governance Lifecycle로 기록한다
   (§11).
 
-## 11. 후속 절차 제안(실행하지 않음, 제안만)
+### 11. 후속 절차 제안(실행하지 않음, 제안만)
 
 1. **ADC**: 이 RFC의 Lifecycle/권한 경계/분류 체계/Wave·Validation
    정책을 공식 Decision으로 등록 — `ADC-0045`.
@@ -350,13 +377,26 @@ Wave 착수 시점의 개발자/Claude Code 판단에 맡긴다). 이 스크립�
    이후, 별도 사용자 승인을 받아 Wave 0(Inventory 전용, 코드
    무변경)부터 시작한다 — 이 RFC는 그 착수에 관여하지 않는다.
 
-## Related
+### Related Documents
 
 - `docs/architecture/core/RFC-0037-stage04-multi-agent-ponytail-boundary.md`,
   `docs/architecture/core/ADC-0040-stage04-multi-agent-ponytail-decision.md`
   (Ponytail 원 정의, Open 상태 — 재론하지 않음)
 - `hqs/development/IMPLEMENTATION_RULES.md`(Comment/Docstring 정책 원 출처)
 - `docs/research/STAGE-TO-TEAM-MIGRATION-ARCHIVE-CLEANUP-INVESTIGATION-0001.md`,
-  `docs/research/ARCHIVE-CLEANUP-REVALIDATION-0001.md`(파일 보존 판단 선례)
-- `docs/architecture/core/ADR-0006-structure-v1-migration.md`(archive/ 제외 근거)
+  `docs/research/ARCHIVE-CLEANUP-REVALIDATION-0001.md`(파일 보존 판단 선례 —
+  후속 검증 결과 이 파일은 `origin/claude/jarvis-archive-cleanup-snro5w`
+  브랜치에는 실존하나 main/이 브랜치에는 병합되지 않음, 병합 여부는 이
+  RFC의 판단 대상 밖. 근거: `docs/research/OPEN-ISSUES-PR214-VERIFICATION-0001.md`)
+- `docs/decisions/adr/ADR-0006-structure-v1-migration.md`(원문은
+  `docs/architecture/core/ADR-0006-structure-v1-migration.md`로 인용 —
+  후속 검증으로 실제 경로 확인, archive/ 제외 근거)
 - `docs/governance/README.md`(Governance 단계 정의, 이 RFC가 새 단계를 추가하지 않았음을 대조하는 근거)
+- `docs/architecture/core/ADC-0045-repository-wide-python-audit-and-refactoring-decision.md`(이 RFC 판단을 등록할 후속 ADC, §10/§11 인용)
+- `docs/architecture/core/ADR-0028-repository-wide-python-audit-and-refactoring-governance-adoption.md`(후속 Baseline, §10/§11 인용)
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Repository 전체 Python Audit & Refactoring Governance Lifecycle/권한 경계/분류 체계/Wave·Validation 정책 확립(구현 아님) |

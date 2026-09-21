@@ -1,5 +1,22 @@
 # RFC-0015: Execution Host 구현 전략 — Process/Thread/Subprocess 비교 (ADC-0014/ADR-0004 후속)
 
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0015 |
+| Title | Execution Host 구현 전략 — Process/Thread/Subprocess 비교 (ADC-0014/ADR-0004 후속) |
+| Type | RFC |
+| Target Domain | Kernel Architecture(Execution Host 구현 전략) |
+| Status | Proposed(검토 대상, 결정 아님) — 원문 preamble 그대로 |
+| Decision Group | 해당 없음 — `docs/governance/DECISION-GROUP-REGISTRY.md`에 미등록 |
+| Parent Documents | `docs/architecture/core/ADC-0014-execution-responsibility-naming.md`, `docs/architecture/core/ADR-0004-execution-host-naming-baseline.md` |
+| Related Documents | 아래 Related Documents 참고 |
+| Evidence References | 아래 §4 Evidence & Validation 참고 |
+| Source Path | `docs/architecture/core/RFC-0015-execution-host-implementation-strategy.md` |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
 **Status**: Proposed (검토 대상, 결정 아님)
 **Author**: Claude Code
 **대상**: `docs/architecture/baseline/BASELINE.md` §16.3("Execution
@@ -29,7 +46,9 @@ Host — 단일 실행 단위 Dispatch·격리, Accept Scoped")가 "이 Accept�
 > Code(`core/`, `hqs/`, `dashboard/`)와 Kernel Public Contract(§14)는
 > 수정하지 않는다.
 
-## 0. 이 RFC가 열린 이유
+## 2. Context & Problem
+
+### 0. 이 RFC가 열린 이유
 
 `ADC-0014`/`ADR-0004`는 §16.3이 Accept한 "단일 실행 단위 dispatch·
 격리" 책임에 **명칭**(Execution Host)만 부여했다. 두 문서 모두
@@ -47,7 +66,7 @@ slice`)이 이미 Process/Thread/Subprocess 세 전략을 실제 코드로
 Governance 절차가 구현 전략을 판단할 때 무엇을 근거로 삼을 수
 있는가"를 정리한다. 새 실험은 하지 않는다.
 
-## 1. Boundary Question
+### 1. Boundary Question
 
 **Execution Host(§16.3)가 이미 Accept한 "단일 실행 단위 dispatch·
 격리" 책임을, Process/Thread/Subprocess 중 어떤 구현 전략으로
@@ -65,98 +84,9 @@ Governance 절차가 구현 전략을 판단할 때 무엇을 근거로 삼을 �
   Concept)는 이미 `ADC-0014` §Q2가 판정했다. 이 RFC는 재론하지
   않는다.
 
-## 2. Evidence Summary — 이미 기록된 것만 인용
+## 3. Analysis & Decision
 
-아래는 5개 Prototype Evidence 문서에서 **이미 관찰·기록된 사실만**
-발췌해 전략별로 재구성한 것이다. 각 항목 끝의 괄호가 원 출처다.
-이 절 자체는 새로운 실험을 수행하지 않는다 — 다만 여러 문서에
-흩어진 관찰을 하나의 표로 **재구성**하는 것은 이 RFC가 처음 하는
-일이며, 그렇게 재구성해야만 보이는 결론(§3 비교표, §4 권고)이 있다.
-이 재구성 자체를 "새로운 사실"로 오인하지 않도록, 원 출처 없이
-서술되는 문장은 이 절에 없다.
-
-### 2.1 Process (`ProcessPoolExecutor`, in-process 재사용 Worker Pool)
-
-- 동일 Target 동시 실행: 4/4 정확(`runtime-boundary`), 3회 반복
-  전부 정확(`process-runtime-strategy`) — 오염 0건.
-- 다른 Target(Dev HQ 내부 서로 다른 실제 파일 2종, 실행 시간
-  0.1초~69초) 반복 적용: 9/9 정확(`process-runtime-strategy` §3).
-- Sequential Baseline과 결과 완전 일치(`(8,0)`==`(8,0)`,
-  `process-runtime-strategy` §5).
-- 실행 시간 안정성: 반복 실행 전부 ~0.7초로 일정, Thread처럼
-  급격한 지연이 없음(`runtime-boundary` §5·§8).
-- Failure/Retry: 잘못된 경로 → `FAILED`, `error` 보존, `retry()`가
-  새 `task_id`로 재사용해 재실패(정상), 이후 올바른 경로로 재시도
-  시 성공까지 확인(`runtime-boundary` §6, `process-runtime-strategy`
-  §6).
-- Dashboard Observe: Process Task도 Registry로 동일하게 관찰됨
-  (`process-runtime-strategy` §6).
-- Task/Runtime 책임 분리: `rtb_task.py`가 `ThreadPoolExecutor`/
-  `ProcessPoolExecutor` 클래스를 이름조차 참조하지 않고도 세
-  전략(sequential/thread/process) 모두에서 정상 동작
-  (`runtime-boundary` §3, AST 기반 자동 검증).
-- 비용: **정량 측정되지 않음** — Worker 기동 비용, 직렬화
-  오버헤드는 두 Prototype 모두 명시적으로 "실측하지 않음, Next
-  Step"으로 남겼다(`process-runtime-strategy` §1, §8; `runtime-
-  boundary` §13).
-
-### 2.2 Thread (`ThreadPoolExecutor`, in-process 공유 메모리)
-
-- 동일 Target 동시 실행: 5회 반복 전부 오염
-  (`runtime-boundary` §4, 재현), 3회 반복 전부 오염(`inprocess-
-  async-command` §8) — `monkeypatch`로 설정한 fake 상태가 스레드
-  간에 실제로 섞여 진짜 assertion 실패(`assert 2 == 1` 등)까지
-  재현됨(`inprocess-async-command` §8).
-- 다른 Target 동시 실행: **안전했다** — Cross-HQ(`inprocess-async-
-  command` §8)뿐 아니라 같은 HQ(Dev HQ) 내부의 서로 다른 두 실제
-  파일에서도 3회 반복 전부 정확(`process-runtime-strategy` §4).
-- 예측 불가능한 지연: 대상 코드 자체의 내부 `ThreadPoolExecutor`
-  (`stock_team.py`)와 중첩되어 baseline 0.03초가 최대 16~37초까지,
-  자동 테스트 실측에서는 pytest 보고 6.33초인데 실제 프로세스
-  종료까지 43초가 걸리는 현상까지 관찰됨(`runtime-boundary` §8).
-  별도 1회성 재현에서 `RuntimeError: cannot schedule new futures
-  after interpreter shutdown`까지 관찰됨(같은 절).
-- 취소 불가능성: 실행 중인 Thread를 강제 종료하는 표준 방법이
-  없음 — 함수 자체는 1.31초 만에 반환했지만 백그라운드 Thread가
-  끝날 때까지 프로세스 종료에 실제로 59초가 걸림(`inprocess-async-
-  command` §12).
-- Failure/Retry: 이 조건(Thread 전략)에 대해 별도로 실측되지
-  않았다 — 두 Prototype 모두 Failure/Retry 검증은 Process 전략
-  기준으로 수행됐다(`runtime-boundary` §6, `process-runtime-
-  strategy` §6). Thread 전략의 Failure/Retry 안전성은 **Evidence
-  없음**(§4에서 Gap으로 명시).
-- 비용: 정량 측정되지 않았다. 다만 Worker Process 기동이 없다는
-  점에서 이론적으로 Process보다 가볍다고 예상되나, 이 예상 자체는
-  어느 Prototype도 실측하지 않았다 — **추정일 뿐 Evidence 아님**.
-
-### 2.3 Subprocess (`subprocess.Popen`, 매 실행마다 새 인터프리터)
-
-- 동일/다른 Target 여부와 무관하게 항상 안전 — OS 프로세스 경계가
-  애초에 공유 메모리 문제를 만들지 않음(`process-runtime-strategy`
-  §1이 `async-command` 결과를 인용해 재확인. `async-command` 자체는
-  동일 Target 동시 실행을 직접 재현하지는 않았으나, 서로 다른 HQ
-  2종(Dev HQ 70초+, Investment HQ 0.1초)을 실제로 동시 RUNNING
-  상태로 관찰함, `async-command` §4·§7).
-- 실측 동시 실행 비용: Dev HQ 단독 69.99초 vs Investment HQ와 동시
-  실행 시 88초(+18초, CPU 경합으로 인한 실측 지연) — 실제로 관찰된
-  부작용이며 조작하지 않음(`async-command` §4).
-- Failure/Retry: 실제 pytest 실패(exit code 4, 잘못된 경로)와
-  재시도 성공 모두 실측 검증(`async-command` §9).
-- Dashboard Observe: Task Registry 기반으로 2개 HQ의 동시 RUNNING
-  상태를 정확히 관찰(`async-command` §10).
-- 비용: 매 실행마다 완전히 새 Python 인터프리터를 기동하는 비용이
-  있다고 판단되나(`process-runtime-strategy` §1), **정량 실측은
-  없다** — `ProcessPoolExecutor`의 재사용 가능한 Worker Process
-  대비 기동 비용이 클 것이라는 것은 일반적 추정이지 이 저장소의
-  실측 Evidence가 아니다(`process-runtime-strategy` §1이 명시적으로
-  "실측하지 않았으나 일반적으로"라고 한정).
-- Command 불변성: Case A(Command만)는 동작했으나 `frozen=True`를
-  유지할 수 없었다 — 이는 Subprocess/Thread/Process 전략과
-  무관하게 Task 분리 필요성(이미 확정된 §16.3 존재 Accept의 근거)
-  자체를 가리키며, 이 RFC가 다시 판단하지 않는다(`async-command`
-  §12, `ADC-0013`가 이미 종합).
-
-## 3. 비교 — 정확성·격리·동시성·실패/Retry·비용·복잡도
+### 3. 비교 — 정확성·격리·동시성·실패/Retry·비용·복잡도
 
 | 기준 | Process | Thread | Subprocess |
 |---|---|---|---|
@@ -181,7 +111,7 @@ RFC가 새로 발견한 사실이 아니라, 기존 Evidence의 **공백**을 �
 `process-runtime-strategy` §1 스스로 이 추정을 Evidence와
 구분해서 표시했다. 이 RFC도 그 구분을 그대로 유지한다.
 
-## 4. Decision Candidate (권고, 확정 아님)
+### 4. Decision Candidate (권고, 확정 아님)
 
 **권고 방향: Process(정확성·격리·동시성 안정성 세 기준에서 가장
 일관된 Evidence를 가짐)가 유력하지만, 이 RFC는 이를 확정하지
@@ -229,7 +159,7 @@ RFC가 새로 발견한 사실이 아니라, 기존 Evidence의 **공백**을 �
 - 비용 실측이 확정에 필수적인 선행 조건인지, 아니면 정확성·격리
   Evidence만으로 잠정 확정하고 비용은 후속 검증으로 남길지.
 
-## 5. Execution Host의 책임과 구현 전략의 분리
+### 5. Execution Host의 책임과 구현 전략의 분리
 
 `BASELINE.md` §16.3(Execution Host)의 "**책임**"은 "실행을 시작하고
 ... 격리를 제공하는 책임"이라고 **행동의 결과**로 정의되어 있으며,
@@ -252,7 +182,102 @@ Process/Thread/Subprocess 중 무엇으로 그 결과를 만드는지는 애초�
 전혀 변경할 필요가 없다는 것을 시사한다 — 다만 이 시사점을 Decision
 으로 확정하는 것은 이 RFC의 권한 밖이다(§Out of Scope).
 
-## Out of Scope
+## 4. Evidence & Validation
+
+### 2. Evidence Summary — 이미 기록된 것만 인용
+
+아래는 5개 Prototype Evidence 문서에서 **이미 관찰·기록된 사실만**
+발췌해 전략별로 재구성한 것이다. 각 항목 끝의 괄호가 원 출처다.
+이 절 자체는 새로운 실험을 수행하지 않는다 — 다만 여러 문서에
+흩어진 관찰을 하나의 표로 **재구성**하는 것은 이 RFC가 처음 하는
+일이며, 그렇게 재구성해야만 보이는 결론(§3 비교표, §4 권고)이 있다.
+이 재구성 자체를 "새로운 사실"로 오인하지 않도록, 원 출처 없이
+서술되는 문장은 이 절에 없다.
+
+#### 2.1 Process (`ProcessPoolExecutor`, in-process 재사용 Worker Pool)
+
+- 동일 Target 동시 실행: 4/4 정확(`runtime-boundary`), 3회 반복
+  전부 정확(`process-runtime-strategy`) — 오염 0건.
+- 다른 Target(Dev HQ 내부 서로 다른 실제 파일 2종, 실행 시간
+  0.1초~69초) 반복 적용: 9/9 정확(`process-runtime-strategy` §3).
+- Sequential Baseline과 결과 완전 일치(`(8,0)`==`(8,0)`,
+  `process-runtime-strategy` §5).
+- 실행 시간 안정성: 반복 실행 전부 ~0.7초로 일정, Thread처럼
+  급격한 지연이 없음(`runtime-boundary` §5·§8).
+- Failure/Retry: 잘못된 경로 → `FAILED`, `error` 보존, `retry()`가
+  새 `task_id`로 재사용해 재실패(정상), 이후 올바른 경로로 재시도
+  시 성공까지 확인(`runtime-boundary` §6, `process-runtime-strategy`
+  §6).
+- Dashboard Observe: Process Task도 Registry로 동일하게 관찰됨
+  (`process-runtime-strategy` §6).
+- Task/Runtime 책임 분리: `rtb_task.py`가 `ThreadPoolExecutor`/
+  `ProcessPoolExecutor` 클래스를 이름조차 참조하지 않고도 세
+  전략(sequential/thread/process) 모두에서 정상 동작
+  (`runtime-boundary` §3, AST 기반 자동 검증).
+- 비용: **정량 측정되지 않음** — Worker 기동 비용, 직렬화
+  오버헤드는 두 Prototype 모두 명시적으로 "실측하지 않음, Next
+  Step"으로 남겼다(`process-runtime-strategy` §1, §8; `runtime-
+  boundary` §13).
+
+#### 2.2 Thread (`ThreadPoolExecutor`, in-process 공유 메모리)
+
+- 동일 Target 동시 실행: 5회 반복 전부 오염
+  (`runtime-boundary` §4, 재현), 3회 반복 전부 오염(`inprocess-
+  async-command` §8) — `monkeypatch`로 설정한 fake 상태가 스레드
+  간에 실제로 섞여 진짜 assertion 실패(`assert 2 == 1` 등)까지
+  재현됨(`inprocess-async-command` §8).
+- 다른 Target 동시 실행: **안전했다** — Cross-HQ(`inprocess-async-
+  command` §8)뿐 아니라 같은 HQ(Dev HQ) 내부의 서로 다른 두 실제
+  파일에서도 3회 반복 전부 정확(`process-runtime-strategy` §4).
+- 예측 불가능한 지연: 대상 코드 자체의 내부 `ThreadPoolExecutor`
+  (`stock_team.py`)와 중첩되어 baseline 0.03초가 최대 16~37초까지,
+  자동 테스트 실측에서는 pytest 보고 6.33초인데 실제 프로세스
+  종료까지 43초가 걸리는 현상까지 관찰됨(`runtime-boundary` §8).
+  별도 1회성 재현에서 `RuntimeError: cannot schedule new futures
+  after interpreter shutdown`까지 관찰됨(같은 절).
+- 취소 불가능성: 실행 중인 Thread를 강제 종료하는 표준 방법이
+  없음 — 함수 자체는 1.31초 만에 반환했지만 백그라운드 Thread가
+  끝날 때까지 프로세스 종료에 실제로 59초가 걸림(`inprocess-async-
+  command` §12).
+- Failure/Retry: 이 조건(Thread 전략)에 대해 별도로 실측되지
+  않았다 — 두 Prototype 모두 Failure/Retry 검증은 Process 전략
+  기준으로 수행됐다(`runtime-boundary` §6, `process-runtime-
+  strategy` §6). Thread 전략의 Failure/Retry 안전성은 **Evidence
+  없음**(§4에서 Gap으로 명시).
+- 비용: 정량 측정되지 않았다. 다만 Worker Process 기동이 없다는
+  점에서 이론적으로 Process보다 가볍다고 예상되나, 이 예상 자체는
+  어느 Prototype도 실측하지 않았다 — **추정일 뿐 Evidence 아님**.
+
+#### 2.3 Subprocess (`subprocess.Popen`, 매 실행마다 새 인터프리터)
+
+- 동일/다른 Target 여부와 무관하게 항상 안전 — OS 프로세스 경계가
+  애초에 공유 메모리 문제를 만들지 않음(`process-runtime-strategy`
+  §1이 `async-command` 결과를 인용해 재확인. `async-command` 자체는
+  동일 Target 동시 실행을 직접 재현하지는 않았으나, 서로 다른 HQ
+  2종(Dev HQ 70초+, Investment HQ 0.1초)을 실제로 동시 RUNNING
+  상태로 관찰함, `async-command` §4·§7).
+- 실측 동시 실행 비용: Dev HQ 단독 69.99초 vs Investment HQ와 동시
+  실행 시 88초(+18초, CPU 경합으로 인한 실측 지연) — 실제로 관찰된
+  부작용이며 조작하지 않음(`async-command` §4).
+- Failure/Retry: 실제 pytest 실패(exit code 4, 잘못된 경로)와
+  재시도 성공 모두 실측 검증(`async-command` §9).
+- Dashboard Observe: Task Registry 기반으로 2개 HQ의 동시 RUNNING
+  상태를 정확히 관찰(`async-command` §10).
+- 비용: 매 실행마다 완전히 새 Python 인터프리터를 기동하는 비용이
+  있다고 판단되나(`process-runtime-strategy` §1), **정량 실측은
+  없다** — `ProcessPoolExecutor`의 재사용 가능한 Worker Process
+  대비 기동 비용이 클 것이라는 것은 일반적 추정이지 이 저장소의
+  실측 Evidence가 아니다(`process-runtime-strategy` §1이 명시적으로
+  "실측하지 않았으나 일반적으로"라고 한정).
+- Command 불변성: Case A(Command만)는 동작했으나 `frozen=True`를
+  유지할 수 없었다 — 이는 Subprocess/Thread/Process 전략과
+  무관하게 Task 분리 필요성(이미 확정된 §16.3 존재 Accept의 근거)
+  자체를 가리키며, 이 RFC가 다시 판단하지 않는다(`async-command`
+  §12, `ADC-0013`가 이미 종합).
+
+## 5. Consequences & Risks
+
+### Out of Scope
 
 - Process/Thread/Subprocess 중 최종 채택 확정 — 권고까지만(§4).
 - Scheduler/Engine Gateway 등 대체 구조 설계.
@@ -275,7 +300,7 @@ Process/Thread/Subprocess 중 무엇으로 그 결과를 만드는지는 애초�
 - Production Code(`core/`, `hqs/`, `dashboard/`), Kernel Public
   Contract(§14) 수정.
 
-## Non-goals
+### Non-goals
 
 - 이 RFC는 Process/Thread/Subprocess 중 하나를 확정하지 않는다 —
   비교와 권고만 한다(§4).
@@ -288,7 +313,9 @@ Process/Thread/Subprocess 중 무엇으로 그 결과를 만드는지는 애초�
 - 이 RFC는 Architecture Baseline을 직접 변경하지 않는다.
 - 이 RFC는 ADC, ADR 문서를 작성하지 않는다.
 
-## Next Step
+## 6. Open Questions & Change History
+
+### Next Step
 
 후속 ADC(신설 예정, 이 RFC의 후속)에서 다음을 판단하도록 제안한다.
 
@@ -311,7 +338,33 @@ Process/Thread/Subprocess 중 무엇으로 그 결과를 만드는지는 애초�
 이 RFC 자체는 그 판단을 내리지 않는다. Architecture Governance
 절차(RFC → ADC → ADR → Baseline Update)를 통해 별도로 판단한다.
 
-## Self Review
+### Related Documents
+
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0014-execution-responsibility-naming.md` | 명칭 결정 근거(Execution Host) |
+| ADR | `docs/architecture/core/ADR-0004-execution-host-naming-baseline.md` | 명칭 Baseline 반영 근거 |
+| ADR | `docs/architecture/core/ADR-0003-single-execution-unit-dispatch-isolation-baseline.md` | 책임 존재·범위 Accept 근거 |
+| ADC | `docs/architecture/core/ADC-0013-runtime-existence-scoped-reconsideration.md` | 책임 존재 Accept 근거 |
+| Reference | `docs/research/JARVIS-OS-V2.0-RUNTIME-BOUNDARY-PROTOTYPE-0001.md` | §4 Evidence(Process/Thread 비교 Prototype) |
+| Reference | `docs/research/JARVIS-OS-V2.0-PROCESS-RUNTIME-STRATEGY-PROTOTYPE-0001.md` | §4 Evidence |
+| Reference | `docs/research/JARVIS-OS-V2.0-ASYNC-COMMAND-PROTOTYPE-0001.md` | §4 Evidence |
+| Reference | `docs/research/JARVIS-OS-V2.0-INPROCESS-ASYNC-COMMAND-PROTOTYPE-0001.md` | §4 Evidence |
+| Reference | `docs/research/JARVIS-OS-V2.0-DEV-HQ-VERTICAL-SLICE-PROTOTYPE-0001.md` | §4 Evidence |
+| Reference | `hqs/development/IMPLEMENTATION_RULES.md` | §0 근거(Runtime 구현 금지 조항) |
+
+
+### Change History
+
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | ADC-0014/ADR-0004 후속 — Execution Host 구현 전략 비교 |
+
+---
+
+## 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. 5개 Prototype Evidence 문서와
   `ADC-0013`/`ADR-0003`/`ADC-0014`/`ADR-0004`/`BASELINE.md` §16.3만

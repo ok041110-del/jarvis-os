@@ -30,7 +30,24 @@ Boundary Question에서 이 차이를 정확히 반영한다).
 > 연결(`graphify claude install`, CLAUDE.md 자동 수정 동반)도 이
 > RFC의 승인 대상이 아니다.
 
-## 0. 이 RFC가 열린 이유
+## 1. Identity & Status
+
+| Field | Value |
+|---|---|
+| Document ID | RFC-0032 |
+| Title | Graphify를 승인된 비강제 Implementation Technology 후보로 확정할 것인가 (향후 Graph 기반 Memory/Knowledge/Relationship 요구 대비) |
+| Type | RFC |
+| Target Domain | Kernel Architecture — Implementation Technology 사전 등재(Architecture 무연동) |
+| Status | Resolved — ADC-0035-graphify-implementation-technology-adoption.md로 종결(Accept, Conditional·Non-Mandatory, Architecture 무연동). 후속 ADR-0020-graphify-implementation-technology-adoption.md 참고 |
+| Decision Group | Implementation Technology 사전 등재 — RFC-0031(LangGraph)과 동일 성격, 대응 Kernel 책임 미Accept라는 점이 차이 |
+| Parent Documents | .claude/docs/integrations/graphify.md(실행환경 채택 evidence) |
+| Related Documents | 아래 「Related Documents」 참조 |
+| Evidence References | .claude/docs/integrations/graphify.md(2026-08-30 검증) |
+| Source Path | docs/architecture/core/RFC-0032-graphify-implementation-technology-adoption.md |
+| Last Verified | 정보 없음 — 원문에 정의되지 않음 |
+| Verification Confidence | 정보 없음 — 원문에 정의되지 않음 |
+
+## 2. Context & Problem
 
 `.claude/docs/integrations/graphify.md`는 이미 Graphify의 CLI
 기능(코드/문서를 tree-sitter 기반 knowledge graph로 변환, `query`/
@@ -51,7 +68,9 @@ Freedom)이 이미 확립한 원칙 — "Evidence의 부재 자체는 구현 기
 바꾸는 형태가 되어서는 안 되므로(사용자 지시 7번), 그 경계를 정확히
 긋는 것이 이 RFC의 목적이다.
 
-## 1. Observation — 기존 Evidence와 현재 사용처 상태
+## 3. Analysis & Decision
+
+### 1. Observation — 기존 Evidence와 현재 사용처 상태
 
 | 항목 | 상태 |
 |---|---|
@@ -61,9 +80,9 @@ Freedom)이 이미 확립한 원칙 — "Evidence의 부재 자체는 구현 기
 | **현재 실제 Jarvis 사용처** | **없음** — Development HQ/Investment HQ 어떤 코드도 Graphify를 참조하지 않는다. 이 사실을 그대로 인정한다(사용자 지시 3번) |
 | 대응하는 Kernel Module | 없음 — Memory(Context/Knowledge 저장·전달 후보)는 `ADC-0001` Module 3에서 **Defer**됐고, 이 RFC는 그 상태를 재론하지 않는다 |
 
-## 2. Boundary Question
+### 2. Boundary Question
 
-### Q-1. Graphify를 승인된 비강제 Implementation Technology 후보로 확정할 것인가
+#### Q-1. Graphify를 승인된 비강제 Implementation Technology 후보로 확정할 것인가
 
 - **Question**: 현재 실제 사용처가 없다는 사실을 그대로 인정한
   채로, "향후 Graph 기반 Memory/Knowledge/Relationship 요구가 실제로
@@ -92,27 +111,7 @@ Freedom)이 이미 확립한 원칙 — "Evidence의 부재 자체는 구현 기
 - **ADC에서 결정할 사항**: (a)와 (b) 중 채택안, (a) 채택 시 "비강제"
   범위와 Memory Module Defer 상태와의 명시적 분리 서술.
 
-## 3. Architecture Impact
-
-- **없음(NONE)** — 이 RFC는 어떤 Kernel Module도 Accept/Defer
-  상태를 바꾸지 않는다. `ADC-02`/`ADC-09`를 포함해 어떤 Open
-  Decision도 재개설하지 않는다. §6 Concept Model, §10 Out of Scope,
-  §11 Kernel 정의, §16.7 Defer 목록 — 전부 무변경 대상이다.
-
-## 4. Contract Impact
-
-- 없음 — Public Contract를 변경하지 않는다.
-
-## 5. 이 RFC가 정의하지 않는 것 (경계)
-
-- Memory(또는 별도 Knowledge/Relationship) Kernel Module의 Accept
-  여부 — `ADC-0001` Module 3의 Defer는 이 RFC의 범위 밖이며 그대로
-  유지된다.
-- Graphify의 Claude Code 정식 연결(`graphify claude install`)이나
-  실제 코드/CLAUDE.md 배선 — 이 RFC는 승인 목록 등재 여부만 다룬다.
-- Production 적용 시점·방식.
-
-## Decision
+### Decision
 
 **Accept (Conditional·Non-Mandatory, Architecture 무연동)** —
 `docs/architecture/core/ADC-0035-graphify-implementation-technology-adoption.md`
@@ -121,3 +120,48 @@ Relationship 요구에 대한 승인된 비강제 구현 후보로 확정되며,
 Kernel Module(`ADC-0001` Module 3, Defer)과는 명시적으로 분리된다.
 즉시 Production 적용·Claude Code 정식 연결은 이 Decision으로 승인되지
 않는다.
+
+## 4. Evidence & Validation
+
+위 §3의 「1. Observation」 표 및 「2. Boundary Question」 Evidence 항목에 근거가 이미 포함되어 있어 별도 Evidence Summary 절로 분리하지 않는다.
+
+## 5. Consequences & Risks
+
+### 3. Architecture Impact
+
+- **없음(NONE)** — 이 RFC는 어떤 Kernel Module도 Accept/Defer
+  상태를 바꾸지 않는다. `ADC-02`/`ADC-09`를 포함해 어떤 Open
+  Decision도 재개설하지 않는다. §6 Concept Model, §10 Out of Scope,
+  §11 Kernel 정의, §16.7 Defer 목록 — 전부 무변경 대상이다.
+
+### 4. Contract Impact
+
+- 없음 — Public Contract를 변경하지 않는다.
+
+## 6. Open Questions & Change History
+
+### 5. 이 RFC가 정의하지 않는 것 (경계)
+
+- Memory(또는 별도 Knowledge/Relationship) Kernel Module의 Accept
+  여부 — `ADC-0001` Module 3의 Defer는 이 RFC의 범위 밖이며 그대로
+  유지된다.
+- Graphify의 Claude Code 정식 연결(`graphify claude install`)이나
+  실제 코드/CLAUDE.md 배선 — 이 RFC는 승인 목록 등재 여부만 다룬다.
+- Production 적용 시점·방식.
+
+### Related Documents
+
+| Type | ID | Relationship |
+|---|---|---|
+| ADC | `docs/architecture/core/ADC-0035-graphify-implementation-technology-adoption.md` | 이 RFC를 종결한 ADC |
+| ADR | `docs/architecture/core/ADR-0020-graphify-implementation-technology-adoption.md` | 후속 Baseline |
+| RFC | `docs/architecture/core/RFC-0031-langgraph-implementation-technology-adoption.md` | 동일 성격의 선행 Implementation Technology 사전 등재 사례 |
+| ADR | `docs/decisions/adr/ADR-0011-implementation-freedom-principle-baseline.md`(원문은 `ADR-0011`로 인용 — Kernel 트리 `docs/architecture/core/ADR-0011`과 ID 충돌, 내용상 Dev HQ 트리 문서로 확인) | Constraint 근거 |
+| Reference | `docs/architecture/core/ADC-0001-core-baseline.md` | Module 3(Memory, Defer) 인용 대상 |
+| Reference | `.claude/docs/integrations/graphify.md` | §1 Evidence(2026-08-30 검증) |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | Graphify를 향후 Graph 기반 Memory/Knowledge/Relationship 요구에 대비한 승인된 비강제 Implementation Technology 후보로 확정할지 판단 |
