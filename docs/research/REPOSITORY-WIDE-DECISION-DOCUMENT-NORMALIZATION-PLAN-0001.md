@@ -522,8 +522,23 @@ ExecLayer-ADR-0002) — 완료. 재검증 결과 ADR-0008만 얕은 인용 +
 ADC의 §번호 반복 인용)이 재확인되어 기법 C로 전환 처리했다(§9-6
 참조).
 
-**다음 배치 권장**: Batch 4(GovAdc Medium/High, Governance Hold
-6건 제외 약 3건, §5 기준). 착수 전 §9-5·§9-6의 재확인 절차(판정
+**[완료] Batch 4**(GovAdc High, Governance Hold 6건 제외 3건:
+`docs/governance/adc/ADC-0006.md`, `ADC-0007.md`, `ADC-0009.md`) —
+완료. Deep Reference Verification 결과 3건 전부 원래 계획대로
+기법 C(구조 보존형 재배치만, 압축 없음)가 필요함을 재확인했다 —
+`RFC-0008-ADC-0006-COMPLIANCE-VERIFICATION-0001.md`가 ADC-0006의
+Q1/Q2/Q3·Conditions 2~6을 라벨 단위로 반복 인용(실제 코드 준수
+여부 감사), `ADR-0009`(DevHQ)가 "ADC-0007 판단 1", `docs/governance/
+adc/ADC-0008.md`가 "ADC-0007(§ 판단 2)"를 직접 인용, `ADR-0011`
+(DevHQ)이 "ADC-0009 판단 1"·"판단 2"를 직접 인용 — 전부 §9-5가
+정의한 "깊은 내부 라벨 인용" 패턴에 해당한다. 3건 모두 원문 라벨
+(Q1~Q4, Conditions 1~8, Candidate A/B/C, 판단 1/2/3, Q-1/Q-2)을
+100% 보존하고 헤더 위치만 조정했다(압축 없음). GovAdc 6건
+(ADC-0001~0005, ADC-0008)은 Governance Hold로 이번 배치에서
+제외했다(§7).
+
+**다음 배치 권장**: Batch 5(Kernel-RFC Medium 25건, §5 기준 5건씩
+5개 세부 배치로 재분할). 착수 전 §9-5·§9-6의 재확인 절차(판정
 ADC/ADR의 §번호·라벨 직접 인용 여부 grep 재확인 + 감사용 verbatim
 블록 존재 여부 확인)를 반드시 먼저 수행하고, 발견되는 문서는
 기법 B/A 대신 기법 C로 전환하거나 verbatim 블록만 예외 보존할
