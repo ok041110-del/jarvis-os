@@ -307,18 +307,22 @@ Low 2건.
 
 | ID | 당시 방법론 수치(§1.2, 위 표) | 재검증 결과(§1.4, short-ID+라벨) | Governance Hold 기준(≥8 ∧ baseline_cite) | 처리 상태 |
 |---|---|---|---|---|
-| `ADC-0018` | Medium, cited-by=1, BASELINE-cited 없음 | `BASELINE.md` short-ID 1회(라벨 없는 얕은 "범위" 언급) | 미충족(count<8) | Medium 유지, 단 baseline_real_cite 신호는 있었음을 기록 |
+| `ADC-0018` | Medium, cited-by=1, BASELINE-cited 없음 | `BASELINE.md` short-ID 1회(라벨 없는 얕은 "범위" 언급) | 미충족(count<8) | **[결정, 2026-09-22] High로 재분류 확정** — §3 규칙("baseline_real_cite=True(위 기준 미만이라도)"는 High) 기계적 적용, Governance Hold 아님 |
 | `ADC-0021` | Medium, cited-by=4, BASELINE-cited 없음 | short-ID 인용 문서 **30건**(`BASELINE.md` 포함 14곳, §8 Gate (A)/(B)/(C)·§D1~D4 라벨) | **충족** | **Governance Hold로 재분류(§7 참조)** |
 | `ADC-0022` | Medium, cited-by=4, BASELINE-cited 없음 | short-ID 인용 문서 **20건**(`BASELINE.md` 포함 13곳, §D-0/§D-2/§D-5/§D-9/§D-11/§D-11c 라벨) | **충족** | **Governance Hold로 재분류(§7 참조)** |
 | `ADC-0023` | Medium, cited-by=3, BASELINE-cited 없음 | short-ID 인용 문서 **16건**(`BASELINE.md` 포함 10곳, §D-9a~§D-9f 라벨) | **충족** | **Governance Hold로 재분류(§7 참조)** |
-| `ADC-0024` | Medium, cited-by=2, BASELINE-cited 없음 | `BASELINE.md` short-ID 7회(§D-B4 라벨, 깊은 인용) | 미충족(count<8이나 baseline_real_cite=True) | High로 재분류 검토 필요(Governance Hold 아님) — 이번 승인 범위 밖, 별도 결정 필요 |
-| `ADC-0025` | Medium, cited-by=3, BASELINE-cited 없음 | `BASELINE.md` short-ID 6회(§D-C2/§D-C3 라벨, 깊은 인용) | 미충족(count<8이나 baseline_real_cite=True) | 상동 |
-| `ADC-0034` | Medium, cited-by=2, BASELINE-cited 없음 | `BASELINE.md` short-ID 2회(라벨 없는 얕은 changelog 언급) | 미충족(count<8) | Medium 유지, 단 baseline_real_cite 신호는 있었음을 기록 |
+| `ADC-0024` | Medium, cited-by=2, BASELINE-cited 없음 | short-ID 인용 문서 **10건**(`BASELINE.md` 포함 7곳, §D-B4 라벨) — 2026-09-22 독립 재검증으로 확정(트리 유일성 확인됨) | **충족(10≥8)** | **[결정, 2026-09-22] Governance Hold로 재분류(§7.2 참조)** |
+| `ADC-0025` | Medium, cited-by=3, BASELINE-cited 없음 | `BASELINE.md` short-ID 6회(§D-C2/§D-C3 라벨, 깊은 인용), 전체 short-ID 인용 문서 6건 | 미충족(6<8, baseline_real_cite=True) | **[결정, 2026-09-22] High로 재분류 확정** — 상동 규칙 적용 |
+| `ADC-0034` | Medium, cited-by=2, BASELINE-cited 없음 | `BASELINE.md` short-ID 2회(라벨 없는 얕은 changelog 언급), 전체 short-ID 인용 문서 5건 | 미충족(5<8, baseline_real_cite=True) | **[결정, 2026-09-22] High로 재분류 확정** — 상동 규칙 적용(인용이 얕더라도 규칙은 깊이를 조건으로 두지 않음) |
 
-**주의**: `ADC-0024`/`ADC-0025`/`ADC-0018`/`ADC-0034`의 재분류(Medium→High
-검토)는 이번 승인 범위(ADC-0021~0023의 Governance Hold 편입)에
-포함되지 않는다 — 이 표는 발견 사실만 기록하며, 이 4건에 대한 등급
-변경은 별도 사용자 결정 이후 진행한다.
+**결정 근거**: 위 4건(ADC-0018/0025/0034 High, ADC-0024 Governance
+Hold)의 재분류는 §3이 이미 확정한 등급 기준을 재검증된 Evidence에
+기계적으로 적용한 결과이며, 새 기준을 만들지 않았다. High 재분류는
+편집 기법을 "구조 보존형 재배치만, 압축 금지"로 제한할 뿐 사용자의
+개별 승인을 추가로 요구하지 않는다(§3 정의 자체가 그렇게 규정함) —
+따라서 이 3건은 결정을 확정하되, 실제 편집은 이 문서와 별도로
+착수한다. `ADC-0024`의 Governance Hold 편입은 §7.2에서 §7.1과
+동일한 절차로 기록한다.
 
 ### Kernel-ADR (26건)
 
@@ -519,14 +523,43 @@ Low 2건.
 그대로 적용한 결과이며, 새로운 기준을 만들지 않았다. Decision Group,
 정책 문구, ADC-0019의 보호 수준은 변경하지 않는다.
 
+### 7.2 [추가, 2026-09-22, Batch 6 잔여 22건 검증 중 발견] Governance Hold 확장 — ADC-0024
+
+Batch 6(Kernel-ADC Medium, ADC-0021~0023 제외 잔여 22건) 심층 검증
+중 `ADC-0024`가 §7.1과 동일한 기준으로 Governance Hold를 충족함을
+확인했다. §7.1의 3건과 별도 절로 분리해 기록하는 이유는, 이 3건은
+같은 조사 회차에서 함께 발견됐고 `ADC-0024`는 그 다음 회차(Batch 6
+잔여 22건 검증)에서 별도로 발견됐기 때문이다 — 발견 시점을 소급해서
+합치지 않는다.
+
+| 트리 | ID | 재검증 방법 | 실제 인용 수(short-ID, meta 제외) | `BASELINE.md` 인용 위치 수 | 비고 |
+|---|---|---|---|---|---|
+| Kernel-ADC | ADC-0024 | §1.4 절차(short-ID+라벨), 트리 유일성 확인됨(단일 파일) | 10 | 7곳(§D-B4) | `ADC-0025`가 `ADC-0024` §D-B4를 직접 승계 인용(BASELINE.md:1366), `ADC-0021` §8 조건 1·4와 같은 문장에서 병기 인용됨(BASELINE.md:1187) |
+
+**현재 유효 Hold 범위(Effective Scope, 갱신)**: 원본 17건 − Ratified
+4건(§7) + §7.1 신규 3건 + §7.2 신규 1건(ADC-0024) = **17건**이 현재
+실제로 Governance Hold 상태다. `ADC-0024` 원문은 이 조사에서 열람만
+했으며 수정하지 않았다.
+
+**ADC-0021~0023·ADC-0025와의 관계**: `ADC-0024`는 Gate (B) 완화
+체인의 시작점("1차 부분 완화")이며 `ADC-0025`("2차 부분 완화")가
+그 결론(§D-B4)을 직접 승계한다. `ADC-0021` §8 Gate (B) 진입 조건과도
+같은 문장에서 병기 인용된다(BASELINE.md:1187, 1224). 즉 `ADC-0024`는
+이미 Hold인 `ADC-0021`과 사실상 같은 Gate-chain 근거 사슬의 일부다
+— 이번 편입은 그 사슬을 뒤늦게 완전하게 만드는 것이지, 새로운
+성격의 위험을 추가하는 것이 아니다. `ADC-0025`는 인용 수(6)가
+임계값 미달이므로 Hold가 아니라 High로만 재분류한다(§4 표 참조) —
+Gate-chain 인접성만으로 Hold를 확대 적용하지 않는다(근거 없는
+추정 금지).
+
 ---
 
 ## 8. 변경 없이 유지를 권장하는 문서
 
 - 위 Governance Hold 원본 17건(§7) 중 13건(GovAdc ADC-0001/0002/0004/
   0005 제외, §7 갱신 참조) + §7.1로 신규 추가된 3건(ADC-0021/0022/
-  0023) = **현재 유효 Hold 16건** — 무기한이 아니라 "사용자 승인
-  전까지" 보류.
+  0023) + §7.2로 신규 추가된 1건(ADC-0024) = **현재 유효 Hold 17건**
+  — 무기한이 아니라 "사용자 승인 전까지" 보류.
 - `ADC-0019`(이미 별도 거버넌스 보류 확정, 이번 계획 범위 밖).
 - 이번 스크립트 신호 수집에서 포착되지 않았을 수 있는 **역사적
   Superseded/Not Accepted 문서**(예: 이미 다른 문서에 의해
@@ -647,20 +680,59 @@ ADC/ADR의 §번호·라벨 직접 인용 여부 grep 재확인 + 감사용 verb
 기법 B/A 대신 기법 C로 전환하거나 verbatim 블록만 예외 보존할
 것을 전제로 진행한다.
 
-**[추가, 2026-09-22] Batch 6(Kernel-ADC Medium 25건, §5) 착수 범위
-조정**: §7.1에서 `ADC-0021`/`ADC-0022`/`ADC-0023`이 Governance Hold로
-재분류됨에 따라, 이 3건은 Batch 6의 통상 정규화 대상에서 **제외**한다
-— 편집 착수는 이 3건에 대한 별도의 명시적 사용자 승인(경량 절차
-적용 여부 포함)이 있을 때까지 보류한다. Batch 6의 나머지 22건은
-이 조정과 무관하며, 이번 문서는 그 22건의 착수 여부를 결정하거나
-Batch 6을 완료로 표시하지 않는다 — 여전히 개별 재확인(§9-5·§9-6·
-§1.4)이 착수 전 선행 조건이다.
+**[갱신, 2026-09-22] Batch 6(Kernel-ADC Medium 25건, §5) 최종 경계 —
+Closed(부분 완료 + 전건 분류 완료)**.
+
+§7.1/§7.2에서 `ADC-0021`/`ADC-0022`/`ADC-0023`/`ADC-0024` 4건이
+Governance Hold로 재분류됨에 따라 이 4건은 Batch 6 실행 범위에서
+제외됐다(별도 승인 대기). 나머지 21건(원 25건 − Hold 4건)에 대해
+`BATCH6-COMPLETION-AND-BATCH7-READINESS-0001.md`가 개별 재확인
+(§9-5·§9-6·§1.4)을 수행하고 다음과 같이 최종 분류했다 — 전건이
+"미설명" 없이 분류됐다는 뜻이며, "정규화 완료"라는 뜻은 아니다.
+
+| 처리 | 대상 | 건수 |
+|---|---|---|
+| Normalized(이번 작업에서 실제 정규화) | ADC-0009, ADC-0037, ADC-0038, ADC-0041, ADC-0045 | 5 |
+| Reclassified(Medium→High, §4/§7 참조) | ADC-0018, ADC-0025, ADC-0034 | 3 |
+| Deferred — 후속 세부 배치(Batch 6b)로 이관, 이유는 아래 및 완료 보고서 참조 | ADC-0006, ADC-0007, ADC-0011, ADC-0012, ADC-0028, ADC-0029, ADC-0030, ADC-0032, ADC-0033, ADC-0035, ADC-0039, ADC-0044, ADC-0046 | 13 |
+| Governance Hold(§7.1/§7.2) | ADC-0021, ADC-0022, ADC-0023, ADC-0024 | 4 |
+| **합계** | | **25** |
+
+**Deferred 13건의 정확한 사유**: `ADC-0007`은 재검증 결과 실질 외부
+인용이 없어(§9-5 패턴 아님) 안전이 확인됐으나 문서 크기(531줄) 때문에
+이연했다. 나머지 12건은 §9-5 패턴(깊은 내부 라벨 인용, `BASELINE.md`
+직접 인용은 아님)이 확인되어 기법 C(구조 보존형 재배치만, 압축
+없음)가 필요하다고 판단됐다. 이번 세션은 §"배치 크기 원칙"(High/Hold
+인접 문서 1배치당 5건 상한)을 적용해 저위험·소규모 5건
+(ADC-0009/0037/0038/0041/0045, 위 Normalized 행)만 처리하고 나머지는
+개별 verbatim 검증 시간을 확보하기 위해 후속 배치로 넘겼다 — 내용을
+아직 읽지 않았다는 뜻이 아니라(전건 읽고 인용을 확인했다), 안전한
+편집 착수 전 마지막 라인 단위 검증까지는 별도 세션에서 수행한다는
+뜻이다. 상세 근거는 `BATCH6-COMPLETION-AND-BATCH7-READINESS-0001.md`
+참조.
+
+`ADC-0012`는 `ADC-0013`(Governance Hold)이 "§Decision Rationale"을
+직접 인용하는 교차 의존이 확인되어, 구조 보존형 재배치 자체는
+안전하다고 판단되나 Hold 문서와의 조율 확인을 별도로 남기기 위해
+Deferred로 분류했다(상세는 완료 보고서 §4.3).
+
+**Batch 7 진입 조건**: Batch 7(Kernel-ADR Medium 8건, §5 기준)은 이
+문서가 실행을 시작하지 않는다. 착수 전 §9-5·§9-6·§1.4 재확인 절차를
+반드시 선행해야 하며, Batch 6b(Deferred 13건, ADC-0012 포함)의 완료
+또는 명시적 이월 결정이 먼저 확정되어야 한다.
 
 ---
 
 ## 완료 조건 확인
 
-- 문서 수정: 없음(154건 전부 미수정, 인벤토리 수집을 위한 읽기만 수행).
-- Architecture/Contract 변경: 없음.
+- 문서 수정 누적 현황(2026-09-22 기준): Batch 1(2건) + Batch 2(6건) +
+  Batch 3(9건) + Batch 4(3건) + Batch 5(25건) + Batch 6(5건 정규화,
+  §10 표 참조) = **50건 실제 정규화 완료**. 이 계획 문서 자신과
+  Governance Hold 정책 문서는 별도(연구/절차 문서, 154건 카운트에
+  포함 안 됨). 남은 대상은 §5 표 기준 154 − 50(정규화) − 4(Hold
+  재분류로 별도 관리, ADC-0021~0024) − 3(High 재분류만 결정,
+  실제 편집 미착수, ADC-0018/0025/0034) = 97건(Batch 6b Deferred
+  13건 포함)이며, 전부 미정규화 상태로 남아 있다.
+- Architecture/Contract 변경: 없음(누적 전체, 이번 세션 포함).
 - Commit/Push: 이번 로컬 검토 단계에서는 수행하지 않음(사용자 검토 후 진행).
 
