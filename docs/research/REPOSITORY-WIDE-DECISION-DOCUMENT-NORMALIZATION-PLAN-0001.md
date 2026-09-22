@@ -65,6 +65,56 @@ RFC/ADC/ADR 문서에 대한 안전한 정규화 계획을 수립한다. **이 �
   의미적 판단(그 인용이 실제로 얼마나 논증에 의존적인지)은 하지
   않았다. 개별 문서 편집 시 그 인용 문맥을 직접 읽고 재확인해야 한다.
 
+### 1.4 [추가, 2026-09-22 검증] 방법론 보완 — short-ID + 라벨 인용 탐지
+
+**이 절은 §1.2를 대체하지 않는다.** §1.2의 전체 슬러그 매칭은 여전히
+유효한 1차 방법이며, 아래 결함이 있다고 해서 §1.2가 "틀렸다"는 뜻은
+아니다 — §1.2는 bare ID의 교차 트리 오탐(§1.2 "버그 수정 기록")을
+없애기 위해 **의도적으로** 전체 슬러그만 매칭하도록 설계됐다. 그
+설계 자체가 트레이드오프를 수반한다는 사실이 이번에 드러났다.
+
+**발견된 한계**: `Governance Hold` 등급의 기준 수치(`real_cite_count`
+≥ 8, `baseline_real_cite`=True)의 유래인 ADC-0019 사례("§Q2~§Q8을
+Frozen Baseline이 8곳에서 직접 인용", §1.2 참조)는 원래 **short-ID +
+§라벨 방식의 수동 grep**(HIGH-RISK 리뷰)으로 확인된 수치였다. 그런데
+이 임계값을 나머지 154건에 적용할 때는 **전체 슬러그 매칭만** 사용했다
+— 기준을 만든 측정 방법과 기준을 적용한 측정 방법이 달랐다.
+`docs/architecture/baseline/BASELINE.md`와 `projects/` 작업 문서들은
+관례적으로 전체 슬러그가 아니라 short-ID + §라벨(예: `` `ADC-0021`
+§8 Gate (B) ``)만 인용하므로, 전체 슬러그 매칭은 이 인용 방식을
+구조적으로 놓친다.
+
+**실제로 놓친 사례(2026-09-22 재검증 확인)**: `ADC-0021`/`ADC-0022`/
+`ADC-0023`(원래 Kernel-ADC Medium, §4 참조)이 `BASELINE.md`에
+short-ID + §라벨로 각각 14/13/10곳 인용되고 있었으나, §1.2의 전체
+슬러그 매칭으로는 `baseline_real_cite`=False로 판정됐다(§4 갱신
+참조). `ADC-0018`/`ADC-0024`/`ADC-0025`/`ADC-0034`도 같은 사각지대에서
+얕은 수준의 BASELINE.md 인용이 확인됐으나(§4 별도 각주), Governance
+Hold 임계값(≥8)에는 미달한다.
+
+**보완 절차(향후 모든 Batch에 적용)**:
+
+1. **트리 유일성 확인**: `find . -iname "<ID>-*.md"`로 대상 ID가 다른
+   트리에 존재하지 않음을 먼저 확인한다 — short-ID 검색은 이 확인
+   없이는 §1.2가 우려한 교차 트리 오탐을 그대로 재현한다.
+2. **전체 슬러그 검색**(§1.2 기존 방법 유지).
+3. **short-ID 검색을 `BASELINE.md`와 `projects/`에 한정 적용**(1단계
+   확인 후에만) — 이 두 위치가 실제 사각지대였다.
+4. **§ 번호·라벨 동반 여부로 얕음/깊음 구분**: `grep "<ID>[^0-9].*§\|
+   <ID>.*Q[0-9]\|<ID>.*판단\|<ID>.*조건"` 패턴. 라벨 없이 주제만
+   언급하는 인용(예: ADC-0018의 "범위" 1회 언급)은 얕은 인용으로,
+   §D-라벨·Q-번호·조건 번호를 동반한 인용(예: ADC-0021의 "§8 조건
+   1·4 미충족")은 깊은 인용으로 구분한다.
+5. **`baseline_real_cite` 판정 범위 확대**: "전체 슬러그가
+   `BASELINE.md`에 있는가" 단일 조건이 아니라, 위 1~4단계 중 어느
+   방법으로든 `BASELINE.md`가 해당 문서를 인용하는지로 판정한다.
+6. **수치와 근거를 재현 가능하게 기록**: `grep -n` 결과(라인 번호
+   포함)를 그대로 보고서에 인용한다.
+
+이 절은 §1.2의 원 수치를 무효화하지 않는다 — §4의 해당 문서 행에
+"당시 방법론 기준" 원 수치와 "보완 절차 재검증" 수치를 **병기**하는
+방식으로 반영한다(원 수치 삭제 없음).
+
 ---
 
 ## 2. 인벤토리 요약
@@ -252,6 +302,24 @@ Low 2건.
 | `ADC-0045` | 124 | checklist, cited-by=2 | Medium | Structural relocation + limited compression (per-doc citation check first) |
 | `ADC-0046` | 556 | checklist, cited-by=1 | Medium | Structural relocation + limited compression (per-doc citation check first) |
 
+**[갱신, 2026-09-22 재검증, §1.4 절차 적용 — 위 표의 원 수치는 당시
+방법론(§1.2, 전체 슬러그 매칭) 기준으로 변경하지 않고 그대로 둔다]**
+
+| ID | 당시 방법론 수치(§1.2, 위 표) | 재검증 결과(§1.4, short-ID+라벨) | Governance Hold 기준(≥8 ∧ baseline_cite) | 처리 상태 |
+|---|---|---|---|---|
+| `ADC-0018` | Medium, cited-by=1, BASELINE-cited 없음 | `BASELINE.md` short-ID 1회(라벨 없는 얕은 "범위" 언급) | 미충족(count<8) | Medium 유지, 단 baseline_real_cite 신호는 있었음을 기록 |
+| `ADC-0021` | Medium, cited-by=4, BASELINE-cited 없음 | short-ID 인용 문서 **30건**(`BASELINE.md` 포함 14곳, §8 Gate (A)/(B)/(C)·§D1~D4 라벨) | **충족** | **Governance Hold로 재분류(§7 참조)** |
+| `ADC-0022` | Medium, cited-by=4, BASELINE-cited 없음 | short-ID 인용 문서 **20건**(`BASELINE.md` 포함 13곳, §D-0/§D-2/§D-5/§D-9/§D-11/§D-11c 라벨) | **충족** | **Governance Hold로 재분류(§7 참조)** |
+| `ADC-0023` | Medium, cited-by=3, BASELINE-cited 없음 | short-ID 인용 문서 **16건**(`BASELINE.md` 포함 10곳, §D-9a~§D-9f 라벨) | **충족** | **Governance Hold로 재분류(§7 참조)** |
+| `ADC-0024` | Medium, cited-by=2, BASELINE-cited 없음 | `BASELINE.md` short-ID 7회(§D-B4 라벨, 깊은 인용) | 미충족(count<8이나 baseline_real_cite=True) | High로 재분류 검토 필요(Governance Hold 아님) — 이번 승인 범위 밖, 별도 결정 필요 |
+| `ADC-0025` | Medium, cited-by=3, BASELINE-cited 없음 | `BASELINE.md` short-ID 6회(§D-C2/§D-C3 라벨, 깊은 인용) | 미충족(count<8이나 baseline_real_cite=True) | 상동 |
+| `ADC-0034` | Medium, cited-by=2, BASELINE-cited 없음 | `BASELINE.md` short-ID 2회(라벨 없는 얕은 changelog 언급) | 미충족(count<8) | Medium 유지, 단 baseline_real_cite 신호는 있었음을 기록 |
+
+**주의**: `ADC-0024`/`ADC-0025`/`ADC-0018`/`ADC-0034`의 재분류(Medium→High
+검토)는 이번 승인 범위(ADC-0021~0023의 Governance Hold 편입)에
+포함되지 않는다 — 이 표는 발견 사실만 기록하며, 이 4건에 대한 등급
+변경은 별도 사용자 결정 이후 진행한다.
+
 ### Kernel-ADR (26건)
 
 | ID | Lines | Signals | Risk | Recommended Treatment |
@@ -428,12 +496,36 @@ Low 2건.
 승인에 따라 사후 추인됐다 — 현재 상태는 "Governance Hold"가 아니라
 "Ratified"다. 나머지 13건은 여전히 Governance Hold 상태를 유지한다.
 
+### 7.1 [추가, 2026-09-22, 사용자 승인] Governance Hold 확장 — ADC-0021/0022/0023
+
+위 17건 표는 §1.2(전체 슬러그 매칭) 방법론으로 최초 산출된 **원본
+목록**이며, 이 절 추가로 소급 수정하지 않는다. §1.4 보완 절차로
+재검증한 결과, 다음 3건이 Governance Hold 기준(`baseline_real_cite`
+=True ∧ `real_cite_count`≥8)을 충족함을 확인했다 — 원본 목록에는
+없었으나 **신규로 검증되어 추가된 항목**이다.
+
+| 트리 | ID | 재검증 방법 | 실제 인용 수(short-ID, meta 제외) | `BASELINE.md` 인용 위치 수 | 비고 |
+|---|---|---|---|---|---|
+| Kernel-ADC | ADC-0021 | §1.4 절차(short-ID+라벨) | 30 | 14곳(§8 Gate (A)/(B)/(C), §D1~D4) | `RFC-ADC-ADR-ID-UNIFICATION` 등 메타 문서 제외 후 수치 |
+| Kernel-ADC | ADC-0022 | §1.4 절차 | 20 | 13곳(§D-0/§D-2/§D-5/§D-9/§D-11/§D-11c) | 상동 |
+| Kernel-ADC | ADC-0023 | §1.4 절차 | 16 | 10곳(§D-9a~§D-9f) | 상동, `ADC-0019 §Q7·§Decision 조건 5`와 병기 인용됨(BASELINE.md:1221) |
+
+**현재 유효 Hold 범위(Effective Scope)**: 원본 17건 − Ratified 4건(§7
+갱신) + 신규 3건(§7.1) = **16건**이 현재 실제로 Governance Hold
+상태다. 이 16건에는 아직 어떤 편집도 가해지지 않았다(ADC-0021/0022/
+0023 원문은 이번 작업에서 열람만 했고 수정하지 않았다).
+
+**근거 추적성**: 이 3건의 편입은 §3의 기존 Governance Hold 정의를
+그대로 적용한 결과이며, 새로운 기준을 만들지 않았다. Decision Group,
+정책 문구, ADC-0019의 보호 수준은 변경하지 않는다.
+
 ---
 
 ## 8. 변경 없이 유지를 권장하는 문서
 
-- 위 Governance Hold 17건(§7) 중 13건(GovAdc ADC-0001/0002/0004/0005
-  제외, 위 갱신 참조) — 무기한이 아니라 "사용자 승인
+- 위 Governance Hold 원본 17건(§7) 중 13건(GovAdc ADC-0001/0002/0004/
+  0005 제외, §7 갱신 참조) + §7.1로 신규 추가된 3건(ADC-0021/0022/
+  0023) = **현재 유효 Hold 16건** — 무기한이 아니라 "사용자 승인
   전까지" 보류.
 - `ADC-0019`(이미 별도 거버넌스 보류 확정, 이번 계획 범위 밖).
 - 이번 스크립트 신호 수집에서 포착되지 않았을 수 있는 **역사적
@@ -554,6 +646,15 @@ ADC/ADR의 §번호·라벨 직접 인용 여부 grep 재확인 + 감사용 verb
 블록 존재 여부 확인)를 반드시 먼저 수행하고, 발견되는 문서는
 기법 B/A 대신 기법 C로 전환하거나 verbatim 블록만 예외 보존할
 것을 전제로 진행한다.
+
+**[추가, 2026-09-22] Batch 6(Kernel-ADC Medium 25건, §5) 착수 범위
+조정**: §7.1에서 `ADC-0021`/`ADC-0022`/`ADC-0023`이 Governance Hold로
+재분류됨에 따라, 이 3건은 Batch 6의 통상 정규화 대상에서 **제외**한다
+— 편집 착수는 이 3건에 대한 별도의 명시적 사용자 승인(경량 절차
+적용 여부 포함)이 있을 때까지 보류한다. Batch 6의 나머지 22건은
+이 조정과 무관하며, 이번 문서는 그 22건의 착수 여부를 결정하거나
+Batch 6을 완료로 표시하지 않는다 — 여전히 개별 재확인(§9-5·§9-6·
+§1.4)이 착수 전 선행 조건이다.
 
 ---
 
