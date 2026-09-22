@@ -37,19 +37,31 @@
 
 | Criterion | Weight / Priority | A | B | C | Notes |
 |---|---|---|---|---|---|
-| 추적성 | 높음 | 낮음 | 중간 | 높음 | fan-out/fan-in/partial-closure 표현력 기준 |
-| 기존 문서와의 호환성 | 필수(Issue #206 §7) | 불가 | 낮음 | 높음 | C만 기존 파일 무변경으로 병기 가능 |
-| Governance 적용 난이도 | 높음 | 매우 높음 | 높음 | 낮음 | C는 추가 전용 |
+| 가시성 | 참고 | 높음(번호만 봐도 연결 인지) | 중간(접미사 의미 학습 필요) | 중간(Group ID 별도 조회 필요하나 명시적) | |
+| 추적성 | 높음 | 낮음 — fan-out/fan-in 발생 시 번호 하나로 표현 불가 | 중간 — 분기는 표현되나 fan-in(다수 RFC→1 ADC)의 접미사 소속이 모호 | 높음 — Group이 N:M 관계를 그대로 수용 | fan-out/fan-in/partial-closure 표현력 기준 |
+| 분기 결정 지원 | 높음 | 지원 안 됨(구조적 불가) | 부분 지원(1:N만, N:1은 불명확) | 지원(1:N, N:1, partial-closure 모두 Group 하위 항목으로 표현 가능) | |
+| Open Decision 지원 | 중간 | 없음(RFC/ADC/ADR과 별도 체계 요구 — Issue #206 §5) | 없음(동일) | Group ID를 Open Decision에도 선택적으로 부여 가능(단, OD 고유 번호는 유지 — Issue #206 §5 "OD ID를 RFC·ADC·ADR 번호와 동일하게 변경하지 않는다"와 합치) | |
+| 기존 문서와의 호환성 | 필수(Issue #206 §7) | **불가** — 기존 141개 문서 전체 재번호 필요, 근거 없는 대량 변경(Issue #206 §7 금지 사항 위반) | 낮음 — 기존 파일에 접미사를 소급 부여하려면 파일명 변경 필요 | **높음** — 기존 파일명·ID 변경 없이 신규 Registry 문서로 병기 가능 | C만 기존 파일 무변경으로 병기 가능 |
+| 파일명·링크 변경 범위 | 높음 | 전체(141개 파일 + 모든 참조) | 부분적이나 여전히 광범위(분기 이력이 있는 모든 문서) | **0**(신규 Registry 1개 문서 추가만, 기존 파일 무변경) | |
+| 장기 유지보수성 | 중간 | 낮음(신규 fan-out 발생 시마다 재번호 반복 필요) | 중간(접미사 조합 폭발 가능성 — `-A-1` 등 중첩) | 높음(Group Registry에 행 추가만으로 확장) | |
+| Governance 적용 난이도 | 높음 | 매우 높음(전면 재번호 = 사실상 새 RFC→ADC→ADR 대량 재작업) | 높음(소급 적용 시 링크 전수 갱신 필요) | 낮음(추가 전용, 기존 절차와 충돌 없음) | C는 추가 전용 |
 
 ## 5. Recommendation & Decision Boundary
 
 | Item | Description |
 |---|---|
-| Recommendation | 후보 C의 "논리적 그룹" 개념만 채택하고, 점(`.`) 표기를 기존 파일명에 소급 적용하지 않는다 — 별도 Registry 문서로 구현(Scoped Accept) |
+| Recommendation | 후보 C의 "논리적 그룹" 개념만 채택하고, 점(`.`) 표기를 기존 파일명에 소급 적용하지 않는다 — 별도 Registry 문서로 구현(Scoped Accept). 후보 A는 실제 관측된 fan-out/fan-in을 표현할 수 없어 채택 불가. 후보 B는 fan-in과 중첩 분기(분기의 분기) 표현이 불명확하고, 소급 적용 시 파일명 변경이 불가피해 Issue #206 §7 위반 위험이 크다 |
 | Decision Boundary | `docs/governance/DECISION-GROUP-REGISTRY.md`(공식 전역 `DG-NNNN` 네임스페이스)의 설계 규칙만 확정한다. 이 ADC는 그 문서를 직접 생성하지 않는다 — 후속 구현 작업으로 지정 |
+| Rejected Alternatives | 후보 A(단순 공통 번호) — **Reject**: fan-out/fan-in 구조와 양립 불가, Issue #206 §7 위반. 후보 B를 파일명 접미사로 소급 반영하는 요소 — **Reject**: 기존 파일 무변경 원칙 위반 |
 | Out of Authority | 기존 RFC/ADC/ADR 파일 수정, Architecture Baseline 반영(이 결정은 Governance 절차 변경이며 Architecture Decision이 아니므로 ADR 대상이 아님) |
 | ADR Requirement | 불필요 — Registry 신설은 Baseline 변경이 아니라 순수 추가 문서 작업이므로 "ADR은 ADC에서 Accept/Promote로 판단된 사항을 Baseline 문서 변경 결정으로 기록"하는 정의에 해당하지 않는다 |
 | Re-evaluation Trigger | 신규 fan-out/fan-in 사례 발생 시 Registry에 행 추가(재번호 불필요) |
+
+## Architecture 및 Public Contract 영향
+
+- Architecture 변경: **No** — Kernel/Execution Layer의 어떤 구조·Contract도 변경하지 않는다. Decision Group Registry는 순수 문서 색인이다.
+- Public Contract 변경: **No**.
+- 이 판단으로 Baseline 문서(BASELINE.md 등) 반영이 필요한 항목: 없음.
 
 ## 6. Open Questions
 
@@ -90,3 +102,5 @@
 | Date | Change | Reason |
 |---|---|---|
 | — | 최초 작성 | Issue #206 통합 식별자 체계 판단 |
+| 2026-09-20 | PR #214에서 6-섹션 템플릿으로 압축(§4 Evaluation 8개 기준 중 5개 삭제, 후보 A/B에 대한 명시적 Reject 판단 문구 삭제, "Architecture 및 Public Contract 영향" 섹션 삭제) | Repository-wide 정규화 작업 |
+| 2026-09-22 | 삭제된 §4 평가 기준 5개, 후보 A/B Reject 판단, Architecture/Public Contract 영향 선언을 복원 | Open Issues Resolution & Evidence Preservation 작업 — 사후 감사 결과 Decision rationale 손실로 판정, Decision/Status 자체는 무변경 |

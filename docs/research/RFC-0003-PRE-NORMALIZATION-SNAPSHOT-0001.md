@@ -1,27 +1,65 @@
-# RFC-0003 — Development HQ를 AI Native SDLC Platform으로 재정의
+# RFC-0003-PRE-NORMALIZATION-SNAPSHOT-0001
 
-## 1. Identity & Status
+## 0. Provenance
 
-| Field | Value |
-|---|---|
-| ID | RFC-0003 |
-| Status | Resolved — `docs/governance/adc/ADC-0003.md` → `ADR-0001`(판단 1에 한해)로 종결됨(STABILITY-0001 §1.2). 이 라벨은 절차 진행 상태만 반영하며, RFC 자체는 결정 문서가 아니다 |
-| Owner / Scope | Development HQ 내부 구조(Workflow 내용, 내부 조직 구조, Agent 구성, Capability 목록) — Jarvis OS Architecture Baseline, Meta Architecture, Concept Model, System Boundary는 변경 대상이 아니다 |
+- **목적**: `docs/decisions/rfc/RFC-0003-development-hq-sdlc-pivot.md`가
+  PR #214("RFC/ADC/ADR 통합 원장 및 결정 문서 구조 정규화")의 6-섹션
+  템플릿 압축(commit `34b82b6`, 2026-09-20)을 거치기 **이전** 원문을
+  byte-for-byte 보존한다.
+- **Source commit**: `94c47762b876c946f46246e59407d6ec79e40273`
+  (PR #214 branch의 base, `origin/main`).
+- **Source path**: `docs/decisions/rfc/RFC-0003-development-hq-sdlc-pivot.md`
+  (원문 321줄).
+- **보존 사유**: 2026-09-22 Open Issues Resolution 작업에서, PR #214의
+  압축(commit `34b82b6`)이 "결정/Evidence/Trade-off 내용 삭제 없음"이라고
+  자체 보고했으나, 실제 대조 결과 Capability Catalog(§10)·Responsibility
+  Catalog(§9)·Domain Model 표(§6)·Stage Definition 표(§8)·New
+  Philosophy 원문 인용(§2)이 삭제되었음을 확인했다. 이 근거들은
+  `docs/governance/adc/ADC-0003.md`의 "판단 2. Capability Catalog 확장
+  채택 여부"(Defer)가 인용하는 1차 근거이므로, 캐노니컬 문서
+  복원(RFC-0003 §4 재통합) 이후에도 **원본 그대로의 감사 기록**을
+  별도로 남겨 향후 재검증·재복원의 안전판으로 삼는다.
+- **캐노니컬 문서와의 관계**: 이 문서는 **결정 문서가 아니다**. 현재
+  유효한 RFC는 여전히 `docs/decisions/rfc/RFC-0003-development-hq-sdlc-pivot.md`
+  하나뿐이며, 이 스냅샷은 그 문서가 참조하는 이력 자료(historical
+  record)일 뿐 경쟁하는 두 번째 권위 버전이 아니다. 캐노니컬 문서의
+  Related Documents가 이 스냅샷을 가리킨다.
+- **관계 문서**: `docs/research/HIGH-RISK-DOCUMENT-PRESERVATION-REVIEW-0001.md`
+  (RFC-0020/RFC-0043/ADC-0019/ADR-0011 4건에 적용한 것과 동일한
+  "구조 보존형 재배치, 압축 금지" 원칙이 RFC-0003에는 사전 적용되지
+  않았음을 이번 작업이 사후 확인).
 
-> 이 RFC는 Jarvis OS Kernel을 설계하지 않는다. 이 RFC는 Development HQ의
-> 내부 구조(Workflow/조직/Agent/Capability)에 대한 제안이며, Development
-> HQ Baseline v1.0을 지금 대체하지 않는다. Baseline 변경은 ADC → ADR →
-> Baseline Update를 거쳐야만 성립한다.
+---
 
-## 2. Problem & Context
+## 1. 원문 전체 (`94c47762` 시점, verbatim)
 
-### 2.0 이 RFC가 하는 일과 하지 않는 일
+> 아래는 원본 Markdown을 그대로 인용한 것이며, 어떤 문장도 요약·재서술
+> 하지 않았다. 원본의 정확한 헤더 번호(§0~§14, Non-goals, 다음 절차)를
+> 그대로 유지한다.
+
+```markdown
+# RFC-0003: Development HQ를 AI Native SDLC Platform으로 재정의
+
+**Status**: Resolved — `docs/governance/adc/ADC-0003.md` → `ADR-0001`(판단 1에 한해)로 종결됨(STABILITY-0001 §1.2). RFC 자체는 결정 문서가 아니며, 이 라벨은 절차 진행 상태만 반영한다.
+**Author**: Claude Code (사용자 요청에 따른 방향 전환 제안 정리)
+**범위**: Development HQ 내부 구조(Workflow 내용, 내부 조직 구조, Agent 구성,
+Capability 목록) — Jarvis OS Architecture Baseline, Meta Architecture,
+Concept Model, System Boundary는 변경 대상이 아니다.
+
+> 이 RFC는 Jarvis OS Kernel을 설계하지 않는다.
+> 이 RFC는 Development HQ의 내부 구조(Workflow/조직/Agent/Capability)에
+> 대한 제안이며, Development HQ Baseline v1.0을 지금 대체하지 않는다.
+> Baseline 변경은 ADC → ADR → Baseline Update를 거쳐야만 성립한다.
+
+---
+
+## 0. 이 문서를 읽기 전에 — 이 RFC가 하는 일과 하지 않는 일
 
 이 RFC는 사용자가 제시한 "AI Native SDLC Platform" 방향 전환 요청을
 정리한 제안서다. 요청은 10개 산출물(Architecture, Directory Structure,
 Domain Model, Interface, Stage Definition, Responsibility Catalog,
 Capability Catalog, MVP 재구성 계획, 재사용 코드, 제거 코드)을 요구했고,
-이 RFC는 그 10개를 아래 §3~§4에서 각각 다룬다.
+이 RFC는 그 10개를 아래 §2~§11에서 각각 다룬다.
 
 다만 이 RFC는 다음을 **결정하지 않는다**.
 
@@ -32,14 +70,27 @@ Capability Catalog, MVP 재구성 계획, 재사용 코드, 제거 코드)을 �
   수정하지 않는다.
 - 아래에서 제안하는 내용 중 Jarvis OS Kernel의 책임 영역(Engine 호출,
   Multi-Engine 지원)과 겹치는 부분은 **이 RFC의 결정 범위 밖**이라고
-  명시적으로 표시했다(§2.2, §Non-Goals 참조). Development HQ는 그
-  영역을 스스로 결정할 권한이 없다(`development-hq/BOUNDARY.md`: "Engine
-  호출 | Kernel Engine Port/Adapter의 책임").
+  명시적으로 표시했다(§4, §12 참조). Development HQ는 그 영역을 스스로
+  결정할 권한이 없다(`development-hq/BOUNDARY.md`: "Engine 호출 | Kernel
+  Engine Port/Adapter의 책임").
 
 이 RFC가 통과되더라도 다음 절차(ADC → ADR → Baseline Update)를 거치기
 전까지는 Development HQ의 실제 코드나 문서가 바뀌지 않는다.
 
-### 2.1 New Philosophy (요청 그대로 인용)
+---
+
+## 1. Background
+
+Development HQ MVP-0001~MVP-0003 및 Governance(RFC-0001/0002,
+ADC-0001/0002, RT-0001)를 진행하는 과정에서, 다음 오픈소스/플랫폼을
+조사했다: OpenHands, Aider, LangGraph, CrewAI, OpenAI Agents SDK, AWS AI
+Native SDLC, Anthropic Claude Code Workflow. 그 결과, "Agent를
+오케스트레이션하는 Multi-Agent 시스템"보다 "SDLC 전체를 AI 중심으로
+오케스트레이션하는 플랫폼"이 Development HQ의 목표(Mission.md: "Jarvis OS
+Architecture Baseline v1.0이 실제 도메인에서 성립하는지 검증")에 더
+부합한다는 판단이 제기되었다.
+
+## 2. New Philosophy (요청 그대로 인용)
 
 > Development HQ는 AI Agent Platform이 아니다.
 > Development HQ는 AI Native Development Platform이다.
@@ -49,15 +100,7 @@ Design → Implementation → Validation → Release)를 AI 중심으로
 오케스트레이션하는 것이 목적이다. AI(Agent/Model)는 각 단계를 수행하는
 실행자(Execution)일 뿐, 설계의 중심이 아니다.
 
-| Item | Description |
-|---|---|
-| Problem | 사용자가 제시한 "AI Native SDLC Platform" 방향 전환 요청 — Development HQ를 "Agent Platform"이 아니라 SDLC 전체를 AI 중심으로 오케스트레이션하는 플랫폼으로 재정의할지 |
-| Context | Development HQ MVP-0001~0003 및 기존 Governance(RFC-0001/0002, ADC-0001/0002, RT-0001) 진행 중 OpenHands/Aider/LangGraph/CrewAI/OpenAI Agents SDK/AWS AI Native SDLC/Claude Code Workflow를 조사한 결과, "SDLC 전체 오케스트레이션"이 Development HQ Mission("Jarvis OS Architecture Baseline v1.0이 실제 도메인에서 성립하는지 검증")에 더 부합한다는 판단이 제기됨 |
-| Motivation | Stage(Repository Intelligence → Planning & Specification → Architecture & Design → Implementation → Validation → DevOps & Release) 조직화를 Jarvis OS Architecture Baseline 변경 없이 Development HQ Baseline 갱신만으로 반영 가능함을 확인 |
-| Scope | Development HQ 내부 구조 10개 산출물: Architecture, Directory Structure, Domain Model, Interface, Stage Definition, Responsibility Catalog, Capability Catalog, MVP 재구성 계획, 재사용 코드, 제거 코드 |
-| Non-Goals | Development HQ Baseline v1.0(BASELINE/MISSION/BOUNDARY/RESPONSIBILITY/STRUCTURE) 즉시 수정 안 함(Frozen 유지). Jarvis OS Architecture Baseline 수정 안 함. Execution Layer의 Multi-Model 지원(§2.2, §4 Boundary Risk)은 Jarvis OS Kernel 책임 영역이라 이 RFC의 결정 범위 밖(`development-hq/BOUNDARY.md`: "Engine 호출 \| Kernel Engine Port/Adapter의 책임") |
-
-### 2.2 기존 Baseline과의 정합성 검토 (중요 발견)
+## 3. 기존 Baseline과의 정합성 검토 (중요 발견)
 
 이 제안을 검토하면서, **이 방향 전환의 상당 부분이 실제로는 Architecture
 Drift가 아니라는 사실**을 확인했다. 그 근거는 다음과 같다.
@@ -80,45 +123,11 @@ Architecture Baseline을 전혀 건드리지 않고도 Development HQ Baseline
 교체 가능해야 한다"는 부분은 Development HQ의 권한 밖**이다. Engine 호출과
 그 표준 인터페이스(Port/Adapter)는 Jarvis OS Kernel의 책임이며
 (`development-hq/BOUNDARY.md`), Multi-Engine 지원은 MVP-0001부터 지금까지
-명시적으로 Out of Scope였다. 이 부분은 §3, §4 Boundary Risk에서 별도로
-다룬다.
+명시적으로 Out of Scope였다. 이 부분은 §4와 §12에서 별도로 다룬다.
 
-- ADC-0001은 Engine Gateway를 "Keep in MVP"로 판단했다: 단일 함수
-  (`call_engine()`)로 충분했고, 승격을 정당화할 관찰(복수 Engine 실사용)이
-  없었다.
-- RT-0001은 이 Candidate의 재평가 Trigger를 "Engine 수 ≥ 2"로 정의했다.
-- 이번 요청("Claude Code/GPT/Codex/Qwen 교체 가능")은 그 Trigger를
-  발생시키자는 제안과 사실상 같다. 이는 Development HQ가 혼자 결정할 수
-  있는 사안이 아니라, RT-0001이 이미 지정한 재평가 절차(→ 새 RFC
-  Observation → ADC)를 따라야 한다.
+## 4. 새로운 Architecture (요청 산출물 1)
 
-## 3. Questions & Alternatives
-
-### Questions for Review
-
-| ID | Question | Reason |
-|---|---|---|
-| Q-1 | Stage 기반 내부 조직화(§4.1 신규 Architecture, Directory, Domain Model, Stage Definition)를 Development HQ Baseline 갱신 대상으로 채택할지 | 새 조직 구조 도입 여부 확정 필요 |
-| Q-2 | Capability Catalog 확장(신규 12건 제안, §4.4)을 채택할지, 기존 7개로 유지할지 | 기존 7개 중 6개가 이미 6개 Stage 전부에 최소 1개씩 대응돼 세분화 필요성이 불명확 |
-| Q-3 | MVP-0004 이후 계획(Implementation/Validation/Repository Intelligence Stage 검증)을 승인할지 | 순차 검증 로드맵 확정 필요 |
-| Q-4 | Execution Layer의 Multi-Model 지원은 Development HQ ADC 범위가 아니라 Jarvis OS 수준 RFC로 별도 상정할지 | Engine 교체 가능성은 HQ 권한 밖(Kernel 책임) |
-
-### Alternatives to Consider
-
-| ID | Alternative | Description |
-|---|---|---|
-| A-1 | 새 Architecture(HQ 내부 구조) | Stage → Responsibility → Capability → Agent 계층을 Division/Team의 선택적 대체로 도입. 기존 `Workflow → Task → Capability → Agent`는 유지 |
-| A-2 | Execution Layer는 이번 RFC 범위 밖으로 유지 | Multi-Model 지원 구조를 설계하지 않고, §4.5(MVP 재구성)에서 "관찰을 얻기 위한 별도 MVP"로만 다룸 — ADC-0001의 "Keep in MVP" 판단과 RT-0001의 재평가 Trigger(Engine 수 ≥ 2)를 그대로 존중 |
-
-## 4. Proposed Direction
-
-> 검토를 위한 제안이며 최종 결정이 아님.
-
-### 4.1 Architecture (HQ 내부 구조)
-
-기존 STRUCTURE.md의 `Workflow → Task → Capability → Agent` 관계는 그대로
-유지된다. Stage는 그 위에 놓이는 조직화 계층일 뿐, Task가 Capability를
-거쳐 Agent에게 배분되는 관계 자체(Kernel의 Task 배분 책임)는 바뀌지 않는다.
+### 4.1 Development HQ 내부 구조 (HQ의 권한 범위 — 이 RFC가 제안 가능)
 
 ```
 Development HQ
@@ -132,6 +141,10 @@ Capability
 Agent (Execution Layer 구현체 중 하나)
 ```
 
+기존 STRUCTURE.md의 `Workflow → Task → Capability → Agent` 관계는 그대로
+유지된다. Stage는 그 위에 놓이는 조직화 계층일 뿐, Task가 Capability를
+거쳐 Agent에게 배분되는 관계 자체(Kernel의 Task 배분 책임)는 바뀌지 않는다.
+
 ```
 Stage
   ↓
@@ -144,15 +157,26 @@ Capability
 Agent (Execution Layer 구현체: Claude Code / Codex / 규칙 기반 함수 등)
 ```
 
-**Execution Layer(HQ의 권한 밖 — Jarvis OS 수준 논의 필요)**: "Model은
-교체 가능해야 한다"는 요구는 Engine Port/Adapter, 즉 Jarvis OS Kernel의
-책임 영역이다. 이 RFC는 이 부분의 최종 구조를 제안하지 않는다. Model을
-교체 가능한 형태로 만드는 Interface(예: 여러 Model 중 선택하는 표준
-인터페이스)도 이 RFC는 설계하지 않는다. **결론**: Execution Layer의
-Multi-Model 지원 여부는 §4.5(MVP 재구성 계획)에서 "관찰을 얻기 위한 별도
-MVP"로만 다루고, 이 RFC 자체는 그 구조를 결정하거나 설계하지 않는다.
+### 4.2 Execution Layer (HQ의 권한 밖 — Jarvis OS 수준 논의 필요)
 
-### 4.2 Directory Structure
+"Model은 교체 가능해야 한다"는 요구는 Engine Port/Adapter, 즉 Jarvis OS
+Kernel의 책임 영역이다. 이 RFC는 이 부분의 최종 구조를 제안하지 않는다.
+대신 현재 상태만 기록한다.
+
+- ADC-0001은 Engine Gateway를 "Keep in MVP"로 판단했다: 단일 함수
+  (`call_engine()`)로 충분했고, 승격을 정당화할 관찰(복수 Engine 실사용)이
+  없었다.
+- RT-0001은 이 Candidate의 재평가 Trigger를 "Engine 수 ≥ 2"로 정의했다.
+- 이번 요청("Claude Code/GPT/Codex/Qwen 교체 가능")은 그 Trigger를
+  발생시키자는 제안과 사실상 같다. 이는 Development HQ가 혼자 결정할 수
+  있는 사안이 아니라, RT-0001이 이미 지정한 재평가 절차(→ 새 RFC
+  Observation → ADC)를 따라야 한다.
+
+**결론**: Execution Layer의 Multi-Model 지원 여부는 이 RFC의 §7(MVP 재구성
+계획)에서 "관찰을 얻기 위한 별도 MVP"로만 다루고, 이 RFC 자체는 그 구조를
+결정하거나 설계하지 않는다.
+
+## 5. Directory Structure (요청 산출물 2)
 
 기존 디렉토리를 삭제하지 않고, Stage 조직화를 얹는 최소 변경안이다. 이는
 제안일 뿐이며, ADC 승인 전에는 적용하지 않는다.
@@ -175,13 +199,13 @@ development-hq/
 │   ├── 05_validation/
 │   └── 06_devops_release/
 └── mvp/                    (기존 유지 — MVP-0001~0003 코드/테스트는
-                              삭제하지 않는다. §4.6 참조)
+                              삭제하지 않는다. §9 참조)
 ```
 
 `stages/`는 이번 RFC에서 실제로 생성하지 않는다. ADC가 이 방향을 승인하고
 후속 MVP가 계획된 뒤에 만든다.
 
-### 4.3 Domain Model
+## 6. Domain Model (요청 산출물 3)
 
 | 개념 | 정의 | 기존 Concept Model과의 관계 |
 |---|---|---|
@@ -194,13 +218,19 @@ development-hq/
 Capability를 조직화하는 명명법일 뿐이며, 이는 이미 Development HQ가
 자유롭게 정의할 수 있는 영역(Workflow 내용, 내부 조직 구조)이다.
 
-**Interface**: Development HQ 수준에서 새 Interface를 정의하지 않는다.
-기존 MVP-0001의 `call_engine(prompt) -> str` 형태(단일 함수 호출)를
-Stage별 Capability 실행에도 그대로 재사용할 것을 제안한다. 즉, 각 Stage의
-각 Capability는 "입력을 받아 출력을 반환하는 함수 하나"로 표현되며, 이는
-지금 `engine.py` 구조와 동일하다.
+## 7. Interface (요청 산출물 4)
 
-### 4.3.1 Stage Definition
+Development HQ 수준에서 새 Interface를 정의하지 않는다. 기존 MVP-0001의
+`call_engine(prompt) -> str` 형태(단일 함수 호출)를 Stage별 Capability
+실행에도 그대로 재사용할 것을 제안한다. 즉, 각 Stage의 각 Capability는
+"입력을 받아 출력을 반환하는 함수 하나"로 표현되며, 이는 지금 `engine.py`
+구조와 동일하다.
+
+Model을 교체 가능한 형태로 만드는 Interface(예: 여러 Model 중 선택하는
+표준 인터페이스)는 §4.2에서 설명한 대로 Jarvis OS Kernel의 Engine
+Port/Adapter 영역이며, 이 RFC는 그 Interface를 설계하지 않는다.
+
+## 8. Stage Definition (요청 산출물 5)
 
 요청된 6개 Stage를 그대로 채택한다. 각 Stage는 Development HQ 내부의
 선택적 조직 구조(Division/Team 대체)로 취급한다.
@@ -214,7 +244,7 @@ Stage별 Capability 실행에도 그대로 재사용할 것을 제안한다. 즉
 | Validation | 구현 결과를 검증한다 | OpenHands, Claude Code |
 | DevOps & Release | 배포와 운영을 자동화한다 | AWS AI Native SDLC |
 
-### 4.3.2 Responsibility Catalog
+## 9. Responsibility Catalog (요청 산출물 6)
 
 | Stage | Responsibility |
 |---|---|
@@ -225,7 +255,7 @@ Stage별 Capability 실행에도 그대로 재사용할 것을 제안한다. 즉
 | Validation | Unit Test, Integration Test, Review, Lint, Security, Performance |
 | DevOps & Release | CI, CD, Release, Monitoring |
 
-### 4.4 Capability Catalog (제안)
+## 10. Capability Catalog (요청 산출물 7)
 
 `development-hq/STRUCTURE.md`의 기존 Capability 목록은 "예시일 뿐이며
 확정 목록이 아니다"라고 이미 명시되어 있다. 아래는 위 Responsibility를
@@ -262,9 +292,9 @@ Stage별 Capability 실행에도 그대로 재사용할 것을 제안한다. 즉
 `deployment`, `design`, `incident_response`, `requirement_analysis`,
 `test_execution`)가 이미 6개 Stage 전부에 최소 1개씩 대응된다. 즉 기존
 Capability 목록은 이미 SDLC 전 단계를 성글게나마 커버하고 있었다 —
-"세분화가 필요한가"는 이 RFC가 결정하지 않고, ADC 대상(Q-2)으로 남긴다.
+"세분화가 필요한가"는 이 RFC가 결정하지 않고, ADC 대상으로 남긴다.
 
-### 4.5 MVP 재구성 계획
+## 11. MVP 재구성 계획 (요청 산출물 8)
 
 새 Architecture를 한 번에 구현하지 않는다. 기존 Governance 흐름(MVP →
 RFC → ADC → RT)을 그대로 재사용해, Stage 하나씩 순차적으로 검증한다.
@@ -278,7 +308,7 @@ RFC → ADC → RT)을 그대로 재사용해, Stage 하나씩 순차적으로 �
 각 MVP는 지금까지와 동일한 규율을 따른다: 최소 구현, Architecture Drift
 금지, Observation 우선, Stop Trigger 발생 시 RFC로 에스컬레이션.
 
-### 4.6 재사용/제거 코드
+## 12. 기존 MVP에서 재사용 가능한 코드 (요청 산출물 9)
 
 | 기존 코드 | 재사용 방식 |
 |---|---|
@@ -289,15 +319,16 @@ RFC → ADC → RT)을 그대로 재사용해, Stage 하나씩 순차적으로 �
 | `development-hq/mvp/tests/test_mvp_0001.py` | Validation Stage 자체 검증(회귀 테스트)으로 그대로 재사용 |
 | RFC-0001/0002, ADC-0001/0002, RT-0001 | Governance 흐름 자체를 그대로 재사용. 새 Governance 문서 종류를 만들지 않는다 |
 
-**제거해야 하는 코드: 없음.** MVP-0001~0003의 코드는 모두 리터럴
-딕셔너리, 단일 함수 호출, 하드코딩된 조건 분기 수준이며, 이는
-"Multi-Agent 오케스트레이션 프레임워크" 성격을 띠지 않는다. Stage 기반
-재조직은 기존 코드를 삭제할 이유를 만들지 않는다. 필요하다면 파일 위치
-이동(예: `mvp/agents.py`의 일부 함수를 `stages/04_implementation/`,
-`stages/05_validation/` 문서가 참조하는 형태)만 있을 뿐, 삭제 대상은
-없다.
+## 13. 제거해야 하는 코드 (요청 산출물 10)
 
-### 4.7 Boundary Risk (Architecture 문제 기록 — 직접 해결하지 않음)
+**없음.** MVP-0001~0003의 코드는 모두 리터럴 딕셔너리, 단일 함수 호출,
+하드코딩된 조건 분기 수준이며, 이는 "Multi-Agent 오케스트레이션 프레임워크"
+성격을 띠지 않는다. Stage 기반 재조직은 기존 코드를 삭제할 이유를 만들지
+않는다. 필요하다면 파일 위치 이동(예: `mvp/agents.py`의 일부 함수를
+`stages/04_implementation/`, `stages/05_validation/` 문서가 참조하는
+형태)만 있을 뿐, 삭제 대상은 없다.
+
+## 14. Boundary Risk (Architecture 문제 기록 — 직접 해결하지 않음)
 
 - **Execution Layer의 Multi-Model 지원**은 Jarvis OS Kernel의 Engine
   Port/Adapter 책임과 겹친다. Development HQ Governance만으로는 결정할
@@ -306,27 +337,35 @@ RFC → ADC → RT)을 그대로 재사용해, Stage 하나씩 순차적으로 �
   승격이 선행되어야 한다.
 - 이 사실은 여기 기록만 하며, 이 RFC는 그 경계 문제를 해결하지 않는다.
 
-## 5. Requested Review
+## Non-goals
 
-| Review Item | Description |
-|---|---|
-| Required Review | ADC-0003이 Q-1~Q-4를 개별 판단 |
-| Expected Feedback | Stage 조직화 채택 여부, Capability 확장 범위, MVP-0004 이후 로드맵 승인 여부 |
+- 이 RFC는 Development HQ Baseline이나 Jarvis OS Architecture Baseline을
+  지금 변경하지 않는다.
+- 이 RFC는 Execution Layer(Multi-Model 실행)의 최종 구조를 설계하지
+  않는다.
+- 이 RFC는 `stages/` 디렉토리나 신규 Capability를 지금 생성/구현하지
+  않는다.
+- 이 RFC는 RFC-0001/0002, ADC-0001/0002, RT-0001을 수정하지 않는다.
 
-## Related Documents
+## 다음 절차
 
-| Type | ID | Relationship |
-|---|---|---|
-| RFC | — | 없음(선행 RFC 없음) |
-| ADC | `docs/governance/adc/ADC-0003.md` | 이 RFC의 Q-1~Q-4를 판단, 판단 1을 Accept |
-| ADR | `docs/decisions/adr/ADR-0001-development-hq-stage-baseline-update.md` | ADC-0003 판단 1을 Baseline 반영으로 구현 |
-| Open Decision | — | Model Routing/Engine Adapter/Multi Model(Q-4)은 Jarvis OS 수준 ADC-01/03·`RFC_CANDIDATES.md` Candidate 3·4의 정식 RFC 승격 대상으로 기록만 함(직접 해결하지 않음) |
-| Historical Snapshot | `docs/research/RFC-0003-PRE-NORMALIZATION-SNAPSHOT-0001.md` | PR #214 정규화 이전(커밋 `94c47762`) 원문 스냅샷 — 이 문서의 §4가 복원한 근거의 원출처 |
+이 RFC는 ADC-0003에서 다음을 개별적으로 판단할 것을 제안한다.
 
-## Change History
+1. Stage 기반 내부 조직화(§4.1, §5, §6, §8)를 Development HQ Baseline
+   갱신 대상으로 채택할지
+2. Capability Catalog 확장(§10)을 채택할지, 기존 7개로 유지할지
+3. MVP-0004 이후 계획(§11)을 승인할지
+4. Execution Layer의 Multi-Model 지원(§4.2, §14)은 Development HQ ADC의
+   범위가 아니라 Jarvis OS 수준 RFC로 별도 상정할지
 
-| Date | Change | Reason |
-|---|---|---|
-| — | 최초 작성 | 사용자 요청에 따른 방향 전환 제안 정리 |
-| 2026-09-20 | PR #214에서 6-섹션 템플릿으로 압축(Capability/Responsibility Catalog, Domain Model 표, Stage Definition 표, New Philosophy 원문 인용, Directory 구조도 등 삭제) | Repository-wide 정규화 작업 — 사후 감사 결과 Evidence 손실로 판정 |
-| 2026-09-22 | 압축 이전 근거·표·인용문을 전부 복원(§2.1, §2.2, §4.1~§4.7) — Identity & Status 표, Q-1~Q-4 라벨 등 정규화의 구조적 개선분은 유지 | Open Issues Resolution & Evidence Preservation 작업 — 삭제된 내용이 ADC-0003 판단(특히 Capability Catalog 확장 여부, §Q-2)의 1차 근거였음을 확인 |
+이 RFC 자체는 위 4개 중 어느 것도 결정하지 않는다.
+```
+
+---
+
+## 2. 완료 조건 확인
+
+- 이 문서는 순수 인용/보관 목적이며, 원문을 요약·재해석·삭제하지 않았다.
+- 캐노니컬 RFC-0003(`docs/decisions/rfc/RFC-0003-development-hq-sdlc-pivot.md`)의
+  Status/Decision을 변경하지 않는다 — 이 문서 자체는 Status를 갖지
+  않는다(결정 문서가 아님).
