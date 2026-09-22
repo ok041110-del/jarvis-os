@@ -1,18 +1,22 @@
 # ADC-0041: Stage 05 QA Multi-Agent/Parallel Decision (RFC-0038 후속)
 
-## 목적
+## 1. Identity & Status
 
-`RFC-0038-stage05-qa-multi-agent-boundary.md`의 조사를 근거로, Stage 05
-Validation의 Case A(현재, Code Review만)/B(Code Review + QA Agent,
-Deterministic Gate)/C(B + 병렬 실행 + Deterministic Aggregation) 중
-어느 것을 Production Architecture로 채택할지 공식 Decision을 내린다.
+| Field | Value |
+|---|---|
+| ID | ADC-0041 |
+| Status | NOT DETERMINED — Real Engine Evidence Required |
+| Owner / Scope | `RFC-0038-stage05-qa-multi-agent-boundary.md`의 조사를 근거로, Stage 05 Validation의 Case A(현재, Code Review만)/B(Code Review + QA Agent, Deterministic Gate)/C(B + 병렬 실행 + Deterministic Aggregation) 중 어느 것을 Production Architecture로 채택할지 공식 Decision |
+
+## 2. Context & Problem
+
 `ADC-0040`(Stage 04 Multi-Agent, 동일 판정 구조)과 같은 원칙을
 따른다 — `RFC-0038`의 조사 내용(독립성 확인, Cost 분석, QA Agent
 실제 미호출 확인)을 재론하지 않고 그 결론 위에서 판정한다.
 
----
+## 3. Analysis & Decision
 
-## Q1. Evidence 충분성 재확인
+### Q1. Evidence 충분성 재확인
 
 `RFC-0038` §0.2·§2.6이 이미 확인한 대로, QA Agent
 (`qa_agent_test_execution`)는 Stage 05(v2.0 Validation) 경로로 **단
@@ -24,14 +28,14 @@ Deterministic Gate)/C(B + 병렬 실행 + Deterministic Aggregation) 중
 "1회 관찰은 Evidence로 인정하지 않는다")과 같은 기준을 적용하면,
 **0건의 실제 관찰**은 명백히 미달이다.
 
-## Q2. Case A 유지가 여전히 안전한 선택인가
+### Q2. Case A 유지가 여전히 안전한 선택인가
 
 **예.** Case A(Code Review만)는 이미 Production에서 동작 중이며
 (`stage_05.py`, `test_stage_05.py`), 변경하지 않아도 Stage 05 Public
 Contract·상위 Workflow 연결성 어느 것도 위험에 처하지 않는다. Case A를
 유지하는 데 드는 추가 비용은 없다.
 
-## Q3. RFC-0038이 발견한 추가 제약(Stage 04에는 없던 것)이 지금 확정될 수 있는가
+### Q3. RFC-0038이 발견한 추가 제약(Stage 04에는 없던 것)이 지금 확정될 수 있는가
 
 **아니오, 오히려 새 Open Item을 만든다.** `RFC-0038` §2.2가 확인한 대로
 `qa_agent_test_execution(code, review)`의 현재 시그니처는 Code Review
@@ -41,9 +45,7 @@ QA Agent는 **Contract를 바꾸지 않는 한 병렬화 자체가 불가능**�
 별개로 이미 결정 대상이며, 이 ADC는 그 설계에 착수하지 않는다(구현
 금지, §Validation Requirements 3번).
 
----
-
-## Decision
+### Decision
 
 **NOT DETERMINED — Real Engine Evidence Required.**
 
@@ -52,7 +54,7 @@ QA Agent는 **Contract를 바꾸지 않는 한 병렬화 자체가 불가능**�
 상태에서 Multi-Agent Production Architecture를 확정하지 않는다
 (`ADC-0040`과 동일 원칙).
 
-### 이 Decision이 하는 것
+#### 이 Decision이 하는 것
 
 - Case A(현재, Code Review만)를 **잠정 유지**한다 — "Case B/C가
   틀렸다"는 판정이 아니라 "아직 판정할 수 없다"는 것이다.
@@ -65,7 +67,7 @@ QA Agent는 **Contract를 바꾸지 않는 한 병렬화 자체가 불가능**�
   수정하지 않고(역사적 기록 보존, `ADC-0036` §Decision 2와 동일
   원칙), 이 ADC와 `RFC-0038`을 교차 참조로만 남긴다.
 
-### 이 Decision이 하지 않는 것
+#### 이 Decision이 하지 않는 것
 
 - QA Agent의 실제 활성화(Stage 05 호출부 추가) — 미착수.
 - QA Agent 시그니처 재설계(`review` 의존 제거) — 미착수.
@@ -73,9 +75,9 @@ QA Agent는 **Contract를 바꾸지 않는 한 병렬화 자체가 불가능**�
   `stages/contracts.py` 변경 — 전부 무변경.
 - Engine Contract·Stage 05 Public Contract 변경 — 전부 무변경.
 
----
+## 4. Consequences & Risks
 
-## Validation Requirements — Case B/C를 재판정하려면 필요한 것
+### Validation Requirements — Case B/C를 재판정하려면 필요한 것
 
 1. **QA Agent Contract 재설계 여부 결정**: 현재 시그니처(`code, review`)를
    유지한 채 순차(Sequential Handoff, Stage 04 Target Identification →
@@ -96,7 +98,9 @@ QA Agent는 **Contract를 바꾸지 않는 한 병렬화 자체가 불가능**�
    Scope 변경 절차, `VALIDATION.md` 자신이 명시)을 거친다 — 이 ADC는
    그 절차를 대신하지 않는다.
 
-## Open Questions
+## 5. Open Questions & Change History
+
+### Open Questions
 
 - QA Agent를 병렬 실행하려면 `IMPLEMENTATION_RULES.md` "Execution
   Host 허용 범위" 또는 Stage 01의 `ParallelRunner`(ThreadPoolExecutor
@@ -109,18 +113,18 @@ QA Agent는 **Contract를 바꾸지 않는 한 병렬화 자체가 불가능**�
   더 나쁜 제안으로 이어지는지)는 Not Determined — 이는 §Validation
   Requirements 2번의 실제 Evidence가 있어야 답할 수 있다.
 
-## ADR 여부
+### ADR 여부
 
 **이번 세션에서 ADR을 작성하지 않는다.** Decision이 TRANSITION이 아니라
 NOT DETERMINED이므로, `ADC-0040`이 세운 것과 동일한 원칙을 따른다.
 
-## 구현 금지 확인
+### 부록: 구현 금지 확인
 
 이 ADC는 다음을 하지 않았다: `stage_05.py` 변경, QA Agent 활성화,
 Engine 변경, Contract 변경, `RESPONSIBILITY.md`/`VALIDATION.md` 변경.
 문서 2건(이 ADC + `RFC-0038`)만 추가했다.
 
-## Self Review
+### 부록: Self Review
 
 - Real Engine Evidence 없이 Production Architecture를 승인했는가 —
   **아니오**(NOT DETERMINED로 명시).
@@ -133,12 +137,20 @@ Engine 변경, Contract 변경, `RESPONSIBILITY.md`/`VALIDATION.md` 변경.
 - commit/push/PR을 수행했는가 — 이 파일 작성 이후 별도로 수행한다
   (PR은 사용자 지시에 따라 생성하지 않는다).
 
-## Related
+### Related Documents
 
-- `docs/architecture/core/RFC-0038-stage05-qa-multi-agent-boundary.md`
-- `docs/architecture/core/ADC-0040-stage04-multi-agent-ponytail-decision.md`(동일
-  판정 구조 선례)
-- `docs/architecture/core/RFC-0030-dev-hq-stage-agent-team-boundary-analysis.md`
-- `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md`
-- `hqs/development/stages/05_validation/`
-- `hqs/development/mvp/agents/qa.py`, `hqs/development/mvp/parallel_runner.py`
+| Type | Path |
+|---|---|
+| RFC | `docs/architecture/core/RFC-0038-stage05-qa-multi-agent-boundary.md` |
+| Precedent | `docs/architecture/core/ADC-0040-stage04-multi-agent-ponytail-decision.md`(동일 판정 구조 선례) |
+| Reference | `docs/architecture/core/RFC-0030-dev-hq-stage-agent-team-boundary-analysis.md` |
+| Reference | `docs/architecture/core/ADR-0024-multi-engine-architecture-adoption.md` |
+| Code | `hqs/development/stages/05_validation/` |
+| Code | `hqs/development/mvp/agents/qa.py`, `hqs/development/mvp/parallel_runner.py` |
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0038 Stage 05 QA Multi-Agent/Parallel Decision(NOT DETERMINED) |
+| 2026-09-22 | 6-섹션 템플릿으로 구조 보존형 재배치(Identity & Status 표 추가, 헤딩 레벨 조정, Related를 표 형식으로 재정리) — Status 문구("NOT DETERMINED — Real Engine Evidence Required") byte 단위 보존, Q1~Q3·Validation Requirements 1~5 전부 verbatim 유지, 압축 없음 | Batch 6 정규화 |

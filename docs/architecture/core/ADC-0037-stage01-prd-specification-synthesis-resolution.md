@@ -1,12 +1,14 @@
 # ADC-0037: Stage 01 PRD/Specification Synthesis — Decision
 
-## 목적
+## 1. Identity & Status
 
-`RFC-0034-stage01-prd-specification-synthesis.md`의 판단(Stage 01/02
-책임 재분배, `ContextAnalysisResult`에 `prd` 키 추가)을 Decision으로
-확정한다.
+| Field | Value |
+|---|---|
+| ID | ADC-0037 |
+| Status | Accept — Scoped |
+| Owner / Scope | `RFC-0034-stage01-prd-specification-synthesis.md`의 판단(Stage 01/02 책임 재분배, `ContextAnalysisResult`에 `prd` 키 추가)을 Decision으로 확정 |
 
-## Context
+## 2. Context & Problem
 
 Stage 02가 담당하던 Requirement & Specification 생성 Capability(Engine
 1회 호출, `requirements_agent_requirement_analysis()` 재사용)를 Stage
@@ -18,7 +20,9 @@ Acceptance + Implementation Planning"으로 재정의한다. RFC-0034가 확인�
 Contract·`SpecificationResult`(Stage 02 Output) 어느 것도 바꾸지
 않는다.
 
-## Decision
+## 3. Analysis & Decision
+
+### Decision
 
 **Accept — Scoped.**
 
@@ -48,7 +52,7 @@ Contract·`SpecificationResult`(Stage 02 Output) 어느 것도 바꾸지
    Planning 책임은 이 ADC의 판단 대상이 아니다 — 이번 반복에서
    구현하지 않는다.
 
-## 판단 근거 요약 (RFC-0034 인용)
+### 판단 근거 요약 (RFC-0034 인용)
 
 - 새 Capability/Agent가 필요한가 — **아니다**, 기존
   `requirements_agent_requirement_analysis()`를 호출 위치만 옮겨
@@ -58,15 +62,26 @@ Contract·`SpecificationResult`(Stage 02 Output) 어느 것도 바꾸지
 - `SpecificationResult`가 바뀌는가 — **아니다**, Stage 02는 passthrough로
   동일 Output Contract를 유지한다.
 
-## Out of Scope
+## 4. Consequences & Risks
+
+### Out of Scope
 
 - Stage 02 Task/Dependency/Acceptance/Planning 실제 구현.
 - Stage 01 Dependency Analysis 재구현.
 - LangGraph/Graphify 도입.
 - Agent Domain/Lifecycle/State/Message/Event Contract 재정의.
 
-## Next Step
+## 5. Open Questions & Change History
+
+### Next Step
 
 `ADR-0022-stage01-prd-specification-synthesis-baseline.md`로 Baseline
 문서(`hqs/development/BASELINE.md`, Stage 01/02 RESPONSIBILITY/CONTEXT/
 SPECIFICATION.md) 반영을 확정 선언한다.
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0034 Stage 01 PRD/Specification Synthesis 판단을 Decision으로 확정 |
+| 2026-09-22 | 6-섹션 템플릿으로 구조 보존형 재배치(Identity & Status 표 추가, 헤딩 레벨 조정) — Decision 1~7 항목·Out of Scope 항목 전부 verbatim 유지, 압축 없음 | Batch 6 정규화 |

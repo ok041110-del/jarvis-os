@@ -1,12 +1,16 @@
 # ADC-0009: Model 축과 Component 축의 대응 관계 — Not Accepted (RFC-0009 후속)
 
-## 목적
+## 1. Identity & Status
 
-`docs/architecture/core/RFC-0009-model-component-correspondence-boundary.md`
-가 제기한 Boundary Question — "Model 축 3개(Execution/Communication/
-Memory)와 Component 축 6개(Scheduler/Engine Gateway/Registry/
-Communication/Memory/Policy)는 어떻게 대응하는가?" — 에 대해, 이
-ADC는 먼저 **그 질문 자체를 지금 결정할 수 있는가**부터 판단한다
+| Field | Value |
+|---|---|
+| ID | ADC-0009 |
+| Status | Not Accepted (based on current evidence) |
+| Owner / Scope | `docs/architecture/core/RFC-0009-model-component-correspondence-boundary.md`가 제기한 Boundary Question — "Model 축 3개(Execution/Communication/Memory)와 Component 축 6개(Scheduler/Engine Gateway/Registry/Communication/Memory/Policy)는 어떻게 대응하는가?" |
+
+## 2. Context & Problem
+
+이 ADC는 먼저 **그 질문 자체를 지금 결정할 수 있는가**부터 판단한다
 (Q0). 결정 가능한 범위가 있다면 그 범위만 판단하고, 아니면 후보를
 억지로 만들지 않고 Not Accepted와 부족한 Evidence를 기록한다.
 
@@ -32,11 +36,11 @@ ADC-01, `docs/01_architecture/BASELINE.md` §10,
 이 ADC가 판단하는 것은 오직 하나다: **RFC-0009의 Boundary Question을
 현재 확보된 Evidence로 지금(전부 또는 일부) 결정할 수 있는가?**
 
----
+## 3. Analysis & Decision
 
-## Q0. 현재 확보된 Evidence로 전체 대응 관계를 결정할 수 있는가?
+### Q0. 현재 확보된 Evidence로 전체 대응 관계를 결정할 수 있는가?
 
-### Evidence
+#### Evidence
 
 RFC-0009 §2 Evidence Summary를 그대로 인용한다.
 
@@ -45,7 +49,7 @@ RFC-0009 §2 Evidence Summary를 그대로 인용한다.
 | Component 축 6개 | `BASELINE.md` §10 Out of Scope에 원문 실재, 5개 이상 문서가 반복 인용 — **실재** |
 | Model 축 3개 | `docs/03_adc/ADC.md` ADC-01의 한 줄 진술이 유일한 출처. 전수 검색으로도 정의·근거 부연 문서 없음 — **원문 부재** |
 
-### Q0 결론(Evidence 기반)
+#### Q0 결론(Evidence 기반)
 
 대응 관계를 판단하려면 최소한 **두 축 각각이 무엇을 분류 기준으로
 삼는지**가 있어야 한다. Component 축은 `BASELINE.md` §10이 "Component
@@ -55,11 +59,9 @@ Communication/Memory"가 왜 3개인지, 무엇을 축으로 삼아 나눈 것�
 설명하는 문서가 없다. **분류 기준을 모르는 축과 아는 축 사이의
 대응 관계는 지금 결정할 수 없다.**
 
----
+### Q1. 이름이 겹치는 두 항목("Communication", "Memory")만이라도 대응으로 확정할 수 있는가?
 
-## Q1. 이름이 겹치는 두 항목("Communication", "Memory")만이라도 대응으로 확정할 수 있는가?
-
-### Evidence
+#### Evidence
 
 - RFC-0009 §4가 이미 관찰했다: *"'Communication'과 'Memory'는 두 축
   모두에 동일한 이름으로 등장한다... 대응이 1:1일 가능성을 시사하나,
@@ -71,25 +73,23 @@ Communication/Memory"가 왜 3개인지, 무엇을 축으로 삼아 나눈 것�
   흐름)의 개념인지는 Model 축 자체의 정의가 없어 확인할 방법이
   없다.
 
-### Q1 결론(Evidence 기반)
+#### Q1 결론(Evidence 기반)
 
 이름이 겹친다는 관찰은 사실이지만, 그 관찰만으로 두 항목이 같은
 개념을 가리킨다고 결정하면, 정의되지 않은 축(Model 축)에 정의된
 축(Component 축)의 의미를 무단으로 이식하는 것과 같다 — 이는 "임의의
 대응 관계 추가"에 해당한다. **부분 대응도 확정할 수 없다.**
 
----
+### Q2. Blocking Evidence(ADC-0004 Q3)가 대응 관계 판단을 대신 정당화하는가?
 
-## Q2. Blocking Evidence(ADC-0004 Q3)가 대응 관계 판단을 대신 정당화하는가?
-
-### Evidence
+#### Evidence
 
 - `ADC-0004-execution-result-consumer.md` Q3: Execution Result
   Consumer Candidate C가 "ADC-01·ADC-02가 여전히 Open"에 막혀 있다고
   확인했다 — 이는 ADC-01이 **다른 판단을 막고 있다는 사실**이지,
   ADC-01 **자체의 답을 알려주는 사실이 아니다.**
 
-### Q2 결론(Evidence 기반)
+#### Q2 결론(Evidence 기반)
 
 무언가를 막고 있다는 사실(Blocking)은 이 RFC를 여는 근거(ADC 채택
 기준 1번, RFC-0009 §0)는 될 수 있어도, 그 내용을 무엇으로 채울지의
@@ -98,16 +98,14 @@ Communication/Memory"가 왜 3개인지, 무엇을 축으로 삼아 나눈 것�
 ADC도 동일한 원칙을 적용한다 — **Blocking 사실은 판단을 대신하지
 않는다.**
 
----
-
-## Decision
+### Decision
 
 **Not Accepted (based on current evidence)**
 
 Model 축과 Component 축의 대응 관계를 전부든 일부든 확정하지 않는다.
 억지로 결론을 내리지 않는다.
 
-### Reason
+#### Reason
 
 Model 축 3개(Execution/Communication/Memory)의 분류 기준 자체가
 저장소 어디에도 정의돼 있지 않아(Q0), Component 축과의 대응을 판단할
@@ -117,14 +115,16 @@ Model 축 3개(Execution/Communication/Memory)의 분류 기준 자체가
 Consumer)을 막고 있다는 사실은 이 RFC가 열린 이유일 뿐, ADC-01
 자체의 답을 정당화하지 않는다(Q2).
 
-## Decision Rationale
+### Decision Rationale
 
 Q0·Q1·Q2는 각각 독립적인 이유로 전체·부분·간접 판단 전부를
 배제했다 — 이는 `ADC-0008-runtime-existence-boundary.md`가 ADC-02에
 적용한 것과 동일한 판단 방식이다: 확보된 Evidence가 어느 후보도
 뒷받침하지 못하면, 후보를 억지로 만들지 않고 Not Accepted로 남긴다.
 
-## 부족한 Evidence — 무엇이 있어야 재판단 가능한가
+## 4. Consequences & Risks
+
+### 부족한 Evidence — 무엇이 있어야 재판단 가능한가
 
 새로 만들지 않는다 — 지금 확인된 공백만 기록한다.
 
@@ -142,7 +142,7 @@ Q0·Q1·Q2는 각각 독립적인 이유로 전체·부분·간접 판단 전부
    아니라 "결정할 재료가 없는 것"이다 — `ADC-0008`이 ADC-02에서
    확인한 것과 같은 Freeze 원칙의 적용이다.
 
-## Risks
+### Risks
 
 - 이 Decision은 ADC-01을 처음으로 Boundary Question 형태로
   대조했으나, 여전히 Open으로 남긴다. `docs/03_adc/ADC.md`의 ADC-01
@@ -164,7 +164,7 @@ RFC → ADC → ADR → Baseline Update)를 통해 재검토 대상이 된다 �
 문서를 직접 고쳐 뒤집는 것이 아니라, 새 RFC가 새 Evidence를 근거로
 열리는 절차를 따른다.
 
-## Next Step
+### Next Step
 
 **No ADR Required** — "Not Accepted (based on current evidence)"는
 대응 관계를 확정하지 않으므로 Baseline 변경을 전제하지 않는다.
@@ -176,7 +176,9 @@ RFC → ADC → ADR → Baseline Update)를 통해 재검토 대상이 된다 �
 `ADC-0004-execution-result-consumer.md`도 갱신하지 않는다 — 그 Not
 Accepted 상태와 재검토 조건은 그대로 유효하다.
 
-## Architecture Governance Review
+## 5. Open Questions & Change History
+
+### 부록: Architecture Governance Review
 
 - 새로운 Architecture가 추가되었는가 — **아니오**.
 - 새로운 Layer/Component/Concept이 추가되었는가 — **아니오**.
@@ -185,7 +187,7 @@ Accepted 상태와 재검토 조건은 그대로 유효하다.
 - ADR이 필요한가 — **아니오**. Not Accepted는 Boundary를 이동시키지
   않으므로 Baseline Update를 전제하지 않는다.
 
-## Self Review
+### 부록: Self Review
 
 - Evidence만 사용했는가 — **Pass**. RFC-0009와 그것이 인용한
   `ADC.md` ADC-01, `BASELINE.md` §10, `RFC-0001-kernel-boundary.md`,
@@ -204,3 +206,10 @@ Accepted 상태와 재검토 조건은 그대로 유효하다.
 - 새로운 Architecture 문제를 발견했는가 — **아니오**. Q0~Q2에서 다룬
   공백은 RFC-0009가 이미 인지한 것이며, 이 ADC가 새로 발견한 문제가
   아니다.
+
+### Change History
+
+| Date | Change | Reason |
+|---|---|---|
+| — | 최초 작성 | RFC-0009 Boundary Question(Model 축↔Component 축 대응) 판단 |
+| 2026-09-22 | 6-섹션 템플릿으로 구조 보존형 재배치(Identity & Status 표 추가, 헤딩 레벨 조정, Self Review/Architecture Governance Review를 "부록:" 섹션으로 이동) — 내용·라벨·Decision·Q-번호 전부 verbatim 유지, 압축 없음 | Batch 6 정규화(외부 실질 인용 없음 확인 후 착수) |
